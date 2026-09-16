@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -110,6 +110,11 @@ test("a scaffolded resource validates clean; a broken one does not", async () =>
     await scaffold(good, "demo_mode", "gamemode", ctx, "a test gamemode");
     const clean = await validateResource(good, ctx);
     assert.deepEqual(clean.filter((f) => f.severity === "error"), []);
+    const hud = path.join(root, "demo_hud");
+    await scaffold(hud, "demo_hud", "hud", ctx, "a test hud");
+    const hudClient = await readFile(path.join(hud, "client", "main.lua"), "utf8");
+    assert.match(hudClient, /Open77\.webui\.create/);
+    assert.deepEqual((await validateResource(hud, ctx)).filter((f) => f.severity === "error"), []);
 
     const bad = path.join(root, "bad_res");
     await mkdir(path.join(bad, "server"), { recursive: true });

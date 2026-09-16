@@ -98,16 +98,25 @@ ${kind === "gamemode" || hud ? "local config = Config -- from shared/config.lua\
 AddEventHandler("onClientResourceStart", function(started)
     if started ~= GetCurrentResourceName() then return end
     print(("%s client started"):format(started))
-${hud ? `    local page, reason = WebUI.Page.create("web/index.html")
+${hud ? `    -- Created hidden, shown once the page is ready; the page raises "ready"
+    -- through Open77.emit and the client answers with the first state.
+    local page, reason = Open77.webui.create({
+        entry = "web/index.html",
+        layer = "hud",
+        transparent = true,
+        visible = false,
+    })
     if not page then print("webui unavailable: " .. tostring(reason)) return end
-    page:show()
     Page = page
+    page:on("ready", function()
+        page:show()
+    end)
 ` : ""}end)
 
 -- Server -> client: state updates arrive here. Keep this side presentational:
 -- the server decides, the client renders.
 RegisterNetEvent("${name}:state", function(state)
-    ${hud ? `if Page then Page:send({ kind = "state", state = state }) end` : `-- render state`}
+    ${hud ? `if Page then Page:send("state", state) end` : `-- render state`}
 end)
 `;
 }
@@ -201,14 +210,21 @@ function webIndex(name: string): string {
 </style>
 <div id="hud">${name}: <span id="phase">–</span> · <span id="players">0</span> players</div>
 <script>
-  // Messages come from the client script's Page:send(); nothing here talks to the network.
+  // window.Open77 is the page bridge: Open77.on(event, handler) receives what the
+  // client script sends with page:send(event, payload); Open77.emit(event, payload)
+  // raises an event the client script handles with page:on(). Nothing here talks
+  // to the network or decides anything.
+  const bridge = window.Open77;
+  function render(state) {
+    document.getElementById("phase").textContent = state.phase;
+    document.getElementById("players").textContent = state.players;
+  }
+  if (bridge && typeof bridge.on === "function") bridge.on("state", render);
   window.addEventListener("message", (event) => {
     const data = event.data || {};
-    if (data.kind === "state") {
-      document.getElementById("phase").textContent = data.state.phase;
-      document.getElementById("players").textContent = data.state.players;
-    }
+    if ((data.event || data.name) === "state") render(data.payload || data);
   });
+  if (bridge && typeof bridge.emit === "function") bridge.emit("ready", {});
 </script>
 `;
 }

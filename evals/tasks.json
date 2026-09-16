@@ -61,7 +61,7 @@
       "prompt": "Write an Open77 resource `eval_shop` that opens a WebUI shop page with the F6 key listing three items with prices, and on purchase sends a net event to the server which validates the price server-side and answers with a notification. The client never decides the price.",
       "static": {
         "requiredNamespaces": [
-          "WebUI.Page"
+          "Open77.webui"
         ],
         "requiredNatives": [
           "RegisterNetEvent",
