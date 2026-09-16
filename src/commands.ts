@@ -17,6 +17,8 @@ import { installAll, uninstallAll, type InstallResult } from "./install/clients.
 import { createMcpServer, skillPathFor, type ServerContext } from "./server.js";
 import { detectWorkspace, type Workspace } from "./workspace/detect.js";
 import { registerLocalTools } from "./workspace/tools.js";
+import { WardenClient, registerWardenTools } from "./workspace/warden.js";
+import { createInterface } from "node:readline/promises";
 
 type Flags = Record<string, string | boolean>;
 
@@ -49,9 +51,54 @@ async function prepare(flags: Flags): Promise<{ context: ServerContext; workspac
     resolved,
     packageVersion: await packageVersion(),
     skillPath: skillPathFor(PACKAGE_ROOT),
-    extensions: [(server, ctx) => registerLocalTools(server, ctx, workspace)],
+    extensions: [
+      (server, ctx) => registerLocalTools(server, ctx, workspace),
+      (server, ctx) => registerWardenTools(server, ctx, () => workspace),
+    ],
   };
   return { context, workspace };
+}
+
+/**
+ * Interactive, in the terminal only: the Warden username and password are
+ * typed here and sent to the server; what is kept is the session cookie.
+ */
+async function wardenLogin(flags: Flags): Promise<void> {
+  const workspace = await detectWorkspace(process.cwd(), flag(flags, "server-dir"));
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const suggested = flag(flags, "origin") ?? process.env["OPEN77_WARDEN_ORIGIN"] ?? workspace.wardenUrl ?? "http://127.0.0.1:11780";
+    const originAnswer = flag(flags, "origin") ?? (await rl.question(`Warden origin [${suggested}]: `)).trim();
+    const origin = (originAnswer || suggested).replace(/\/$/, "");
+    const username = flag(flags, "username") ?? (await rl.question("Warden username: ")).trim();
+    const password = await new Promise<string>((resolve) => {
+      process.stdout.write("Warden password: ");
+      const stdin = process.stdin;
+      const wasRaw = stdin.isTTY ? stdin.isRaw : false;
+      if (stdin.isTTY) stdin.setRawMode(true);
+      let buffer = "";
+      const onData = (chunk: Buffer) => {
+        for (const char of chunk.toString("utf8")) {
+          if (char === "\r" || char === "\n") {
+            stdin.off("data", onData);
+            if (stdin.isTTY) stdin.setRawMode(Boolean(wasRaw));
+            process.stdout.write("\n");
+            resolve(buffer);
+            return;
+          }
+          if (char === "\u0003") process.exit(130);
+          if (char === "\u007f" || char === "\b") buffer = buffer.slice(0, -1);
+          else buffer += char;
+        }
+      };
+      stdin.on("data", onData);
+    });
+    const client = new WardenClient(origin);
+    const session = await client.login(username, password);
+    process.stdout.write(`Signed in to ${origin} as ${session.username}; the session cookie is stored under ~/.open77/mcp/warden (owner-only). The MCP's live-server tools now work.\n`);
+  } finally {
+    rl.close();
+  }
 }
 
 async function serveStdio(flags: Flags): Promise<void> {
@@ -198,6 +245,8 @@ export async function runCommand(command: string, flags: Flags, _rest: string[])
       return types(flags);
     case "status":
       return status(flags);
+    case "warden-login":
+      return wardenLogin(flags);
     default:
       throw new Error(`unknown command ${command}`);
   }

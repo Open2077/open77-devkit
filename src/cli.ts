@@ -10,6 +10,7 @@
  *   open77-mcp verify-index          check an index directory against its manifest
  *   open77-mcp types [--out]         write the Lua language-server stubs for the current build
  *   open77-mcp status                which index, build and server this package would answer for
+ *   open77-mcp warden-login          sign in to Warden for the live-server tools
  */
 
 import path from "node:path";
@@ -79,6 +80,7 @@ async function main(): Promise<void> {
     case "uninstall":
     case "types":
     case "status":
+    case "warden-login":
     case "": {
       const { runCommand } = await import("./commands.js");
       await runCommand(args.command, args.flags, args.rest);
@@ -101,6 +103,7 @@ export function usage(): string {
     "open77-mcp uninstall             remove those registrations",
     "open77-mcp types [--out DIR]     write open77-client.d.lua / open77-server.d.lua and a .luarc.json",
     "open77-mcp status                index build, detected server build, cache state",
+    "open77-mcp warden-login          sign in to the server's Warden console (asks in the terminal; keeps only the session cookie)",
     "open77-mcp build-index --content <open77-app/content> [--out DIR] [--build B]",
     "open77-mcp verify-index [--dir DIR]",
     "",

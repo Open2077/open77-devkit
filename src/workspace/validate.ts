@@ -18,8 +18,10 @@
  * rewrites anything.
  */
 
+import { execFile } from "node:child_process";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 import luaparse from "luaparse";
 import { opNumber } from "../index/builder.js";
 import type { ApiCard, ManifestDirective } from "../index/types.js";
@@ -235,5 +237,51 @@ export async function validateResource(dir: string, context: ServerContext): Pro
   for (const permission of declared) {
     if (!usedPermissions.has(permission)) findings.push({ severity: "note", file: "open77.lua", message: `permission ${permission} is declared but no catalogued native in the scripts checks it (it may gate a service, an event or a WebUI feature)` });
   }
+  return findings;
+}
+
+
+interface RuntimeReport {
+  version?: string;
+  reports?: { directory: string; resource: string | null; ok: boolean; scripts: number; findings: { severity: string; file?: string | null; line?: number | null; message: string }[] }[];
+}
+
+/**
+ * The runtime's own verdict, from `Open77.Server --lint <dir>`: the server's
+ * manifest parser and its embedded Lua 5.4 compiler, nothing executed. Null
+ * when the binary is not next to this session or predates the flag; the
+ * caller then says the exact check is unavailable rather than pretending.
+ */
+export async function runtimeLint(serverBinary: string | null, dir: string): Promise<Finding[] | null> {
+  if (!serverBinary) return null;
+  const run = promisify(execFile);
+  const isDll = serverBinary.toLowerCase().endsWith(".dll");
+  const command = isDll ? "dotnet" : serverBinary;
+  const args = isDll ? [serverBinary, "--lint", dir] : ["--lint", dir];
+  let stdout = "";
+  try {
+    const result = await run(command, args, { timeout: 30000, maxBuffer: 4 * 1024 * 1024, windowsHide: true });
+    stdout = result.stdout;
+  } catch (error) {
+    const failed = error as { stdout?: string; code?: number | string };
+    // Exit code 1 means findings; anything else means the flag is not there.
+    if (failed.code !== 1 || !failed.stdout) return null;
+    stdout = failed.stdout;
+  }
+  let parsed: RuntimeReport;
+  try {
+    parsed = JSON.parse(stdout) as RuntimeReport;
+  } catch {
+    return null;
+  }
+  const report = parsed.reports?.[0];
+  if (!report) return null;
+  const findings: Finding[] = report.findings.map((f) => ({
+    severity: f.severity === "error" ? "error" : "warning",
+    file: f.file ?? undefined,
+    line: f.line ?? undefined,
+    message: `[runtime ${parsed.version ?? ""}] ${f.message}`.replace(/\s+\]/, "]"),
+  }));
+  findings.push({ severity: "note", message: `runtime lint (${parsed.version ?? "server"}): ${report.ok ? "manifest and every script compile" : "see errors above"}; ${report.scripts} scripts compiled with the server's own Lua` });
   return findings;
 }

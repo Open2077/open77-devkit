@@ -11,7 +11,7 @@ import path from "node:path";
 import { z } from "zod";
 import type { ServerContext } from "../server.js";
 import { detectWorkspace, type Workspace } from "./detect.js";
-import { validateResource, type Finding } from "./validate.js";
+import { runtimeLint, validateResource, type Finding } from "./validate.js";
 import { scaffold, SCAFFOLD_KINDS } from "./scaffold.js";
 
 function text(body: string) {
@@ -62,6 +62,15 @@ export function registerLocalTools(server: McpServer, context: ServerContext, in
       const dir = await resolveResourceDir(resource, workspace);
       if (!dir) return text(`No resource ${resource}: not a directory and not under ${workspace.resourcesRoot ?? "an unknown resources root"}.`);
       const findings = await validateResource(dir, context);
+      const runtime = await runtimeLint(workspace.serverBinary, dir);
+      if (runtime) {
+        // The runtime's syntax verdict is exact; drop the approximate parser's
+        // syntax warnings when it is available.
+        const exact = findings.filter((f) => !/does not parse \(Lua 5\.3 parser\)/.test(f.message));
+        exact.push(...runtime);
+        return text(renderFindings(dir, exact, context));
+      }
+      findings.push({ severity: "note", message: "runtime lint unavailable (no Open77.Server binary next to this session, or a build older than --lint); syntax was checked with a Lua 5.3 parser" });
       return text(renderFindings(dir, findings, context));
     },
   );

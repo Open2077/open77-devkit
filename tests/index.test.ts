@@ -143,3 +143,19 @@ test("detectWorkspace finds a server by server.jsonc and reads its config", asyn
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("runtimeLint reads the server's own verdict when a binary is given", { skip: !process.env["OPEN77_TEST_SERVER_DLL"] }, async () => {
+  const { runtimeLint } = await import("../src/workspace/validate.js");
+  const root = await mkdtemp(path.join(os.tmpdir(), "open77-lint-"));
+  try {
+    const bad = path.join(root, "lint_bad");
+    await mkdir(path.join(bad, "server"), { recursive: true });
+    await writeFile(path.join(bad, "open77.lua"), 'resource "lint_bad"\nserver_script "server/main.lua"\n', "utf8");
+    await writeFile(path.join(bad, "server/main.lua"), "local x = = 1\n", "utf8");
+    const findings = await runtimeLint(process.env["OPEN77_TEST_SERVER_DLL"]!, bad);
+    assert.ok(findings, "no runtime report");
+    assert.ok(findings.some((f) => f.severity === "error" && /unexpected symbol/.test(f.message)), JSON.stringify(findings));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
