@@ -6,7 +6,7 @@ the Devkit MCP attached (`samples/`).
 
 | Task | Static gate | Server `--lint` | In-game |
 |---|---|---|---|
-| taxi-job | PASS | OK | command and reason path proven (chat: "Place a waypoint on your map first, then type /taxi"); the ride needs a hand-placed vanilla waypoint the harness cannot inject |
+| taxi-job | PASS | OK | **driven, one-client probes 08:5x–09:0x**: a real user waypoint placed on the world map (`harness/eval_harness` opens it in pick mode, the vanilla right-click tracks the pin), `/taxi` read it, the server spawned the Delamain, attached the driverless AI, seated the player (`proof-boarded.png`, marker 150 m ahead), elected the client as simulator and ran the drive task; the car never moved (0 km/h) in three placements, so **arrival is not proven**; see below |
 | cuff-escort | PASS | OK | **one unattended two-client run, 07:55–07:58**: cuff held (`serverFrozen=yes movementHeld=yes`, pose `stand__2h_up__03__look_around__01`, 0 m under a 1.5 s forward push after a 5.45 m control walk); escort tether kept B at 1.73 m after the officer walked 14.07 m in 4 s |
 | shop-webui | PASS | OK | **driven by keyboard, one-client run 08:05**: F6 opened the page, Tab-Tab-Enter pressed the first Buy, the server logged `player 5 bought maxdoc for 250` and the page showed the balance fall from 1000 to 750 E$ (`samples/eval_shop/proof-purchase.png`) |
 | pvp-round | PASS | OK | same run: both players joined one non-default routing bucket (4300) and left it |
@@ -52,5 +52,19 @@ samples are copied). They call the Open77 base checkout's `scripts/agent-play.ps
 
 ## Not proven
 
-- The taxi ride: the request takes its destination from a vanilla map waypoint, and injected
-  mouse input did not place one. The command and its refusal path are proven.
+- **The taxi's arrival.** Everything the resource does is proven in-game: the waypoint read,
+  the vehicle, the AI driver, the boarding, the `driveTo` acceptance, the simulator election
+  (`authority vehicle=… owner=<passenger>`) and the `blocked` handling ("Traffic ahead" on the
+  arena plaza). What never happened is motion: on this build (167dfbc9, wire 1.35) the
+  driverless Hella stayed at 0 km/h for 240 s from the arena plaza, from a city street
+  (`taxi-run-city-2026-09-16.log`, destination 150 m ahead on the road) and from the vehicle-AI
+  guide's own validated point 430,-2370 (`taxi-run-validated-point-2026-09-16.log`). The guide
+  marks networked vehicle AI as a Developer Preview with one validated route; this is a
+  platform finding for the base repo, not a defect of the eval resource.
+- **Harness lessons from the taxi**: `Open77.map.getWaypoint` reports only a pin the player
+  placed on the map UI (CustomPositionVariant); a pin from `Open77.blips.setWaypoint` is
+  classified `resource` and is invisible to it by design. `Open77.map.pickPoint` plus the
+  vanilla right-click is the one automatable route, and it closes the map itself, which
+  matters: a hub menu left open on the passenger's client keeps the vehicle at 0 km/h, the M
+  key does not reliably close it and Escape is eaten. Keypad minus (`kpminus` in
+  `game-input.ps1`) types `-` where the character path cannot.

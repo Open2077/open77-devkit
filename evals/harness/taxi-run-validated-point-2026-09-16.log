@@ -1,0 +1,49 @@
+[  OK  ] dev-local masterless : master local ignoré (bypass ticket/identité en loopback)
+[  OK  ] serveur de dev déjà en cours (PID 8528, 14264, 34628, 34864, 46580, 58316, 64604)
+[  OK  ] aucune instance en cours, celle-ci sera la première
+[  OK  ] mémoire vidéo libre : 9347 Mio (marge exigée 2500 Mio)
+[ .... ] lancement
+[  OK  ] processus 23888 démarré
+[  OK  ] Open77.dll mappé dans 23888
+[  OK  ] pont de debug joignable : Open77.Debug.23888
+
+Instances de Cyberpunk2077 :
+  PID 23888  démarré 09:01:28  Open77.dll mappé
+
+Avec plusieurs instances, le pont exige un PID explicite :
+  .\scripts\debug-bridge.ps1 -ProcessId 23888 -Command 'ping'
+[  OK  ] autoconnexion émise vers 127.0.0.1:11798
+[ .... ] phase=active playerId=15 error=-
+[ .... ] chargement pristine demandé
+[  OK  ] incarnation confirmée par char.state (attached=yes alive=yes)
+[  OK  ] session active playerId=15 ping=0ms
+[  OK  ] monde chargé, position au handoff (pré-spawn) : OK x=381.279 y=-2401.729 z=181.882 yaw=0.001
+[  OK  ] écran « continuer » franchi : char.state alive=yes
+[  OK  ] player A=15 (pid 23888)
+input pid=23888 keys=t hold=120ms
+input pid=23888 keys=slash+t+p+c+space+4+3+0+space+kpminus+2+3+7+0+space+1+8+2+enter hold=80ms
+[  OK  ] pickup at 430,-2370
+input pid=23888 keys=t hold=120ms
+input pid=23888 keys=slash+w+p+p+i+c+k+enter hold=80ms
+screenshot pid=23888 method=PrintWindow size=1298x767 file=C:\Games\cyberm\op77-eval-server\evals-shots\taxi-map-open.png
+input pid=23888 mouseMove=30,-15
+input pid=23888 click=right hold=80ms
+screenshot pid=23888 method=PrintWindow size=1298x767 file=C:\Games\cyberm\op77-eval-server\evals-shots\taxi-map-waypoint.png
+[  OK  ] [resource:eval_harness] eval_harness: pick armed (1)
+[  OK  ] [resource:eval_harness] eval_harness: point picked at 2.8219013,18.872992,15.12819
+input pid=23888 keys=f7 hold=120ms
+[ FAIL ] world map still open before /taxi
+input pid=23888 keys=t hold=120ms
+input pid=23888 keys=slash+t+a+x+i+enter hold=80ms
+[  OK  ] [resource:eval_taxi] [eval_taxi] /taxi: waypoint at 2.8,18.9,15.1
+screenshot pid=23888 method=PrintWindow size=1298x767 file=C:\Games\cyberm\op77-eval-server\evals-shots\taxi-boarding.png
+[ .... ] after /taxi:  + player=yes id=0 engineId=1 attached=yes alive=yes health=100
+         [eval_taxi] ride 8589934596 for player 15: driving to 2.8,18.9,15.1
+         [eval_taxi] ride 12884901891 for player 14: failed (timeout)
+         [eval_taxi] could not eject player 14: not_occupant
+screenshot pid=23888 method=PrintWindow size=1298x767 file=C:\Games\cyberm\op77-eval-server\evals-shots\taxi-end.png
+[ FAIL ] taxi: moved 6,5 m from the pickup, ends 2427,7 m from the destination, arrived=False
+[  OK  ] déconnexion PID 23888 : OK disconnect_requested reason=agent_loop_down
+[  OK  ] jeu arrêté (PID 23888)
+
+taxi     FAIL

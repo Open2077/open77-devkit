@@ -8,10 +8,13 @@ RegisterCommand("taxi", function()
     -- nil + reason: the map snapshot is missing/stale (map_unavailable).
     -- nil alone:    the player simply has no waypoint placed.
     if not waypoint then
+        print(("[eval_taxi] /taxi: no waypoint (%s)"):format(tostring(reason or "none placed")))
         TriggerServerEvent("eval_taxi:request", { reason = reason or "no_waypoint" })
         return
     end
 
+    print(("[eval_taxi] /taxi: waypoint at %.1f,%.1f,%.1f"):format(
+        waypoint.position.x, waypoint.position.y, waypoint.position.z))
     local ok, sendReason = TriggerServerEvent("eval_taxi:request", { position = waypoint.position })
     if not ok then
         print(("[eval_taxi] could not send taxi request: %s"):format(tostring(sendReason)))

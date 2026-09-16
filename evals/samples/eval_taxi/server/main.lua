@@ -134,9 +134,11 @@ RegisterNetEvent("eval_taxi:request", function(request)
             behavior            = "normal",
         })
         if not task then
+            print(("[eval_taxi] ride %s for player %d: driveTo refused (%s)"):format(tostring(vehicleId), playerId, tostring(driveReason)))
             say(playerId, "The taxi cannot reach that destination: " .. tostring(driveReason))
             return finishRide(playerId, true)
         end
+        print(("[eval_taxi] ride %s for player %d: driving to %.1f,%.1f,%.1f"):format(tostring(vehicleId), playerId, destination.x, destination.y, destination.z))
         say(playerId, "Sit back. Heading to your waypoint.")
     end)
 end)
@@ -145,6 +147,7 @@ end)
 Open77.vehicles.ai.on("arrived", function(state)
     local playerId = ridesByVehicle[tostring(state.vehicleId)]
     if not playerId then return end
+    print(("[eval_taxi] ride %s for player %d: arrived"):format(tostring(state.vehicleId), playerId))
     say(playerId, "You have arrived. Thank you for riding Delamain.")
     finishRide(playerId, true)
 end)
@@ -152,6 +155,7 @@ end)
 Open77.vehicles.ai.on("failed", function(state)
     local playerId = ridesByVehicle[tostring(state.vehicleId)]
     if not playerId then return end
+    print(("[eval_taxi] ride %s for player %d: failed (%s)"):format(tostring(state.vehicleId), playerId, tostring(state.reason)))
     say(playerId, "The ride was aborted (" .. tostring(state.reason) .. ").")
     finishRide(playerId, true)
 end)
@@ -159,6 +163,7 @@ end)
 Open77.vehicles.ai.on("cancelled", function(state)
     local playerId = ridesByVehicle[tostring(state.vehicleId)]
     if not playerId then return end
+    print(("[eval_taxi] ride %s for player %d: cancelled"):format(tostring(state.vehicleId), playerId))
     say(playerId, "The ride was cancelled.")
     finishRide(playerId, true)
 end)
