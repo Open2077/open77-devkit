@@ -61,7 +61,7 @@ export function registerLocalTools(server: McpServer, context: ServerContext, in
       description:
         "Static checks of one resource directory against the served build: manifest grammar, script files, Lua syntax (5.3-compatible parser; exact 5.4 via the server's --lint when present), " +
         "unknown Open77.* natives, client natives in server scripts and the reverse, permissions used but not declared, natives newer than the build or unreleased. " +
-        "Pass a resource name from open77_workspace or an absolute path.",
+        "Argument `resource`: a resource name from open77_workspace or an absolute path.",
       inputSchema: { resource: z.string().describe("Resource name under the resources root, or a directory path") },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
@@ -103,7 +103,15 @@ export function registerLocalTools(server: McpServer, context: ServerContext, in
       const target = path.join(parent, name);
       if (existsSync(target)) return text(`${target} already exists; not overwriting.`);
       const files = await scaffold(target, name, kind, context, summary);
-      return text([`Created ${kind} resource ${name} at ${target}:`, ...files.map((f) => `- ${f}`), "", "Next: open77_validate, then `ensure " + name + "` at the server console (or open77_resource when Warden is connected)."].join("\n"));
+      return text([
+        `Created ${kind} resource ${name} at ${target}:`,
+        ...files.map((f) => `- ${f}`),
+        "",
+        "Next: open77_validate, then load it on the server. A server provisioned by the first-run wizard lists its resources by name in " +
+        "`resources.load` (server.jsonc): add `" + name + "` there, then `refresh` and `ensure " + name + "` at the console " +
+        "(open77_console_command when Warden is connected). `refresh` rescans manifests but does not re-read server.jsonc, so a name " +
+        "that was not in the list when the server started needs a restart; `Resource '" + name + "' was not found` means exactly that.",
+      ].join("\n"));
     },
   );
 }

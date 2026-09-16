@@ -200,8 +200,8 @@ export function createMcpServer(context: ServerContext): McpServer {
       title: "Read a guide",
       description: "A guide or one of its sections, as Markdown. Slugs come from open77_search (guide results) or the list returned when slug is omitted.",
       inputSchema: {
-        slug: z.string().optional().describe("Guide slug, e.g. native-map, server-resources, fivem-compatibility"),
-        section: z.string().optional().describe("Section anchor; omit for the whole guide"),
+        slug: z.string().optional().describe("Guide slug, e.g. native-map, server-resources, fivem-compatibility; a search ref `slug#section` is accepted as is"),
+        section: z.string().optional().describe("Section anchor or heading; omit for the whole guide"),
       },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
@@ -210,11 +210,19 @@ export function createMcpServer(context: ServerContext): McpServer {
         const lines = index.guides.map((g) => `- ${g.slug}: ${g.title} — ${g.summary.slice(0, 140)}`);
         return text([`${index.guides.length} guides — ${buildLine(context)}`, ...lines].join("\n"));
       }
-      const guide = guideBySlug.get(slug.replace(/\.md$/, ""));
-      if (!guide) return text(`No guide ${slug}. Call open77_guide without arguments for the list.`);
+      // Search results and cards print `slug#anchor`; three of four agents pasted
+      // that straight in and got "No guide" (measured 2026-09-16). Split it here.
+      let wantedSlug = slug.trim().replace(/\.md$/, "");
+      if (wantedSlug.includes("#")) {
+        const [head, ...tail] = wantedSlug.split("#");
+        wantedSlug = head!;
+        section = section ?? tail.join("#");
+      }
+      const guide = guideBySlug.get(wantedSlug);
+      if (!guide) return text(`No guide ${wantedSlug}. Call open77_guide without arguments for the list.`);
       if (section) {
-        const found = guide.sections.find((s) => s.anchor === section.replace(/^#/, ""));
-        if (!found) return text(`No section ${section} in ${slug}. Sections: ${guide.sections.map((s) => s.anchor).join(", ")}`);
+        const found = findSection(guide, section);
+        if (!found) return text(`No section ${section} in ${wantedSlug}. Sections: ${guide.sections.map((s) => s.anchor).join(", ")}`);
         return text(renderSection(guide, found));
       }
       const body = guide.sections.map((s) => renderSection(guide, s)).join("\n\n");
@@ -225,18 +233,35 @@ export function createMcpServer(context: ServerContext): McpServer {
   server.registerTool(
     "open77_events",
     {
-      title: "List open77:* events",
-      description: "Events by prefix (open77:map, open77:chat) or all of them; each with its sides, documented payload and guide. Also lists the reserved prefixes a resource may not raise.",
-      inputSchema: { prefix: z.string().optional(), documentedOnly: z.boolean().optional() },
+      title: "List events",
+      description:
+        "Events by prefix (open77:map, open77:chat) or all of them; each with its sides, documented payload and guide. " +
+        "Host lifecycle and bus events without a prefix are included: onResourceStart, onPlayerReady, onPlayerDisconnected, " +
+        "playerDropped, chat:ready... (pass prefix=lifecycle for just those). Also lists the reserved prefixes a resource may not raise.",
+      inputSchema: {
+        prefix: z.string().optional().describe("open77:map, open77:chat, onPlayer, chat:, or `lifecycle` for every host event without a prefix"),
+        documentedOnly: z.boolean().optional(),
+      },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async ({ prefix, documentedOnly }) => {
-      const events = index.events.events.filter((e) => (!prefix || e.name.startsWith(prefix)) && (!documentedOnly || e.documented));
+      const wanted = prefix?.trim().toLowerCase();
+      const all = index.events.events as Array<(typeof index.events.events)[number] & { lifecycle?: boolean }>;
+      const events = all.filter((e) => {
+        if (documentedOnly && !e.documented) return false;
+        if (!wanted) return true;
+        if (wanted === "lifecycle") return Boolean(e.lifecycle) || !e.name.startsWith("open77:");
+        return e.name.toLowerCase().startsWith(wanted) || e.name.toLowerCase().includes(wanted);
+      });
       const lines = events.map((e) => `- ${e.name} [${e.sides.join(", ") || "guide only"}]${e.payload ? ` payload ${e.payload}` : ""}${e.guides.length ? ` — ${e.guides.map((g) => `${g.file.replace(/\.md$/, "")}#${g.anchor}`).slice(0, 2).join(", ")}` : ""}`);
       const reserved = prefix ? [] : index.events.reservedPrefixes.map((p) => p.prefix);
+      const hint = events.length === 0 && wanted
+        ? [`Nothing named like "${prefix}". Lifecycle handlers (AddEventHandler("onPlayerReady", ...)) are listed under prefix=lifecycle; an index built before 2026-09-16 carries only open77:* names, in which case the guide is the source: open77_search "${prefix}".`]
+        : [];
       return text([
         `${events.length} events${prefix ? ` under ${prefix}` : ""} — ${buildLine(context)}`,
         ...lines,
+        ...hint,
         ...(reserved.length ? ["", `Reserved prefixes (the runtime refuses resource events under them): ${reserved.join(", ")}`] : []),
       ].join("\n"));
     },
@@ -281,19 +306,27 @@ export function createMcpServer(context: ServerContext): McpServer {
       inputSchema: {
         catalogue: z.string().describe("vehicles | weapons | items | npc-templates | props | vfx | sfx | animations | animsets"),
         query: z.string().optional().describe("Substring or words to match; omit for the catalogue summary"),
-        limit: z.number().int().min(1).max(100).optional(),
+        limit: z.number().int().min(1).max(200).optional().describe("Rows per page, default 25"),
+        offset: z.number().int().min(0).optional().describe("Skip this many matches (paging)"),
       },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
-    async ({ catalogue, query, limit }) => {
+    async ({ catalogue, query, limit, offset }) => {
       if (!index.catalogueNames.includes(catalogue)) return text(`Unknown catalogue ${catalogue}. Known: ${index.catalogueNames.join(", ")}`);
       const file = await loadCatalogue(index, catalogue);
       const max = limit ?? 25;
+      const skip = offset ?? 0;
+      const page = <T,>(all: T[]) => {
+        const rows = all.slice(skip, skip + max);
+        const more = all.length - skip - rows.length;
+        const note = more > 0 ? `\n… ${more} more: pass offset=${skip + rows.length}, or a narrower query` : "";
+        return { rows, note, total: all.length };
+      };
       if (file.names) {
         if (!query) return text(`${catalogue}: ${file.count} names for game build ${file.gameBuild}. Pass a query.`);
         const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-        const hits = file.names.filter((n) => words.every((w) => n.toLowerCase().includes(w))).slice(0, max);
-        return text([`${hits.length} of ${file.count} ${catalogue} match "${query}" (game ${file.gameBuild})`, ...hits.map((h) => `- ${h}`)].join("\n"));
+        const { rows, note, total } = page(file.names.filter((n) => words.every((w) => n.toLowerCase().includes(w))));
+        return text([`${total} of ${file.count} ${catalogue} match "${query}" (game ${file.gameBuild})${skip ? `, from ${skip}` : ""}`, ...rows.map((h) => `- ${h}`)].join("\n") + note);
       }
       const records = file.records ?? [];
       if (!query) {
@@ -301,11 +334,11 @@ export function createMcpServer(context: ServerContext): McpServer {
         return text(`${catalogue}: ${file.count} records for game build ${file.gameBuild}; fields: ${keys.join(", ")}. Pass a query.`);
       }
       const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-      const hits = records.filter((r) => {
+      const { rows, note, total } = page(records.filter((r) => {
         const hay = Object.values(r).join(" ").toLowerCase();
         return words.every((w) => hay.includes(w));
-      }).slice(0, max);
-      return text([`${hits.length} ${catalogue} match "${query}" (game ${file.gameBuild})`, ...hits.map((r) => `- ${JSON.stringify(r)}`)].join("\n"));
+      }));
+      return text([`${total} ${catalogue} match "${query}" (game ${file.gameBuild})${skip ? `, from ${skip}` : ""}`, ...rows.map((r) => `- ${JSON.stringify(r)}`)].join("\n") + note);
     },
   );
 
@@ -323,8 +356,30 @@ export function createMcpServer(context: ServerContext): McpServer {
       if (exact.length) {
         return text(exact.map((m) => `**${m.fivem}** — ${m.status}${m.status !== "missing" ? ` (client ${m.client ? "yes" : "no"}, server ${m.server ? "yes" : "no"})` : ""}\n${m.open77}\n_guide: fivem-compatibility#${m.guideAnchor}_`).join("\n\n") + `\n\n_${buildLine(context)}_`);
       }
-      const hits = search.search(name, { limit: 8 });
-      return text([`${name} is not in the FiveM alias table. Closest Open77 matches:`, ...hits.map((h) => `- (${h.kind}) ${h.title} — ${h.snippet}`), "", "Read fivem-compatibility (open77_guide) for the three places Open77 deliberately differs.", `_${buildLine(context)}_`].join("\n"));
+      // A FiveM native is words in camelCase: `GetVehiclePedIsIn` asks about a
+      // vehicle and a seat, `SetEntityHealth` about health. Search the words, not
+      // the identifier, and prefer cards; the identifier alone returned an empty
+      // list for four of thirteen natives in a 30-line port (measured 2026-09-16).
+      const words = name
+        .replace(/\(\)$/, "")
+        .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((w) => w.length > 1 && !["get", "set", "the", "of", "to", "an"].includes(w));
+      const aliasRows = index.fivem.filter((m) => m.fivem.toLowerCase().includes(key));
+      const hits = search.search(words.join(" ") || name, { limit: 10, kinds: ["card", "guide"] });
+      const cardHits = hits.filter((h) => h.kind === "card").slice(0, 6);
+      const guideHits = hits.filter((h) => h.kind === "guide").slice(0, 3);
+      return text([
+        `${name} is not in the FiveM alias table (no row named exactly that).`,
+        ...(aliasRows.length ? ["Alias rows that contain it:", ...aliasRows.slice(0, 5).map((m) => `- ${m.fivem}: ${m.status} — ${m.open77}`)] : []),
+        `Open77 natives that answer the words in the name (${words.join(", ") || name}):`,
+        ...(cardHits.length ? cardHits.map((h) => `- ${h.title}${h.runtime ? ` [${h.runtime}]` : ""} — ${h.snippet}`) : ["- none; try open77_namespace on the subject (Open77.vehicles, Open77.players, Open77.character)"]),
+        ...(guideHits.length ? ["Guides:", ...guideHits.map((h) => `- ${h.ref} — ${h.snippet.slice(0, 120)}`)] : []),
+        "",
+        "Read fivem-compatibility (open77_guide) for the three places Open77 deliberately differs.",
+        `_${buildLine(context)}_`,
+      ].join("\n"));
     },
   );
 
@@ -524,6 +579,21 @@ export function createMcpServer(context: ServerContext): McpServer {
 
   for (const extension of context.extensions ?? []) extension(server, context);
   return server;
+
+  /** Anchor, heading, or either with punctuation/case differences; then a unique prefix. */
+  function findSection(guide: DevIndex["guides"][number], wanted: string) {
+    const norm = (v: string) => v.toLowerCase().replace(/^#/, "").replace(/[^a-z0-9]+/g, "");
+    const key = norm(wanted);
+    if (!key) return undefined;
+    return (
+      guide.sections.find((s) => s.anchor === wanted.replace(/^#/, "")) ??
+      guide.sections.find((s) => norm(s.anchor) === key || norm(s.heading) === key) ??
+      (() => {
+        const partial = guide.sections.filter((s) => norm(s.anchor).includes(key) || norm(s.heading).includes(key));
+        return partial.length === 1 ? partial[0] : undefined;
+      })()
+    );
+  }
 
   function findCards(name: string, runtime?: "client" | "server"): ApiCard[] {
     const trimmed = name.trim().replace(/\(.*$/, "");

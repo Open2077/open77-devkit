@@ -105,6 +105,54 @@ test("open77_api honours the runtime for a name both runtimes carry", async () =
   await server.close();
 });
 
+test("search puts cards next to guides for a question in words", async () => {
+  // Measured 2026-09-16 (four eval agents): "spawn vehicle" and "player in
+  // vehicle" answered guide sections only; the cards were found by dumping a
+  // 115-line namespace. camelCase-aware tokens and card/guide interleaving.
+  const ctx = await context();
+  const search = new IndexSearch(ctx.index);
+  const spawn = search.search("spawn vehicle", { limit: 12 });
+  assert.ok(spawn.some((h) => h.kind === "card" && /Open77\.vehicles\.create$/.test(h.title)), "vehicles.create among the hits");
+  assert.ok(spawn.slice(0, 4).some((h) => h.kind === "card"), "a card in the top four");
+  const seat = search.search("player in vehicle", { limit: 12 });
+  assert.ok(seat.some((h) => h.kind === "card" && /isInVehicle|getPlayerSeat|getVehicleSeat|occupantInSeat|PlayerIntoVehicle/.test(h.title)), "a seat native among the hits");
+});
+
+test("open77_guide accepts a search ref, a heading and a loose anchor", async () => {
+  const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
+  const { InMemoryTransport } = await import("@modelcontextprotocol/sdk/inMemory.js");
+  const { createMcpServer } = await import("../src/server.js");
+  const ctx = await context();
+  const guide = ctx.index.guides.find((g) => g.sections.length > 2)!;
+  const section = guide.sections[1]!;
+  const server = createMcpServer(ctx);
+  const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
+  await server.connect(serverSide);
+  const client = new Client({ name: "test", version: "0" });
+  await client.connect(clientSide);
+  const ask = async (name: string, args: Record<string, unknown>) => {
+    const result = await client.callTool({ name, arguments: args });
+    return (result.content as { type: string; text: string }[]).map((c) => c.text).join("\n");
+  };
+  const byRef = await ask("open77_guide", { slug: `${guide.slug}#${section.anchor}` });
+  assert.ok(!byRef.startsWith("No guide"), "slug#anchor is accepted");
+  assert.ok(byRef.includes(section.heading), "the section came back");
+  const byHeading = await ask("open77_guide", { slug: guide.slug, section: section.heading });
+  assert.ok(byHeading.includes(section.heading), "a heading is accepted as the section");
+  const loose = await ask("open77_guide", { slug: guide.slug, section: `#${section.anchor.toUpperCase()}` });
+  assert.ok(loose.includes(section.heading), "case and a leading # are ignored");
+  // paging on the data catalogues
+  const first = await ask("open77_data", { catalogue: "vehicles", query: "v_", limit: 5 });
+  assert.match(first, /more: pass offset=5/);
+  const second = await ask("open77_data", { catalogue: "vehicles", query: "v_", limit: 5, offset: 5 });
+  assert.match(second, /from 5/);
+  // a FiveM native absent from the alias table still answers with cards
+  const port = await ask("open77_fivem_equivalent", { name: "GetVehiclePedIsIn" });
+  assert.match(port, /getPlayerSeat|getVehicleSeat|isInVehicle|occupantInSeat/);
+  await client.close();
+  await server.close();
+});
+
 test("availabilityNote refuses natives newer than the served build", async () => {
   const ctx = await context("2.31.13+op77.54");
   const newer = ctx.index.cards.find((c) => c.since && opNumber(c.since) > 54)!;

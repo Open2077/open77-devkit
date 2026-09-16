@@ -19,7 +19,7 @@ owner's build, however plausible it looks.
 open77_build                       which build you are answering for; say it in your first message
 open77_search "<what you need>"    cards, guides, events, permissions, FiveM aliases
 open77_api <name>                  the card: runtime, permissions, since, reasons, example
-open77_guide <slug>                the how-to behind the card
+open77_guide <slug|slug#section>   the how-to behind the card (a search ref pastes as is)
 open77_manifest_schema             before writing open77.lua
    write
 open77_validate <resource>         (local MCP) syntax, manifest, unknown natives, wrong side, permissions, build
@@ -46,7 +46,17 @@ shape: the guides were written from measurements in the real game.
    resource may not raise; use your own `myresource:*` names for your events.
 7. **Server-side actions on a player who is not alive crash the client.** Check the player's state
    before teleporting, spawning into, or reviving; gamemode guides show the guarded pattern.
-8. **Generation cleanup is automatic, ownership is not.** Handlers, timers and entities a resource
+8. **Nothing reaches a client before the resource is running.** A `TriggerClientEvent`, a chat
+   suggestion or a notification at the top level of a server script answers
+   `nil, "resource_preparing"`: do those from `AddEventHandler("onResourceStart", ...)`, a
+   command, an event or a later tick. Lifecycle handlers (`onResourceStart`, `onPlayerReady`,
+   `onPlayerDisconnected`) are listed by `open77_events` under `prefix=lifecycle`.
+9. **A new resource must be admitted by `resources.load`.** A server provisioned by the first-run
+   wizard lists its resources by name; add yours to `server.jsonc`, then `refresh` + `ensure
+   <name>` at the console. `refresh` rescans manifests but never re-reads `server.jsonc`, so a
+   name absent from the list at startup needs a restart; `Resource '<name>' was not found` is
+   that case, not a broken manifest.
+10. **Generation cleanup is automatic, ownership is not.** Handlers, timers and entities a resource
    creates are swept when it stops; exports that act on another resource's behalf must use
    `GetInvokingResource()`, never a name passed as an argument.
 
