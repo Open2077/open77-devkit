@@ -89,6 +89,8 @@ Open77.players = Open77.players or {}
 Open77.props = Open77.props or {}
 ---@class Open77.ready
 Open77.ready = Open77.ready or {}
+---@class Open77.reflex
+Open77.reflex = Open77.reflex or {}
 ---@class Open77.resource
 Open77.resource = Open77.resource or {}
 ---@class Open77.routingBuckets
@@ -167,7 +169,7 @@ function AdoptElevator(arg2, arg3, arg4, arg5, arg6, arg7, arg8) end
 --- `world.effects`; decimal effect ID or nil/reason. Prefer `Open77.effects.attach`.
 ---
 --- Permissions: world.effects
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: invalid_argument, permission_denied:world.effects, resource_stopping, world_unavailable
 ---@param targetId any
 ---@param kind any
@@ -379,7 +381,7 @@ function DeleteResourceKvp(key) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function DestroySound(id) end
@@ -694,7 +696,7 @@ function GetPlayerHealth() end
 --- `GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of
 ---
 --- Permissions: players.holocall.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: holocall_unavailable, invalid_player, permission_denied:players.holocall.read, player_unavailable
 function GetPlayerHoloCallEyes() end
 
@@ -935,7 +937,7 @@ function GetScreenEffectCatalog() end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any table table, or nil, reason
 function GetSoundState(id) end
@@ -1108,7 +1110,7 @@ function PauseElevator(arg1) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function PauseSound(id) end
@@ -1132,7 +1134,7 @@ function PerformHttpRequest(url, callback, method, body, headers) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param asset string
 ---@param options? table
 ---@return any integer integer handle, or nil, reason
@@ -1143,7 +1145,7 @@ function Play2DSound(asset, options) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param asset string
 ---@param position table
 ---@param options? table
@@ -1204,7 +1206,7 @@ function PlayerScreenEffect(playerId, name, opts_) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function PlaySound(id) end
@@ -1392,7 +1394,7 @@ function SaveResourceFile(resourceName, path, data) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param seconds number
 ---@return any true true, or failure, reason
@@ -1748,7 +1750,7 @@ function SetRoutingBucketPopulationEnabled(arg1, arg2) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param position table
 ---@return any true true, or failure, reason
@@ -1759,7 +1761,7 @@ function SetSoundPosition(id, position) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param volume number
 ---@return any true true, or failure, reason
@@ -1857,7 +1859,7 @@ function StopResource(name) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function StopSound(id) end
@@ -1887,7 +1889,7 @@ function TriggerCancellableEvent(event, ___) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: network_unavailable, permission_denied:network.events, reserved_ability_event, reserved_animation_event, reserved_audio_event, reserved_callback_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_holocall_event, reserved_interaction_event, reserved_screen_event, reserved_sound_event, reserved_travel_event
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_ability_event, reserved_animation_event, reserved_audio_event, reserved_callback_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_holocall_event, reserved_interaction_event, reserved_reflex_event, reserved_screen_event, reserved_sound_event, reserved_travel_event
 ---@param event any
 ---@param playerId__1 any
 ---@param ___ any
@@ -2156,7 +2158,7 @@ function json.encode(value) end
 ---
 --- Requires `players.abilities.manage`. Use it to interrupt a slam in progress without taking the ability away; `revoke` does both.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId any
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason
@@ -2166,7 +2168,7 @@ function Open77.abilities.cancel(playerId) end
 ---
 --- Requires `players.abilities.read`. Reports what the server believes the client is projecting, which is admission state rather than proof of a rendered animation.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId any
 ---@return any projection projection snapshot, or nil
 ---@return any reason reason
@@ -2176,7 +2178,7 @@ function Open77.abilities.current(playerId) end
 ---
 --- Requires `players.abilities.define`. The definition names the ability and its native parameters; grants later refer to it by id. Definitions belong to the declaring resource, so a reload republishes them. See the [ground slam guide](ground-slam.md) for the definition fields and the projection contract.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param definition table
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason
@@ -2186,7 +2188,7 @@ function Open77.abilities.define(definition) end
 ---
 --- Requires `players.abilities.manage`. Acceptance is entitlement, not rendering: native projection on the target client can still be pending when this returns. Only the granting resource may revoke or cancel it.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId any
 ---@param definition any
 ---@return any ok { ok = true }, or nil
@@ -2197,7 +2199,7 @@ function Open77.abilities.grant(playerId, definition) end
 ---
 --- Requires `players.abilities.manage`. Scoped to the calling resource: another resource's grant on the same player is untouched. Resource stop revokes automatically.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId any
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason
@@ -2532,7 +2534,7 @@ function Open77.appearance.capture(playerId) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function Open77.audio.destroy(id) end
@@ -2542,7 +2544,7 @@ function Open77.audio.destroy(id) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any table table, or nil, reason
 function Open77.audio.getState(id) end
@@ -2552,7 +2554,7 @@ function Open77.audio.getState(id) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function Open77.audio.pause(id) end
@@ -2562,7 +2564,7 @@ function Open77.audio.pause(id) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function Open77.audio.play(id) end
@@ -2572,7 +2574,7 @@ function Open77.audio.play(id) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param asset string
 ---@param options? table
 ---@return any integer integer handle, or nil, reason
@@ -2583,7 +2585,7 @@ function Open77.audio.play2D(asset, options) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param asset string
 ---@param position table
 ---@param options? table
@@ -2595,7 +2597,7 @@ function Open77.audio.play3D(asset, position, options) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param seconds number
 ---@return any true true, or failure, reason
@@ -2606,7 +2608,7 @@ function Open77.audio.seek(id, seconds) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param position table
 ---@return any true true, or failure, reason
@@ -2617,7 +2619,7 @@ function Open77.audio.setPosition(id, position) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param volume number
 ---@return any true true, or failure, reason
@@ -2628,7 +2630,7 @@ function Open77.audio.setVolume(id, volume) end
 --- Requires audio.network; network=false is rejected. Server owns the timeline, handles and bucket/optional-target audience. Clients cannot request broadcasts directly. getState reports intended playback, not decoder acknowledgement. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.network
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function Open77.audio.stop(id) end
@@ -2819,7 +2821,7 @@ function Open77.clothing.unequip(playerId, slot) end
 --- Requires combat.scope.control. definition={bucket,players={...}} accepts2..32 unique positive player IDs currently combat-capable in that bucket; a player belongs to at most one scope. Limits64 scopes globally/8 per resource. Scope can permit PvP while global PvP is off but keeps team, life, invulnerability and Lua veto rules. Stop/disconnect/bucket changes remove ownership/participants. Creator must enforce opt-in; no automatic team or bucket change occurs.
 ---
 --- Permissions: combat.scope.control
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: invalid_scope
 ---@param definition table
 ---@return any scope scope ID string
@@ -2850,7 +2852,7 @@ function Open77.combat.onDamage(handler) end
 --- Requires combat.scope.control. Accepts the32-character scope ID returned by createScope. Does not alter global PvP or revive/teleport participants. Missing or foreign scopes fail; ordinary combat policy applies after removal.
 ---
 --- Permissions: combat.scope.control
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: invalid_scope
 ---@param id string
 ---@return any true true
@@ -2972,7 +2974,7 @@ function Open77.convars.set(name, value) end
 ---
 --- Requires players.cyberware.read. Returns {player,incarnation,sequence,armed,holding,charged,chargeExpired,holdAt,elapsedMs,remainingMs,maxChargeMs,definition,grade}. Null for unavailable/stale (over1500ms) body/implant activity. Values drive presentation, not an extra permission to commit damage. Hold expiry latches until release/new swing.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any activity activity table, or nil
 ---@return any nil nil, reason on failure
@@ -2982,7 +2984,7 @@ function Open77.cyberware.activity(playerId) end
 ---
 --- Requires players.cyberware.identity. The user UUID comes from the connection; only the character key is supplied. Identity ownership is exclusive to a resource. Starts asynchronous database/native restoration; success is not readiness. Prefer the shipped appearance identity adapter and never accept an unvalidated client-selected character key.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param character string
 ---@return any ok {ok=true,...}
@@ -2993,7 +2995,7 @@ function Open77.cyberware.bind(playerId, character) end
 ---
 --- Requires players.cyberware.manage. Supply the ticket from the same resource's operation. Native staging is rolled back; an already submitted storage transaction returns operation_committing and completes normally. Never refund irrevocably until the correlated operation outcome is known.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param ticket string
 ---@return any ok {ok=true,...}
@@ -3004,7 +3006,7 @@ function Open77.cyberware.cancel(playerId, ticket) end
 ---
 --- Requires players.cyberware.read. Returned synchronously, not a Promise. Record fields are revision, arms and operationId; arms includes instanceId, definition, definitionVersion, profile, slot and the committed grade snapshot. Returns nil while loading/projecting/failed. An empty arms value means no installed implant. Temporary arena overlays do not overwrite this record. A ready record does not imply its definition provider is running.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any record record table, or nil when not ready
 ---@return any nil nil, reason on failure
@@ -3014,7 +3016,7 @@ function Open77.cyberware.current(playerId) end
 ---
 --- Requires players.cyberware.define. definition={id,version,slot="arms",profile="gorilla_arms",grades={...}}. IDs use1..96 ASCII alphanumeric/_.:- characters; version positive;1..32 unique grades. Required grade fields: id,normalDamage/chargedDamage(0..300),knockbackMeters(0..6),cooldownMs(100..600000),chargeMs(100..10000). Optional normalKnockbackMeters defaults to35% of charged, maxChargeMs defaults10000 and must be>=chargeMs and<=60000; nullable normalStaminaCost/chargedStaminaCost0..300 retain native price when omitted. nonlethal/cosmetic defaultfalse; blockDamageMultiplier0..1 default0 and blockAngleDegrees0..180 default45. Stop unregisters the provider and disables its grants without deleting paid records.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param definition table
 ---@return any ok {ok=true,error=nil,ticket=nil,lease=nil}
 ---@return any nil nil, reason on rejection
@@ -3024,7 +3026,7 @@ function Open77.cyberware.define(definition) end
 ---
 --- Requires players.cyberware.read. Returned synchronously, not a Promise. Record fields are revision, arms and operationId; arms includes instanceId, definition, definitionVersion, profile, slot and the committed grade snapshot. An active lease overlays arms; durable revision/operationId retain their base meaning. Pending/restoring projections return nil. Use current() for paid storage identity and effective() for ready presentation/gameplay loadout.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any effective effective record table, or nil
 ---@return any nil nil, reason on failure
@@ -3034,7 +3036,7 @@ function Open77.cyberware.effective(playerId) end
 ---
 --- Requires players.cyberware.manage. options requires expectedRevision and operationId. Compare-and-swap and receipt storage are atomic; reuse the same ID/contents on retries. Native projection occurs before commit. Completion is asynchronous via onCyberwareOperationCompleted(playerId,ticket,encodedResult), correlated by ticket; retain the pending operation until final outcome. Rejected/failed work restores the prior paid record. Server makers own consent, costs and progression.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param definition string
 ---@param grade string
@@ -3047,7 +3049,7 @@ function Open77.cyberware.install(playerId, definition, grade, options) end
 ---
 --- Requires players.cyberware.temporary. options.durationMs is1000..300000, default300000. Requires a ready bound character and registered definition/grade. pending→active only after native acknowledgement. Wait for the matching onCyberwareLeaseChanged state before admitting PvP. Owner stop, body/bucket change, expiry or disconnect releases the overlay; native restoration remains asynchronous.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param definition string
 ---@param grade string
@@ -3060,7 +3062,7 @@ function Open77.cyberware.lease(playerId, definition, grade, options) end
 ---
 --- Requires players.cyberware.read. Returns {id,player,phase,definition,grade,expiresAt,ticket,reason}, or nil when none exists. Phases pending/active/restoring/failed; ended is an event state, then the read becomes nil. expiresAt is server-monotonic milliseconds. Wait for nil AND current() ready before another lease.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any lease lease-state table, or nil
 ---@return any nil nil, reason on failure
@@ -3070,7 +3072,7 @@ function Open77.cyberware.leaseState(playerId) end
 ---
 --- Requires players.cyberware.manage. Returns a32-character GUID string. Store it with the pending operation and reuse the same ID, expectedRevision and contents when retrying; generating a new ID per retry loses receipt idempotency. This does not start a transaction.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@return any operation operation ID string
 ---@return any nil nil, reason on rejection
 function Open77.cyberware.newOperationId() end
@@ -3079,7 +3081,7 @@ function Open77.cyberware.newOperationId() end
 ---
 --- Requires players.cyberware.temporary. Works during pending/active; repeated restoration requests return the same ticket. Lease id and resource owner must match. An ended event due to body loss alone is not proof of native paid restoration: wait for no lease and a ready current record.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param lease string
 ---@return any ok {ok=true,ticket=string,...}
@@ -3090,7 +3092,7 @@ function Open77.cyberware.releaseLease(playerId, lease) end
 ---
 --- Requires players.cyberware.manage. options requires expectedRevision and operationId. Compare-and-swap and receipt storage are atomic; reuse the same ID/contents on retries. Native projection occurs before commit. Completion is asynchronous via onCyberwareOperationCompleted(playerId,ticket,encodedResult), correlated by ticket; retain the pending operation until final outcome. Rejected/failed work restores the prior paid record. Server makers own consent, costs and progression.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param options table
 ---@return any ok {ok=true,ticket=string,...}; ticket may be absent on a completed idempotent replay
@@ -3101,7 +3103,7 @@ function Open77.cyberware.remove(playerId, options) end
 ---
 --- Requires players.cyberware.identity. Does not delete durable implants. Stops current projection/temporary ownership and prevents stale acknowledgements from restoring the old grant. Another owner cannot unbind the character.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any ok {ok=true,...}
 ---@return any nil nil, reason on rejection
@@ -3111,7 +3113,7 @@ function Open77.cyberware.unbind(playerId) end
 ---
 --- Requires `players.dash.manage`. Cancellation keeps bounded server movement ownership during native recovery, until the correlated native-exit acknowledgement or a 1500 ms deadline; `current().phase` reports `recovering` in that window. The charge and stamina spent on acceptance are not refunded.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param activationId string
 ---@return any ok { ok = true }, or nil
@@ -3122,7 +3124,7 @@ function Open77.dash.cancel(playerId, activationId) end
 ---
 --- Requires `players.dash.read`. The one `profile` (`dash`), the configuration bounds `define` enforces, the presentation presets and the movement model. Read it to build a definition editor rather than hard-coding the table in [Dash / Air Dash](dash.md).
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@return any capabilities capabilities table
 ---@return any nil nil, reason on failure
 function Open77.dash.capabilities() end
@@ -3131,7 +3133,7 @@ function Open77.dash.capabilities() end
 ---
 --- Requires `players.dash.read`. Answers `{ projection, charges, cooldownUntil, nextChargeAt, airUsed, activation, phase, ownedByCaller }` -- times in server monotonic milliseconds -- or `nil` when the player holds no Dash. `ownedByCaller` is server-derived and stays accurate across projection restarts; a definition id or revision alone is not proof of ownership.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any activity activity table, or nil when absent
 ---@return any reason reason on failure
@@ -3141,7 +3143,7 @@ function Open77.dash.current(playerId) end
 ---
 --- Requires `players.dash.define`. `definition` is `{ id, version, profile = "dash", config }`; `config` takes `inputKey`, `allowGround`, `allowAir`, `requireDoubleJump`, `movementProfile = "native"`, `presentation` (`native` | `silent` | `none`), `staminaCost` (0..300), `cooldownMs` (300..600000), `maxCharges` (1..3), `chargeRegenMs`, `landingRearmMs` (150..1000), `maxAirborneMs` (100..10000) and `maxFallSpeed` (0.1..30). Speed, distance and immunity are not configurable. Ownership comes from the resource, never from a supplied owner name. See [Dash / Air Dash](dash.md).
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param definition table
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -3151,7 +3153,7 @@ function Open77.dash.define(definition) end
 ---
 --- Requires `players.dash.manage`. A success means pending native work, not a usable Dash: read `current(player).projection.status == "ready"` before presenting it. Grants require the authenticated cyberware character binding and an alive, ready, unmounted body. They are session capabilities -- no implant is purchased or replaced -- and cooldown or charge debt survives revoke and regrant within the session.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param definitionId string
 ---@return any ok { ok = true }, or nil
@@ -3162,7 +3164,7 @@ function Open77.dash.grant(playerId, definitionId) end
 ---
 --- Requires `players.dash.manage`. Only the calling resource's capability is removed; another resource's grant and every installed implant stay. Charge and cooldown debt are retained for the session.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -3352,7 +3354,7 @@ function Open77.effects.all(bucket) end
 --- Requires world.effects. target={kind="player"|"npc"|"vehicle"|"prop",id=decimalStringOrInteger}; effect is an installed preset. options requires slot; optional localAnchor=body|weaponRight, localSlot, ttlMs, streamingRadius=90, streamingHysteresis=20, localEvent, soundEvent, soundOnOwner=true. Uses exact target incarnation, streaming reattachment and resource-owned cleanup. localEvent selects an owner entity graph (not a sound); soundEvent is separate. Target disappearance/body/bucket change invalidates the effect. The ID proves registry admission, not visible/audible playback. Attachment TTL defaults60000 ms and is bounded to1..600000 ms; slot/localSlot are at most64 bytes. Limits are2048 effects globally and512 per resource. weaponRight/localEvent are player-only.
 ---
 --- Permissions: world.effects
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: invalid_slot, invalid_target_kind
 ---@param target table
 ---@param effect string
@@ -3863,7 +3865,7 @@ function Open77.exports.callSync(target, name, ___) end
 ---
 --- Requires `players.hacking.read`. A completed, blocked or cancelled action is kept for a bounded time so a resource that only holds the id can still learn how it ended; after that the answer is `nil`.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param actionId string
 ---@return any action action table, or nil when unknown or expired
 ---@return any reason reason on failure
@@ -3873,7 +3875,7 @@ function Open77.hacking.action(actionId) end
 ---
 --- Requires `players.hacking.cancel`. Only an upload this resource started can be cancelled; the victim is released and the actor keeps whatever the acceptance already cost.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param actionId string
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -3883,7 +3885,7 @@ function Open77.hacking.cancel(actionId) end
 ---
 --- Requires `players.hacking.read`. The grade schema each `define*` accepts, the six hack kinds, the evidence model (clients submit intent and visibility only; the server decides) and the bounds -- read it instead of copying the tables out of [Hacking and counterplay](hacking.md).
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@return any capabilities capabilities table
 ---@return any nil nil, reason on failure
 function Open77.hacking.capabilities() end
@@ -3892,7 +3894,7 @@ function Open77.hacking.capabilities() end
 ---
 --- Requires `players.hacking.policy`. Another provider's safe-area or resistance scope on the same player is untouched.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -3902,7 +3904,7 @@ function Open77.hacking.clearProtection(playerId) end
 ---
 --- Requires `players.hacking.policy`. `options.safeArea = true` refuses every upload against the player; `options.resistance` (0..1) scales electrical damage. The scope belongs to this provider and to the current body: a new body needs a new call.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param options any
 ---@return any ok { ok = true }, or nil
@@ -3913,7 +3915,7 @@ function Open77.hacking.configureProtection(playerId, options) end
 ---
 --- Requires `players.hacking.define`. `definition` is `{ id, version, grades = { { id, range, uploadMs, staminaCost, cooldownMs, damage, statusMs, recoveryMs, lockHacking, nonlethal, kind? } } }`; `kind` selects Short Circuit, Overheat, Cyberware Malfunction, Cripple Movement, Reboot Optics or Weapon Glitch, six kinds of one warned, interruptible upload. Register the matching implant through `Open77.cyberware.define` with the same provider, id, version and grade ids, in the `operating_system` slot. See [Hacking and counterplay](hacking.md).
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param definition table
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -3923,7 +3925,7 @@ function Open77.hacking.define(definition) end
 ---
 --- Requires `players.hacking.define`. Grades carry `charges` and `rechargeMs`; a victim whose Self-ICE has a charge blocks an incoming upload and spends it. The matching implant lives in the `self_ice` slot, profile `self_ice`.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param definition table
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -3933,7 +3935,7 @@ function Open77.hacking.defineIce(definition) end
 ---
 --- Requires `players.hacking.define`. Grades carry `staminaCost`, `cooldownMs`, `allowSelf`, `allowAlly`, `range`, `cancelUploads` and `removeStatuses`. The matching implant lives in the `purge` slot, profile `active_purge`.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param definition table
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -3943,7 +3945,7 @@ function Open77.hacking.definePurge(definition) end
 ---
 --- Requires `players.hacking.activate`. Goes through the same defence authority as a player's own purge input: the actor must own the grade, the target must be self or an ally the grade allows, and stamina and cooldown are spent. `options.operationId` is required, as for `start`.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param targetId integer
 ---@param definitionId string
@@ -3957,7 +3959,7 @@ function Open77.hacking.purge(playerId, targetId, definitionId, gradeId, options
 ---
 --- Requires `players.hacking.activate`. The actor must own the matching installed implant grade; the server checks range, visibility evidence, stamina, cooldown, Self-ICE and protection scopes, then runs the warned upload. `options.operationId` is REQUIRED and must be stable across retries of the same operation -- the same id with different arguments is rejected. Progress arrives on `onHackingTransition`.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param targetId integer
 ---@param definitionId string
@@ -3971,7 +3973,7 @@ function Open77.hacking.start(playerId, targetId, definitionId, gradeId, options
 ---
 --- Requires `players.hacking.read`. Includes the active upload if any and the remaining status windows: `cyberwareSuspendedMs`, `frozenMs`, `malfunctionMs`, `malfunctionBlocks`, `crippledMs`, `crippleHeavy`, `blindedMs` and `weaponGlitchedMs`. This is the server's ledger, not the victim's rendering.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any state state table
 ---@return any nil nil, reason on failure
@@ -3981,7 +3983,7 @@ function Open77.hacking.state(playerId) end
 ---
 --- Requires `players.hacking.read`. Same answer as `Open77.statuses.list`: every status any provider applied to this player, with its kind, provider, action id and deadline.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any array array of status tables
 ---@return any nil nil, reason on failure
@@ -4399,7 +4401,7 @@ function Open77.loot.update(id, def) end
 ---
 --- Requires players.motion.control. Requires the exact player and motion ID owned by the calling resource. Ends network ownership and requests native cleanup; collision/braking and get-up remain native, so cancellation need not instantly stop velocity or animation.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param id string
 ---@return any ok {ok=true,id=string}
@@ -4410,7 +4412,7 @@ function Open77.motion.cancel(playerId, id) end
 ---
 --- Requires players.motion.read. Returns {id,player,incarnation,bucket,directionX,directionY,distance,createdAt,expiresAt,phase,reason}, or nil. Times are server-monotonic milliseconds. pending awaits owner native ACK; active is not server-observed rendering. Acknowledged ownership lasts6s, including recovery; no generic teleport or map collision solution is provided.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any motion motion table, or nil
 ---@return any nil nil, reason on rejection
@@ -4420,7 +4422,7 @@ function Open77.motion.current(playerId) end
 ---
 --- Requires players.motion.control. options={x,y,distance}; direction nonzero and normalized, distance0..6 m. Requires ready/alive/unmounted exact body and no existing lease; native owner additionally refuses unsuitable states. Returns admission, not damage or physical completion. onPlayerMotionChanged reports pending/active/ended; server pending expires after2s. Active snapshot checks are ACK-rooted, not exact native launch-origin enforcement.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param options table
 ---@return any ok {ok=true,id=string}
@@ -4457,7 +4459,7 @@ function Open77.net.callClientAwait(playerId, name, ___) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: network_unavailable, permission_denied:network.events, reserved_ability_event, reserved_animation_event, reserved_audio_event, reserved_callback_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_holocall_event, reserved_interaction_event, reserved_screen_event, reserved_sound_event, reserved_travel_event
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_ability_event, reserved_animation_event, reserved_audio_event, reserved_callback_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_holocall_event, reserved_interaction_event, reserved_reflex_event, reserved_screen_event, reserved_sound_event, reserved_travel_event
 ---@param event string
 ---@param playerId any
 ---@param ___ any
@@ -5278,7 +5280,7 @@ function Open77.perspective.setPolicy(policy, perspective) end
 ---
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Custom reason accepts 1–64 ASCII alphanumeric/underscore characters; invalid reasons normalize to cancelled. Delayed callbacks should retain the interaction ID, never cancel whatever action happens to occupy the player later.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param interactionId string
 ---@param reason? string
 ---@return any terminal terminal state or nil, reason
@@ -5288,7 +5290,7 @@ function Open77.playerInteractions.cancel(interactionId, reason) end
 ---
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Terminal states are removed from the active registry. Read access never grants cancellation of another resource's action.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param playerId integer
 ---@return any active active state or nil; nil, reason on rejection
 function Open77.playerInteractions.current(playerId) end
@@ -5297,7 +5299,7 @@ function Open77.playerInteractions.current(playerId) end
 ---
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Terminal states are removed from the active registry. Read access never grants cancellation of another resource's action.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param interactionId string
 ---@return any active active state or nil; nil, reason on rejection
 function Open77.playerInteractions.get(interactionId) end
@@ -5306,7 +5308,7 @@ function Open77.playerInteractions.get(interactionId) end
 ---
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Terminal states are removed from the active registry. Read access never grants cancellation of another resource's action.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param playerId integer
 ---@return any boolean boolean; nil, reason on rejection
 function Open77.playerInteractions.isReserved(playerId) end
@@ -5315,7 +5317,7 @@ function Open77.playerInteractions.isReserved(playerId) end
 ---
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Terminal states are removed from the active registry. Read access never grants cancellation of another resource's action.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@return any state state[]; nil, reason on rejection
 function Open77.playerInteractions.list() end
 
@@ -5323,7 +5325,7 @@ function Open77.playerInteractions.list() end
 ---
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Kinds: give, heal, carry, escort, custom. Options: durationMs (500–600000, default4000), startDistance (.25–10, default3), breakDistance (startDistance–20, default5), inviteTimeoutMs (1000–60000, default15000), consent (defaulttrue), optional actorAnimation/targetAnimation RP profiles for stationary kinds. Carry/escort reject profile overrides. Both players must be alive, on foot, near and in the same bucket. Acceptance is not proof of native playback; observe lifecycle events.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: invalid_options
 ---@param actorId integer
 ---@param targetId integer
@@ -5493,7 +5495,7 @@ function Open77.players.getHealth(playerId) end
 --- Requires players.holocall.read and an explicit connected network player ID. This reads authoritative cosmetic intent, not a native render acknowledgement. False means no lease; nil, reason means the query failed. See holocall-eyes.md.
 ---
 --- Permissions: players.holocall.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param playerId integer
 ---@return any boolean boolean enabled, or nil, reason
 function Open77.players.getHoloCallEyes(playerId) end
@@ -5855,7 +5857,7 @@ function Open77.players.setHealth(playerId, health) end
 --- Requires players.holocall.control. Uses a network player ID, not an entity handle. Enabled must be a boolean; options may only contain durationMs (integer 0..600000, default 0). True acquires/renews this resource VM's lease; false releases only its lease. The glow remains enabled while any resource holds a lease. It clears on death, disconnect, resource stop/reload/failure or expiry. Reliable bucket snapshots cover late joins and re-stream; clients project onto native and F7 bodies. Does not open the phone UI or start a call. See holocall-eyes.md.
 ---
 --- Permissions: players.holocall.control
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: invalid_options
 ---@param playerId integer
 ---@param enabled boolean
@@ -6143,7 +6145,7 @@ function Open77.props.all(bucket) end
 --- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props and ownership of the prop. Parent must be alive/valid in the same bucket. Up to 32 bindings per parent. Optional expectedRevision enables compare-and-swap; stale updates reject. Idempotent identical attachment does not create a new revision.
 ---
 --- Permissions: world.props
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: invalid_argument, invalid_attachment, invalid_attachment_target
 ---@param propId integer
 ---@param binding table
@@ -6156,7 +6158,7 @@ function Open77.props.attach(propId, binding, expectedRevision) end
 --- Requires world.props. Uses a canonical player/vehicle ID and returns copied prop records, including bindings and revisions. Inspection can include other resources' props, but mutation still checks ownership.
 ---
 --- Permissions: world.props
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param parentType string
 ---@param parentId integer
 ---@return any prop prop[] or nil, reason
@@ -6196,7 +6198,7 @@ function Open77.props.create(def) end
 --- Requires world.props and prop ownership. Optional expectedRevision prevents detaching a newer binding. Leaves the prop at the server's last coarse parent anchor, which is not an exact client-side animated bone transform. Already detached is idempotent. Death, disconnect, parent removal and bucket changes also detach automatically.
 ---
 --- Permissions: world.props
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param propId integer
 ---@param expectedRevision? integer
 ---@return any true true on success; nil, reason on rejection
@@ -6217,7 +6219,7 @@ function Open77.props.get(id) end
 --- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. Returns a copy, not a mutable reference. Nil can mean detached or absent; inspect the second result for a capability/validation failure.
 ---
 --- Permissions: world.props
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param propId integer
 ---@return any binding binding table or nil; nil, reason on rejection
 function Open77.props.getAttachment(propId) end
@@ -6227,7 +6229,7 @@ function Open77.props.getAttachment(propId) end
 --- Requires world.props. Returns false when no binding exists, and nil plus reason for a rejected query. This tests authoritative state, not whether a particular client has streamed or rendered its parent.
 ---
 --- Permissions: world.props
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param propId integer
 ---@return any boolean boolean or nil, reason
 function Open77.props.isAttached(propId) end
@@ -6248,7 +6250,7 @@ function Open77.props.remove(id) end
 --- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props and prop ownership. Omitted vectors retain their previous values. The current revision is used if expectedRevision is omitted; stale explicit revisions reject. A detached prop rejects with not_attached.
 ---
 --- Permissions: world.props
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: not_attached, not_found
 ---@param propId integer
 ---@param offset? table
@@ -6345,6 +6347,64 @@ function Open77.ready.release(playerId, session, note) end
 ---@param playerId any
 ---@return any table table
 function Open77.ready.status(playerId) end
+
+--- Ends a player's running overdrive now; the grant and its cooldown are unchanged.
+---
+--- Requires `players.reflex.manage`. The client stops the boost on the next frame and every attached layer and the nameplate marker clear. No activation running answers `no_activation`.
+---
+--- Since: 2.31.13+op77.63
+---@param playerId any
+---@return any ok { ok = true }, or nil
+---@return any reason reason
+function Open77.reflex.cancel(playerId) end
+
+--- The supported profile, the two tiers and the advertised boundary.
+---
+--- Requires `players.reflex.read`. Reports `profile = "reflex_overdrive"`, `sharedRealTimeWorld = true`, `slowsBullets = false`, `slowsOtherPlayers = false`, `touchesTimeDilation = false` and `maximumDurationMs = 15000` -- the boundary a server maker can quote to players.
+---
+--- Since: 2.31.13+op77.63
+---@return any capabilities capabilities table
+function Open77.reflex.capabilities() end
+
+--- The player's overdrive activity and projection, or nil without a grant.
+---
+--- Requires `players.reflex.read`. Returns `projection` (`status` is `pending`, `ready` or `removed`, plus the `definition`), `phase`, `charges`, `remainingMs`, `cooldownUntil`, `activation` and `ownedByCaller`, a server-derived boolean for the calling resource that is accurate across projection restarts.
+---
+--- Since: 2.31.13+op77.63
+---@param playerId any
+---@return any activity activity table, or nil
+function Open77.reflex.current(playerId) end
+
+--- Registers a reflex-overdrive definition: a tier plus its economy.
+---
+--- Requires `players.reflex.define`. `profile` is exactly `reflex_overdrive`; `config` picks `tier` (`reflex` or `reflex_heavy`), `inputKey` (the default the client registers as the rebindable `reflex_overdrive` action), `presentation` (`native`, `silent`, `none`), `durationMs` 500-15000 (never longer than `cooldownMs`), `cooldownMs` 1000-600000, `maxCharges` 1-3, `chargeRegenMs`, `staminaCost` 0-300 and `heatCost` 0-100. A definition cannot name a stat: the client owns the two tier plans and their ceilings. Out-of-range values are refused, not clamped. Versions are immutable. No clock is touched anywhere in this feature.
+---
+--- Since: 2.31.13+op77.63
+---@param definition any
+---@return any ok { ok = true }, or nil
+---@return any reason reason
+function Open77.reflex.define(definition) end
+
+--- Grants a defined overdrive to one player for the session.
+---
+--- Requires `players.reflex.manage`. Acceptance is entitlement, not readiness: check `current(player).projection.status == "ready"` before presenting it as usable. Needs the bound cyberware character and an alive, ready, unmounted body -- a grant sent before the player is incarnated is refused `body_unavailable`. Only the granting resource may revoke or cancel it. A session capability, not purchased equipment.
+---
+--- Since: 2.31.13+op77.63
+---@param playerId any
+---@param definition any
+---@return any ok { ok = true }, or nil
+---@return any reason reason
+function Open77.reflex.grant(playerId, definition) end
+
+--- Removes this resource's overdrive grant from a player.
+---
+--- Requires `players.reflex.manage`. Paid implants are untouched; a running boost ends on the release path. Another resource's grant answers `grant_owned_by_another_resource`.
+---
+--- Since: 2.31.13+op77.63
+---@param playerId any
+---@return any ok { ok = true }, or nil
+---@return any reason reason
+function Open77.reflex.revoke(playerId) end
 
 --- A running server resource's opaque VM generation.
 ---
@@ -6956,7 +7016,7 @@ function Open77.stats.stamina(playerId) end
 ---
 --- Requires `players.statuses.apply`. The grade's `kind`, duration and effect come from the definition; canonical eligibility (alive, ready, not protected) is checked the same way an upload's impact is. No upload runs and no damage is dealt: this is the status half of a hack on its own, for a scripted consequence such as a story beat or a penalty.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param targetId integer
 ---@param definitionId string
@@ -6969,7 +7029,7 @@ function Open77.statuses.apply(playerId, targetId, definitionId, gradeId) end
 ---
 --- Requires `players.hacking.read`. Every status any provider applied -- kind, provider, action id, deadline -- the same answer as `Open77.hacking.statuses`.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@return any array array of status tables
 ---@return any nil nil, reason on failure
@@ -6979,7 +7039,7 @@ function Open77.statuses.list(playerId) end
 ---
 --- Requires `players.statuses.purge`. Only a status this resource applied can be removed; the victim's client is told to end its native presentation.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 ---@param actionId string
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure

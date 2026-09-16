@@ -105,6 +105,8 @@ Open77.prevention = Open77.prevention or {}
 Open77.props = Open77.props or {}
 ---@class Open77.puppets
 Open77.puppets = Open77.puppets or {}
+---@class Open77.reflex
+Open77.reflex = Open77.reflex or {}
 ---@class Open77.resource
 Open77.resource = Open77.resource or {}
 ---@class Open77.runtime
@@ -177,7 +179,7 @@ function AddStateBagChangeHandler(key, bagName, handler) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function AllowAim(enabled) end
@@ -187,7 +189,7 @@ function AllowAim(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function AllowCrouch(enabled) end
@@ -197,7 +199,7 @@ function AllowCrouch(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function AllowDodge(enabled) end
@@ -207,7 +209,7 @@ function AllowDodge(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function AllowInteraction(enabled) end
@@ -217,7 +219,7 @@ function AllowInteraction(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function AllowJump(enabled) end
@@ -227,7 +229,7 @@ function AllowJump(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function AllowRunning(enabled) end
@@ -237,7 +239,7 @@ function AllowRunning(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function AllowShoot(enabled) end
@@ -247,7 +249,7 @@ function AllowShoot(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function AllowWeapons(enabled) end
@@ -294,7 +296,7 @@ function DeleteResourceKvp(key) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function DestroySound(id) end
@@ -345,7 +347,7 @@ function exports(name, body) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function FreezePosition(enabled) end
@@ -355,7 +357,7 @@ function FreezePosition(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function FreezeRotation(enabled) end
@@ -435,7 +437,7 @@ function GetResourceState(resource) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: permission_denied:audio.play, sound_not_found
 ---@param id integer
 ---@return any table table, or nil, reason
@@ -462,7 +464,7 @@ function IsDuplicityVersion() end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -473,7 +475,7 @@ function IsPlayerAiming(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -484,7 +486,7 @@ function IsPlayerCrouching(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -495,7 +497,7 @@ function IsPlayerDiving(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -506,7 +508,7 @@ function IsPlayerDriver(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -517,7 +519,7 @@ function IsPlayerFalling(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -528,7 +530,7 @@ function IsPlayerGrounded(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -539,7 +541,7 @@ function IsPlayerInVehicle(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -550,7 +552,7 @@ function IsPlayerJumping(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -561,7 +563,7 @@ function IsPlayerPassenger(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -572,7 +574,7 @@ function IsPlayerReloading(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -583,7 +585,7 @@ function IsPlayerShooting(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -594,7 +596,7 @@ function IsPlayerSliding(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -605,7 +607,7 @@ function IsPlayerSprinting(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -616,7 +618,7 @@ function IsPlayerSwimming(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -647,7 +649,7 @@ function LoadResourceFile(resourceName, path) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function PauseSound(id) end
@@ -657,7 +659,7 @@ function PauseSound(id) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: audio_asset_not_declared_or_unsafe, invalid_audio_arguments, invalid_audio_asset, invalid_position, network_audio_requires_server, permission_denied:audio.play
 ---@param asset string
 ---@param options? table
@@ -669,7 +671,7 @@ function Play2DSound(asset, options) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: audio_asset_not_declared_or_unsafe, invalid_audio_arguments, invalid_audio_asset, invalid_position, network_audio_requires_server, permission_denied:audio.play
 ---@param asset string
 ---@param position table
@@ -691,7 +693,7 @@ function Player(id) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function PlaySound(id) end
@@ -791,7 +793,7 @@ function require(module) end
 --- Requires world.query. x/y use normalized top-left viewport coordinates in [0,1]. maxDistance defaults to 100 metres and must be finite in [0.1,1000]. Returns origin, unit direction, endpoint position and maxDistance; this is not a collision result. Uses the active camera and checks projection consistency. Returns nil/reason if the camera or projection is unavailable. Identical global alias: Screen2DPointTo3DSpace. See screen-picking.md and context-menu.md. Requires the new screen-picking client, not the earlier .62 release.
 ---
 --- Permissions: world.query
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param x number
 ---@param y number
 ---@param maxDistance? number
@@ -803,7 +805,7 @@ function Screen2DPointTo3DSpace(x, y, maxDistance) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param seconds number
 ---@return any true true, or failure, reason
@@ -825,7 +827,7 @@ function SetResourceKvp(key, value) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param position table
 ---@return any true true, or failure, reason
@@ -836,7 +838,7 @@ function SetSoundPosition(id, position) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param volume number
 ---@return any true true, or failure, reason
@@ -868,7 +870,7 @@ function SetTimeout(milliseconds, body) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function StopSound(id) end
@@ -1026,7 +1028,7 @@ function Citizen.Wait(milliseconds) end
 --- Requires `player.abilities.project`. `allowed` must be a boolean -- there is no third answer, and a non-boolean is refused as `invalid_approval` rather than read as false. The sequence must match a pending activation on this owned request.
 ---
 --- Permissions: player.abilities.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: abilities_backend_unavailable, invalid_approval, invalid_reason, invalid_request, invalid_sequence, resource_not_running
 ---@param request any
 ---@param sequence integer
@@ -1040,7 +1042,7 @@ function Open77.abilities.approveSlam(request, sequence, allowed) end
 --- Requires `player.abilities.project`. The reason is a string of 1 to 96 characters and is required: an unexplained cancellation would leave nothing in the log to explain a slam that did not happen.
 ---
 --- Permissions: player.abilities.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: abilities_backend_unavailable, invalid_approval, invalid_reason, invalid_request, invalid_sequence, resource_not_running
 ---@param request any
 ---@param sequence integer
@@ -1054,7 +1056,7 @@ function Open77.abilities.cancelSlam(request, sequence, reason) end
 --- Client support API requiring player.abilities.project and a running resource. options may contain ground and air booleans (at least one true), staminaManaged=true, maxDurationMs from 500 through 15000 and finite maxFallSpeed greater than zero through 60. These are adapter readiness bounds, not arbitrary motion or damage controls. Returns a configuration request handle or nil, reason; native projection acknowledgement and server admission are still required. Server creators normally use Open77.abilities.define/grant through the optional support resource. No paid implant or vanilla perk progression is changed. See ground-slam.md; a returned handle does not prove playable native movement.
 ---
 --- Permissions: player.abilities.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: abilities_backend_unavailable, invalid_configuration, permission_denied:player.abilities.project, resource_not_running, server_managed_required
 ---@param options table
 ---@return any request request handle, or nil, reason
@@ -1065,7 +1067,7 @@ function Open77.abilities.configureSlam(options) end
 --- Client support API requiring player.abilities.project and a running resource. Accepts a positive safe-integer playerId, a 32-hex-character activation ID, uint32 sequence greater than zero, phase, airborne boolean and elapsedMs from zero through 30000. Phases are windup, descent, contact, impact, recovery, complete, cancelled or rejected. It owns presentation only and never authorizes movement, damage or entitlement. Owner-scoped cleanup, incarnation checks and Dash/Slam pose arbitration remain native responsibilities. true means the adapter accepted the presentation request; actual rendering and sound require live observation. See ground-slam.md for the authoritative public workflow.
 ---
 --- Permissions: player.abilities.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: abilities_backend_unavailable, invalid_activation, invalid_phase, invalid_presentation, permission_denied:player.abilities.project, resource_not_running
 ---@param playerId integer
 ---@param activationId string
@@ -1081,7 +1083,7 @@ function Open77.abilities.presentSlam(playerId, activationId, sequence, phase, a
 --- Requires `player.abilities.project`. Takes no arguments: the owner is the calling resource, which cannot be supplied. Resource stop releases it for you, so a reloading gamemode never leaves the slam claimed.
 ---
 --- Permissions: player.abilities.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: abilities_backend_unavailable, invalid_approval, invalid_reason, invalid_request, invalid_sequence, resource_not_running
 ---@return any true true, or nil
 ---@return any reason reason: abilities_backend_unavailable
@@ -1092,7 +1094,7 @@ function Open77.abilities.releaseSlam() end
 --- Requires `player.abilities.project`. The returned sequence identifies this activation for `approveSlam` and `cancelSlam`; it is how a late answer is stopped from acting on the wrong slam.
 ---
 --- Permissions: player.abilities.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: abilities_backend_unavailable, invalid_approval, invalid_reason, invalid_request, invalid_sequence, resource_not_running
 ---@param request any
 ---@return any sequence sequence (integer), or nil
@@ -1103,7 +1105,7 @@ function Open77.abilities.requestSlam(request) end
 ---
 --- Requires `player.abilities.read`. Returns `{ request, sequence, phaseSequence, impactSequence, elapsedMs, phase, mode, reason, grounded, position, contact, verticalSpeed, history }`, where `history` holds up to sixteen recent phase receipts. It is what the presenting resource replays through `presentSlam`; it is observation, not authority.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: abilities_backend_unavailable, invalid_approval, invalid_reason, invalid_request, invalid_sequence, resource_not_running
 ---@return any table table, or nil
 ---@return any reason reason: permission_denied:player.abilities.read, abilities_backend_unavailable
@@ -1113,7 +1115,7 @@ function Open77.abilities.slamActivity() end
 ---
 --- Requires `player.abilities.read`. Takes the request id `configureSlam` returned and answers the native phase plus a reason. One dispatcher serves the six slam operations, so they share identical permission, lifetime and handle checks.
 ---
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: abilities_backend_unavailable, invalid_approval, invalid_reason, invalid_request, invalid_sequence, resource_not_running
 ---@param request any
 ---@return any phase phase string
@@ -1439,7 +1441,7 @@ function Open77.assets.texture(path) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function Open77.audio.destroy(id) end
@@ -1449,7 +1451,7 @@ function Open77.audio.destroy(id) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: permission_denied:audio.play, sound_not_found
 ---@param id integer
 ---@return any table table, or nil, reason
@@ -1460,7 +1462,7 @@ function Open77.audio.getState(id) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function Open77.audio.pause(id) end
@@ -1470,7 +1472,7 @@ function Open77.audio.pause(id) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function Open77.audio.play(id) end
@@ -1480,7 +1482,7 @@ function Open77.audio.play(id) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: audio_asset_not_declared_or_unsafe, invalid_audio_arguments, invalid_audio_asset, invalid_position, network_audio_requires_server, permission_denied:audio.play
 ---@param asset string
 ---@param options? table
@@ -1492,7 +1494,7 @@ function Open77.audio.play2D(asset, options) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: audio_asset_not_declared_or_unsafe, invalid_audio_arguments, invalid_audio_asset, invalid_position, network_audio_requires_server, permission_denied:audio.play
 ---@param asset string
 ---@param position table
@@ -1505,7 +1507,7 @@ function Open77.audio.play3D(asset, position, options) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param seconds number
 ---@return any true true, or failure, reason
@@ -1516,7 +1518,7 @@ function Open77.audio.seek(id, seconds) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param position table
 ---@return any true true, or failure, reason
@@ -1527,7 +1529,7 @@ function Open77.audio.setPosition(id, position) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@param volume number
 ---@return any true true, or failure, reason
@@ -1538,7 +1540,7 @@ function Open77.audio.setVolume(id, volume) end
 --- Requires audio.play; network=true is rejected. MP3/PCM WAV decode asynchronously off the game thread. getState reports actual decoder state and cached PCM reuse. Assets must be declared in the resource manifest files; absolute paths, URLs and traversal are rejected. Handles are scoped to the creating resource VM; stop rewinds, pause preserves position, seek uses seconds, destroy releases permanently. Volume 0..1, range <=1000m. Network loops require actual duration. See package-audio.md for options, lifecycle, quotas and errors.
 ---
 --- Permissions: audio.play
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param id integer
 ---@return any true true, or failure, reason
 function Open77.audio.stop(id) end
@@ -2006,7 +2008,7 @@ function Open77.camera.project(position) end
 --- Requires world.query. x/y use normalized top-left viewport coordinates in [0,1]. maxDistance defaults to 100 metres and must be finite in [0.1,1000]. Returns origin, unit direction, endpoint position and maxDistance; this is not a collision result. Uses the active camera and checks projection consistency. Returns nil/reason if the camera or projection is unavailable. Identical global alias: Screen2DPointTo3DSpace. See screen-picking.md and context-menu.md. Requires the new screen-picking client, not the earlier .62 release.
 ---
 --- Permissions: world.query
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param x number
 ---@param y number
 ---@param maxDistance? number
@@ -2018,7 +2020,7 @@ function Open77.camera.screenRay(x, y, maxDistance) end
 --- Requires world.query. Same normalized coordinates and distance limits as screenRay. Optional {static=true,dynamic=true,self=false} strict boolean options; at least one of static/dynamic must be enabled. Physical world, vehicle and NPC-hitbox categories are included, not query-only player sensors. self=true with dynamic=true also picks the active visible F7 body using animated slot capsules, without enabling collision. A closer physical hit wins. This approximation returns hitSource=self_presentation, local playerId and isLocalPlayer=true, but no physical normal/material; hidden/suspended bodies are excluded. Ordinary physical hits add normal, camera distance, material, entityLookupAvailable and optional target. A miss has hit=false and position at the ray endpoint, not a surface. target distinguishes decimal-string engineEntity/local entity handles from canonical playerId, vehicleId, npcId and propId; propId is a decimal string. Never interchange these IDs. NPC records use Character.* when available. No nearest-object fallback or server authority. See screen-picking.md and context-menu.md for contracts and examples.
 ---
 --- Permissions: world.query
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param x number
 ---@param y number
 ---@param maxDistance? number
@@ -2485,7 +2487,7 @@ function Open77.clipboard.setText(text) end
 --- Requires player.cyberware.project and a running resource. request is the owned native request; sequence is the positive uint32 of the pending action reported by legsActivity; allowed is a boolean. true means the matching pending native intent accepted the decision, not that a jump was consumed, displaced or rendered. Open77 buffers an eligible press for at most 750 ms, so a late grant still has to pass the native timeout and the original native predicates. Stamina is charged on server admission and is not refunded when native execution later expires. This is a trusted projection primitive, not a public server-side jump command or a security boundary against a modified client.
 ---
 --- Permissions: player.cyberware.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: cyberware_backend_unavailable, invalid_approval, permission_denied:player.cyberware.project, resource_not_running
 ---@param request integer
 ---@param sequence integer
@@ -2499,7 +2501,7 @@ function Open77.cyberware.approveLegJump(request, sequence, allowed) end
 --- Requires player.cyberware.read. Trusted native projection primitive used by open77_cyberware; it does not install a durable implant or authorize damage. Returns {sequence,holding,variant,record,chargeExpired} when a usable native Gorilla weapon is observed; unavailable/unarmed states return nil, reason. This is client observation, not authoritative charge, damage or cooldown. The platform forwards bounded intent and the server validates it.
 ---
 --- Permissions: player.cyberware.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: cyberware_backend_unavailable, permission_denied:player.cyberware.read
 ---@return any activity activity table
 ---@return any nil nil, reason on rejection
@@ -2510,7 +2512,7 @@ function Open77.cyberware.attackState() end
 --- Requires player.cyberware.read. Trusted native projection primitive used by open77_cyberware; it does not install a durable implant or authorize damage. Returns {family,groups}; groups contain part/name hashes and key pairs. The validated adapter supplies matching holstered and drawn alternatives for male or female, not arbitrary replacement assets. Native readiness and equipment readback do not prove rendered geometry.
 ---
 --- Permissions: player.appearance.read, player.cyberware.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@return any body body profile table
 ---@return any nil nil, reason on rejection
 function Open77.cyberware.captureArms() end
@@ -2520,7 +2522,7 @@ function Open77.cyberware.captureArms() end
 --- Requires player.cyberware.project and a running resource. request must be a ready owned request. staminaManaged=true selects suppression of the native second-jump stamina debit and requires the server pricing path; it is not a stamina cost argument. maxAirborneMs is an integer 100-10000 and maxFallSpeed a finite 0.1-30 m/s, matching the grade table. These limits only narrow native eligibility: they never change jump height, trajectory, gravity, fall damage or native collision response. Support sets them from the installed grade snapshot.
 ---
 --- Permissions: player.cyberware.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: cyberware_backend_unavailable, invalid_configuration, permission_denied:player.cyberware.project, resource_not_running
 ---@param request integer
 ---@param staminaManaged boolean
@@ -2535,7 +2537,7 @@ function Open77.cyberware.configureLegs(request, staminaManaged, maxAirborneMs, 
 --- Requires player.cyberware.project. Trusted native projection primitive used by open77_cyberware; it does not install a durable implant or authorize damage. Requires the same owned ready request. options accepts nullable normalStaminaCost/chargedStaminaCost (0..300) and maxChargeMs (100..60000, default10000). Native code uses cost presence to suppress supported native attack prices; the server owns the actual costs and debits. It does not grant stamina or suppress unrelated movement costs.
 ---
 --- Permissions: player.cyberware.project
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: cyberware_backend_unavailable, invalid_charge_limit, invalid_configuration, invalid_stamina_cost, permission_denied:player.cyberware.project, resource_not_running
 ---@param request integer
 ---@param options table
@@ -2543,12 +2545,37 @@ function Open77.cyberware.configureLegs(request, staminaManaged, maxAirborneMs, 
 ---@return any nil nil, reason on rejection
 function Open77.cyberware.configureLocal(request, options) end
 
+--- Hold the server's double-jump activation lease on the local body.
+---
+--- Requires player.cyberware.project and a running resource. Trusted projection primitive used by the shipped open77_cyberware client: with a lease held, a second-jump press is spent locally and the jump happens on the frame the player pressed; the server is told afterwards and reconciles at the stamp. lease is the server's lease id, epoch its uint32 epoch, budget the activations it allows (1-64) and ttlMs how much longer it is valid (1-30000) -- a remaining lifetime, never an absolute deadline, so no clock domain is mixed. Returns true when the lease is held; nil, reason otherwise (invalid_lease, cyberware_backend_unavailable). Without a lease the ask-and-wait path still runs.
+---
+--- Permissions: player.cyberware.project
+--- Since: 2.31.13+op77.67
+--- Reasons: cyberware_backend_unavailable, invalid_lease, permission_denied:player.cyberware.project, resource_not_running
+---@param lease any
+---@param epoch integer
+---@param budget any
+---@param ttlMs any
+---@return any true true
+---@return any nil nil, reason on rejection
+function Open77.cyberware.grantLegLease(lease, epoch, budget, ttlMs) end
+
+--- Mark the pending leased jump report as sent.
+---
+--- Requires player.cyberware.project. After a leased press the activity reported by legsActivity carries reportSequence; once the resource has sent that report to the server, this returns the activation to idle. The lease keeps whatever budget it has left.
+---
+--- Permissions: player.cyberware.project
+--- Since: 2.31.13+op77.67
+--- Reasons: cyberware_backend_unavailable, invalid_report, permission_denied:player.cyberware.project
+---@param reportSequence integer
+function Open77.cyberware.legReportSent(reportSequence) end
+
 --- Read fresh native legs action and airborne state.
 ---
 --- Requires player.cyberware.read. Returns {request,sequence,phase,grounded,airborneMs,verticalSpeed}. Phases are idle, pending, granted, consumed and rejected; sequence is a positive uint32 while an action is pending and can report zero when idle. This is local native observation, not an authorization and not rendered proof. A resource that does not own the native adapter should use open77_cyberware's read-only legsActivity export instead: the core method inspects only the calling VM's own owner.
 ---
 --- Permissions: player.cyberware.read
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: cyberware_backend_unavailable, permission_denied:player.cyberware.read
 ---@return any activity activity table
 ---@return any nil nil, reason on rejection
@@ -2559,7 +2586,7 @@ function Open77.cyberware.legsActivity() end
 --- Requires player.cyberware.project. request is the positive ID returned by projectLegs. Returns "pending", "ready" or "failed" plus a reason string for a validly shaped query; a malformed request returns nil, reason. "ready" means the native equipment readback matched across three bridge polls, not that a second jump was performed or rendered. Another resource cannot read this owner's private request by guessing its numeric ID.
 ---
 --- Permissions: player.cyberware.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: cyberware_backend_unavailable, invalid_request, permission_denied:player.cyberware.project
 ---@param request integer
 ---@return any phase phase string, reason string
@@ -2571,7 +2598,7 @@ function Open77.cyberware.legsState(request) end
 --- Requires player.cyberware.project. Trusted native projection primitive used by open77_cyberware; it does not install a durable implant or authorize damage. Returns a phase string and a reason string: pending, ready or failed for the matching native request. Invalid/foreign native requests may return an empty phase plus reason; Lua permission/argument failures return nil, reason. ready describes native equipment readback, not SQL commit or visible confirmation.
 ---
 --- Permissions: player.cyberware.project
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: cyberware_backend_unavailable, invalid_request, permission_denied:player.cyberware.project
 ---@param request integer
 ---@return any phase phase string, reason string
@@ -2583,7 +2610,7 @@ function Open77.cyberware.localState(request) end
 --- Requires player.cyberware.project. Trusted native projection primitive used by open77_cyberware; it does not install a durable implant or authorize damage. playerId is the network player ID, including the local player for its self-view. Pass a validated captured {family,groups} profile, or false to clear. Overlay ownership survives identical replays; conflicting owners fail. Native attachment/posture work is asynchronous; true is acceptance, not visible completion.
 ---
 --- Permissions: player.cyberware.project
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param playerId integer
 ---@param profile any
 ---@return any boolean boolean accepted
@@ -2595,7 +2622,7 @@ function Open77.cyberware.presentArms(playerId, profile) end
 --- Requires player.cyberware.project and a running resource. Trusted native projection primitive used by open77_cyberware; it does not install a durable implant, grant a jump or authorize damage. enabled=true equips the supported native legs cyberware (Items.BoostedTendonsRare through the native LegsCW area); false releases it. Returns an owned positive integer request ID; poll legsState(request). Readiness requires matching owned item and HasDoubleJump readback and is not rendered proof. Arms and legs have distinct native owners, requests and equipment areas, so a legs request never disturbs an installed Gorilla Arms projection. Resource stop invokes owned cleanup, which unequips only the item this adapter created.
 ---
 --- Permissions: player.cyberware.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: cyberware_backend_unavailable, invalid_enabled, permission_denied:player.cyberware.project, resource_not_running
 ---@param enabled boolean
 ---@return any positive positive request id
@@ -2607,19 +2634,40 @@ function Open77.cyberware.projectLegs(enabled) end
 --- Requires player.cyberware.project. Trusted native projection primitive used by open77_cyberware; it does not install a durable implant or authorize damage. enabled=true equips the supported native arms; false restores bare arms. Returns an owned positive integer request ID. Poll localState(request); queued work is neither a committed purchase nor visual proof. Resource stop releases the native owner.
 ---
 --- Permissions: player.cyberware.project
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: cyberware_backend_unavailable, invalid_enabled, permission_denied:player.cyberware.project, resource_not_running
 ---@param enabled boolean
 ---@return any request request ID
 ---@return any nil nil, reason on rejection
 function Open77.cyberware.projectLocal(enabled) end
 
+--- Refresh the held double-jump lease with the server's latest budget and lifetime.
+---
+--- Requires player.cyberware.project. Applies the 20 Hz refresh the server sends on its snapshot stream: epoch must match the held lease, remaining is the activations still allowed, ttlMs the remaining lifetime. A refresh for another epoch is ignored. Trusted projection primitive; not a public API.
+---
+--- Permissions: player.cyberware.project
+--- Since: 2.31.13+op77.67
+--- Reasons: cyberware_backend_unavailable, invalid_lease, permission_denied:player.cyberware.project
+---@param epoch integer
+---@param remaining integer
+---@param ttlMs any
+function Open77.cyberware.refreshLegLease(epoch, remaining, ttlMs) end
+
+--- Drop the held double-jump lease; presses go back to ask-and-wait.
+---
+--- Requires player.cyberware.project. Called on a server revoke, on a session change and on resource stop. Idempotent.
+---
+--- Permissions: player.cyberware.project
+--- Since: 2.31.13+op77.67
+--- Reasons: cyberware_backend_unavailable, permission_denied:player.cyberware.project
+function Open77.cyberware.releaseLegLease() end
+
 --- Request owned native legs cleanup.
 ---
 --- Requires player.cyberware.project and a running resource. Releases only the calling resource's own native legs projection and is harmless when it owns none. true acknowledges the request; completion is asynchronous. Cleanup unequips this adapter's owned item and removes an inventory copy only when this adapter created it, so a pre-existing unowned double-jump capability is left alone. Resource teardown invokes the same owned cleanup even after Lua callbacks have ended.
 ---
 --- Permissions: player.cyberware.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: cyberware_backend_unavailable, permission_denied:player.cyberware.project, resource_not_running
 ---@return any true true
 ---@return any nil nil, reason on rejection
@@ -2630,7 +2678,7 @@ function Open77.cyberware.releaseLegs() end
 --- Client support adapter; requires player.dash.project. Operations configure, state, request, approve, cancel, activity, release and present are bounded and generation-scoped. Server creators use the separate server Open77.dash define/grant/revoke API documented in dash.md. Native permits and correlated phases are not proof of rendered movement. Arbitrary speed, distance, effect IDs and stamina settings are unavailable. Multiplayer acceptance is pending.
 ---
 --- Permissions: player.dash.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: dash_backend_unavailable, invalid_approval, invalid_configuration, invalid_direction, invalid_operation, invalid_presentation, invalid_request, invalid_sequence, permission_denied:player.dash.project, resource_not_running
 ---@param operation string
 ---@param arguments? any
@@ -2708,7 +2756,7 @@ function Open77.debug.command(commandLine) end
 ---
 --- With a tag, removes that batch; with no argument, removes every batch this resource owns. It never touches another resource's drawings, and it cannot fail: clearing a tag that was never set is a no-op. The runtime does the same on stop and reload, so calling it is only needed to take a drawing down early, before its `ttl` would.
 ---
---- Since: 2.31.13+op77.67
+--- Since: not in any published build
 ---@param tag? string
 ---@return any true true
 function Open77.debugDraw.clear(tag) end
@@ -2720,7 +2768,7 @@ function Open77.debugDraw.clear(tag) end
 --- Everything a resource drew is released when it stops or reloads. Fails with `invalid_debug_tag`, `invalid_debug_geometry`, `invalid_debug_options`, `invalid_debug_primitives`, `invalid_debug_point`, `invalid_debug_color`, `debug_geometry_quota` or `debug_geometry_unavailable`.
 ---
 --- Permissions: world.debug
---- Since: 2.31.13+op77.67
+--- Since: not in any published build
 --- Reasons: debug_geometry_quota, debug_geometry_unavailable, invalid_debug_color, invalid_debug_geometry, invalid_debug_options, invalid_debug_point, invalid_debug_primitives, invalid_debug_tag, permission_denied:world.debug
 ---@param tag string
 ---@param geometry table
@@ -3341,7 +3389,7 @@ function Open77.exports.callSync(resource, export, _) end
 --- Client-only; requires player.hacking.project. Clears only presentation owned by the calling resource and is harmless when it owns none. Resource stop invokes the same owned cleanup automatically. true acknowledges the cleanup request, not native completion; the native script retains its bounded expiry fallback if the bridge cannot accept a clear command. This does not cancel an authoritative upload, purge a status, refund costs or undo committed damage. Use the server hacking APIs for gameplay state changes.
 ---
 --- Permissions: player.hacking.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: permission_denied:player.hacking.project
 ---@return any true true, or nil, reason
 function Open77.hacking.clear() end
@@ -3351,7 +3399,7 @@ function Open77.hacking.clear() end
 --- Client-only; requires player.hacking.status. An omitted kind clears every status the calling resource holds; passing "blind" or "weapon_jam" clears only that slot, and any other value is refused with invalid_kind. It never clears another resource's slot and is harmless when the caller owns none. true acknowledges the clear request, not native completion; the adapter retains its bounded expiry, death, vehicle, workspot and session guards. This does not cancel an authoritative upload or undo committed damage.
 ---
 --- Permissions: player.hacking.status
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.62
 --- Reasons: hacking_status_backend_unavailable, invalid_kind, permission_denied:player.hacking.status
 ---@param kind? string
 ---@return any true true, or nil, reason
@@ -3362,7 +3410,7 @@ function Open77.hacking.clearNativeStatus(kind) end
 --- Client-only; requires `player.hacking.status`, a server-driven projection primitive a player resource should not hold by default (distinct from the HUD-only `player.hacking.project`). `kind` is `blind` (Reboot Optics) or `weapon_jam` (Weapon Glitch); `durationMs` is 1..3600000 and the client clamps it to the kind's cap (15 s). One independent slot per kind, owned by the calling resource: a second call on the same kind replaces this resource's own slot and cannot touch another resource's. The adapter releases on the deadline, on death, vehicle entry, workspot, session change and resource stop; the server's deadline stays the authority and this only presents it. Returns the request id, not proof of a rendered effect.
 ---
 --- Permissions: player.hacking.status
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.62
 --- Reasons: hacking_status_backend_unavailable, invalid_duration, invalid_kind, permission_denied:player.hacking.status, resource_not_running
 ---@param kind any
 ---@param durationMs integer
@@ -3375,7 +3423,7 @@ function Open77.hacking.nativeStatus(kind, durationMs) end
 --- Client-only; requires player.hacking.status. Returns one sub-table per held kind, keyed by kind (blind, weapon_jam), each carrying kind, phase, owner, reason, request, grantedMs, remainingMs, elapsedMs, releaseOverdue and applied, plus the totals applications, refusals, releases and watchdogRemovals. Slots are independent, one per kind, and the client clamps each duration to that kind's cap. applied is adapter state, not proof of a rendered effect; the server's deadline is the authority and the client only presents it.
 ---
 --- Permissions: player.hacking.status
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.62
 --- Reasons: hacking_status_backend_unavailable, permission_denied:player.hacking.status
 ---@return any state state table, or nil, reason
 function Open77.hacking.nativeStatusState() end
@@ -3385,7 +3433,7 @@ function Open77.hacking.nativeStatusState() end
 --- Client-only; requires world.query. playerId is a positive integer network player ID. Returns streamed=true, visible, distance in metres, angle in radians and position={x,y,z}; no engine pointer or entity handle is exposed. The target must have an attached, presentation-ready remote body. Native selection checks camera-to-chest distance from 0.8 through 80 metres; peers outside the 0.35-radian selection cone return visible=false without a physics query. Within the cone, a failed native raycast returns nil, reason. This is local selection evidence only: it does not authorize a target, start an upload or prove server visibility. The server separately validates identity, life, range, policy and challenged visibility. It does not enter the vanilla scanner or slow game time. See the Hacking and counterplay guide for the public server workflow.
 ---
 --- Permissions: world.query
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: invalid_target_or_backend, permission_denied:world.query
 ---@param playerId integer
 ---@return any observation observation, or nil, reason
@@ -3396,7 +3444,7 @@ function Open77.hacking.observe(playerId) end
 --- Client-only; requires player.hacking.project and a running resource. options contains actionId (integer 1..9007199254740991), phase (targeting, incoming, upload, block, purge, impact or cancel) and finite progress (0..1). actionId correlates presentation; it is not a damage authorization. Ownership comes from the calling resource. A different resource's active 1.5-second presentation lease refuses admission; refresh a continuing presentation periodically. The native adapter uses the vanilla progress HUD and sound cues while preserving other native HUD ownership. true means queued, not rendered or acoustically proven: the native script may refuse or defer a busy HUD. The official hacking resource supplies an incoming-warning fallback. This API does not execute a vanilla quickhack, apply native damage or change movement/camera controls. Resource stop requests owned cleanup; native presentation also has body/session and expiry guards.
 ---
 --- Permissions: player.hacking.project
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.61
 --- Reasons: invalid_presentation_or_backend, permission_denied:player.hacking.project, presentation_refused, resource_not_running
 ---@param options any
 ---@return any true true when queued, or nil, reason
@@ -3565,7 +3613,7 @@ function Open77.input.blocks() end
 --- Requires input.actions. Returns normalized x/y, pixelX/pixelY, client-area width/height, inBounds and captured. captured is true when any WebUI owns keyboard or cursor input. The coordinates may fall outside [0,1]; check inBounds. Returns nil, game_not_focused on focus loss, or a cursor/viewport availability reason. Does not show, capture or unlock the mouse: use an owned WebUI page with setFocus. WebUI uses its own virtual pointer; for exact WebUI clicks pass event.clientX/innerWidth and event.clientY/innerHeight to screenRaycast instead. See screen-picking.md.
 ---
 --- Permissions: input.actions
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@return any cursor cursor table, or nil, reason
 function Open77.input.cursor() end
 
@@ -4118,7 +4166,7 @@ function Open77.markers.update(id, patch) end
 --- Requires player.motion.project. entity is a local registry handle (1 for the owner), not a network player ID. Direction is normalized; distance is0..6 m and the local owner must be alive, ready, on foot and grounded. Returns an owned request ID. Owner phase starts pending, then active after two valid consecutive native-down observations within1.5s. Remote projection starts its native action immediately. No damage, teleport or server authority is granted.
 ---
 --- Permissions: player.motion.project
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: invalid_motion, motion_backend_unavailable, permission_denied:player.motion.project, resource_not_running
 ---@param entity integer
 ---@param x number
@@ -4133,7 +4181,7 @@ function Open77.motion.knockdown(entity, x, y, distance) end
 --- Requires player.motion.project. Phases include pending, active and recovering; an expired/unknown/foreign ID returns nil, reason. active is a native PSM observation for the owner, not proof of physical displacement or the observer rendering. The support resource waits for active before acknowledging server motion.
 ---
 --- Permissions: player.motion.project
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: invalid_request, motion_backend_unavailable, permission_denied:player.motion.project
 ---@param request integer
 ---@return any phase phase string
@@ -4145,7 +4193,7 @@ function Open77.motion.state(request) end
 --- Requires player.motion.project. Pending cancellation is latched so cleanup retries cannot later activate it. Cancellation removes the owned status/action but may leave native momentum and get-up in progress. It does not instantly freeze velocity, revive a player, or cancel another resource's request.
 ---
 --- Permissions: player.motion.project
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 --- Reasons: invalid_request, motion_backend_unavailable, permission_denied:player.motion.project
 ---@param request integer
 ---@return any true true
@@ -4157,7 +4205,7 @@ function Open77.motion.stop(request) end
 --- Client-only; requires `player.movement.lock`, a server-driven projection primitive a player resource should not hold by default. `kind` is `freeze` (no movement), `cripple` (slow) or `cripple_heavy`; `durationMs` is 1..3600000 and the adapter clamps it to its own cap. One slot, owned by the calling resource; a later call replaces this resource's own lock and never another's. The adapter releases on the deadline, on death, vehicle entry, workspot, session change and resource stop -- `lockState` exposes the watchdog that removes a lock whose owner never released it. Returns the request id; the server's deadline stays the authority. For a server-authoritative freeze use `Open77.players.setFrozen` on the server instead.
 ---
 --- Permissions: player.movement.lock
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.62
 --- Reasons: invalid_duration, invalid_kind, movement_backend_unavailable, permission_denied:player.movement.lock, resource_not_running
 ---@param kind any
 ---@param durationMs integer
@@ -4170,7 +4218,7 @@ function Open77.movement.lock(kind, durationMs) end
 --- Client-only; requires player.movement.lock. Returns phase, kind, owner, reason, request, grantedMs, remainingMs, elapsedMs, locks, refusals, releases, watchdogRemovals, releaseOverdue and locked. phase is the adapter's own state, not proof of a rendered input restriction, and the server's deadline remains the authority. releaseOverdue and watchdogRemovals expose the bounded watchdog that removes a lock whose owner never released it.
 ---
 --- Permissions: player.movement.lock
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.62
 --- Reasons: movement_backend_unavailable, permission_denied:player.movement.lock
 ---@return any state state table, or nil, reason
 function Open77.movement.lockState() end
@@ -4180,7 +4228,7 @@ function Open77.movement.lockState() end
 --- Client-only; requires player.movement.lock. Releases only a lock the calling resource owns and is harmless when it owns none. It cannot lift another resource's lock. true acknowledges the release request; the native adapter also releases on its own deadline and on death, vehicle entry, workspot, session change and resource stop. Releasing does not undo damage, cancel an authoritative hack or refund a status; use the server hacking APIs for gameplay state.
 ---
 --- Permissions: player.movement.lock
---- Since: 2.31.13+op77.67
+--- Since: 2.31.13+op77.62
 --- Reasons: movement_backend_unavailable, permission_denied:player.movement.lock
 ---@return any true true, or nil, reason
 function Open77.movement.unlock() end
@@ -4562,7 +4610,7 @@ function Open77.photoMode.setEnabled(enabled) end
 ---
 --- Declare dependency 'open77_player_interactions >=1.0.0'. This is an asynchronous resource-export facade: call from a managed coroutine and await the Promise; nil plus reason indicates dispatch/rejection. No presentation capability is required for consumers. Resolving a request ID means queued, not accepted by the server. Observe onPlayerInteractionResult or result(requestId), then lifecycle state events.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: open77_player_interactions
 ---@param interactionId string
 ---@return any Open77 Open77.Promise resolving to request ID; nil, reason on rejection
@@ -4572,7 +4620,7 @@ function Open77.playerInteractions.accept(interactionId) end
 ---
 --- Declare dependency 'open77_player_interactions >=1.0.0'. This is an asynchronous resource-export facade: call from a managed coroutine and await the Promise; nil plus reason indicates dispatch/rejection. No presentation capability is required for consumers. Resolving a request ID means queued, not accepted by the server. Observe onPlayerInteractionResult or result(requestId), then lifecycle state events.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: open77_player_interactions
 ---@param interactionId? string
 ---@return any Open77 Open77.Promise resolving to request ID; nil, reason on rejection
@@ -4582,7 +4630,7 @@ function Open77.playerInteractions.cancel(interactionId) end
 ---
 --- Declare dependency 'open77_player_interactions >=1.0.0'. This is an asynchronous resource-export facade: call from a managed coroutine and await the Promise; nil plus reason indicates dispatch/rejection. No presentation capability is required for consumers. Client observations are not authority for inventory, healing or rewards.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: open77_player_interactions
 ---@param playerId? integer
 ---@return any Open77 Open77.Promise resolving to state or nil; nil, reason on rejection
@@ -4592,7 +4640,7 @@ function Open77.playerInteractions.current(playerId) end
 ---
 --- Declare dependency 'open77_player_interactions >=1.0.0'. This is an asynchronous resource-export facade: call from a managed coroutine and await the Promise; nil plus reason indicates dispatch/rejection. No presentation capability is required for consumers. Resolving a request ID means queued, not accepted by the server. Observe onPlayerInteractionResult or result(requestId), then lifecycle state events.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: open77_player_interactions
 ---@param interactionId string
 ---@return any Open77 Open77.Promise resolving to request ID; nil, reason on rejection
@@ -4602,7 +4650,7 @@ function Open77.playerInteractions.decline(interactionId) end
 ---
 --- Declare dependency 'open77_player_interactions >=1.0.0'. This is an asynchronous resource-export facade: call from a managed coroutine and await the Promise; nil plus reason indicates dispatch/rejection. No presentation capability is required for consumers. Client observations are not authority for inventory, healing or rewards.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: open77_player_interactions
 ---@param interactionId string
 ---@return any Open77 Open77.Promise resolving to state or nil; nil, reason on rejection
@@ -4612,7 +4660,7 @@ function Open77.playerInteractions.get(interactionId) end
 ---
 --- Declare dependency 'open77_player_interactions >=1.0.0'. This is an asynchronous resource-export facade: call from a managed coroutine and await the Promise; nil plus reason indicates dispatch/rejection. No presentation capability is required for consumers. Client observations are not authority for inventory, healing or rewards.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: open77_player_interactions
 ---@param playerId? integer
 ---@return any Open77 Open77.Promise resolving to boolean; nil, reason on rejection
@@ -4622,7 +4670,7 @@ function Open77.playerInteractions.isReserved(playerId) end
 ---
 --- Declare dependency 'open77_player_interactions >=1.0.0'. This is an asynchronous resource-export facade: call from a managed coroutine and await the Promise; nil plus reason indicates dispatch/rejection. No presentation capability is required for consumers. Client observations are not authority for inventory, healing or rewards.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: open77_player_interactions
 ---@return any Open77 Open77.Promise resolving to state[]; nil, reason on rejection
 function Open77.playerInteractions.list() end
@@ -4631,7 +4679,7 @@ function Open77.playerInteractions.list() end
 ---
 --- Declare dependency 'open77_player_interactions >=1.0.0'. This is an asynchronous resource-export facade: call from a managed coroutine and await the Promise; nil plus reason indicates dispatch/rejection. No presentation capability is required for consumers. Resolving a request ID means queued, not accepted by the server. Observe onPlayerInteractionResult or result(requestId), then lifecycle state events.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: open77_player_interactions
 ---@param interactionId string
 ---@param accepted boolean
@@ -4642,7 +4690,7 @@ function Open77.playerInteractions.respond(interactionId, accepted) end
 ---
 --- Declare dependency 'open77_player_interactions >=1.0.0'. This is an asynchronous resource-export facade: call from a managed coroutine and await the Promise; nil plus reason indicates dispatch/rejection. No presentation capability is required for consumers. Client observations are not authority for inventory, healing or rewards.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: open77_player_interactions
 ---@param requestId string
 ---@return any Open77 Open77.Promise resolving to result table or nil; nil, reason on rejection
@@ -4680,7 +4728,7 @@ function Open77.players.allLifeStates() end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.allowAim(enabled) end
@@ -4690,7 +4738,7 @@ function Open77.players.allowAim(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.allowCrouch(enabled) end
@@ -4700,7 +4748,7 @@ function Open77.players.allowCrouch(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.allowDodge(enabled) end
@@ -4710,7 +4758,7 @@ function Open77.players.allowDodge(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.allowInteraction(enabled) end
@@ -4720,7 +4768,7 @@ function Open77.players.allowInteraction(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.allowJump(enabled) end
@@ -4730,7 +4778,7 @@ function Open77.players.allowJump(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.allowRunning(enabled) end
@@ -4740,7 +4788,7 @@ function Open77.players.allowRunning(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.allowShoot(enabled) end
@@ -4750,7 +4798,7 @@ function Open77.players.allowShoot(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.allowWeapons(enabled) end
@@ -4782,7 +4830,7 @@ function Open77.players.entity(playerId) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.freezePosition(enabled) end
@@ -4792,7 +4840,7 @@ function Open77.players.freezePosition(enabled) end
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.freezeRotation(enabled) end
@@ -4813,7 +4861,7 @@ function Open77.players.fromEntity(entityId) end
 --- Requires players.controls. Does not remove other resources' blocks or expose vanilla restriction state. See player-utilities.md.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, permission_denied:players.controls
 ---@return any integer integer mask, or nil, reason
 function Open77.players.getControlMask() end
@@ -4833,7 +4881,7 @@ function Open77.players.getHealthState(playerId) end
 --- Requires players.holocall.read. Omit playerId for the local network player. Returns nil, state_unavailable before the initial server snapshot. False means absent from this client's active bucket snapshot; it is not a cross-bucket global query or proof that native pixels are rendered. There is intentionally no client setter. See holocall-eyes.md.
 ---
 --- Permissions: players.holocall.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param playerId? integer
 ---@return any boolean boolean enabled, or nil, reason
 function Open77.players.getHoloCallEyes(playerId) end
@@ -4872,7 +4920,7 @@ function Open77.players.getVehicleSeat(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -4883,7 +4931,7 @@ function Open77.players.isAiming(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -4904,7 +4952,7 @@ function Open77.players.isDead(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -4915,7 +4963,7 @@ function Open77.players.isDiving(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -4926,7 +4974,7 @@ function Open77.players.isDriver(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -4937,7 +4985,7 @@ function Open77.players.isFalling(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -4948,7 +4996,7 @@ function Open77.players.isGrounded(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -4959,7 +5007,7 @@ function Open77.players.isInVehicle(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -4970,7 +5018,7 @@ function Open77.players.isJumping(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -4981,7 +5029,7 @@ function Open77.players.isPassenger(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -4992,7 +5040,7 @@ function Open77.players.isReloading(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -5003,7 +5051,7 @@ function Open77.players.isShooting(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -5014,7 +5062,7 @@ function Open77.players.isSliding(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -5025,7 +5073,7 @@ function Open77.players.isSprinting(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -5036,7 +5084,7 @@ function Open77.players.isSwimming(playerId) end
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
 ---
 --- Permissions: players.read
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 --- Reasons: game_unavailable_on_this_host, invalid_player, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
@@ -5079,7 +5127,7 @@ function Open77.players.nearby(radius, options) end
 --- Requires players.controls. Does not remove other resources' blocks or expose vanilla restriction state. See player-utilities.md.
 ---
 --- Permissions: players.controls
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@return any true true, or false, reason
 function Open77.players.resetControls() end
 
@@ -5180,7 +5228,7 @@ function Open77.Promise:status() end
 --- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. This changes only this client's prop, not server authority. Physics uses a visual-only attachment host; arbitrary mesh paths without that host are refused.
 ---
 --- Permissions: world.props
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param propId integer
 ---@param binding table
 ---@return any boolean boolean success, reason on failure
@@ -5191,7 +5239,7 @@ function Open77.props.attach(propId, binding) end
 --- Requires world.props. Returns sorted names from the current native slot components, not all skeleton bones. Parent IDs are canonical player/vehicle IDs. Empty array means unavailable or no slots; it does not establish that a different body/model supports a requested slot.
 ---
 --- Permissions: world.props
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param parentType string
 ---@param parentId integer
 ---@return any string string[] or nil, reason
@@ -5222,7 +5270,7 @@ function Open77.props.create(options) end
 --- Requires world.props. Restores an independent host at the last locally rendered pose. Does not detach a server-owned network prop. Calling the server API is required for a replicated release.
 ---
 --- Permissions: world.props
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param propId integer
 ---@return any boolean boolean success, reason on failure
 function Open77.props.detach(propId) end
@@ -5351,6 +5399,39 @@ function Open77.puppets.setSlot(playerId, slot, record) end
 ---@return any boolean boolean accepted
 ---@return any reason reason on failure
 function Open77.puppets.setWardrobe(playerId, snapshot) end
+
+--- Releases the reflex overdrive this resource holds on the local player.
+---
+--- Client support primitive; requires player.reflex.overdrive. Idempotent; the boost also ends on its own deadline, on death, a vehicle, a workspot, a session change and the owning resource stopping.
+---
+--- Permissions: player.reflex.overdrive
+--- Since: 2.31.13+op77.63
+--- Reasons: permission_denied:player.reflex.overdrive, reflex_backend_unavailable
+---@return any true true, or nil, reason
+function Open77.reflex.clear() end
+
+--- Applies the local reflex overdrive: a bounded real-time speed/handling buff.
+---
+--- Client support primitive; requires player.reflex.overdrive. Kind is reflex or reflex_heavy; duration is clamped to 15 s. It applies stat modifiers through gameStatsSystem and touches no clock: the shared world stays real time, other players are never slowed and bullets are never slowed. Server creators use the separate server Open77.reflex define/grant/revoke API documented in reflex-overdrive.md. A returned request number is admission, not rendered speed. Arbitrary stat plans are unavailable. Multiplayer acceptance is pending.
+---
+--- Permissions: player.reflex.overdrive
+--- Since: 2.31.13+op77.63
+--- Reasons: invalid_duration, invalid_kind, permission_denied:player.reflex.overdrive, reflex_backend_unavailable, resource_not_running
+---@param kind string
+---@param durationMs integer
+---@return any request request number, or nil
+---@return any reason reason on failure
+function Open77.reflex.overdrive(kind, durationMs) end
+
+--- Reads the local reflex-overdrive machine.
+---
+--- Client support primitive; requires player.reflex.overdrive. Returns phase, kind, owner, reason, request, grantedMs, remainingMs, elapsedMs, activations, refusals, releases, watchdogRemovals, releaseOverdue and active. It is admission and lifecycle state, not proof that the engine honoured a modifier.
+---
+--- Permissions: player.reflex.overdrive
+--- Since: 2.31.13+op77.63
+--- Reasons: permission_denied:player.reflex.overdrive, reflex_backend_unavailable
+---@return any table table, or nil, reason
+function Open77.reflex.state() end
 
 --- Generation number, incremented on every reload.
 ---
@@ -6494,7 +6575,7 @@ function Open77.vehicles.warpPlayerIntoVehicle(playerId, vehicleId, seat) end
 --- Requires world.effects. effectId and entity are local handles; slot is a nonempty native slot name up to128 bytes. anchor defaults to body; weaponRight uses the supported equipped weapon anchor. Missing body/slot/weapon is a refusal, not permission to bind an unrelated target. True is native attachment acceptance, not visual proof.
 ---
 --- Permissions: world.effects
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param effectId any
 ---@param entity any
 ---@param slot string
@@ -6561,7 +6642,7 @@ function Open77.vfx.playEntity(effect, options) end
 --- Requires world.effects. Accepts {kind="player"|"npc"|"vehicle"|"prop",id=decimalStringOrInteger}. Returns a decimal string local registry handle (local player resolves to1), or nil, reason such as target_not_streamed. Re-resolve after stream/body changes; never send this local handle over the network.
 ---
 --- Permissions: world.effects
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.61
 ---@param target table
 ---@return any decimal decimal string local handle
 ---@return any nil nil, reason on rejection
@@ -6639,7 +6720,7 @@ function Open77.voice.devices(flow) end
 --- Requires voice.client. Fields: enabled, sessionActive, mode=audio_envelope, trackedPlayers, availablePlayers, activePlayers. Not phoneme recognition.
 ---
 --- Permissions: voice.client
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@return any status status table, or nil, reason
 function Open77.voice.getLipSyncStatus() end
 
@@ -6648,7 +6729,7 @@ function Open77.voice.getLipSyncStatus() end
 --- Requires voice.client. Fields: playerId, entity, isLocal, enabled, available, active, level (0..1), reason. Unstreamed/custom unsupported heads report unavailable without changing the body animation.
 ---
 --- Permissions: voice.client
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param playerId integer
 ---@return any state state table, or nil, reason
 function Open77.voice.getPlayerLipSyncState(playerId) end
@@ -6704,7 +6785,7 @@ function Open77.voice.setInputVolume(gain) end
 --- Requires voice.client. False adds this resource's global suppression; true removes only its own suppression. Resource stop/reload/failure releases it. Does not mute audio. See the Voice lipsync guide for setup and client-build requirements.
 ---
 --- Permissions: voice.client
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.voice.setLipSyncEnabled(enabled) end
@@ -6748,7 +6829,7 @@ function Open77.voice.setPlayerBlocked(playerId, blocked) end
 --- Requires voice.client. Positive network player ID, not entity ID. True cannot override another resource's suppression or a global suppression. Per-player policies reset across sessions.
 ---
 --- Permissions: voice.client
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@param playerId integer
 ---@param enabled boolean
 ---@return any true true, or false, reason
@@ -7048,7 +7129,7 @@ function Open77.world.district(position) end
 --- Fails with `invalid_entity_kind`, `invalid_entity_id`, `entity_geometry_unavailable`, or the entity resolver's own reason when the id names nothing attached.
 ---
 --- Permissions: world.query
---- Since: 2.31.13+op77.67
+--- Since: not in any published build
 --- Reasons: entity_geometry_unavailable, invalid_entity_id, invalid_entity_kind, loaded_mesh_bounds, permission_denied:world.query
 ---@param entity any
 ---@return any table table { attached, entity, position, forward, orientation, bounds?, head?, damage? }, or nil
@@ -7217,7 +7298,7 @@ function WebUI.Page:destroy() end
 ---
 --- Call page:hasFocus(). Reads actual focus ownership and presentation availability without changing either. Returns false if another surface owns focus or this surface cannot present. Only accepts a live page handle owned by the calling resource. Combine with setFocus(false,false), hide and resource-scoped control cleanup when closing a modal. See screen-picking.md and the generic open77_contextmenu package.
 ---
---- Since: 2.31.13+op77.63
+--- Since: 2.31.13+op77.67
 ---@return any boolean boolean
 function WebUI.Page:hasFocus() end
 

@@ -43,7 +43,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Abilities.cs",
-     "line": 92
+     "line": 106
     }
    ],
    "documented": false,
@@ -60,7 +60,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Abilities.cs",
-     "line": 86
+     "line": 87
     }
    ],
    "documented": false,
@@ -78,7 +78,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Abilities.cs",
-     "line": 89
+     "line": 103
     },
     {
      "side": "resource-client",
@@ -100,7 +100,24 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Abilities.cs",
-     "line": 82
+     "line": 83
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:abilities:report",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Abilities.cs",
+     "line": 90
     }
    ],
    "documented": false,
@@ -918,7 +935,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Core/Networking/PhantomServerTransport.cs",
-     "line": 296
+     "line": 331
     },
     {
      "side": "resource-client",
@@ -1013,12 +1030,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6949
+     "line": 6957
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 7202
+     "line": 7210
     },
     {
      "side": "server",
@@ -1041,7 +1058,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6940
+     "line": 6948
     },
     {
      "side": "resource-client",
@@ -1064,7 +1081,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 7197
+     "line": 7205
     },
     {
      "side": "server",
@@ -1177,7 +1194,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 895
+     "line": 899
     },
     {
      "side": "resource-server",
@@ -1257,7 +1274,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18641
+     "line": 18795
     },
     {
      "side": "server",
@@ -1280,7 +1297,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18642
+     "line": 18796
     },
     {
      "side": "server",
@@ -1388,12 +1405,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6901
+     "line": 6909
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 7193
+     "line": 7201
     },
     {
      "side": "resource-server",
@@ -1416,7 +1433,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6892
+     "line": 6900
     },
     {
      "side": "resource-client",
@@ -1439,7 +1456,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 7188
+     "line": 7196
     },
     {
      "side": "resource-client",
@@ -1843,7 +1860,7 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 197
+     "line": 202
     }
    ],
    "documented": false,
@@ -1866,7 +1883,7 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 301
+     "line": 306
     }
    ],
    "documented": false,
@@ -1889,7 +1906,7 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 193
+     "line": 198
     }
    ],
    "documented": false,
@@ -1912,12 +1929,12 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 241
+     "line": 246
     },
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 266
+     "line": 271
     }
    ],
    "documented": false,
@@ -1940,7 +1957,7 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 255
+     "line": 260
     }
    ],
    "documented": false,
@@ -1963,7 +1980,7 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 297
+     "line": 302
     }
    ],
    "documented": false,
@@ -1986,7 +2003,7 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 251
+     "line": 256
     }
    ],
    "documented": false,
@@ -2009,7 +2026,7 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 195
+     "line": 200
     }
    ],
    "documented": false,
@@ -2032,7 +2049,7 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 299
+     "line": 304
     }
    ],
    "documented": false,
@@ -2089,7 +2106,92 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/open77_cyberware_lab/server/main.lua",
-     "line": 191
+     "line": 196
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:cyberlab:reflex:action",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/gamemodes/open77_cyberware_lab/client/panel.lua",
+     "line": 98
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/gamemodes/open77_cyberware_lab/server/reflex.lua",
+     "line": 158
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:cyberlab:reflex:data",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/gamemodes/open77_cyberware_lab/client/panel.lua",
+     "line": 153
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:cyberlab:reflex:request",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/gamemodes/open77_cyberware_lab/client/panel.lua",
+     "line": 27
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/gamemodes/open77_cyberware_lab/client/panel.lua",
+     "line": 126
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/gamemodes/open77_cyberware_lab/server/reflex.lua",
+     "line": 150
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:cyberlab:reflex:result",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/gamemodes/open77_cyberware_lab/client/panel.lua",
+     "line": 156
     }
    ],
    "documented": false,
@@ -2107,7 +2209,7 @@
     {
      "side": "resource-client",
      "file": "resources/gamemodes/open77_cyberware_lab/client/panel.lua",
-     "line": 89
+     "line": 90
     },
     {
      "side": "resource-server",
@@ -2129,7 +2231,7 @@
     {
      "side": "resource-client",
      "file": "resources/gamemodes/open77_cyberware_lab/client/panel.lua",
-     "line": 137
+     "line": 147
     }
    ],
    "documented": false,
@@ -2152,7 +2254,7 @@
     {
      "side": "resource-client",
      "file": "resources/gamemodes/open77_cyberware_lab/client/panel.lua",
-     "line": 116
+     "line": 125
     },
     {
      "side": "resource-server",
@@ -2174,7 +2276,7 @@
     {
      "side": "resource-client",
      "file": "resources/gamemodes/open77_cyberware_lab/client/panel.lua",
-     "line": 140
+     "line": 150
     }
    ],
    "documented": false,
@@ -2215,12 +2317,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 994
+     "line": 1007
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 155
+     "line": 166
     }
    ],
    "documented": false,
@@ -2238,12 +2340,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 992
+     "line": 1005
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 377
+     "line": 453
     }
    ],
    "documented": false,
@@ -2261,12 +2363,35 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 991
+     "line": 1003
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 351
+     "line": 427
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:cyberware:jumpReport",
+   "sides": [
+    "resource-client",
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
+     "line": 1004
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_cyberware/client/main.lua",
+     "line": 407
     }
    ],
    "documented": false,
@@ -2283,7 +2408,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 334
+     "line": 387
     }
    ],
    "documented": false,
@@ -2305,7 +2430,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 410
+     "line": 486
     }
    ],
    "documented": true,
@@ -2323,27 +2448,27 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 993
+     "line": 1006
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 450
+     "line": 526
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 464
+     "line": 540
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 478
+     "line": 554
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 486
+     "line": 562
     }
    ],
    "documented": false,
@@ -2366,7 +2491,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 74
+     "line": 85
     }
    ],
    "documented": false,
@@ -2383,7 +2508,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 247
+     "line": 258
     }
    ],
    "documented": false,
@@ -2401,12 +2526,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 984
+     "line": 996
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 307
+     "line": 318
     }
    ],
    "documented": false,
@@ -2423,7 +2548,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_cyberware/client/main.lua",
-     "line": 255
+     "line": 266
     }
    ],
    "documented": false,
@@ -2440,7 +2565,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Dash.cs",
-     "line": 119
+     "line": 120
     }
    ],
    "documented": false,
@@ -2457,7 +2582,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Dash.cs",
-     "line": 124
+     "line": 139
     }
    ],
    "documented": false,
@@ -2474,7 +2599,24 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Dash.cs",
-     "line": 115
+     "line": 116
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:dash:report",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Dash.cs",
+     "line": 125
     }
    ],
    "documented": false,
@@ -2491,7 +2633,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Dash.cs",
-     "line": 91
+     "line": 92
     }
    ],
    "documented": false,
@@ -2953,7 +3095,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17976
+     "line": 18130
     },
     {
      "side": "server",
@@ -2973,7 +3115,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1198
+     "line": 1206
     },
     {
      "side": "resource-client",
@@ -3020,7 +3162,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17977
+     "line": 18131
     },
     {
      "side": "server",
@@ -3040,7 +3182,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1199
+     "line": 1207
     },
     {
      "side": "resource-client",
@@ -3081,7 +3223,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17977
+     "line": 18131
     },
     {
      "side": "server",
@@ -3091,7 +3233,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1199
+     "line": 1207
     },
     {
      "side": "resource-client",
@@ -3132,7 +3274,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17976
+     "line": 18130
     },
     {
      "side": "server",
@@ -3152,7 +3294,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1198
+     "line": 1206
     },
     {
      "side": "resource-client",
@@ -3529,17 +3671,17 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Hacking.cs",
-     "line": 207
+     "line": 246
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_hacking/client/main.lua",
-     "line": 331
+     "line": 380
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_hacking/client/main.lua",
-     "line": 499
+     "line": 555
     }
    ],
    "documented": false,
@@ -3557,12 +3699,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Hacking.cs",
-     "line": 197
+     "line": 206
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_hacking/client/main.lua",
-     "line": 622
+     "line": 688
     }
    ],
    "documented": false,
@@ -3580,12 +3722,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Hacking.cs",
-     "line": 205
+     "line": 244
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_hacking/client/main.lua",
-     "line": 466
+     "line": 516
     }
    ],
    "documented": false,
@@ -3603,12 +3745,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Hacking.cs",
-     "line": 176
+     "line": 185
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_hacking/client/main.lua",
-     "line": 580
+     "line": 636
     }
    ],
    "documented": false,
@@ -3625,7 +3767,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_hacking/client/main.lua",
-     "line": 455
+     "line": 504
     }
    ],
    "documented": false,
@@ -3643,12 +3785,40 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Hacking.cs",
-     "line": 203
+     "line": 242
     },
     {
      "side": "resource-client",
      "file": "resources/system/open77_hacking/client/main.lua",
-     "line": 465
+     "line": 514
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:hacking:startReport",
+   "sides": [
+    "resource-client",
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Hacking.cs",
+     "line": 220
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_hacking/client/main.lua",
+     "line": 366
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_hacking/client/main.lua",
+     "line": 515
     }
    ],
    "documented": false,
@@ -3665,7 +3835,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_hacking/client/main.lua",
-     "line": 367
+     "line": 416
     }
    ],
    "documented": false,
@@ -3691,7 +3861,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_hacking/client/main.lua",
-     "line": 473
+     "line": 523
     }
    ],
    "documented": true,
@@ -3717,12 +3887,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 7037
+     "line": 7045
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 7220
+     "line": 7228
     }
    ],
    "documented": true,
@@ -3745,7 +3915,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 7028
+     "line": 7036
     },
     {
      "side": "resource-client",
@@ -3768,7 +3938,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 7215
+     "line": 7223
     },
     {
      "side": "resource-client",
@@ -3977,12 +4147,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15111
+     "line": 15265
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15113
+     "line": 15267
     },
     {
      "side": "resource-client",
@@ -4011,6 +4181,117 @@
     }
    ],
    "documented": true,
+   "inCode": true
+  },
+  {
+   "name": "open77:leases:grant",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_cyberware/client/ground-slam.lua",
+     "line": 108
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_cyberware/client/main.lua",
+     "line": 362
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_dash/client/main.lua",
+     "line": 113
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_hacking/client/main.lua",
+     "line": 333
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_reflex/client/main.lua",
+     "line": 96
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:leases:refresh",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_cyberware/client/ground-slam.lua",
+     "line": 115
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_cyberware/client/main.lua",
+     "line": 373
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_dash/client/main.lua",
+     "line": 120
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_hacking/client/main.lua",
+     "line": 341
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_reflex/client/main.lua",
+     "line": 103
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:leases:revoke",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_cyberware/client/ground-slam.lua",
+     "line": 125
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_cyberware/client/main.lua",
+     "line": 380
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_dash/client/main.lua",
+     "line": 132
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_hacking/client/main.lua",
+     "line": 351
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_reflex/client/main.lua",
+     "line": 113
+    }
+   ],
+   "documented": false,
    "inCode": true
   },
   {
@@ -4533,7 +4814,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6679
+     "line": 6687
     },
     {
      "side": "resource-client",
@@ -4556,7 +4837,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6670
+     "line": 6678
     },
     {
      "side": "resource-client",
@@ -4584,7 +4865,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6638
+     "line": 6646
     },
     {
      "side": "resource-client",
@@ -4607,7 +4888,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6656
+     "line": 6664
     },
     {
      "side": "resource-client",
@@ -4815,7 +5096,7 @@
     {
      "side": "resource-client",
      "file": "resources/gamemodes/open77_cyberware_lab/client/panel.lua",
-     "line": 130
+     "line": 140
     },
     {
      "side": "resource-client",
@@ -4883,12 +5164,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6854
+     "line": 6862
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6868
+     "line": 6876
     },
     {
      "side": "resource-client",
@@ -4928,7 +5209,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6866
+     "line": 6874
     },
     {
      "side": "resource-client",
@@ -5754,6 +6035,91 @@
    "inCode": true
   },
   {
+   "name": "open77:reflex:intent",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.ReflexOverdrive.cs",
+     "line": 121
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:reflex:nativePhase",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.ReflexOverdrive.cs",
+     "line": 137
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:reflex:projectionResult",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.ReflexOverdrive.cs",
+     "line": 117
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:reflex:report",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.ReflexOverdrive.cs",
+     "line": 124
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
+   "name": "open77:reflex:snapshot",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.ReflexOverdrive.cs",
+     "line": 92
+    }
+   ],
+   "documented": false,
+   "inCode": true
+  },
+  {
    "name": "open77:resource:started",
    "sides": [
     "resource-server",
@@ -5770,12 +6136,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 622
+     "line": 624
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 1214
+     "line": 1227
     },
     {
      "side": "resource-server",
@@ -5803,12 +6169,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 690
+     "line": 692
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 1213
+     "line": 1226
     },
     {
      "side": "resource-server",
@@ -6194,7 +6560,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3595
+     "line": 3603
     }
    ],
    "documented": false,
@@ -6216,7 +6582,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 22353
+     "line": 22519
     }
    ],
    "documented": false,
@@ -6267,7 +6633,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Core/Networking/PhantomServerTransport.cs",
-     "line": 298
+     "line": 333
     },
     {
      "side": "server",
@@ -6277,7 +6643,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 951
+     "line": 957
     },
     {
      "side": "resource-server",
@@ -6552,7 +6918,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17637
+     "line": 17791
     },
     {
      "side": "server",
@@ -6575,7 +6941,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17638
+     "line": 17792
     },
     {
      "side": "server",
@@ -6598,7 +6964,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17625
+     "line": 17779
     },
     {
      "side": "server",
@@ -6621,7 +6987,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17639
+     "line": 17793
     },
     {
      "side": "server",
@@ -6644,7 +7010,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17875
+     "line": 18029
     },
     {
      "side": "server",
@@ -6672,7 +7038,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17636
+     "line": 17790
     },
     {
      "side": "server",
@@ -6694,7 +7060,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3313
+     "line": 3321
     }
    ],
    "documented": false,
@@ -6711,7 +7077,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3312
+     "line": 3320
     }
    ],
    "documented": false,
@@ -6728,7 +7094,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3314
+     "line": 3322
     }
    ],
    "documented": false,
@@ -7110,7 +7476,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3605
+     "line": 3613
     }
    ],
    "documented": false,
@@ -7564,12 +7930,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6985
+     "line": 6993
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 7211
+     "line": 7219
     },
     {
      "side": "resource-client",
@@ -7675,7 +8041,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6976
+     "line": 6984
     },
     {
      "side": "resource-client",
@@ -7698,7 +8064,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 7206
+     "line": 7214
     },
     {
      "side": "resource-client",
@@ -8194,12 +8560,12 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 981
+     "line": 993
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1182
+     "line": 1188
     },
     {
      "side": "resource-client",
@@ -8229,12 +8595,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17965
+     "line": 18119
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 22114
+     "line": 22280
     },
     {
      "side": "server",
@@ -8264,7 +8630,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18643
+     "line": 18797
     },
     {
      "side": "server",
@@ -8309,6 +8675,16 @@
    ]
   },
   {
+   "prefix": "open77:cyberlab:reflex:",
+   "sources": [
+    {
+     "side": "resource-server",
+     "file": "resources/gamemodes/open77_cyberware_lab/server/reflex.lua",
+     "line": 143
+    }
+   ]
+  },
+  {
    "prefix": "open77:cyberlab:slam:",
    "sources": [
     {
@@ -8324,32 +8700,32 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17969
+     "line": 18123
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 22123
+     "line": 22289
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 982
+     "line": 994
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Cyberware.cs",
-     "line": 285
+     "line": 319
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1184
+     "line": 1192
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1196
+     "line": 1204
     }
    ]
   },
@@ -8359,17 +8735,17 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17971
+     "line": 18125
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 22124
+     "line": 22290
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 968
+     "line": 975
     },
     {
      "side": "server",
@@ -8379,7 +8755,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1180
+     "line": 1186
     },
     {
      "side": "server",
@@ -8404,7 +8780,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 22115
+     "line": 22281
     }
    ]
   },
@@ -8414,27 +8790,27 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17974
+     "line": 18128
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 22125
+     "line": 22291
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 974
+     "line": 986
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Hacking.cs",
-     "line": 134
+     "line": 143
     },
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1186
+     "line": 1194
     },
     {
      "side": "server",
@@ -8449,7 +8825,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_hacking/client/main.lua",
-     "line": 322
+     "line": 371
     }
    ]
   },
@@ -8465,6 +8841,16 @@
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/ResourceEventBus.cs",
      "line": 188
+    }
+   ]
+  },
+  {
+   "prefix": "open77:leases:",
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.Leases.cs",
+     "line": 103
     }
    ]
   },
@@ -8489,12 +8875,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17967
+     "line": 18121
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 22113
+     "line": 22279
     },
     {
      "side": "server",
@@ -8514,12 +8900,37 @@
    ]
   },
   {
+   "prefix": "open77:reflex:",
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
+     "line": 980
+    },
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.ReflexOverdrive.cs",
+     "line": 74
+    },
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
+     "line": 1190
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_reflex/client/main.lua",
+     "line": 7
+    }
+   ]
+  },
+  {
    "prefix": "open77:resource:",
    "sources": [
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 957
+     "line": 963
     },
     {
      "side": "server",
@@ -8549,7 +8960,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3600
+     "line": 3608
     }
    ]
   },
@@ -8559,7 +8970,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17633
+     "line": 17787
     },
     {
      "side": "server",
@@ -8579,7 +8990,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3311
+     "line": 3319
     }
    ]
   },
@@ -8599,7 +9010,7 @@
     {
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 8555
+     "line": 8578
     },
     {
      "side": "server",
@@ -8614,7 +9025,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 22094
+     "line": 22260
     }
    ]
   },
