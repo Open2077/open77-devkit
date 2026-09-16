@@ -131,8 +131,14 @@ async function serveHttp(flags: Flags): Promise<void> {
         return { index, resolved, packageVersion: await packageVersion(), skillPath: skillPathFor(PACKAGE_ROOT) } satisfies ServerContext;
       })();
       contexts.set(key, pending);
-      // Re-resolve after a day so a new release reaches long-lived replicas.
-      setTimeout(() => contexts.delete(key), 24 * 60 * 60 * 1000).unref();
+      // Re-resolve `latest` every ten minutes: resolving only re-reads the
+      // 300-byte latest.json and downloads an index when the build actually
+      // moved, and a replica that kept answering op77.69 for a day after
+      // op77.75 was published (measured 2026-09-16) is the thing to avoid.
+      // An explicit build is immutable once published; a day is fine there.
+      const ttl = key === "latest" ? 10 * 60 * 1000 : 24 * 60 * 60 * 1000;
+      setTimeout(() => contexts.delete(key), ttl).unref();
+      pending.catch(() => contexts.delete(key));
     }
     return pending;
   };

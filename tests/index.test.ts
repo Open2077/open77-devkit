@@ -76,6 +76,35 @@ test("the embedded index loads, verifies and searches", async () => {
   assert.ok(fivem.length > 0);
 });
 
+test("open77_api honours the runtime for a name both runtimes carry", async () => {
+  // A client route id is the bare qualified name, so a bare name used to hit
+  // the route map first and answer the client card whatever `runtime` said.
+  const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
+  const { InMemoryTransport } = await import("@modelcontextprotocol/sdk/inMemory.js");
+  const { createMcpServer } = await import("../src/server.js");
+  const ctx = await context();
+  const both = ctx.index.cards.find((c) => c.runtime === "server" && ctx.index.cards.some((o) => o.runtime === "client" && o.qualified === c.qualified))!;
+  assert.ok(both, "the embedded index has a name shared by both runtimes");
+  const server = createMcpServer(ctx);
+  const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
+  await server.connect(serverSide);
+  const client = new Client({ name: "test", version: "0" });
+  await client.connect(clientSide);
+  const ask = async (args: Record<string, unknown>) => {
+    const result = await client.callTool({ name: "open77_api", arguments: args });
+    return (result.content as { type: string; text: string }[]).map((c) => c.text).join("\n");
+  };
+  const head = (runtime: string) => `# ${runtime} ${both.qualified}(`;
+  assert.ok((await ask({ name: both.qualified, runtime: "server" })).startsWith(head("server")), "server card for runtime=server");
+  assert.ok((await ask({ name: both.qualified, runtime: "client" })).startsWith(head("client")), "client card for runtime=client");
+  const bare = await ask({ name: both.qualified });
+  assert.match(bare, /^# client /);
+  assert.match(bare, /\n# server /);
+  assert.match(await ask({ name: `server:${both.qualified}` }), /^# server /);
+  await client.close();
+  await server.close();
+});
+
 test("availabilityNote refuses natives newer than the served build", async () => {
   const ctx = await context("2.31.13+op77.54");
   const newer = ctx.index.cards.find((c) => c.since && opNumber(c.since) > 54)!;

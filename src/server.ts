@@ -527,8 +527,16 @@ export function createMcpServer(context: ServerContext): McpServer {
 
   function findCards(name: string, runtime?: "client" | "server"): ApiCard[] {
     const trimmed = name.trim().replace(/\(.*$/, "");
-    const direct = byRoute.get(trimmed);
-    if (direct) return [direct];
+    // A client route id is the bare qualified name, so a bare name hits the
+    // route map first and used to win outright -- `Open77.vehicles.setFrozen`
+    // with runtime "server" answered the CLIENT card (measured 2026-09-16 on
+    // 0.1.0). Only an explicit route id (`server:` / `client:`) is a direct
+    // hit; a bare name goes through the qualified map, where the runtime
+    // filter applies and a name both runtimes carry returns both cards.
+    if (trimmed.includes(":")) {
+      const direct = byRoute.get(trimmed);
+      if (direct) return runtime && direct.runtime !== runtime ? [] : [direct];
+    }
     const cards = byQualified.get(trimmed.toLowerCase()) ?? [];
     return runtime ? cards.filter((c) => c.runtime === runtime) : cards;
   }
