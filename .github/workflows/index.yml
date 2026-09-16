@@ -52,13 +52,13 @@ jobs:
       - name: Smoke-test the tools against the new index
         run: OPEN77_INDEX_DIR=index-build npm test
       - name: Publish to the CDN
-        if: ${{ secrets.OP77_CDN_SSH_KEY != '' }}
         env:
           OP77_CDN_SSH_KEY: ${{ secrets.OP77_CDN_SSH_KEY }}
           OP77_CDN_SSH_TARGET: ${{ secrets.OP77_CDN_SSH_TARGET }}
           BUILD: ${{ steps.build.outputs.build }}
         run: |
           set -euo pipefail
+          if [ -z "$OP77_CDN_SSH_KEY" ]; then echo "OP77_CDN_SSH_KEY not set; index built and verified, not published"; exit 0; fi
           KEY=$(mktemp)
           echo "$OP77_CDN_SSH_KEY" | base64 -d > "$KEY"
           chmod 600 "$KEY"
