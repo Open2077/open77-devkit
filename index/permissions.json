@@ -28,19 +28,19 @@
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1374
+     "line": 1461
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1375
+     "line": 1462
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1389
+     "line": 1476
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1390
+     "line": 1477
     }
    ]
   },
@@ -56,31 +56,31 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1635
+     "line": 1749
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1658
+     "line": 1772
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1659
+     "line": 1773
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1706
+     "line": 1820
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1707
+     "line": 1821
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1719
+     "line": 1833
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1720
+     "line": 1834
     }
    ]
   },
@@ -158,27 +158,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11200
+     "line": 11507
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11200
+     "line": 11507
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11230
+     "line": 11537
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11230
+     "line": 11537
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11245
+     "line": 11552
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11245
+     "line": 11552
     }
    ]
   },
@@ -197,19 +197,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1841
+     "line": 1955
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1842
+     "line": 1956
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1862
+     "line": 1976
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1863
+     "line": 1977
     }
    ]
   },
@@ -236,64 +236,65 @@
     "Open77.camera.unfollow"
    ],
    "guides": [
-    "cameras.md"
+    "cameras.md",
+    "screenshots.md"
    ],
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1955
+     "line": 2069
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2124
+     "line": 2238
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2228
+     "line": 2342
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2318
+     "line": 2432
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2357
+     "line": 2471
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2384
+     "line": 2498
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2401
+     "line": 2515
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2438
+     "line": 2552
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2461
+     "line": 2575
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2481
+     "line": 2595
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2517
+     "line": 2631
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2559
+     "line": 2673
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2698
+     "line": 2812
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2768
+     "line": 2882
     }
    ]
   },
@@ -311,11 +312,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6910
+     "line": 7105
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6913
+     "line": 7108
     }
    ]
   },
@@ -346,27 +347,27 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4017
+     "line": 4104
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4028
+     "line": 4115
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4039
+     "line": 4126
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4051
+     "line": 4138
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4063
+     "line": 4150
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4075
+     "line": 4162
     }
    ]
   },
@@ -412,15 +413,15 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4661
+     "line": 4748
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5603
+     "line": 5690
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6336
+     "line": 6452
     }
    ]
   },
@@ -440,19 +441,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17075
+     "line": 17950
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17113
+     "line": 17988
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17163
+     "line": 18038
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17180
+     "line": 18055
     }
    ]
   },
@@ -474,7 +475,7 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8291
+     "line": 8491
     }
    ]
   },
@@ -494,11 +495,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8296
+     "line": 8496
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8348
+     "line": 8548
     }
    ]
   },
@@ -524,23 +525,23 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5130
+     "line": 5217
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5177
+     "line": 5264
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5192
+     "line": 5279
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5218
+     "line": 5305
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5286
+     "line": 5373
     }
    ]
   },
@@ -566,27 +567,27 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5145
+     "line": 5232
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5161
+     "line": 5248
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5238
+     "line": 5325
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5254
+     "line": 5341
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5270
+     "line": 5357
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5287
+     "line": 5374
     }
    ]
   },
@@ -605,7 +606,25 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4705
+     "line": 4792
+    }
+   ]
+  },
+  {
+   "name": "http.serve",
+   "runtimes": [
+    "server"
+   ],
+   "summary": "Enforced by the server; gates 0 natives.",
+   "curated": false,
+   "natives": [],
+   "guides": [
+    "server-api.md"
+   ],
+   "sources": [
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Http.cs",
+     "line": 41
     }
    ]
   },
@@ -646,71 +665,71 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14414
+     "line": 14937
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14471
+     "line": 14994
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14537
+     "line": 15060
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14590
+     "line": 15113
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14632
+     "line": 15155
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14679
+     "line": 15202
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14764
+     "line": 15287
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14813
+     "line": 15336
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14915
+     "line": 15438
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14960
+     "line": 15483
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15000
+     "line": 15523
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15052
+     "line": 15575
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15168
+     "line": 15691
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15192
+     "line": 15715
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15217
+     "line": 15740
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15297
+     "line": 15820
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15332
+     "line": 15855
     }
    ]
   },
@@ -730,11 +749,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14806
+     "line": 15329
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14842
+     "line": 15365
     }
    ]
   },
@@ -757,11 +776,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17000
+     "line": 17875
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17000
+     "line": 17875
     }
    ]
   },
@@ -784,11 +803,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16966
+     "line": 17841
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16966
+     "line": 17841
     }
    ]
   },
@@ -812,35 +831,35 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5912
+     "line": 6107
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5918
+     "line": 6113
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5935
+     "line": 6130
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5955
+     "line": 6150
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5973
+     "line": 6168
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5987
+     "line": 6182
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6018
+     "line": 6213
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6038
+     "line": 6233
     }
    ]
   },
@@ -850,7 +869,7 @@
     "client",
     "server"
    ],
-   "summary": "Enforced by the client and server; gates 21 natives in Open77.net, Open77.perspective, Open77.state, Open77.weapons, _G.",
+   "summary": "Enforced by the client and server; gates 23 natives in Open77.net, Open77.perspective, Open77.state, Open77.weapons, _G.",
    "curated": false,
    "natives": [
     "Open77.net.call",
@@ -866,6 +885,7 @@
     "server:Open77.net.callClient",
     "server:Open77.net.callClientAwait",
     "server:Open77.net.emitClient",
+    "server:Open77.net.emitLatent",
     "server:Open77.net.on",
     "server:Open77.net.register",
     "server:Open77.net.unregister",
@@ -873,7 +893,8 @@
     "server:Open77.perspective.setPolicy",
     "server:Open77.weapons.clear",
     "server:RegisterNetEvent",
-    "server:TriggerClientEvent"
+    "server:TriggerClientEvent",
+    "server:TriggerLatentClientEvent"
    ],
    "guides": [
     "callbacks.md",
@@ -889,55 +910,55 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17700
+     "line": 18575
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17703
+     "line": 18578
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17765
+     "line": 18640
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17768
+     "line": 18643
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18082
+     "line": 18957
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18085
+     "line": 18960
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18162
+     "line": 19042
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18165
+     "line": 19045
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18849
+     "line": 19739
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18852
+     "line": 19742
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18954
+     "line": 19844
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18955
+     "line": 19845
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19154
+     "line": 20516
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Callbacks.cs",
@@ -961,11 +982,11 @@
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 729
+     "line": 796
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1178
+     "line": 1262
     }
    ]
   },
@@ -985,19 +1006,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15840
+     "line": 16363
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15841
+     "line": 16364
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2842
+     "line": 2929
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2856
+     "line": 2943
     }
    ]
   },
@@ -1006,12 +1027,13 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 3 natives in Open77.npcs.",
+   "summary": "Enforced by the client; gates 4 natives in Open77.npcs.",
    "curated": false,
    "natives": [
     "Open77.npcs.all",
     "Open77.npcs.currentTask",
-    "Open77.npcs.get"
+    "Open77.npcs.get",
+    "Open77.npcs.whenReady"
    ],
    "guides": [
     "npcs.md"
@@ -1019,7 +1041,7 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15775
+     "line": 16298
     }
    ]
   },
@@ -1039,11 +1061,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3612
+     "line": 3726
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3620
+     "line": 3734
     }
    ]
   },
@@ -1066,19 +1088,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13889
+     "line": 14373
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13890
+     "line": 14374
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13922
+     "line": 14406
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13923
+     "line": 14407
     }
    ]
   },
@@ -1101,19 +1123,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4341
+     "line": 4464
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4361
+     "line": 4484
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4391
+     "line": 4514
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4428
+     "line": 4551
     }
    ]
   },
@@ -1139,43 +1161,43 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5099
+     "line": 5276
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5110
+     "line": 5287
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5124
+     "line": 5301
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5137
+     "line": 5314
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12958
+     "line": 13442
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12973
+     "line": 13457
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13192
+     "line": 13676
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13207
+     "line": 13691
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13218
+     "line": 13702
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14363
+     "line": 14886
     }
    ]
   },
@@ -1196,15 +1218,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11932
+     "line": 12239
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13043
+     "line": 13527
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13234
+     "line": 13718
     }
    ]
   },
@@ -1224,15 +1246,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3873
+     "line": 3996
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3883
+     "line": 4006
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3899
+     "line": 4022
     }
    ]
   },
@@ -1262,83 +1284,83 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13492
+     "line": 13976
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13493
+     "line": 13977
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13511
+     "line": 13995
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13512
+     "line": 13996
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13528
+     "line": 14012
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13529
+     "line": 14013
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13562
+     "line": 14046
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13563
+     "line": 14047
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13578
+     "line": 14062
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13579
+     "line": 14063
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13594
+     "line": 14078
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13595
+     "line": 14079
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13617
+     "line": 14101
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13618
+     "line": 14102
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13665
+     "line": 14149
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13666
+     "line": 14150
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13693
+     "line": 14177
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13694
+     "line": 14178
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13711
+     "line": 14195
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13712
+     "line": 14196
     }
    ]
   },
@@ -1359,27 +1381,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13233
+     "line": 13717
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13234
+     "line": 13718
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13637
+     "line": 14121
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13638
+     "line": 14122
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14237
+     "line": 14760
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14238
+     "line": 14761
     }
    ]
   },
@@ -1397,11 +1419,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13753
+     "line": 14237
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13754
+     "line": 14238
     }
    ]
   },
@@ -1423,27 +1445,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11949
+     "line": 12256
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12216
+     "line": 12523
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12238
+     "line": 12545
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12250
+     "line": 12557
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12263
+     "line": 12570
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12294
+     "line": 12601
     }
    ]
   },
@@ -1470,47 +1492,47 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11944
+     "line": 12251
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12057
+     "line": 12364
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12080
+     "line": 12387
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12092
+     "line": 12399
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12107
+     "line": 12414
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12148
+     "line": 12455
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12160
+     "line": 12467
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12175
+     "line": 12482
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12199
+     "line": 12506
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12280
+     "line": 12587
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12308
+     "line": 12615
     }
    ]
   },
@@ -1529,15 +1551,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4259
+     "line": 4382
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4277
+     "line": 4400
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4303
+     "line": 4426
     }
    ]
   },
@@ -1556,19 +1578,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13368
+     "line": 13852
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13369
+     "line": 13853
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13398
+     "line": 13882
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13399
+     "line": 13883
     }
    ]
   },
@@ -1588,27 +1610,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13413
+     "line": 13897
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13414
+     "line": 13898
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13437
+     "line": 13921
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13438
+     "line": 13922
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13459
+     "line": 13943
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13460
+     "line": 13944
     }
    ]
   },
@@ -1628,27 +1650,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14045
+     "line": 14529
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14046
+     "line": 14530
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14069
+     "line": 14553
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14070
+     "line": 14554
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14086
+     "line": 14570
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14087
+     "line": 14571
     }
    ]
   },
@@ -1668,27 +1690,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14104
+     "line": 14627
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14105
+     "line": 14628
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14128
+     "line": 14651
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14129
+     "line": 14652
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14141
+     "line": 14664
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14142
+     "line": 14665
     }
    ]
   },
@@ -1708,27 +1730,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14173
+     "line": 14696
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14174
+     "line": 14697
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14196
+     "line": 14719
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14197
+     "line": 14720
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14209
+     "line": 14732
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14210
+     "line": 14733
     }
    ]
   },
@@ -1744,43 +1766,43 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8955
+     "line": 9155
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8956
+     "line": 9156
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8975
+     "line": 9175
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8976
+     "line": 9176
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8994
+     "line": 9194
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8995
+     "line": 9195
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9042
+     "line": 9242
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9043
+     "line": 9243
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9104
+     "line": 9304
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9105
+     "line": 9305
     }
    ]
   },
@@ -1796,11 +1818,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8937
+     "line": 9137
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8938
+     "line": 9138
     }
    ]
   },
@@ -1809,11 +1831,12 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 10 natives in Open77.travel.",
+   "summary": "Enforced by the client; gates 11 natives in Open77.travel.",
    "curated": false,
    "natives": [
     "Open77.travel.beginSettle",
     "Open77.travel.cancelSettle",
+    "Open77.travel.getNoclipSpeed",
     "Open77.travel.isMapPick",
     "Open77.travel.isNoclip",
     "Open77.travel.setMapPick",
@@ -1827,35 +1850,39 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3653
+     "line": 3767
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3660
+     "line": 3774
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3688
+     "line": 3786
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3726
+     "line": 3811
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3757
+     "line": 3849
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3794
+     "line": 3880
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3806
+     "line": 3917
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3828
+     "line": 3929
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 3951
     }
    ]
   },
@@ -1864,42 +1891,62 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 7 natives in Open77.weapons.",
+   "summary": "Enforced by the client; gates 11 natives in Open77.weapons.",
    "curated": false,
    "natives": [
     "Open77.weapons.activate",
     "Open77.weapons.assign",
+    "Open77.weapons.giveGadget",
     "Open77.weapons.holster",
     "Open77.weapons.remove",
+    "Open77.weapons.removeComponent",
     "Open77.weapons.setActive",
     "Open77.weapons.setAmmo",
+    "Open77.weapons.setComponent",
+    "Open77.weapons.takeGadget",
     "Open77.weapons.unequip"
    ],
    "guides": [],
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12342
+     "line": 12649
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12499
+     "line": 12806
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12533
+     "line": 12840
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12584
+     "line": 12891
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12595
+     "line": 12902
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12604
+     "line": 12911
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 12974
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 13002
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 13061
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 13088
     }
    ]
   },
@@ -1908,27 +1955,39 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 4 natives in Open77.weapons.",
+   "summary": "Enforced by the client; gates 8 natives in Open77.weapons.",
    "curated": false,
    "natives": [
     "Open77.weapons.all",
+    "Open77.weapons.components",
+    "Open77.weapons.gadgets",
     "Open77.weapons.slots",
     "Open77.weapons.snapshot",
+    "server:Open77.weapons.components",
+    "server:Open77.weapons.gadgets",
     "server:Open77.weapons.get"
    ],
    "guides": [],
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12337
+     "line": 12644
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12486
+     "line": 12793
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12627
+     "line": 12934
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 13025
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 13111
     }
    ]
   },
@@ -1953,11 +2012,11 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1456
+     "line": 1543
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1457
+     "line": 1544
     }
    ]
   },
@@ -1975,7 +2034,11 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4138
+     "line": 4225
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Players6.cs",
+     "line": 144
     }
    ]
   },
@@ -1993,7 +2056,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4138
+     "line": 4225
     }
    ]
   },
@@ -2014,11 +2077,11 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5797
+     "line": 5884
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 6931
+     "line": 7047
     }
    ]
   },
@@ -2037,11 +2100,11 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1561
+     "line": 1648
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1562
+     "line": 1649
     }
    ]
   },
@@ -2050,7 +2113,7 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 22 natives in Open77.players, _G.",
+   "summary": "Enforced by the client; gates 24 natives in Open77.movement, Open77.players, _G.",
    "curated": false,
    "natives": [
     "AllowAim",
@@ -2063,6 +2126,8 @@
     "AllowWeapons",
     "FreezePosition",
     "FreezeRotation",
+    "Open77.movement.getWalkMode",
+    "Open77.movement.setWalkMode",
     "Open77.players.allowAim",
     "Open77.players.allowCrouch",
     "Open77.players.allowDodge",
@@ -2082,27 +2147,43 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11294
+     "line": 11601
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11294
+     "line": 11601
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11307
+     "line": 11614
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11307
+     "line": 11614
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11314
+     "line": 11621
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11314
+     "line": 11621
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14588
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14589
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14610
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14611
     }
    ]
   },
@@ -2177,7 +2258,7 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8796
+     "line": 8996
     }
    ]
   },
@@ -2199,11 +2280,11 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1536
+     "line": 1623
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1537
+     "line": 1624
     }
    ]
   },
@@ -2221,7 +2302,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 225
+     "line": 243
     }
    ]
   },
@@ -2318,11 +2399,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11356
+     "line": 11663
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11357
+     "line": 11664
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.HoloCallEyes.cs",
@@ -2386,6 +2467,24 @@
    ]
   },
   {
+   "name": "players.life.falldamage",
+   "runtimes": [
+    "server"
+   ],
+   "summary": "Enforced by the server; gates 1 native in Open77.players.",
+   "curated": false,
+   "natives": [
+    "server:Open77.players.setFallDamage"
+   ],
+   "guides": [],
+   "sources": [
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Players6.cs",
+     "line": 100
+    }
+   ]
+  },
+  {
    "name": "players.life.freeze",
    "runtimes": [
     "server"
@@ -2400,7 +2499,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3472
+     "line": 3559
     }
    ]
   },
@@ -2419,7 +2518,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3435
+     "line": 3522
     }
    ]
   },
@@ -2438,7 +2537,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3246
+     "line": 3333
     }
    ]
   },
@@ -2447,7 +2546,7 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 13 natives in Open77.players.",
+   "summary": "Enforced by the client; gates 14 natives in Open77.players.",
    "curated": false,
    "natives": [
     "Open77.players.allHealthStates",
@@ -2458,6 +2557,7 @@
     "Open77.players.isDead",
     "server:Open77.players.getLifeState",
     "server:Open77.players.isDead",
+    "server:Open77.players.isFallDamageEnabled",
     "server:Open77.players.isFrozen",
     "server:Open77.players.isGhosted",
     "server:Open77.players.isVisible",
@@ -2468,11 +2568,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8423
+     "line": 8623
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8797
+     "line": 8997
     }
    ]
   },
@@ -2491,7 +2591,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3297
+     "line": 3384
     }
    ]
   },
@@ -2510,7 +2610,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3711
+     "line": 3798
     }
    ]
   },
@@ -2529,7 +2629,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3282
+     "line": 3369
     }
    ]
   },
@@ -2548,7 +2648,28 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3506
+     "line": 3593
+    }
+   ]
+  },
+  {
+   "name": "players.locale.read",
+   "runtimes": [
+    "server"
+   ],
+   "summary": "Enforced by the server; gates 2 natives in Open77.players, _G.",
+   "curated": false,
+   "natives": [
+    "server:GetPlayerLocale",
+    "server:Open77.players.locale"
+   ],
+   "guides": [
+    "identity.md"
+   ],
+   "sources": [
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Locale6.cs",
+     "line": 57
     }
    ]
   },
@@ -2597,11 +2718,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11279
+     "line": 11586
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11279
+     "line": 11586
     }
    ]
   },
@@ -2622,7 +2743,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3692
+     "line": 3779
     }
    ]
   },
@@ -2642,7 +2763,31 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3639
+     "line": 3726
+    }
+   ]
+  },
+  {
+   "name": "players.screenshot",
+   "runtimes": [
+    "server"
+   ],
+   "summary": "Enforced by the server; gates 1 native in Open77.players.",
+   "curated": false,
+   "natives": [
+    "server:Open77.players.requestScreenshot"
+   ],
+   "guides": [
+    "screenshots.md"
+   ],
+   "sources": [
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Screenshots.cs",
+     "line": 109
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Screenshots.cs",
+     "line": 110
     }
    ]
   },
@@ -2661,7 +2806,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3548
+     "line": 3635
     }
    ]
   },
@@ -2670,7 +2815,7 @@
    "runtimes": [
     "server"
    ],
-   "summary": "Enforced by the server; gates 44 natives in Open77.players, Open77.stats, _G.",
+   "summary": "Enforced by the server; gates 45 natives in Open77.players, Open77.stats, _G.",
    "curated": false,
    "natives": [
     "server:DamagePlayer",
@@ -2706,6 +2851,7 @@
     "server:Open77.stats.setStaminaRegenRate",
     "server:RestorePlayerHealth",
     "server:RestorePlayerStamina",
+    "server:SetEntityInvincible",
     "server:SetPlayerArmor",
     "server:SetPlayerDownedDamageable",
     "server:SetPlayerGodMode",
@@ -2722,63 +2868,63 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3840
+     "line": 3927
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3867
+     "line": 3954
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3879
+     "line": 3966
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3891
+     "line": 3978
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3901
+     "line": 3988
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3913
+     "line": 4000
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3923
+     "line": 4010
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3933
+     "line": 4020
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3943
+     "line": 4030
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3953
+     "line": 4040
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3963
+     "line": 4050
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3975
+     "line": 4062
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3985
+     "line": 4072
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3996
+     "line": 4083
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4006
+     "line": 4093
     }
    ]
   },
@@ -2804,7 +2950,7 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8795
+     "line": 8995
     }
    ]
   },
@@ -2820,7 +2966,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3339
+     "line": 3426
     }
    ]
   },
@@ -2838,7 +2984,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4243
+     "line": 4330
     }
    ]
   },
@@ -2856,7 +3002,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4241
+     "line": 4328
     }
    ]
   },
@@ -2876,19 +3022,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13271
+     "line": 13755
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14280
+     "line": 14803
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14302
+     "line": 14825
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14320
+     "line": 14843
     }
    ]
   },
@@ -2930,11 +3076,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19606
+     "line": 21190
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19609
+     "line": 21193
     }
    ]
   },
@@ -2980,6 +3126,40 @@
    ]
   },
   {
+   "name": "screen.capture",
+   "runtimes": [
+    "client"
+   ],
+   "summary": "Enforced by the client; gates 3 natives in Open77.screen.",
+   "curated": false,
+   "natives": [
+    "Open77.screen.capture",
+    "Open77.screen.mugshot",
+    "Open77.screen.surface"
+   ],
+   "guides": [
+    "screenshots.md"
+   ],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 17620
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 17620
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 17643
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 17644
+    }
+   ]
+  },
+  {
    "name": "screen.effects",
    "runtimes": [
     "client"
@@ -3002,27 +3182,71 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16796
+     "line": 17351
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16796
+     "line": 17351
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16829
+     "line": 17384
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16829
+     "line": 17384
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16879
+     "line": 17434
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16879
+     "line": 17434
+    }
+   ]
+  },
+  {
+   "name": "screen.upload",
+   "runtimes": [
+    "client"
+   ],
+   "summary": "Enforced by the client; gates 1 native in Open77.screen.",
+   "curated": false,
+   "natives": [
+    "Open77.screen.upload"
+   ],
+   "guides": [],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 17703
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 17703
+    }
+   ]
+  },
+  {
+   "name": "session.locale",
+   "runtimes": [
+    "client"
+   ],
+   "summary": "Enforced by the client; gates 1 native in Open77.session.",
+   "curated": false,
+   "natives": [
+    "Open77.session.locale"
+   ],
+   "guides": [],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 4744
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 4747
     }
    ]
   },
@@ -3044,11 +3268,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4568
+     "line": 4691
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4578
+     "line": 4701
     }
    ]
   },
@@ -3073,39 +3297,39 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9565
+     "line": 9872
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9572
+     "line": 9879
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9619
+     "line": 9926
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9635
+     "line": 9942
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9646
+     "line": 9953
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9673
+     "line": 9980
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9689
+     "line": 9996
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9706
+     "line": 10013
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9722
+     "line": 10029
     }
    ]
   },
@@ -3134,35 +3358,35 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12658
+     "line": 13142
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12675
+     "line": 13159
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12706
+     "line": 13190
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12743
+     "line": 13227
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12768
+     "line": 13252
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12895
+     "line": 13379
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12915
+     "line": 13399
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12937
+     "line": 13421
     }
    ]
   },
@@ -3204,55 +3428,55 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9736
+     "line": 10043
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10193
+     "line": 10500
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10210
+     "line": 10517
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10351
+     "line": 10658
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10363
+     "line": 10670
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10373
+     "line": 10680
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10387
+     "line": 10694
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10416
+     "line": 10723
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10432
+     "line": 10739
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10446
+     "line": 10753
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10476
+     "line": 10783
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10497
+     "line": 10804
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10515
+     "line": 10822
     }
    ]
   },
@@ -3270,11 +3494,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8147
+     "line": 8347
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8278
+     "line": 8478
     }
    ]
   },
@@ -3295,11 +3519,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6904
+     "line": 7099
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7752
+     "line": 7952
     }
    ]
   },
@@ -3323,35 +3547,35 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7205
+     "line": 7400
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7253
+     "line": 7448
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7271
+     "line": 7466
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7286
+     "line": 7481
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7308
+     "line": 7503
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7327
+     "line": 7522
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7338
+     "line": 7533
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7356
+     "line": 7551
     }
    ]
   },
@@ -3372,11 +3596,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7145
+     "line": 7340
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7185
+     "line": 7380
     }
    ]
   },
@@ -3385,7 +3609,7 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 29 natives in Open77.players, Open77.vehicles.",
+   "summary": "Enforced by the client; gates 30 natives in Open77.players, Open77.vehicles.",
    "curated": false,
    "natives": [
     "Open77.players.getVehicleSeat",
@@ -3416,7 +3640,8 @@
     "Open77.vehicles.nearby",
     "Open77.vehicles.occupantInSeat",
     "Open77.vehicles.ratedTopSpeed",
-    "Open77.vehicles.seatFree"
+    "Open77.vehicles.seatFree",
+    "Open77.vehicles.whenStreamed"
    ],
    "guides": [
     "vehicle-paint.md",
@@ -3426,35 +3651,35 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6899
+     "line": 7094
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7540
+     "line": 7740
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7901
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 8054
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 8080
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 8106
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 8199
+     "line": 8101
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
      "line": 8254
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 8280
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 8306
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 8399
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 8454
     }
    ]
   },
@@ -3474,11 +3699,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16254
+     "line": 16809
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16261
+     "line": 16816
     }
    ]
   },
@@ -3515,71 +3740,71 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6059
+     "line": 6254
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6072
+     "line": 6267
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6147
+     "line": 6342
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6157
+     "line": 6352
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6188
+     "line": 6383
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6207
+     "line": 6402
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6218
+     "line": 6413
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6235
+     "line": 6430
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6248
+     "line": 6443
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6264
+     "line": 6459
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6289
+     "line": 6484
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6306
+     "line": 6501
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6320
+     "line": 6515
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6701
+     "line": 6896
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6715
+     "line": 6910
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6730
+     "line": 6925
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 22264
+     "line": 24079
     }
    ]
   },
@@ -3614,7 +3839,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4301
+     "line": 4388
     }
    ]
   },
@@ -3630,11 +3855,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16407
+     "line": 16962
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16409
+     "line": 16964
     }
    ]
   },
@@ -3650,11 +3875,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16397
+     "line": 16952
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16399
+     "line": 16954
     }
    ]
   },
@@ -3670,15 +3895,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16372
+     "line": 16927
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16402
+     "line": 16957
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16404
+     "line": 16959
     }
    ]
   },
@@ -3694,11 +3919,11 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5804
+     "line": 5891
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 8183
+     "line": 8303
     }
    ]
   },
@@ -3745,19 +3970,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9431
+     "line": 9738
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9487
+     "line": 9794
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9518
+     "line": 9825
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9535
+     "line": 9842
     }
    ]
   },
@@ -3799,47 +4024,47 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6427
+     "line": 6622
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6483
+     "line": 6678
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6495
+     "line": 6690
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6507
+     "line": 6702
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6520
+     "line": 6715
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6552
+     "line": 6747
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6567
+     "line": 6762
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6587
+     "line": 6782
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6606
+     "line": 6801
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6641
+     "line": 6836
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6666
+     "line": 6861
     }
    ]
   },
@@ -3849,13 +4074,14 @@
     "client",
     "server"
    ],
-   "summary": "Enforced by the client and server; gates 32 natives in Open77.effects, Open77.sfx, Open77.vfx, _G.",
+   "summary": "Enforced by the client and server; gates 33 natives in Open77.effects, Open77.sfx, Open77.vfx, _G.",
    "curated": false,
    "natives": [
     "Open77.sfx.clear",
     "Open77.sfx.list",
     "Open77.sfx.play",
     "Open77.sfx.play2d",
+    "Open77.sfx.playVoice",
     "Open77.sfx.stop",
     "Open77.vfx.attach",
     "Open77.vfx.clear",
@@ -3891,51 +4117,55 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15923
+     "line": 16446
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15977
+     "line": 16500
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16005
+     "line": 16528
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16043
+     "line": 16566
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16074
+     "line": 16597
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16102
+     "line": 16625
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16122
+     "line": 16645
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16147
+     "line": 16670
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16180
+     "line": 16703
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16198
+     "line": 16727
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16207
+     "line": 16753
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16215
+     "line": 16762
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 16770
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.AttachedEffects.cs",
@@ -3943,31 +4173,27 @@
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1775
+     "line": 1862
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1807
+     "line": 1894
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1840
+     "line": 1927
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1870
+     "line": 1957
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1918
+     "line": 2005
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1941
-    },
-    {
-     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5760
+     "line": 2028
     }
    ]
   },
@@ -3997,11 +4223,11 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3139
+     "line": 3226
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5754
+     "line": 5841
     }
    ]
   },
@@ -4019,7 +4245,7 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
-     "line": 1421
+     "line": 1586
     }
    ]
   },
@@ -4053,31 +4279,31 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9147
+     "line": 9347
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9161
+     "line": 9361
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9189
+     "line": 9389
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9209
+     "line": 9409
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9222
+     "line": 9422
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9249
+     "line": 9449
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9262
+     "line": 9462
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Environment.cs",
@@ -4152,35 +4378,35 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6798
+     "line": 6993
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6811
+     "line": 7006
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6822
+     "line": 7017
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6855
+     "line": 7050
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6874
+     "line": 7069
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6885
+     "line": 7080
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2197
+     "line": 2284
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5745
+     "line": 5832
     }
    ]
   },
@@ -4204,27 +4430,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10531
+     "line": 10838
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10652
+     "line": 10959
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10677
+     "line": 10984
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10692
+     "line": 10999
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10705
+     "line": 11012
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10715
+     "line": 11022
     }
    ]
   },
@@ -4233,7 +4459,7 @@
    "runtimes": [
     "server"
    ],
-   "summary": "Enforced by the server; gates 61 natives in Open77.npcs, Open77.npcs.tasks, _G.",
+   "summary": "Enforced by the server; gates 66 natives in Open77.npcs, Open77.npcs.tasks, _G.",
    "curated": false,
    "natives": [
     "server:CreateNpc",
@@ -4244,9 +4470,11 @@
     "server:Open77.npcs.get",
     "server:Open77.npcs.getAttitude",
     "server:Open77.npcs.getBehavior",
+    "server:Open77.npcs.getEquipment",
     "server:Open77.npcs.getGroup",
     "server:Open77.npcs.getRelationship",
     "server:Open77.npcs.kill",
+    "server:Open77.npcs.owner",
     "server:Open77.npcs.remove",
     "server:Open77.npcs.revive",
     "server:Open77.npcs.setAIEnabled",
@@ -4257,6 +4485,7 @@
     "server:Open77.npcs.setBucket",
     "server:Open77.npcs.setCombatEnabled",
     "server:Open77.npcs.setDamagePolicy",
+    "server:Open77.npcs.setEquipment",
     "server:Open77.npcs.setGroup",
     "server:Open77.npcs.setHealth",
     "server:Open77.npcs.setLoadout",
@@ -4265,6 +4494,7 @@
     "server:Open77.npcs.setRelationship",
     "server:Open77.npcs.setTransform",
     "server:Open77.npcs.setVoiceEnabled",
+    "server:Open77.npcs.speak",
     "server:Open77.npcs.target",
     "server:Open77.npcs.tasks.all",
     "server:Open77.npcs.tasks.attack",
@@ -4294,6 +4524,7 @@
     "server:Open77.npcs.tasks.workspot",
     "server:Open77.npcs.templates",
     "server:Open77.npcs.update",
+    "server:Open77.npcs.whenReady",
     "server:SetNpcAttitude",
     "server:SetNpcGroup",
     "server:SetNpcRelationship"
@@ -4304,31 +4535,43 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2741
+     "line": 2828
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2895
+     "line": 2982
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2995
+     "line": 3082
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3057
+     "line": 3144
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 3073
+     "line": 3160
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5080
+     "line": 5167
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5751
+     "line": 5838
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Npcs6.cs",
+     "line": 83
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Npcs6.cs",
+     "line": 141
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Vehicles6.cs",
+     "line": 113
     }
    ]
   },
@@ -4346,11 +4589,11 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5039
+     "line": 5126
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5075
+     "line": 5162
     }
    ]
   },
@@ -4374,23 +4617,23 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9289
+     "line": 9489
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9303
+     "line": 9503
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9317
+     "line": 9517
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9331
+     "line": 9531
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9349
+     "line": 9549
     }
    ]
   },
@@ -4446,23 +4689,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10739
+     "line": 11046
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11028
+     "line": 11335
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11047
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 11065
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 11085
+     "line": 11354
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
@@ -4470,31 +4705,39 @@
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11403
+     "line": 11392
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11419
+     "line": 11679
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11429
+     "line": 11710
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11456
+     "line": 11726
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11506
+     "line": 11736
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11525
+     "line": 11763
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11540
+     "line": 11813
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 11832
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 11847
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Attachments.cs",
@@ -4502,36 +4745,37 @@
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1608
+     "line": 1695
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1642
+     "line": 1729
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1672
+     "line": 1759
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1704
+     "line": 1791
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1716
+     "line": 1803
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 1766
+     "line": 1853
     }
    ]
   },
   {
    "name": "world.query",
    "runtimes": [
-    "client"
+    "client",
+    "server"
    ],
-   "summary": "Enforced by the client; gates 13 natives in Open77.camera, Open77.character, Open77.hacking, Open77.world, _G.",
+   "summary": "Enforced by the client and server; gates 14 natives in Open77.camera, Open77.character, Open77.hacking, Open77.world, _G.",
    "curated": false,
    "natives": [
     "Open77.camera.aimRay",
@@ -4546,7 +4790,8 @@
     "Open77.world.nearest",
     "Open77.world.population",
     "Open77.world.raycast",
-    "Screen2DPointTo3DSpace"
+    "Screen2DPointTo3DSpace",
+    "server:Open77.world.groundZ"
    ],
    "guides": [
     "lua-modules.md",
@@ -4557,47 +4802,47 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2872
+     "line": 2986
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3079
+     "line": 3193
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3098
+     "line": 3212
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3148
+     "line": 3262
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3296
+     "line": 3410
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3340
+     "line": 3454
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3356
+     "line": 3470
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3374
+     "line": 3488
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4432
+     "line": 4555
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13345
+     "line": 13829
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13346
+     "line": 13830
     },
     {
      "file": "scripting/src/GeometryBindings.inl",
@@ -4606,6 +4851,14 @@
     {
      "file": "scripting/src/GeometryBindings.inl",
      "line": 10
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.World6.cs",
+     "line": 116
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.World6.cs",
+     "line": 117
     }
    ]
   },
@@ -4624,15 +4877,49 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9284
+     "line": 9484
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9369
+     "line": 9569
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9393
+     "line": 9593
+    }
+   ]
+  },
+  {
+   "name": "world.timescale",
+   "runtimes": [
+    "client",
+    "server"
+   ],
+   "summary": "Enforced by the client and server; gates 2 natives in Open77.world.",
+   "curated": false,
+   "natives": [
+    "Open77.world.setTimeScale",
+    "server:Open77.world.setTimeScale"
+   ],
+   "guides": [
+    "world-time.md"
+   ],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 9625
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 9637
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.World6.cs",
+     "line": 314
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.World6.cs",
+     "line": 315
     }
    ]
   },
@@ -4652,36 +4939,37 @@
     "Open77.character.worldToOffset"
    ],
    "guides": [
+    "screenshots.md",
     "world-queries.md"
    ],
    "sources": [
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 4679
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 4761
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 4780
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 4796
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 4825
-    },
     {
      "file": "scripting/src/ResourceHost.cpp",
      "line": 4856
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4886
+     "line": 4938
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 4957
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 4973
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 5002
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 5033
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 5063
     }
    ]
   },
@@ -4690,7 +4978,7 @@
    "runtimes": [
     "server"
    ],
-   "summary": "Enforced by the server; gates 132 natives in Open77.effects, Open77.players, Open77.vehicles, Open77.vehicles.ai, _G.",
+   "summary": "Enforced by the server; gates 136 natives in Open77.effects, Open77.players, Open77.vehicles, Open77.vehicles.ai, _G.",
    "curated": false,
    "natives": [
     "server:CreateVehicle",
@@ -4751,6 +5039,7 @@
     "server:Open77.vehicles.honk",
     "server:Open77.vehicles.isDrivable",
     "server:Open77.vehicles.isEngineOn",
+    "server:Open77.vehicles.isFrozen",
     "server:Open77.vehicles.isLockedForPlayer",
     "server:Open77.vehicles.isSirenOn",
     "server:Open77.vehicles.lock",
@@ -4759,6 +5048,7 @@
     "server:Open77.vehicles.occupantInSeat",
     "server:Open77.vehicles.openDoor",
     "server:Open77.vehicles.openWindow",
+    "server:Open77.vehicles.owner",
     "server:Open77.vehicles.registerDamageProfile",
     "server:Open77.vehicles.remove",
     "server:Open77.vehicles.repair",
@@ -4770,6 +5060,7 @@
     "server:Open77.vehicles.repairGlass",
     "server:Open77.vehicles.repairLight",
     "server:Open77.vehicles.repairTire",
+    "server:Open77.vehicles.requestAuthority",
     "server:Open77.vehicles.resetPaint",
     "server:Open77.vehicles.seatFree",
     "server:Open77.vehicles.setAdoptPolicy",
@@ -4785,6 +5076,7 @@
     "server:Open77.vehicles.setDrivable",
     "server:Open77.vehicles.setEngine",
     "server:Open77.vehicles.setEngineHealth",
+    "server:Open77.vehicles.setFrozen",
     "server:Open77.vehicles.setGlassBroken",
     "server:Open77.vehicles.setGlassMask",
     "server:Open77.vehicles.setHeadlightColor",
@@ -4836,39 +5128,39 @@
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2280
+     "line": 2367
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2346
+     "line": 2433
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2358
+     "line": 2445
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2408
+     "line": 2495
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2457
+     "line": 2544
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 2477
+     "line": 2564
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 4987
+     "line": 5074
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5081
+     "line": 5168
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
-     "line": 5748
+     "line": 5835
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Explosions.cs",

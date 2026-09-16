@@ -54,7 +54,7 @@
    "status": "alias",
    "client": true,
    "server": true,
-   "open77": "the resource log at debug level",
+   "open77": "the resource log at debug level — `DBG` on both sides. (Until A17 landed the server wrote it as `INF`; `Open77.log.debug/info/warn/error` now reach the server log as `DBG/INF/WRN/ERR`, with ANSI escapes and FiveM `^N` colour codes stripped)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -151,6 +151,14 @@
    "client": true,
    "server": true,
    "open77": "the registry that owns that kind",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetEntityInvincible(kind, id, enabled)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.players.setGodMode` for `\"player\"`; every other kind is refused by name — see [below](#setentityinvinciblekind-id-enabled)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -384,6 +392,414 @@
    "server": true,
    "open77": "`Open77.resource.list()`; the find index is zero-based",
    "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "CancelEvent()",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the cancellable bus (`TriggerCancellableEvent`), and inside a `playerConnecting` handler the FiveM refusal exactly: `setKickReason(msg)` then `CancelEvent()` — see [Connection control](connection-control.md#setkickreason-and-cancelevent-exactly-as-in-fivem)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "WasEventCanceled()",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the cancellable bus (`TriggerCancellableEvent`), and inside a `playerConnecting` handler the FiveM refusal exactly: `setKickReason(msg)` then `CancelEvent()` — see [Connection control](connection-control.md#setkickreason-and-cancelevent-exactly-as-in-fivem)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "TriggerLatentClientEvent(name, target, bytesPerSecond, ...)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the same function under the FiveM name (`Open77.net.emitLatent`): up to 4 MiB cut into paced 40 KiB frames — [Latent client events](server-api.md#latent-chunked-client-events)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetHttpHandler(fn)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.http.listen(\"/\", fn)` under the FiveM name; the listener is an operator opt-in and the route lives under `/<resource>/` — [Serving HTTP](server-api.md#serving-http)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetPlayerTimeOnline(playerId)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.players.sessionStats(id).sessionSeconds * 1000` and `Open77.players.get(id).ageMs` — milliseconds, the units FiveM documents",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetPlayerLastMsg(playerId)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.players.sessionStats(id).sessionSeconds * 1000` and `Open77.players.get(id).ageMs` — milliseconds, the units FiveM documents",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetPlayerLocale(playerId)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.players.locale` under the FiveM name: the engine's own language setting, reported by the client (`Open77.session.locale()` there). `GetCurrentLanguage` has no counterpart — read `code` from the same table",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetTimeScale(scale)",
+   "status": "partial",
+   "client": true,
+   "server": false,
+   "open77": "`Open77.world.setTimeScale(scale, options)` on the client — a claim per resource, eased and timed, released on stop; `Open77.world.setTimeScale(bucket, scale, options)` on the server replicates one beat to a routing bucket. Zero is refused (it freezes input with the world) — [World time](world-time.md)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetGravityLevel",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "only `Open77.chute.arm(gravity, …)`, which rewrites the local player's gravity while airborne and shields the landing; there is no neutral world-gravity knob",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "FreezeEntityPosition(vehicle, true)",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "client `Open77.vehicles.setFrozen` (local chassis physics, `vehicles.performance`); server `Open77.vehicles.setFrozen` pins the canonical pose and every client's projection follows. The control lock is the separate `setUndriveable`, and an impound wants both — [Freezing a car](vehicles.md#freezing-a-car). Players: `Open77.players.setFrozen` / `Open77.character.setFrozen`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetGroundZFor_3dCoord(x, y, z)",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "client `Open77.world.groundZ(x, y, fromZ?)` (a static-geometry ray); server `Open77.world.groundZ({ x, y }, options)` is an observation relayed from the nearest connected client, `nil, \"no_observer\"` when nobody is near — never an invented height — [World queries](world-queries.md)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetPedToRagdoll(ped, ms, …)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.players.ragdoll(id, { durationMs })` (the engine's knockdown, clamped to 3000 ms; needs the motion service, i.e. a server with a database) and `Open77.players.clearTasks(id)` — [Player freeze](player-freeze.md#putting-a-player-down-and-clearing-everything-ragdoll-and-cleartasks)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "ClearPedTasksImmediately(ped)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.players.ragdoll(id, { durationMs })` (the engine's knockdown, clamped to 3000 ms; needs the motion service, i.e. a server with a database) and `Open77.players.clearTasks(id)` — [Player freeze](player-freeze.md#putting-a-player-down-and-clearing-everything-ragdoll-and-cleartasks)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetPedCanRagdoll",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.players.setFallDamage(id, false)` — fall damage only, not god mode — [Player stats](player-stats.md#fall-damage)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "NetworkGetEntityOwner",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.vehicles.owner(id)` / `Open77.npcs.owner(id)` and `Open77.vehicles.requestAuthority(id, playerId)` — a request the election validates, refused by name (`driven`) rather than a forced steal",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "NetworkRequestControlOfEntity",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.vehicles.owner(id)` / `Open77.npcs.owner(id)` and `Open77.vehicles.requestAuthority(id, playerId)` — a request the election validates, refused by name (`driven`) rather than a forced steal",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "PlayPedAmbientSpeechNative(ped, context, …)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.npcs.speak(id, voice)` — a `voContext` name against the NPC's own voiceset; `true` means queued on every viewer's puppet, and a name the voiceset lacks is silent without a word — [NPC behaviour](npc-behavior.md#speech-one-line-on-demand)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetPedComponentVariation",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "`Open77.npcs.setEquipment(id, { slot = record })` replicates a canonical clothing set, but measured on 2.31 a `Character.*` rig renders none of it: `true` is not a visible outfit — [NPCs](npcs.md)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GiveWeaponComponentToPed",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "`Open77.weapons.setComponent` / `removeComponent` / `components` and `giveGadget` / `takeGadget` / `gadgets`, with `onGadgetConsumed` on the owner's report — [Weapon Lua API](weapons-api.md)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "screenshot-basic",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "client `Open77.screen.capture` + `Open77.screen.upload` (the game's own back buffer, never the desktop); server `Open77.players.requestScreenshot(id, { url })`, delivered by the client to a URL — the picture never crosses the game transport — [Screenshots](screenshots.md)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "requestScreenshot",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "client `Open77.screen.capture` + `Open77.screen.upload` (the game's own back buffer, never the desktop); server `Open77.players.requestScreenshot(id, { url })`, delivered by the client to a URL — the picture never crosses the game transport — [Screenshots](screenshots.md)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "requestScreenshotUpload",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "client `Open77.screen.capture` + `Open77.screen.upload` (the game's own back buffer, never the desktop); server `Open77.players.requestScreenshot(id, { url })`, delivered by the client to a URL — the picture never crosses the game transport — [Screenshots](screenshots.md)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "requestClientScreenshot",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "client `Open77.screen.capture` + `Open77.screen.upload` (the game's own back buffer, never the desktop); server `Open77.players.requestScreenshot(id, { url })`, delivered by the client to a URL — the picture never crosses the game transport — [Screenshots](screenshots.md)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "RegisterPedheadshot",
+   "status": "partial",
+   "client": true,
+   "server": false,
+   "open77": "`Open77.screen.mugshot(entity, options)` — a remote player or an NPC is a framed face; the local player in first person has no body to photograph — [Screenshots](screenshots.md)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "RequestModel",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "not needed, and not provided — see [What is missing](#what-is-missing-and-why)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "HasModelLoaded",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "not needed, and not provided — see [What is missing](#what-is-missing-and-why)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "RequestAnimDict",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "not needed, and not provided — see [What is missing](#what-is-missing-and-why)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetModelAsNoLongerNeeded",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "not needed, and not provided — see [What is missing](#what-is-missing-and-why)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetBlockingOfNonTemporaryEvents",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "three NPC settings that already exist under other names — see [Keeping an NPC on task](#keeping-an-npc-on-task)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetPedKeepTask",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "three NPC settings that already exist under other names — see [Keeping an NPC on task](#keeping-an-npc-on-task)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetEntityAsMissionEntity",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "three NPC settings that already exist under other names — see [Keeping an NPC on task](#keeping-an-npc-on-task)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "DrawText",
+   "status": "partial",
+   "client": true,
+   "server": false,
+   "open77": "the UI kit and the world-drawing namespaces — see [Porting FiveM draw calls](#porting-fivem-draw-calls)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "DrawText3D",
+   "status": "partial",
+   "client": true,
+   "server": false,
+   "open77": "the UI kit and the world-drawing namespaces — see [Porting FiveM draw calls](#porting-fivem-draw-calls)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "DrawMarker",
+   "status": "partial",
+   "client": true,
+   "server": false,
+   "open77": "the UI kit and the world-drawing namespaces — see [Porting FiveM draw calls](#porting-fivem-draw-calls)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "DrawLine",
+   "status": "partial",
+   "client": true,
+   "server": false,
+   "open77": "the UI kit and the world-drawing namespaces — see [Porting FiveM draw calls](#porting-fivem-draw-calls)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "DrawSprite",
+   "status": "partial",
+   "client": true,
+   "server": false,
+   "open77": "the UI kit and the world-drawing namespaces — see [Porting FiveM draw calls](#porting-fivem-draw-calls)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "onResourceStarting",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the same names, host-wide and reserved: `onResourceStarting(name)` is delivered inline while the resource still reads `starting` (a `CancelEvent()` inside it is refused by name, never ignored), and the scope pair is published under both spellings (`onPlayerEnteredScope` too) — [Scope events](server-api.md#scope-events)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "playerEnteredScope",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the same names, host-wide and reserved: `onResourceStarting(name)` is delivered inline while the resource still reads `starting` (a `CancelEvent()` inside it is refused by name, never ignored), and the scope pair is published under both spellings (`onPlayerEnteredScope` too) — [Scope events](server-api.md#scope-events)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "playerLeftScope",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the same names, host-wide and reserved: `onResourceStarting(name)` is delivered inline while the resource still reads `starting` (a `CancelEvent()` inside it is refused by name, never ignored), and the scope pair is published under both spellings (`onPlayerEnteredScope` too) — [Scope events](server-api.md#scope-events)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "DrawText3D",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "A native world anchor of render style `card`, projected by the host with the distance band, viewport cull and occlusion the interaction prompts already pay for. Budgeted: the kit refuses 8 per owner (`text3d_owner_limit`) and 24 in all (`text3d_limit`), under the anchor quota of 32 per resource / 128 global — draw the nearest eight, not one per entity.",
+   "guideAnchor": "porting-fivem-draw-calls"
+  },
+  {
+   "fivem": "fx_version",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
+  },
+  {
+   "fivem": "game",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
+  },
+  {
+   "fivem": "games",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
+  },
+  {
+   "fivem": "lua54",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
+  },
+  {
+   "fivem": "use_experimental_fxv2_oal",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
+  },
+  {
+   "fivem": "author",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
+  },
+  {
+   "fivem": "description",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
+  },
+  {
+   "fivem": "provide",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
+  },
+  {
+   "fivem": "provides",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
+  },
+  {
+   "fivem": "escrow",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
+  },
+  {
+   "fivem": "escrow_ignore",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "manifest_ignored_keys=fx_version,lua54`.",
+   "guideAnchor": "manifest-keys"
   }
  ]
 }

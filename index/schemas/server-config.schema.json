@@ -196,6 +196,23 @@
         "maxResponseBytes": { "type": "integer", "minimum": 1024, "maximum": 16777216 }
       }
     },
+    "httpHandlers": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Inbound HTTP for resources holding the http.serve permission (Open77.http.listen / SetHttpHandler). Off by default and bound to loopback by default; plain HTTP with no authentication, so anything reachable from the internet goes behind a reverse proxy. Routes are /<resource>/<prefix>.",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "listenUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Absolute http:// origin the listener binds, e.g. http://127.0.0.1:11781. No https, no path."
+        },
+        "timeoutSeconds": {
+          "type": "integer", "minimum": 1, "maximum": 60,
+          "description": "How long a request waits for its Lua handler before the server answers 504 handler_timeout on its behalf."
+        }
+      }
+    },
     "warden": {
       "type": "object",
       "additionalProperties": false,
