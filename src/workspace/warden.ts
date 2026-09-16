@@ -118,6 +118,17 @@ export class WardenClient {
     }
   }
 
+  /** The same cookie, origin and error rules, for the Hub client. */
+  async raw<T>(method: "GET" | "POST", route: string, body?: unknown): Promise<T> {
+    const result = await this.request<T>(method, route, body);
+    if (result.status >= 400) {
+      const data = result.data as { error?: string; message?: string } | string;
+      const detail = typeof data === "string" ? data : `${data.error ?? ""} ${data.message ?? ""}`.trim();
+      throw new WardenError(`Warden answered HTTP ${result.status}${detail ? `: ${detail}` : ""}`, result.status);
+    }
+    return result.data;
+  }
+
   async login(username: string, password: string): Promise<WardenSession> {
     const result = await this.request<{ ok?: boolean; message?: string; username?: string }>("POST", "/api/login", { username, password }, false);
     if (result.status !== 200 || !result.data.ok) throw new WardenError(result.data.message ?? `login failed (HTTP ${result.status})`, result.status);

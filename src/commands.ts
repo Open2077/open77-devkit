@@ -18,6 +18,7 @@ import { createMcpServer, skillPathFor, type ServerContext } from "./server.js";
 import { detectWorkspace, type Workspace } from "./workspace/detect.js";
 import { registerLocalTools } from "./workspace/tools.js";
 import { WardenClient, registerWardenTools } from "./workspace/warden.js";
+import { registerWorkshopTools } from "./workspace/workshop.js";
 import { createInterface } from "node:readline/promises";
 
 type Flags = Record<string, string | boolean>;
@@ -54,6 +55,7 @@ async function prepare(flags: Flags): Promise<{ context: ServerContext; workspac
     extensions: [
       (server, ctx) => registerLocalTools(server, ctx, workspace),
       (server, ctx) => registerWardenTools(server, ctx, () => workspace),
+      (server, ctx) => registerWorkshopTools(server, ctx, () => workspace),
     ],
   };
   return { context, workspace };
@@ -173,12 +175,16 @@ function printResults(results: InstallResult[]): void {
 async function init(flags: Flags): Promise<void> {
   const serverDir = flag(flags, "server-dir");
   const workspace = await detectWorkspace(process.cwd(), serverDir);
+  // `--dev` registers this checkout (node dist/cli.js) instead of the npm
+  // package: what a contributor, or a machine ahead of the npm release, wants.
+  const dev = on(flags, "dev");
   const results = await installAll({
     serverDir: serverDir ? path.resolve(serverDir) : undefined,
     project: flag(flags, "project"),
     force: on(flags, "force"),
     only: flag(flags, "only")?.split(","),
     detectedOnly: !on(flags, "all"),
+    ...(dev ? { command: process.execPath, args: [path.join(PACKAGE_ROOT, "dist", "cli.js")] } : {}),
   });
   printResults(results);
   const added = results.filter((r) => r.action === "added" || r.action === "updated" || r.action === "unchanged").length;
@@ -187,7 +193,7 @@ async function init(flags: Flags): Promise<void> {
     ? `Server detected at ${workspace.serverDir}${workspace.build ? ` (build ${workspace.build})` : " (build unknown; will answer for the latest release)"}.\n`
     : "No Open77 server next to this directory; the MCP answers for the latest published build. Run again inside a server folder, or pass --server-dir.\n");
   process.stdout.write(`${added} client${added === 1 ? "" : "s"} registered. Restart the agent, or reconnect its MCP servers, and ask it: "which Open77 build are you answering for?"\n`);
-  if (results.some((r) => r.action === "kept-different")) process.stdout.write("An existing open77 entry with different settings was kept; rerun with --force to replace it.\n");
+  if (results.some((r) => r.action === "kept-different")) process.stdout.write("An existing open77-devkit entry with different settings was kept; rerun with --force to replace it.\n");
 }
 
 async function uninstall(flags: Flags): Promise<void> {

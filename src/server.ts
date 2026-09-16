@@ -120,6 +120,11 @@ export function createMcpServer(context: ServerContext): McpServer {
     },
     async ({ query, kind, runtime, limit }) => {
       const hits = search.search(query, { kinds: kind ? [kind as SearchKind] : undefined, runtime, limit: limit ?? 12 });
+      if (!hits.length) {
+        // A question the index cannot answer is a documentation gap. One JSON
+        // line on stderr; the hosted container's log is what the digest reads.
+        process.stderr.write(JSON.stringify({ event: "zero_hit", query, kind: kind ?? null, runtime: runtime ?? null, build: context.resolved.build, at: new Date().toISOString() }) + "\n");
+      }
       if (!hits.length) return text(`No match for "${query}". ${buildLine(context)}. Try a broader word, a namespace (Open77.vehicles), or open77_fivem_equivalent for a FiveM name.`);
       const lines = hits.map((h) => {
         const card = h.kind === "card" ? byRoute.get(h.ref) : undefined;

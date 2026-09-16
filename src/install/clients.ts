@@ -8,7 +8,7 @@
  *
  * Client config formats, as of September 2026:
  *   Claude Code      `claude mcp add` when the CLI exists, else ~/.claude.json { mcpServers }
- *   Codex CLI        ~/.codex/config.toml  [mcp_servers.open77] command/args
+ *   Codex CLI        ~/.codex/config.toml  [mcp_servers.open77-devkit] command/args
  *   Cursor           ~/.cursor/mcp.json (or ./.cursor/mcp.json with --project) { mcpServers }
  *   VS Code          user mcp.json (Code/User/mcp.json) { servers: { open77: { type: "stdio" } } }
  *   Claude Desktop   claude_desktop_config.json { mcpServers }
@@ -23,7 +23,9 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 
-export const SERVER_KEY = "open77";
+// `open77-devkit`, not `open77`: the Open77 workstation already runs an MCP named
+// `open77` (the in-game test loop), and a server owner may well have one too.
+export const SERVER_KEY = "open77-devkit";
 
 export interface InstallSpec {
   command: string;
@@ -75,10 +77,11 @@ export function targets(options: { project?: string } = {}): ClientTarget[] {
   return list;
 }
 
-export function defaultSpec(serverDir?: string): InstallSpec {
-  const args = ["-y", "@open2077/mcp"];
+export function defaultSpec(serverDir?: string, override?: { command: string; args: string[] }): InstallSpec {
+  const command = override?.command ?? "npx";
+  const args = override ? [...override.args] : ["-y", "@open2077/mcp"];
   if (serverDir) args.push("--server-dir", serverDir);
-  return { command: "npx", args };
+  return { command, args };
 }
 
 async function readJsonFile(file: string): Promise<Record<string, unknown>> {
@@ -195,10 +198,13 @@ export interface InstallOptions {
   only?: string[];
   /** Skip clients that were not detected (default true). */
   detectedOnly?: boolean;
+  /** Register this command instead of `npx -y @open2077/mcp` (a local checkout). */
+  command?: string;
+  args?: string[];
 }
 
 export async function installAll(options: InstallOptions): Promise<InstallResult[]> {
-  const spec = defaultSpec(options.serverDir);
+  const spec = defaultSpec(options.serverDir, options.command ? { command: options.command, args: options.args ?? [] } : undefined);
   const results: InstallResult[] = [];
   for (const target of targets({ project: options.project })) {
     if (options.only && !options.only.some((n) => target.name.toLowerCase().includes(n.toLowerCase()))) continue;

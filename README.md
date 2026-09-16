@@ -27,7 +27,7 @@ Without Node, or from a browser client, use the hosted docs-only endpoint:
 https://mcp.open2077.net/mcp
 ```
 
-Claude Code: `claude mcp add --transport http open77 https://mcp.open2077.net/mcp`. In claude.ai,
+Claude Code: `claude mcp add --transport http open77-devkit https://mcp.open2077.net/mcp`. In claude.ai,
 add it under Settings › Connectors. The hosted endpoint answers for the latest published build, or
 the build you pass as `?build=2.31.13+op77.54`.
 
@@ -42,7 +42,9 @@ the build you pass as `?build=2.31.13+op77.54`.
 | `open77_fivem_equivalent` | what to use on Open77, and what is deliberately absent |
 | `open77_manifest_schema`, `open77_server_config_schema` | `open77.lua` and `server.jsonc` |
 | `open77_changes`, `open77_build` | what a build adds; which build this session answers for |
-| `open77_workspace`, `open77_validate`, `open77_new_resource` | local only: detect the server, validate a resource, scaffold one |
+| `open77_workspace`, `open77_validate`, `open77_new_resource` | local only: detect the server, validate a resource (the server's own `--lint` verdict when the binary is next to you), scaffold one |
+| `open77_server_status`, `open77_resources`, `open77_resource`, `open77_console_tail`, `open77_console_command`, `open77_tunables` | local only, through Warden: status, start/stop/restart/reload/validate, the log, the console, tunables |
+| `open77_workshop_search`, `open77_workshop_release`, `open77_workshop_plan`, `open77_workshop_install`, `open77_workshop_job` | local only, through Warden: browse the Workshop, plan, install with the human's consent, follow the job |
 
 Resources: `open77://skill` (the method), `open77://guide/{slug}`, `open77://api/{runtime}/{namespace}`,
 `open77://stubs/{runtime}`. Prompts: `new_resource`, `port_fivem_resource`, `explain_reason`.
@@ -80,12 +82,20 @@ open77-mcp init [--server-dir D] [--project P] [--only cursor,codex] [--force]
 open77-mcp uninstall
 open77-mcp types [--out DIR]
 open77-mcp status
+open77-mcp warden-login          sign in to Warden in the terminal; only the session cookie is kept (~/.open77/mcp/warden)
 open77-mcp build-index --content <open77-app/content> [--out DIR]
 open77-mcp verify-index [--dir DIR]
 ```
 
 Environment: `OPEN77_INDEX_DIR` (serve this index directory), `OPEN77_MCP_OFFLINE=1`,
 `OPEN77_MCP_CACHE` (default `~/.open77/mcp`), `OPEN77_CDN_BASE`.
+
+## Live server tools
+
+Enable Warden in `server.jsonc` (`warden.enabled: true`), then run `npx -y @open2077/mcp warden-login`
+once in a terminal. The username and password are typed there and sent to your server; the MCP keeps
+only the session cookie, owner-readable, and never sees the password. Installs from the Workshop need
+the plan's own hash plus an explicit `consent: true`, exactly as Warden requires from a human.
 
 ## Development
 
@@ -94,7 +104,11 @@ npm install
 npm run index:build -- --content ../open77-app/content   # rebuild index/ from a checkout
 npm test
 npm run build
+node dist/cli.js init --dev        # register this checkout instead of the npm package
 ```
+
+The MCP is registered under the key `open77-devkit` in every client. `evals/` holds the task suite
+an agent must pass with nothing but this MCP attached; see `evals/README.md`.
 
 Licensed MIT. The game data in the index is names and record identifiers extracted from TweakDB,
 the same data the website publishes; no game asset is redistributed.
