@@ -1,15 +1,15 @@
 {
  "formatVersion": 1,
- "build": "2.31.13+op77.75",
- "generatedAt": "2026-09-16T19:52:19.354Z",
- "docsSyncedAt": "2026-09-16T19:49:00.915Z",
+ "build": "2.31.13+op77.76",
+ "generatedAt": "2026-09-16T20:24:21.984Z",
+ "docsSyncedAt": "2026-09-16T20:22:12.296Z",
  "source": {
   "repository": "https://github.com/Open2077/open77-app",
-  "commit": "857e7f881066bb0965673e5456d5d90746ea994e"
+  "commit": "ecf83353e45bc0cb7a91bccfabc21030c7e3106f"
  },
  "counts": {
   "cards": 1571,
-  "releases": 43,
+  "releases": 44,
   "guides": 86,
   "sections": 1178,
   "fivem": 100,
@@ -31,8 +31,8 @@
    "bytes": 123384
   },
   "releases.json": {
-   "sha256": "f47db565d54abb64efe725250fc6137844e8bc268c07cd22da2e6d0024762cc4",
-   "bytes": 3641
+   "sha256": "a19269ccf5a9064699276f1ab2785734926dd2a7967fa0f22d7fe72f035ca611",
+   "bytes": 3722
   },
   "guides.json": {
    "sha256": "ce7094b0e4351230f39cf12cf4839e7633300dbcac895a7c35a6eb8974b082a7",
