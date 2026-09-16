@@ -2444,6 +2444,20 @@ function Open77.animations.list(query) end
 ---@return any nil nil, error on rejection
 function Open77.animations.play(playerId, profileId, options) end
 
+--- Play a profile at a world pose: the placed form of play (TaskStartScenarioAtPosition).
+---
+--- Requires players.animations.control -- the same capability as play, because a placement is an animation with a pose, not a second power. The body is first moved to position with the given yaw (degrees about Z, the props convention) through the platform's own placement channel -- no fade, the same gate and settle watch a Warden move gets -- and once it stands there the workspot device is spawned under it and the posture plays: that is what sits a player on a chair that has no device of its own, leans them on a wall, or lies them on a bed. (The engine does not pull a body onto a device two metres away; measured 2026-09-16, so the server carries it.) The three portable postures are the chair, lean and lie profiles; any catalogue profile accepts a pose. The anchor must be within 5 m of the player's current position or the call is refused with anchor_too_far: past that a placement would be a teleport reachable without players.teleport, and Open77.players.teleport is the call that owns journeys. position is { x, y, z } or a three-element array; yaw is optional and defaults to 0. options are those of play (clip, durationMs, loop). Returns the accepted playback state with an anchor field; the playbackId is the handle stopAt takes. Resources see the accepted state at once; clients hear about the posture only when the body has arrived, and its clock starts then. The move watchdog is measured against the anchor and armed 5 s after acceptance; a body that never reaches its anchor in that window ends with anchor_unreached rather than moved. Acceptance is server authority, not proof -- observe onPlayerAnimationChanged. Refusals add invalid_anchor, anchor_too_far and anchor_move_refused (the body is not ready, not alive, or in a vehicle) to those of play. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
+---
+--- Since: not in any published build
+---@param playerId integer
+---@param profileId string
+---@param position any
+---@param yaw? number
+---@param options? table
+---@return any Accepted Accepted playback state including playbackId and anchor { x, y, z, yaw }
+---@return any nil nil, error on rejection
+function Open77.animations.playAt(playerId, profileId, position, yaw, options) end
+
 --- Start a synchronized RP action on a player, addressed by clip name.
 ---
 --- Requires players.animations.control and the same readiness, ownership and duration rules as play(); only the addressing differs. The owning profile is resolved from the generated catalogue, so the caller names the animation rather than the action that carries it. This is the closest honest analogue of FiveM's TaskPlayAnim. It is not 'play any clip': Cyberpunk plays a named clip only through a workspot bound into a device entity at asset-build time, so the addressable set is the 70 clips of the twelve shipped devices. A name outside it -- including a name from the 23,044-entry discovery inventory -- is refused with unknown_clip rather than started and ignored by the engine. Options are durationMs and loop only. blendIn, blendOut, upperBody, holdLastFrame, flags, dict and playbackRate are refused by name as unsupported_option:<key>, because an author porting a TaskPlayAnim call has to be able to see which concept is missing rather than assume a bad value. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
@@ -2478,6 +2492,16 @@ function Open77.animations.sequence(playerId, steps, options) end
 ---@return any true true on success, including already inactive
 ---@return any nil nil, error on rejection
 function Open77.animations.stop(playerId, playbackId) end
+
+--- Stop a placed action by its handle alone.
+---
+--- Requires players.animations.control. Takes the playbackId that playAt (or play) returned and ends that action, tearing down its workspot device on every client; nothing else needs remembering, in particular not which player it belonged to. Refuses with animation_owned when another resource VM started it and invalid_playback for an empty or oversized handle. A handle whose action already ended succeeds, exactly as stop does on an idle player: once the entry is gone, 'already finished' and 'never existed' are the same answer, and the caller's intent -- nothing running under this handle -- holds either way. Resource stop, restart and disposal tear placed actions down without this call, as they do every other action the VM owns. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
+---
+--- Since: not in any published build
+---@param playbackId string
+---@return any true true, including when the handle no longer names a running action
+---@return any nil nil, error on rejection
+function Open77.animations.stopAt(playbackId) end
 
 --- Restores a saved appearance snapshot on a player, without the client asking.
 ---
@@ -3380,6 +3404,29 @@ function Open77.effects.create(def) end
 ---@return any reason reason: permission_denied:world.effects, permission_denied:world.explosions, permission_denied:world.vehicles, invalid_position, invalid_radius, invalid_damage, invalid_force, invalid_bucket, invalid_effect, invalid_sound, invalid_player_id, damage_unavailable, vehicles_unavailable, world_unavailable
 function Open77.effects.explosion(position, options) end
 
+--- Lights a script fire at a point: looping VFX plus a damage tick for whoever stands in it.
+---
+--- Native-parity E7, FiveM's `StartScriptFire`. **The fire is one looping effect, and the `fireId` it answers IS that effect's id** -- same registry, same ownership, revisioning and streaming, so a player who walks away and comes back still finds it burning, `Open77.effects.get(fireId)` describes the flames and `onEffectCreated` announces them. Two ids for one object would have been two things that could disagree about whether it is still there. The registry is therefore the authority on EXISTENCE and the owning resource only on damage: `Open77.effects.remove(fireId)` puts the fire out with the reason `effect_removed` instead of leaving an invisible one burning, while expiry works the other way round -- the resource's own deadline retires the entry, which is why the effect carries no TTL of its own. **Damage is flat inside the radius, deliberately unlike an explosion's linear falloff**: a fire is a volume you are inside or outside of, and a falloff would make the rim nearly free. One damage interval is one second, so `damagePerSecond` is the literal unit; a billed interval is capped at five seconds so a server hitch cannot settle a minute of burning at once; and a player whose last snapshot is stale is skipped rather than burned at a position the server is unsure of. Damage goes through the same scripted-damage funnel as `Open77.players.damage` with the attack kind `environment` (2.31 has no fire kind), so god mode, the life-phase interlocks, the damage multiplier and kill attribution all apply. **The same three grants as an explosion and no new manifest string**: `world.effects` buys flames that are only a picture, `world.explosions` is required the moment `damagePerSecond` is positive, and `vehicles = true` requires `world.vehicles`. The capability describes the reach -- area damage to players the resource never enumerated -- and a fire reaches exactly as far as a blast repeated once a second. With `vehicles = true` a car burns at the same rate against its 0-1 pool scaled through one stated rule (a fire that kills a healthy player in ten seconds wrecks a healthy car in ten seconds) and one that reaches zero is exploded through `Open77.vehicles.explode`, C12's call and not a second way to blow up a car. At most 64 fires per resource, much lower than the effect registry's 512 because each one costs a per-second proximity sweep. Publishes `onFire` host-wide (and `fireEvent` under the FiveM name), with a count rather than names. See the [effects guide](effects.md).
+---
+--- Permissions: world.vehicles
+--- Since: not in any published build
+--- Reasons: invalid_argument, invalid_damage, invalid_duration, invalid_position, invalid_radius
+---@param position any
+---@param options? any
+---@return any fire fire id (decimal string), which is also the looping effect's id, or nil
+---@return any reason reason: permission_denied:world.effects, permission_denied:world.explosions, permission_denied:world.vehicles, invalid_position, invalid_radius, invalid_damage, invalid_duration, invalid_bucket, invalid_effect, invalid_player_id, fire_limit, quota_exceeded, damage_unavailable, vehicles_unavailable, world_unavailable, resource_stopping
+function Open77.effects.fire(position, options) end
+
+--- Lists the fires this resource still has burning, ascending by id.
+---
+--- Native-parity E7. Requires `world.effects`. Answers **this resource's** fires and nobody else's: they are its own to put out, and the host-wide `onFire` is how the rest of the server learns about somebody else's. Each row carries `id` (which is also the looping effect's id), `effect`, `position`, `radius`, `damagePerSecond`, `bucket`, `vehicles`, `attacker`, `hurt` and `remainingMs`. `hurt` is a COUNT of distinct players the fire has burned, never a roster -- the same rule the event follows, because who was standing in a fire is a proximity read the caller can do for itself if it is entitled to. `remainingMs` is absent for a fire lit with `durationMs = 0`, so an eternal fire is distinguishable from one about to go out rather than both reading as zero. An optional bucket narrows the list.
+---
+--- Permissions: world.effects
+--- Since: not in any published build
+---@param bucket? integer
+---@return any array array of { id, effect, position, radius, damagePerSecond, bucket, vehicles, attacker, hurt, remainingMs? }
+function Open77.effects.fires(bucket) end
+
 --- Reads one looping effect's canonical snapshot.
 ---
 --- Requires `world.effects`. Reads are not restricted to the owning resource, so a spectator or admin tool can inspect an effect it did not create. Answers `nil` for an unknown id.
@@ -3427,6 +3474,17 @@ function Open77.effects.playOn(target, name, options) end
 ---@return any true true, or false
 ---@return any reason reason
 function Open77.effects.remove(id) end
+
+--- Puts one of this resource's fires out: the flames and the burning stop together.
+---
+--- Native-parity E7, FiveM's `RemoveScriptFire`. Requires `world.effects`. Removes the looping effect the fire is made of and stops the damage tick in the same statement, then publishes `onFire` with the state `stopped` and the reason `removed`. A fire that has already expired or been removed answers `not_found`, exactly as removing a looping effect twice does, and an id that belongs to another resource answers `owned_by_another_resource` -- the same distinction the effect registry draws, because "you put it out already" and "that is not yours" are different bugs in the caller. `Open77.effects.remove(fireId)` reaches the same end by a different door: the next tick finds the entry gone and stops the burn with the reason `effect_removed`.
+---
+--- Permissions: world.effects
+--- Since: not in any published build
+---@param fireId any
+---@return any true true, or nil
+---@return any reason reason: permission_denied:world.effects, not_found, owned_by_another_resource, world_unavailable
+function Open77.effects.removeFire(fireId) end
 
 --- Plays a full-screen post-process effect on one player's own view.
 ---

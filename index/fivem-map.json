@@ -210,6 +210,54 @@
    "guideAnchor": "availability-at-a-glance"
   },
   {
+   "fivem": "StartScriptFire(x, y, z, maxChildren, isGasFire)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.effects.fire(position, options)` — server-side, same reason as the blast. `maxChildren` has no equivalent: a fire is one radius, not a spreading tree. `isGasFire` is a `vfx` alias (`fire.gas`)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "RemoveScriptFire(handle)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.effects.removeFire(fireId)`; `Open77.effects.fires()` lists what this resource still has burning",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetScriptFireCoords",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "`Open77.effects.fires()` answers the first for a resource's own fires; there is no per-entity burning flag, because nothing in the engine replicates one",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "IsEntityOnFire",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "`Open77.effects.fires()` answers the first for a resource's own fires; there is no per-entity burning flag, because nothing in the engine replicates one",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "fireEvent",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`onFire`, host-wide, with `started`/`stopped` and a count rather than names",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "ptFxEvent",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`onParticleEffect`, host-wide, for every world-positioned server effect. Entity-bound `playOn`/`attach` raise nothing: the target owns the transform",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
    "fivem": "GetPlayerIdentifierByType(playerId, type)",
    "status": "partial",
    "client": false,

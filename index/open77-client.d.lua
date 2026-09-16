@@ -7105,12 +7105,14 @@ function Open77.world.nearest(radius, filter) end
 ---
 --- `crowd` is a genuine fraction of the vanilla pedestrian density and is applied as one. `traffic` is reported as sent but the engine offers no vehicle density modifier on 2.31, so any value above zero means vanilla traffic -- `trafficGranularity` says `binary` and `crowdGranularity` says `continuous` rather than letting a caller assume otherwise. `applied` is what the engine did with the policy (`Ok`, or a refusal name): a policy can arrive and be refused, and a caller comparing its own numbers against the street needs to see that. Requires `world.query`.
 ---
+--- `sanitizer` is what this client's own clean-up did with the policy, cumulative since plugin load: `kept` is the unowned bodies the identity sanitizer classified and left alone because the policy allows their kind, `removedNpcs` / `removedVehicles` the ones it took out, `sweeps` how many passes ran. A resource that turned traffic on and sees `removedVehicles` climb between two reads is watching its cars vanish (release 65's defect); `kept` climbing is the street being left alone. Compare two reads rather than trusting one.
+---
 --- Fails with `no_population_policy` until a server has sent one. That is a different answer from empty streets and must not be read as one.
 ---
 --- Permissions: world.query
 --- Since: 2.31.13+op77.67
 --- Reasons: no_population_policy, permission_denied:world.query, world_unavailable_on_this_host
----@return any table table { bucket, crowd, traffic, police, revision, applied, crowdGranularity, trafficGranularity }, or nil
+---@return any table table { bucket, crowd, traffic, police, revision, applied, crowdGranularity, trafficGranularity, sanitizer = { kept, removedNpcs, removedVehicles, sweeps } }, or nil
 ---@return any reason reason on failure
 function Open77.world.population() end
 
