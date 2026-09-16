@@ -7,72 +7,134 @@
       "kind": "blank",
       "prompt": "Write an Open77 resource `eval_taxi` where a player types /taxi to have a taxi vehicle spawn near them and drive them to their current map waypoint. Use only natives the MCP confirms exist on this build; the server owns the vehicle. Include the manifest with exactly the permissions required.",
       "static": {
-        "requiredNatives": ["Open77.map.getWaypoint"],
-        "requiredNamespaces": ["Open77.vehicles"],
-        "forbidden": ["Open77.camera in server_script"],
+        "requiredNatives": [
+          "Open77.map.getWaypoint"
+        ],
+        "requiredNamespaces": [
+          "Open77.vehicles"
+        ],
+        "forbidden": [
+          "Open77.camera in server_script"
+        ],
         "maxErrors": 0
       },
       "ingame": {
-        "steps": ["connect one client", "place a map waypoint", "chat /taxi", "assert a vehicle exists within 15 m within 10 s (open77_snapshot)", "assert the player's vehicle is driving toward the waypoint after 20 s"],
+        "steps": [
+          "connect one client",
+          "place a map waypoint",
+          "chat /taxi",
+          "assert a vehicle exists within 15 m within 10 s (open77_snapshot)",
+          "assert the player's vehicle is driving toward the waypoint after 20 s"
+        ],
         "proof": "open77_snapshot shows the player in a vehicle whose position converges on the waypoint"
-      }
+      },
+      "resourceName": "eval_taxi"
     },
     {
       "id": "cuff-escort",
       "kind": "blank",
       "prompt": "Write an Open77 resource `eval_cuff` with two server commands: /cuff <playerId> freezes the target's movement and plays the cuffed animation; /escort <playerId> makes the target follow the officer. Use the role-play kit guide as reference. Refuse the commands when the target is not alive.",
       "static": {
-        "requiredNamespaces": ["Open77.players"],
-        "requiredGuides": ["rp-kit"],
+        "requiredNamespaces": [
+          "Open77.players"
+        ],
+        "requiredGuides": [
+          "rp-kit"
+        ],
         "maxErrors": 0
       },
       "ingame": {
-        "steps": ["connect two clients", "/cuff <second player>", "assert the second player cannot move (open77_input forward, position unchanged)", "/escort <second player>", "walk the first player 10 m; assert the second player followed within 3 m"],
+        "steps": [
+          "connect two clients",
+          "/cuff <second player>",
+          "assert the second player cannot move (open77_input forward, position unchanged)",
+          "/escort <second player>",
+          "walk the first player 10 m; assert the second player followed within 3 m"
+        ],
         "proof": "positions from open77_snapshot on both clients"
-      }
+      },
+      "resourceName": "eval_cuff"
     },
     {
       "id": "shop-webui",
       "kind": "hud",
       "prompt": "Write an Open77 resource `eval_shop` that opens a WebUI shop page with the F6 key listing three items with prices, and on purchase sends a net event to the server which validates the price server-side and answers with a notification. The client never decides the price.",
       "static": {
-        "requiredNamespaces": ["WebUI.Page"],
-        "requiredNatives": ["RegisterNetEvent", "TriggerClientEvent"],
-        "requiredPermissions": ["network.events"],
+        "requiredNamespaces": [
+          "WebUI.Page"
+        ],
+        "requiredNatives": [
+          "RegisterNetEvent",
+          "TriggerClientEvent"
+        ],
+        "requiredPermissions": [
+          "network.events"
+        ],
         "maxErrors": 0
       },
       "ingame": {
-        "steps": ["connect one client", "press the key", "open77_screenshot shows the page", "click buy on item 2", "assert the server log shows the validated purchase and the client got the notification"],
+        "steps": [
+          "connect one client",
+          "press the key",
+          "open77_screenshot shows the page",
+          "click buy on item 2",
+          "assert the server log shows the validated purchase and the client got the notification"
+        ],
         "proof": "server log line + open77_screenshot with the notification"
-      }
+      },
+      "resourceName": "eval_shop"
     },
     {
       "id": "pvp-round",
       "kind": "gamemode",
       "prompt": "Write an Open77 gamemode `eval_arena`: players who type /arena join a routing bucket, get a fixed loadout, and the round ends when one player is left alive; the winner is announced in chat and everyone returns to the main bucket. Server-authoritative; use the deathmatch guide as reference.",
       "static": {
-        "requiredNamespaces": ["Open77.routingBuckets"],
-        "requiredGuides": ["routing-buckets", "deathmatch"],
+        "requiredNamespaces": [
+          "Open77.routingBuckets"
+        ],
+        "requiredGuides": [
+          "routing-buckets",
+          "deathmatch"
+        ],
         "maxErrors": 0
       },
       "ingame": {
-        "steps": ["connect two clients", "/arena on both", "assert both are in the same non-default bucket", "kill one (server damage command)", "assert the chat announces the winner and both buckets return to 0"],
+        "steps": [
+          "connect two clients",
+          "/arena on both",
+          "assert both are in the same non-default bucket",
+          "kill one (server damage command)",
+          "assert the chat announces the winner and both buckets return to 0"
+        ],
         "proof": "open77_snapshot bucket ids + chat log"
-      }
+      },
+      "resourceName": "eval_arena"
     },
     {
       "id": "fivem-port",
       "kind": "blank",
       "prompt": "Port this FiveM client script to Open77 as resource `eval_port`. Keep the behaviour: a key opens a menu that lists nearby vehicles and lets the player teleport into the driver seat of one. Replace every FiveM native with the Open77 equivalent the MCP gives, and list what could not be ported.\n\n```lua\nRegisterCommand('cars', function()\n  local ped = PlayerPedId()\n  local coords = GetEntityCoords(ped)\n  for _, veh in ipairs(GetGamePool('CVehicle')) do\n    if #(GetEntityCoords(veh) - coords) < 30.0 then\n      print(GetDisplayNameFromVehicleModel(GetEntityModel(veh)))\n    end\n  end\nend)\n```",
       "static": {
-        "requiredNamespaces": ["Open77.vehicles"],
-        "forbidden": ["PlayerPedId", "GetGamePool", "GetEntityCoords"],
+        "requiredNamespaces": [
+          "Open77.vehicles"
+        ],
+        "forbidden": [
+          "PlayerPedId",
+          "GetGamePool",
+          "GetEntityCoords"
+        ],
         "maxErrors": 0
       },
       "ingame": {
-        "steps": ["connect one client near vehicles (spawn two)", "/cars", "assert the two vehicles are listed", "pick one; assert the player is in its driver seat"],
+        "steps": [
+          "connect one client near vehicles (spawn two)",
+          "/cars",
+          "assert the two vehicles are listed",
+          "pick one; assert the player is in its driver seat"
+        ],
         "proof": "open77_snapshot vehicle seat"
-      }
+      },
+      "resourceName": "eval_port"
     }
   ]
 }
