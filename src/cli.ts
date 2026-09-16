@@ -100,6 +100,7 @@ export function usage(): string {
     "open77-mcp                       serve the Open77 Devkit MCP over stdio",
     "open77-mcp serve-http [--port N] serve over Streamable HTTP (hosted endpoint)",
     "open77-mcp init [--server-dir D] register the MCP in Claude Code, Codex, Cursor, VS Code, Claude Desktop, Windsurf",
+    "    --config F                   the server.jsonc the server runs with, when not server.jsonc (also OPEN77_SERVER_CONFIG)",
     "open77-mcp uninstall             remove those registrations",
     "open77-mcp types [--out DIR]     write open77-client.d.lua / open77-server.d.lua and a .luarc.json",
     "open77-mcp status                index build, detected server build, cache state",

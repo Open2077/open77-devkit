@@ -6,11 +6,10 @@
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { existsSync } from "node:fs";
-import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 import type { ServerContext } from "../server.js";
-import { detectWorkspace, type Workspace } from "./detect.js";
+import { detectWorkspace, findResourceDir, type Workspace } from "./detect.js";
 import { runtimeLint, validateResource, type Finding } from "./validate.js";
 import { scaffold, SCAFFOLD_KINDS } from "./scaffold.js";
 
@@ -18,19 +17,27 @@ function text(body: string) {
   return { content: [{ type: "text" as const, text: body }] };
 }
 
-export function registerLocalTools(server: McpServer, context: ServerContext, initial: Workspace): void {
+export function registerLocalTools(server: McpServer, context: ServerContext, initial: Workspace, onChange?: (workspace: Workspace) => void): void {
   let workspace = initial;
+  // What the CLI was started with (--server-dir) stays the default for a
+  // re-detection: the process cwd is the agent's, not the server's.
+  const startedWith = initial.serverDir ?? undefined;
+  const startedConfig = initial.configFile ?? undefined;
 
   server.registerTool(
     "open77_workspace",
     {
       title: "Detected server and resources",
       description: "Where the Open77 server next to this session is, its build, its config, its resources root and the resources in it. Re-detects when called.",
-      inputSchema: { serverDir: z.string().optional().describe("Override the detected server directory") },
+      inputSchema: {
+        serverDir: z.string().optional().describe("Override the detected server directory"),
+        config: z.string().optional().describe("The server.jsonc the server was started with (--config), when not server.jsonc"),
+      },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
-    async ({ serverDir }) => {
-      workspace = await detectWorkspace(process.cwd(), serverDir);
+    async ({ serverDir, config }) => {
+      workspace = await detectWorkspace(process.cwd(), serverDir ?? startedWith, config ?? startedConfig);
+      onChange?.(workspace);
       const served = context.resolved.build;
       const mismatch = workspace.build && workspace.build !== served
         ? `\nNOTE: the server is ${workspace.build} but this session answers for ${served}${context.resolved.note ? ` (${context.resolved.note})` : ""}. Restart the MCP inside the server directory, or pass --server-dir, to pin it.`
@@ -40,7 +47,7 @@ export function registerLocalTools(server: McpServer, context: ServerContext, in
         `server build: ${workspace.build ?? "unknown"}${workspace.build ? ` (${workspace.buildSource})` : ""}`,
         `answering for: ${served}`,
         `config: ${workspace.configFile ?? "none"}`,
-        `resources root: ${workspace.resourcesRoot ?? "none"}`,
+        `resources root: ${workspace.resourcesRoot ?? "none"}${workspace.resourceDirs.length > 1 ? ` (+${workspace.resourceDirs.length - 1} load paths)` : ""}`,
         `warden: ${workspace.wardenUrl ?? "not enabled in server.jsonc"}`,
         `resources (${workspace.resources.length}): ${workspace.resources.join(", ") || "none"}`,
       ].join("\n") + mismatch);
@@ -104,19 +111,7 @@ export function registerLocalTools(server: McpServer, context: ServerContext, in
 async function resolveResourceDir(resource: string, workspace: Workspace): Promise<string | null> {
   const direct = path.resolve(resource);
   if (existsSync(path.join(direct, "open77.lua"))) return direct;
-  if (!workspace.resourcesRoot) return null;
-  const candidates = [path.join(workspace.resourcesRoot, resource)];
-  try {
-    for (const entry of await readdir(workspace.resourcesRoot, { withFileTypes: true })) {
-      if (entry.isDirectory()) candidates.push(path.join(workspace.resourcesRoot, entry.name, resource));
-    }
-  } catch {
-    /* no root */
-  }
-  for (const candidate of candidates) {
-    if (existsSync(path.join(candidate, "open77.lua"))) return candidate;
-  }
-  return null;
+  return findResourceDir(workspace, resource);
 }
 
 export function renderFindings(dir: string, findings: Finding[], context: ServerContext): string {

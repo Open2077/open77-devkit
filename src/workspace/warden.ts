@@ -157,7 +157,13 @@ export class WardenClient {
 
   async validate(name: string): Promise<unknown> {
     const result = await this.request<unknown>("POST", `/api/resources/${encodeURIComponent(name)}/validate`, {});
-    if (result.status === 404) throw new WardenError(`this server has no validate endpoint or no resource named ${name} (HTTP 404)`, 404);
+    if (result.status === 404) throw new WardenError(`no resource named ${name}, or this server predates the validate endpoint (HTTP 404)`, 404);
+    // A server older than the endpoint routes the call to the generic action
+    // handler, which answers "unknown resource action". Say what that means.
+    const generic = result.data as { ok?: boolean; output?: string } | undefined;
+    if (generic && generic.ok === false && /unknown resource action/.test(generic.output ?? "")) {
+      throw new WardenError("this server build has no runtime validator (Warden validate arrived with the --lint build); open77_validate still checks the resource against the catalogue", 501);
+    }
     return result.data;
   }
 

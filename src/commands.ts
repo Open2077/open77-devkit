@@ -37,7 +37,7 @@ async function packageVersion(): Promise<string> {
 }
 
 async function prepare(flags: Flags): Promise<{ context: ServerContext; workspace: Workspace }> {
-  const workspace = await detectWorkspace(process.cwd(), flag(flags, "server-dir"));
+  let workspace = await detectWorkspace(process.cwd(), flag(flags, "server-dir"), flag(flags, "config"));
   const wanted = flag(flags, "build") ?? workspace.build ?? undefined;
   const resolved: ResolvedIndex = await resolveIndex({
     build: wanted,
@@ -53,7 +53,7 @@ async function prepare(flags: Flags): Promise<{ context: ServerContext; workspac
     packageVersion: await packageVersion(),
     skillPath: skillPathFor(PACKAGE_ROOT),
     extensions: [
-      (server, ctx) => registerLocalTools(server, ctx, workspace),
+      (server, ctx) => registerLocalTools(server, ctx, workspace, (next) => { workspace = next; }),
       (server, ctx) => registerWardenTools(server, ctx, () => workspace),
       (server, ctx) => registerWorkshopTools(server, ctx, () => workspace),
     ],
@@ -66,7 +66,7 @@ async function prepare(flags: Flags): Promise<{ context: ServerContext; workspac
  * typed here and sent to the server; what is kept is the session cookie.
  */
 async function wardenLogin(flags: Flags): Promise<void> {
-  const workspace = await detectWorkspace(process.cwd(), flag(flags, "server-dir"));
+  const workspace = await detectWorkspace(process.cwd(), flag(flags, "server-dir"), flag(flags, "config"));
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {
     const suggested = flag(flags, "origin") ?? process.env["OPEN77_WARDEN_ORIGIN"] ?? workspace.wardenUrl ?? "http://127.0.0.1:11780";
