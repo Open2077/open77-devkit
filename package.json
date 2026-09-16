@@ -1,6 +1,6 @@
 {
   "name": "@open2077/mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Open77 Devkit MCP: the Open77 Lua API, permissions, events and game data for coding agents, pinned to the server build you run.",
   "license": "MIT",
   "type": "module",
