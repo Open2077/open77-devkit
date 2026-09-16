@@ -43,9 +43,11 @@ local function apply(wanted)
     if not okHub then print("eval_cuff: Hub block refused: " .. tostring(hubReason)) end
 
     mode = wanted
+    print(("eval_cuff: control %s applied"):format(wanted))
 end
 
 RegisterNetEvent(CONTROL_EVENT, function(wanted)
+    print(("eval_cuff: control event %s received"):format(tostring(wanted)))
     apply(wanted)
 end)
 

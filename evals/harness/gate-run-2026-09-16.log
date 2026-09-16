@@ -1,0 +1,89 @@
+[  OK  ] preconditions: no client, 9748 MiB free, eval server up
+[ .... ] client A
+[  OK  ] dev-local masterless : master local ignoré (bypass ticket/identité en loopback)
+[  OK  ] serveur de dev déjà en cours (PID 8528, 14264, 34628, 34864, 46580, 58316, 64604)
+[  OK  ] aucune instance en cours, celle-ci sera la première
+[  OK  ] mémoire vidéo libre : 9748 Mio (marge exigée 2500 Mio)
+[ .... ] lancement
+[  OK  ] processus 49616 démarré
+[  OK  ] Open77.dll mappé dans 49616
+[  OK  ] pont de debug joignable : Open77.Debug.49616
+
+Instances de Cyberpunk2077 :
+  PID 49616  démarré 07:55:41  Open77.dll mappé
+
+Avec plusieurs instances, le pont exige un PID explicite :
+  .\scripts\debug-bridge.ps1 -ProcessId 49616 -Command 'ping'
+[  OK  ] autoconnexion émise vers 127.0.0.1:11798
+[ .... ] phase=active playerId=3 error=-
+[ .... ] chargement pristine demandé
+[  OK  ] incarnation confirmée par char.state (attached=yes alive=yes)
+[  OK  ] session active playerId=3 ping=0ms
+[  OK  ] monde chargé, position au handoff (pré-spawn) : OK x=-699.095 y=2164.295 z=53.108 yaw=134.116
+[  OK  ] écran « continuer » franchi : char.state alive=yes
+[ .... ] client B
+[  OK  ] instances déjà en cours : 49616
+[  OK  ] mémoire vidéo libre : 4362 Mio (marge exigée 2500 Mio)
+[ .... ] lancement
+[  OK  ] profil d'identité : eval-b
+[  OK  ] processus 10112 démarré
+[  OK  ] Open77.dll mappé dans 10112
+[  OK  ] pont de debug joignable : Open77.Debug.10112
+
+Instances de Cyberpunk2077 :
+  PID 10112  démarré 07:56:04  Open77.dll mappé
+  PID 49616  démarré 07:55:41  Open77.dll mappé
+
+Avec plusieurs instances, le pont exige un PID explicite :
+  .\scripts\debug-bridge.ps1 -ProcessId 10112 -Command 'ping'
+[  OK  ] autoconnexion émise vers 127.0.0.1:11798
+[ .... ] phase=active playerId=4 error=-
+[ .... ] chargement pristine demandé
+[  OK  ] incarnation confirmée par char.state (attached=yes alive=yes)
+[  OK  ] session active playerId=4 ping=0ms
+[  OK  ] monde chargé, position au handoff (pré-spawn) : OK x=381.276 y=-2401.727 z=181.882 yaw=-1.076
+[  OK  ] écran « continuer » franchi : char.state alive=yes
+[  OK  ] players: A=3 (pid 49616) B=4 (pid 10112)
+[ .... ] placement
+[  OK  ] placed and still: B 1.29 m from A
+[ .... ] control walk
+input pid=10112 keys=forward hold=1500ms
+[  OK  ] control walk: B moved 5.45 m while free
+[  OK  ] B back at A's side: 1.6 m, both still
+[ .... ] cuff
+input pid=49616 keys=t hold=120ms
+input pid=49616 keys=slash+c+u+f+f+space+4+enter hold=80ms
+screenshot pid=49616 method=PrintWindow size=1298x767 file=C:\Games\cyberm\op77-eval-server\evals-shots\cuff-a.png
+screenshot pid=10112 method=PrintWindow size=1298x767 file=C:\Games\cyberm\op77-eval-server\evals-shots\cuff-b.png
+[  OK  ] B after cuff, before the walk: speed=0 serverFrozen=yes movementHeld=yes
+input pid=10112 keys=forward hold=1500ms
+[  OK  ] cuff: control walk 5.45 m, cuffed walk 0 m, pose=stand__2h_up__03__look_around__01
+[ .... ] escort
+input pid=49616 keys=t hold=120ms
+input pid=49616 keys=slash+e+s+c+o+r+t+space+4+enter hold=80ms
+input pid=49616 keys=forward hold=4000ms
+[  OK  ] escort: A walked 14.07 m in 4 s, A-B distance after = 1.73 m
+input pid=49616 keys=t hold=120ms
+input pid=49616 keys=slash+c+u+f+f+space+4+enter hold=80ms
+[ .... ] arena
+input pid=49616 keys=t hold=120ms
+input pid=49616 keys=slash+a+r+e+n+a+enter hold=80ms
+input pid=10112 keys=t hold=120ms
+input pid=10112 keys=slash+a+r+e+n+a+enter hold=80ms
+[  OK  ] arena: buckets A=4300 B=4300
+input pid=49616 keys=t hold=120ms
+input pid=49616 keys=slash+a+r+e+n+a+space+l+e+a+v+e+enter hold=80ms
+input pid=10112 keys=t hold=120ms
+input pid=10112 keys=slash+a+r+e+n+a+space+l+e+a+v+e+enter hold=80ms
+[ .... ] taxi
+[ SKIP ] taxi: needs a hand-placed vanilla waypoint; the command/reason path was proven separately
+[  OK  ] déconnexion PID 49616 : OK disconnect_requested reason=agent_loop_down
+[  OK  ] jeu arrêté (PID 49616)
+[  OK  ] déconnexion PID 10112 : OK disconnect_requested reason=agent_loop_down
+[  OK  ] jeu arrêté (PID 10112)
+[  OK  ] clients stopped (0 left running)
+
+cuff     PASS
+escort   PASS
+arena    PASS
+taxi     SKIP

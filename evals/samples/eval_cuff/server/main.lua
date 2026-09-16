@@ -198,12 +198,19 @@ local function verb(source, args, verbName, apply)
     end
 
     local ok, reason, bucket = checkPair(source, target)
-    if not ok then return say(source, ("Cannot %s %s: %s"):format(verbName, nameOf(target), reason)) end
+    if not ok then
+        print(("eval_cuff: /%s by %s on %s refused: %s"):format(verbName, tostring(source), tostring(target), tostring(reason)))
+        return say(source, ("Cannot %s %s: %s"):format(verbName, nameOf(target), reason))
+    end
 
     if existing then release(target, "superseded") end
 
     local applied, aerr = apply(source, target, bucket)
-    if not applied then return say(source, ("Cannot %s %s: %s"):format(verbName, nameOf(target), aerr)) end
+    if not applied then
+        print(("eval_cuff: /%s by %s on %s failed: %s"):format(verbName, tostring(source), tostring(target), tostring(aerr)))
+        return say(source, ("Cannot %s %s: %s"):format(verbName, nameOf(target), aerr))
+    end
+    print(("eval_cuff: /%s by %s on %s applied"):format(verbName, tostring(source), tostring(target)))
 
     say(source, ("%s %s."):format(verbName == "cuff" and "Cuffed" or "Escorting", nameOf(target)))
     say(target, verbName == "cuff"

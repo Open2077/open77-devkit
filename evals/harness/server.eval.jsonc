@@ -1,0 +1,65 @@
+{
+  "$schema": "./config/server.schema.json",
+  "schemaVersion": 1,
+  // Devkit MCP eval server: the worktree's resources plus the agent-written
+  // eval resources, loopback only, on ports that do not collide with the
+  // shared dev server (11778/11779/11780). Local file, not committed.
+  "identity": {
+    "name": "Open77 Devkit eval (local, masterless)",
+    "description": "Devkit MCP in-game eval. Loopback only.",
+    "locale": "en-US",
+    "tags": ["development"],
+    "website": null,
+    "discord": null,
+    "icon": null,
+    "visibility": "private"
+  },
+  "network": {
+    "port": 11798,
+    "publicEndpoint": "127.0.0.1:11798",
+    "maximumPlayers": 8
+  },
+  "simulation": {
+    "tickRate": 30,
+    "snapshotRate": 20,
+    "expectedGameBuild": 23100,
+    "helloTimeoutSeconds": 10
+  },
+  "accessControl": {
+    "file": "acl.jsonc"
+  },
+  "warden": {
+    "enabled": true,
+    "listenUrl": "http://127.0.0.1:11800"
+  },
+  "database": {
+    "enabled": false,
+    "connectionStringEnvironmentVariable": "OP77_DATABASE_CONNECTION",
+    "maxRows": 10000
+  },
+  "resources": {
+    "enabled": true,
+    "root": "../resources",
+    "load": ["system/*", "gamemodes/freeroam", "open77_equipment", "open77_wardrobe", "polyzone", "<eval-run-dir>/resources/*"],
+    "autoStart": true,
+    "watchIntervalMilliseconds": 0,
+    "download": {
+      "enabled": true,
+      "listenUrl": "http://127.0.0.1:11799",
+      "publicBaseUrl": "http://127.0.0.1:11799/",
+      "cacheDirectory": ".open77-eval/resource-cache",
+      "signingKeyFile": ".open77-eval/resource-signing-key.json",
+      "chunkSizeBytes": 1048576
+    }
+  },
+  "requiredMods": {
+    "enabled": true,
+    "unsecured": true,
+    "packages": []
+  },
+  "masterServer": {
+    "enabled": false,
+    "devLocalAuth": true,
+    "requireConnectTicket": false
+  }
+}
