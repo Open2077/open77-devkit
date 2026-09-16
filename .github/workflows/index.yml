@@ -1,0 +1,77 @@
+# Rebuilds the Dev Index from the public documentation content and publishes
+# it to the CDN. Runs when open77-app tells us the docs changed
+# (repository_dispatch `docs-synced` from its sync workflow), on a daily
+# schedule as a safety net, and by hand.
+#
+# Publishing needs two secrets, the same ones the launcher release uses:
+#   OP77_CDN_SSH_KEY     base64 of the private key (plain PEM breaks ssh)
+#   OP77_CDN_SSH_TARGET  user@host of the CDN box
+# Without them the job still builds and verifies, and stops before upload.
+
+name: Dev Index
+
+on:
+  repository_dispatch:
+    types: [docs-synced]
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+    inputs:
+      build:
+        description: "Build label to publish under (default: newest in releases.json)"
+        required: false
+
+jobs:
+  index:
+    name: Build and publish the index
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out the public docs content
+        uses: actions/checkout@v4
+        with:
+          repository: Open2077/open77-app
+          path: open77-app
+          sparse-checkout: |
+            content
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Build the index
+        id: build
+        run: |
+          COMMIT=$(git -C open77-app rev-parse HEAD)
+          ARGS="--content open77-app/content --out index-build --commit $COMMIT"
+          if [ -n "${{ github.event.inputs.build }}" ]; then ARGS="$ARGS --build ${{ github.event.inputs.build }}"; fi
+          node dist/cli.js build-index $ARGS | tee build.json
+          echo "build=$(node -e 'console.log(JSON.parse(require("fs").readFileSync("build.json","utf8")).build)')" >> "$GITHUB_OUTPUT"
+      - run: node dist/cli.js verify-index --dir index-build
+      - name: Smoke-test the tools against the new index
+        run: OPEN77_INDEX_DIR=index-build npm test
+      - name: Publish to the CDN
+        if: ${{ secrets.OP77_CDN_SSH_KEY != '' }}
+        env:
+          OP77_CDN_SSH_KEY: ${{ secrets.OP77_CDN_SSH_KEY }}
+          OP77_CDN_SSH_TARGET: ${{ secrets.OP77_CDN_SSH_TARGET }}
+          BUILD: ${{ steps.build.outputs.build }}
+        run: |
+          set -euo pipefail
+          KEY=$(mktemp)
+          echo "$OP77_CDN_SSH_KEY" | base64 -d > "$KEY"
+          chmod 600 "$KEY"
+          bash scripts/publish-index.sh index-build "$BUILD" "$OP77_CDN_SSH_TARGET" "$KEY"
+          rm -f "$KEY"
+      - name: Refresh the embedded snapshot on main
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          rm -rf index
+          cp -r index-build index
+          if git diff --quiet -- index; then echo "snapshot unchanged"; exit 0; fi
+          git config user.name "open77-devkit-bot"
+          git config user.email "noreply@open2077.net"
+          git add index
+          git commit -m "index: snapshot for ${{ steps.build.outputs.build }} from open77-app content"
+          git push

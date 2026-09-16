@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.cache/
+tmp/
+# The embedded index snapshot is committed; scratch builds are not.
+index-build/
+.env
+.env.*

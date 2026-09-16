@@ -1,0 +1,55 @@
+{
+  "name": "@open2077/mcp",
+  "version": "0.1.0",
+  "description": "Open77 Devkit MCP: the Open77 Lua API, permissions, events and game data for coding agents, pinned to the server build you run.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "open77-mcp": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "index",
+    "skill",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "index:build": "tsx src/cli.ts build-index",
+    "test": "node --test --import tsx tests/*.test.ts",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Open2077/open77-devkit.git"
+  },
+  "homepage": "https://open2077.net/docs/agents",
+  "keywords": [
+    "open77",
+    "cyberpunk-2077",
+    "mcp",
+    "model-context-protocol",
+    "lua",
+    "multiplayer"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "luaparse": "^0.3.1",
+    "minisearch": "^7.1.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/luaparse": "^0.2.13",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

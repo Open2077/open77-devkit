@@ -1,0 +1,90 @@
+{
+ "$comment": "Directive grammar of open77.lua, the Open77 resource manifest. Written by wiki/tools/extract-schemas.py and checked against the server's manifest parser. The manifest is Lua syntax: `directive \"value\"`, `directive true`, or `directives { \"a\", \"b\" }`; a singular directive may repeat.",
+ "file": "open77.lua",
+ "limits": {
+  "maximumManifestBytes": 262144,
+  "resourceName": "lowercase slug, letters, digits and underscores, 3 to 64 characters, starting with a letter; must equal the directory name",
+  "scriptExtension": ".lua"
+ },
+ "directives": [
+  {
+   "name": "resource",
+   "form": "scalar",
+   "required": true,
+   "description": "The resource name; must match the directory name."
+  },
+  {
+   "name": "version",
+   "form": "scalar",
+   "default": "0.0.0",
+   "description": "The resource version, semantic version recommended."
+  },
+  {
+   "name": "open77_version",
+   "form": "scalar",
+   "default": "*",
+   "description": "The platform version range this resource targets; `*` for any."
+  },
+  {
+   "name": "auto_start",
+   "form": "boolean",
+   "default": true,
+   "description": "Whether the server starts the resource when it is discovered."
+  },
+  {
+   "name": "reload_policy",
+   "form": "scalar",
+   "default": "transactional",
+   "description": "How a changed resource is republished to a running session; `transactional` prepares a new generation and switches once verified."
+  },
+  {
+   "name": "dependencies",
+   "singular": "dependency",
+   "form": "list",
+   "description": "Resource names that must be running before this one starts."
+  },
+  {
+   "name": "permissions",
+   "singular": "permission",
+   "form": "list",
+   "description": "Manifest permissions the resource needs; see permissions.json. A native whose permission is not declared answers `permission_denied:<name>`."
+  },
+  {
+   "name": "shared_scripts",
+   "singular": "shared_script",
+   "form": "list",
+   "description": "Lua files loaded on both runtimes; globs allowed; `.lua` only."
+  },
+  {
+   "name": "server_scripts",
+   "singular": "server_script",
+   "form": "list",
+   "description": "Lua files loaded by the dedicated server; globs allowed; `.lua` only."
+  },
+  {
+   "name": "client_scripts",
+   "singular": "client_script",
+   "form": "list",
+   "description": "Lua files delivered to and run by the game client; globs allowed; `.lua` only."
+  },
+  {
+   "name": "files",
+   "singular": "file",
+   "form": "list",
+   "description": "Extra files delivered to the client (data, images); globs allowed."
+  },
+  {
+   "name": "web_files",
+   "singular": "web_file",
+   "form": "list",
+   "description": "WebUI files (HTML, CSS, JS) delivered to the client; globs allowed."
+  },
+  {
+   "name": "preload_mods",
+   "singular": "preload_mod",
+   "form": "list",
+   "description": "Mod packages (archives) the client must have before the game starts; each pattern must match at least one file. See the Mods guide."
+  }
+ ],
+ "example": "resource \"hello\"\nversion \"1.0.0\"\nauto_start true\n\npermissions { \"network.events\", \"hud.notify\" }\ndependency \"open77_zones\"\n\nshared_script \"shared/config.lua\"\nclient_script \"client/main.lua\"\nserver_script \"server/main.lua\"\nweb_files { \"web/**\" }\n"
+}

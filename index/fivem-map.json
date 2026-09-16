@@ -1,0 +1,341 @@
+{
+ "guide": "fivem-compatibility.md",
+ "mappings": [
+  {
+   "fivem": "Citizen.CreateThread",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "the existing `CreateThread` / `Wait` — the same function value",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "Citizen.Wait",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "the existing `CreateThread` / `Wait` — the same function value",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "Citizen.SetTimeout",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "the existing `SetTimeout` / `ClearTimeout`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "Citizen.ClearTimeout",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "the existing `SetTimeout` / `ClearTimeout`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "Citizen.SetTick",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "`SetTick` / `ClearTick` below",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "Citizen.ClearTick",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "`SetTick` / `ClearTick` below",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "Citizen.Trace",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "the resource log at debug level",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "Citizen.Await",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "`promise:await()`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "Citizen.CreateThreadNow",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "see [What is missing](#what-is-missing-and-why)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetTick(fn)",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "a scheduler task looping with an implicit `Wait(0)`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "ClearTick(id)",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "a scheduler task looping with an implicit `Wait(0)`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetGameTimer()",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "monotonic milliseconds",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "promise.new()",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "the existing `Open77.Promise` type",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "IsDuplicityVersion()",
+   "status": "missing",
+   "client": false,
+   "server": false,
+   "open77": "—",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "LoadResourceFile(res, path)",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "`Open77.resource.readFile` / `Open77.io.read`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SaveResourceFile(res, path, data)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.io.write`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetHashKey(str)",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "TweakDBID, not a Jenkins hash",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "joaat(str)",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "TweakDBID, not a Jenkins hash",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "DoesEntityExist(kind, id)",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "the registry that owns that kind",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "IsPlayerAceAllowed(playerId, perm)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.acl.isAllowed`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "IsPrincipalAceAllowed(userId, perm)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the same check, addressed by account id",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "add_ace <principal> <object> allow",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.acl.grant(userId, permission)` against a user, `Open77.acl.definePermission(role, …)` against a group. Both need a scoped manifest capability; see [the ACL guide](server-acl.md#changing-the-acl-from-a-resource-at-runtime)",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "remove_ace <principal> <object> allow",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.acl.revoke`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "add_principal <child> <parent>",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.acl.addRole(userId, role)`; `remove_principal` is `removeRole`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "AddExplosion(x, y, z, type, damage, audible, invisible, shake)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.effects.explosion(position, options)` — server-side, because the damage goes through the stats authority. `type` is a `vfx` alias rather than a native enum",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "explosionEvent",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`onExplosion`, host-wide, carrying counts rather than names",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetPlayerIdentifierByType(playerId, type)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.players.identifier` / `name` / `identity`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetPlayerIdentifiers(playerId)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the three above as `\"type:value\"` strings",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "RegisterCommand(name, fn, restricted?)",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "server: ACL `command.<name>`; client: `Open77.runtime.registerCommand`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "ExecuteCommand(line)",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "client: the local registry only; server: the console, see below",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetRegisteredCommands()",
+   "status": "alias",
+   "client": true,
+   "server": true,
+   "open77": "`Open77.runtime.commands()`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetPlayerPing(playerId)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.players.ping`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetPlayerEndpoint(playerId)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.players.endpoint`, behind `players.identity.sensitive`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetConvar",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the `convars` block, then this resource's tunables",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetConvarInt",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the `convars` block, then this resource's tunables",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetConvarBool",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the `convars` block, then this resource's tunables",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "SetConvar",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "the `convars` block, then this resource's tunables",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetResourceMetadata(name, key)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.resource.metadata`; no third `index` argument",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "StartResource",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.resource.start` / `stop`, behind `resources.control`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "StopResource",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.resource.start` / `stop`, behind `resources.control`",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetNumResources()",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.resource.list()`; the find index is zero-based",
+   "guideAnchor": "availability-at-a-glance"
+  },
+  {
+   "fivem": "GetResourceByFindIndex(i)",
+   "status": "partial",
+   "client": false,
+   "server": true,
+   "open77": "`Open77.resource.list()`; the find index is zero-based",
+   "guideAnchor": "availability-at-a-glance"
+  }
+ ]
+}

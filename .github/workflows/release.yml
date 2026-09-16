@@ -1,0 +1,44 @@
+# On a version tag (vX.Y.Z matching package.json), build, test, publish to npm
+# and attach a tarball to the GitHub release. NPM_TOKEN must be an automation
+# token for the @open2077 scope.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish @open2077/mcp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - name: Assert the tag matches package.json
+        run: |
+          VERSION=$(node -p 'require("./package.json").version')
+          TAG="${GITHUB_REF_NAME#v}"
+          if [ "$VERSION" != "$TAG" ]; then echo "tag v$TAG does not match package.json $VERSION"; exit 1; fi
+      - run: npm run build
+      - run: node dist/cli.js verify-index --dir index
+      - run: npm test
+      - run: npm pack
+      - name: Publish to npm
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: GitHub release with the tarball
+        uses: softprops/action-gh-release@v2
+        with:
+          files: open2077-mcp-*.tgz
+          generate_release_notes: true
