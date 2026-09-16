@@ -39,8 +39,11 @@ function buildLine(context: ServerContext): string {
 }
 
 export function cardHeader(card: ApiCard): string {
+  const side = card.runtime === "server" ? "server" : "client";
+  // A constant table (Open77.vehicles.seats) is read, not called.
+  if (card.constant) return `${side} ${card.qualified} (constant table)`;
   const params = card.params.map((p) => `${p.name}${p.optional ? "?" : ""}: ${p.type}`).join(", ");
-  return `${card.runtime === "server" ? "server" : "client"} ${card.qualified}(${params})`;
+  return `${side} ${card.qualified}(${params})`;
 }
 
 export function renderCard(card: ApiCard, context: ServerContext, guides: Guide[]): string {

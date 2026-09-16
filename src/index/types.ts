@@ -54,6 +54,8 @@ export interface ApiCard {
   reasons: string[];
   /** First published server build registering the call; null when no release has it. */
   since: string | null;
+  /** A public constant table (`Open77.vehicles.seats`): read, never called. Absent on older indexes. */
+  constant?: boolean;
 }
 
 export interface GuideSection {

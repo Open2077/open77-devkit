@@ -105,29 +105,43 @@ export async function downloadIndex(build: string, log: (line: string) => void =
   }
   await rm(staging, { recursive: true, force: true });
   await mkdir(staging, { recursive: true });
-  await writeFile(path.join(staging, "manifest.json"), manifestResponse.text, "utf8");
-  let count = 0;
-  for (const [name, expected] of Object.entries(manifest.files)) {
-    const file = await fetchText(`${base}/${name}`);
-    if (file.status !== 200) throw new IndexError(`CDN index ${build} is missing ${name} (HTTP ${file.status})`);
-    const normalised = file.text.replace(/\r\n/g, "\n");
-    if (createHash("sha256").update(normalised).digest("hex") !== expected.sha256) {
-      throw new IndexError(`CDN index ${build}: ${name} does not match the manifest; download refused`);
+  try {
+    await writeFile(path.join(staging, "manifest.json"), manifestResponse.text, "utf8");
+    let count = 0;
+    for (const [name, expected] of Object.entries(manifest.files)) {
+      const file = await fetchText(`${base}/${name}`);
+      if (file.status !== 200) throw new IndexError(`CDN index ${build} is missing ${name} (HTTP ${file.status})`);
+      const normalised = file.text.replace(/\r\n/g, "\n");
+      if (createHash("sha256").update(normalised).digest("hex") !== expected.sha256) {
+        throw new IndexError(`CDN index ${build}: ${name} does not match the manifest; download refused`);
+      }
+      await mkdir(path.dirname(path.join(staging, name)), { recursive: true });
+      await writeFile(path.join(staging, name), normalised, "utf8");
+      count += 1;
     }
-    await mkdir(path.dirname(path.join(staging, name)), { recursive: true });
-    await writeFile(path.join(staging, name), normalised, "utf8");
-    count += 1;
+    await writeFile(
+      path.join(staging, ".state.json"),
+      JSON.stringify({ etag: manifestResponse.etag, checkedAt: new Date().toISOString(), manifestSha256: manifestSha } satisfies CacheState),
+      "utf8",
+    );
+    // Two MCP processes started in the same second (an agent's client plus a
+    // validator) both download; the second to finish sees a complete cache
+    // and keeps it rather than replacing a directory another process may be
+    // reading. Either way the staging directory never outlives the call.
+    const already = await readState(target);
+    if (already?.manifestSha256 === manifestSha) {
+      await rm(staging, { recursive: true, force: true });
+      return target;
+    }
+    await rm(target, { recursive: true, force: true });
+    await mkdir(path.dirname(target), { recursive: true });
+    await rename(staging, target);
+    log(`index ${build}: ${count} files cached in ${target}`);
+    return target;
+  } catch (error) {
+    await rm(staging, { recursive: true, force: true }).catch(() => undefined);
+    throw error;
   }
-  await writeFile(
-    path.join(staging, ".state.json"),
-    JSON.stringify({ etag: manifestResponse.etag, checkedAt: new Date().toISOString(), manifestSha256: manifestSha } satisfies CacheState),
-    "utf8",
-  );
-  await rm(target, { recursive: true, force: true });
-  await mkdir(path.dirname(target), { recursive: true });
-  await rename(staging, target);
-  log(`index ${build}: ${count} files cached in ${target}`);
-  return target;
 }
 
 async function cachedBuilds(): Promise<string[]> {
