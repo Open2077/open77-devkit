@@ -33,7 +33,20 @@ jobs:
       - run: node dist/cli.js verify-index --dir index
       - run: npm test
       - run: npm pack
+      # A version published by hand (npm login on a workstation) must not fail
+      # the tag: skip the publish and still cut the GitHub release.
+      - name: Already on npm?
+        id: published
+        run: |
+          NAME=$(node -p 'require("./package.json").name')
+          VERSION=$(node -p 'require("./package.json").version')
+          if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
+            echo "yes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "yes=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Publish to npm
+        if: steps.published.outputs.yes != 'true'
         run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
