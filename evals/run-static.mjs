@@ -47,7 +47,9 @@ for (const task of tasks.tasks) {
   const errors = findings.filter((f) => f.severity === "error");
   const problems = [];
   if (errors.length > (task.static.maxErrors ?? 0)) problems.push(`${errors.length} validation errors: ${errors.slice(0, 3).map((e) => e.message).join(" | ")}`);
-  const sources = (await Promise.all(files.filter((f) => String(f).endsWith(".lua")).map((f) => readFile(path.join(dir, String(f)), "utf8")))).join("\n");
+  // Comments are where an agent explains what it replaced; only code counts.
+  const stripLua = (text) => text.replace(/--\[(=*)\[[\s\S]*?\]\1\]/g, "").replace(/--(?!\[=*\[).*$/gm, "");
+  const sources = (await Promise.all(files.filter((f) => String(f).endsWith(".lua")).map(async (f) => stripLua(await readFile(path.join(dir, String(f)), "utf8"))))).join("\n");
   for (const native of task.static.requiredNatives ?? []) if (!sources.includes(native)) problems.push(`does not use ${native}`);
   for (const ns of task.static.requiredNamespaces ?? []) if (!sources.includes(`${ns}.`) && !sources.includes(`${ns}:`)) problems.push(`does not use ${ns}`);
   for (const name2 of task.static.forbidden ?? []) {
