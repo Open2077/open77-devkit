@@ -203,6 +203,40 @@ test("a scaffolded resource validates clean; a broken one does not", async () =>
     assert.ok(messages.some((m) => /Open77.nope.thing is not in the catalogue/.test(m)), messages.join("\n"));
     assert.ok(messages.some((m) => /Open77.camera.attach is a client native used in a server script/.test(m)), messages.join("\n"));
     assert.ok(messages.some((m) => /network.events is required by TriggerClientEvent/.test(m)), messages.join("\n"));
+
+    // Eval 3: the sandbox, the dependency grammar and references that are not calls.
+    const sand = path.join(root, "sand_res");
+    await mkdir(path.join(sand, "server"), { recursive: true });
+    await mkdir(path.join(sand, "client"), { recursive: true });
+    await writeFile(path.join(sand, "open77.lua"), [
+      'resource "sand_res"',
+      'dependency "open77_notifications >=1.0.0"',
+      'dependency "open77_zones >=abc"',
+      'server_script "server/main.lua"',
+      'client_script "client/main.lua"',
+      "",
+    ].join("\n"), "utf8");
+    await writeFile(path.join(sand, "server/main.lua"), [
+      "local when = os.time()",
+      'local helper = require("helper")',
+      "local ghost = Open77.vehicles.nothing.here",
+      "local send = Open77.chat.send",
+      "local ns = Open77.vehicles",
+      "local function load(x) return x end",
+      "print(load(1))",
+      "",
+    ].join("\n"), "utf8");
+    await writeFile(path.join(sand, "client/main.lua"), "local t = setmetatable({}, {})\nlocal co = coroutine.create(function() end)\n", "utf8");
+    const sandbox = await validateResource(sand, ctx);
+    const errors = sandbox.filter((f) => f.severity === "error").map((f) => `${f.file}:${f.line ?? 0} ${f.message}`);
+    assert.ok(errors.some((m) => /^server\/main.lua:1 os is nil/.test(m)), errors.join("\n"));
+    assert.ok(errors.some((m) => /^server\/main.lua:2 require is nil/.test(m)), errors.join("\n"));
+    assert.ok(errors.some((m) => /^server\/main.lua:3 Open77.vehicles.nothing is not in the catalogue/.test(m)), errors.join("\n"));
+    assert.ok(!errors.some((m) => /Open77.chat.send|Open77.vehicles is not|load is nil/.test(m)), errors.join("\n"));
+    assert.ok(errors.some((m) => /^client\/main.lua:1 setmetatable is nil in the client sandbox/.test(m)), errors.join("\n"));
+    assert.ok(errors.some((m) => /^client\/main.lua:2 coroutine.create is nil in the client sandbox/.test(m)), errors.join("\n"));
+    assert.ok(errors.some((m) => /constraint >=abc is not/.test(m)), errors.join("\n"));
+    assert.ok(!sandbox.some((f) => /open77_notifications >=1.0.0/.test(f.message)), "the runtime's dependency grammar is accepted");
   } finally {
     await rm(root, { recursive: true, force: true });
   }

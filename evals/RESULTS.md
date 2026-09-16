@@ -128,3 +128,73 @@ native, the not-in-build native and the undeclared permission every time, with l
 
 Not changed: `open77_data` has no enum for weather presets (they live in the guide prose), and
 the reason lists of `setTime`/`setWeather` differ between card and guide section.
+
+## Round 3, 2026-09-16 20:00–21:40: two agents on 0.1.1, then a probe on the server
+
+Two subagents, `@open2077/mcp@0.1.1` only (`harness/mcp-call.mjs`), one task each; the
+resources are in `round3/`. Both validated clean on the first pass and ran on the private stock
+release-75 server through the MCP's live tools (`refresh`, `ensure`, `announce`, `motd`, `lock`,
+`whosin`; console refusals correct, no runtime error). What they reported wrong or ambiguous was
+then **measured** with `round3/probe-op77.75.lua` (a resource that prints what each call answers
+at chunk top level, in `onResourceStart` and from a command) before anything was rewritten.
+
+| Resource | Task | MCP calls | `open77_validate` | Live |
+|---|---|---|---|---|
+| `eval_announce` | admin `/announce` toast + chat, `/motd`, suggestions on `chat:ready` | 44 | OK first try | started; `announce` reached toast + chat, `motd` printed |
+| `eval_carlock` | `/lock` `/whosin` on the caller's vehicle, `onPlayerLeftVehicle` | 40 | OK first try | started; console refusals correct |
+
+**Measured on op77.75** (each line is the probe's output, not a reading of the source):
+
+- `Open77.chat.broadcast / addSuggestions / send` at chunk top level → `false, resource_preparing`;
+  `Open77.notifications.broadcast` and `TriggerClientEvent` at top level → **work**. The
+  0.1.1 cards said the opposite for notifications.
+- `Open77.chat.send("1", …)` → `false, invalid_chat_target`: a string id is refused, and every
+  host event (`onPlayerReady`, `onPlayerDisconnected`, …) delivers string ids. The identity
+  guide's own `onPlayerReady` example did exactly that.
+- `os`, `io`, `debug`, `package`, `require`, `load`, `loadfile`, `dofile`, `collectgarbage` →
+  nil; `math`, `string`, `table`, `utf8`, `coroutine`, `json` present (`math.type` too).
+- `Open77.vehicles.flags.paintApplied` = 512; `occupantInSeat(unknown, "driver")` →
+  `nil, "vehicle_not_found"`; `getPlayerSeat(unknown)` → a single `nil`.
+- `RegisterCommand` handler: `source` is a number (0 = console), `args` is `table.pack` of
+  **string** tokens (`args.n`), `raw` is `name arg arg` without the `/`; the console splits on
+  spaces only (quotes stay literal), chat splits shell-style.
+
+**What changed because of it** (base #25, app #4, devkit 0.1.2):
+
+- The constant tables (`Open77.vehicles.seats/flags/…`) read "NOT AVAILABLE on op77.75
+  (unreleased)" while every guide used them: the release surface never listed a table of
+  scalars. They carry `since op77.45` now, and `open77_validate` checks a dotted reference that
+  is not a call (`Open77.vehicles.flags.locked`, `local send = Open77.chat.send`) the same way
+  it checks a call — both agents had guarded the tables with `pcall`.
+- `TriggerEvent`, `Open77.chat.*`, `Open77.events.emit*` listed none of the bus refusals
+  (`resource_preparing`, `event_queue_limit`, `invalid_event_name`, …); the readers follow the
+  `EventFailure(...)` helpers, tuple returns, the array-registered bus doors, the
+  `local eventTrigger = __open77_trigger_event` aliases, and a member that returns another
+  member. `Open77.chat.broadcast` (which "lists no reasons while claiming to be exactly
+  send(-1)") now carries `send`'s.
+- `open77_events` showed payloads for 4 of 92 lifecycle events, one of them wrong
+  (`onResourceStart (resourceName, revision)` was the neighbouring bus row's). 76 of 92 carry a
+  payload; a table row feeds only the events in its first cell, prose signatures and handler
+  parameter lists fill the rest. `chat:ready` is documented (client net event, no arguments,
+  `source` = the player).
+- `open77_validate` accepted `os.time()` and `require`; it names each absent library and
+  function with the replacement (`Open77.time.unix()`, more `server_script` lines), and on the
+  client side `setmetatable` / `coroutine.create`. It warned that the notifications guide's
+  `dependency "open77_notifications >=1.0.0"` "is not a resource slug": the runtime grammar
+  (`name`, then `>=`/`<=`/`>`/`<`/`=`/`==` constraints) is parsed, and a malformed constraint is
+  an error.
+- `open77_search "register command admin only restricted"` ranked the client `RegisterCommand`
+  above the server one; a side named in the question is now a filter, and the tool says so.
+- `open77_changes to=main` lists what exists on main and in no published build; a card prints
+  "reasons: none found in the handler" instead of omitting the line, and a description equal to
+  the summary is not printed twice (`GetCurrentResourceName`, now `shared`).
+- `server-api#resource-lifecycle-events` returned 40 lines of cyberware/dash/reflex prose: the
+  guide filed five feature summaries and the namespaced-equivalents table under that heading.
+  They have their own headings, and the guide has a "What the sandbox provides" section.
+- The manifest schema lacked `exports` / `server_exports` (A20), which made
+  `extract-schemas.py` refuse to run.
+
+Not changed: whether a server toast sent at `onPlayerReady` is queued or lost while the client
+WebUI is still coming up (the agent waited 3 s by analogy with the identity guide); whether
+`tostring(integer id)` equals the event's string id is asserted in the seat card from the host's
+`ToString()` and not measured with a real vehicle.

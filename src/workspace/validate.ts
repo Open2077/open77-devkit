@@ -122,6 +122,16 @@ async function expandGlob(root: string, pattern: string): Promise<string[]> {
 
 const RE_NATIVE = /\b((?:Open77|WebUI|Citizen|MySQL)(?:\.[A-Za-z_]\w*)+)\s*\(/g;
 const RE_GLOBAL = /(?<![\w.:])([A-Z][A-Za-z0-9]*)\s*\(/g;
+// `Open77.vehicles.flags.locked`, `local send = Open77.chat.send`: a dotted
+// reference that is not a call. Resolved to the longest catalogued prefix, so a
+// constant table's member is checked against the table's card.
+const RE_NATIVE_REF = /(?<![\w.:])((?:Open77|WebUI)(?:\.[A-Za-z_]\w*)+)(?![\w.(]|\s*\()/g;
+// What neither sandbox has (measured on op77.75: each is nil): the libraries
+// the runtimes never open and the base functions they retract.
+const RE_SANDBOX_LIBRARY = /(?<![\w.:])(os|io|debug|package)\s*[.[]/g;
+const RE_SANDBOX_FUNCTION = /(?<![\w.:])(require|load|loadfile|dofile|collectgarbage)\s*\(/g;
+// The client removes two more base functions and the raw coroutine constructors.
+const RE_CLIENT_SANDBOX = /(?<![\w.:])(getmetatable|setmetatable)\s*\(|\b(coroutine\.(?:create|resume|wrap)|string\.dump)\s*\(/g;
 
 export async function validateResource(dir: string, context: ServerContext): Promise<Finding[]> {
   const findings: Finding[] = [];
@@ -153,7 +163,15 @@ export async function validateResource(dir: string, context: ServerContext): Pro
     if (!knownPermissions.has(permission)) findings.push({ severity: "error", file: "open77.lua", message: `permission ${permission} is not one the runtime enforces`, fix: "open77_permissions lists the real names" });
   }
   for (const dependency of manifest.lists["dependencies"] ?? []) {
-    if (!/^[a-z][a-z0-9_]{2,63}$/.test(dependency)) findings.push({ severity: "warning", file: "open77.lua", message: `dependency ${dependency} is not a resource slug` });
+    // The runtime grammar (ServerResourceHost.ValidateDependency): a name, then
+    // optional constraints separated by spaces -- `open77_notifications >=1.0.0`.
+    const [depName, ...constraints] = dependency.trim().split(/\s+/);
+    if (!depName || !/^[a-z][a-z0-9_]{2,63}$/.test(depName)) findings.push({ severity: "warning", file: "open77.lua", message: `dependency ${dependency}: ${depName ?? dependency} is not a resource slug` });
+    for (const constraint of constraints) {
+      if (!/^(?:>=|<=|==|=|>|<)\d+(?:\.\d+){0,2}$/.test(constraint)) {
+        findings.push({ severity: "error", file: "open77.lua", message: `dependency ${dependency}: constraint ${constraint} is not <op><version> with op in >=, <=, >, <, =, == and a 1-3 part version`, fix: `dependency "${depName} >=1.0.0"` });
+      }
+    }
   }
 
   type Side = "client" | "server" | "shared";
@@ -183,6 +201,7 @@ export async function validateResource(dir: string, context: ServerContext): Pro
   }
   const globalsBySide = { client: new Set<string>(), server: new Set<string>() };
   for (const card of index.cards) if (card.namespace === "_G") globalsBySide[card.runtime].add(card.name);
+  const namespaces = new Set(index.cards.map((c) => c.namespace));
   const usedPermissions = new Map<string, Set<string>>();
 
   for (const script of scripts) {
@@ -198,6 +217,12 @@ export async function validateResource(dir: string, context: ServerContext): Pro
     }
     const stripped = code.replace(RE_COMMENT_BLOCK, (m) => m.replace(/[^\n]/g, " ")).replace(RE_COMMENT_LINE, "");
     const lines = stripped.split("\n");
+    // A script that defines its own `load` or `os` is not reaching for the
+    // absent library; the sandbox checks skip names it declares as locals.
+    const localNames = new Set<string>();
+    for (const m of stripped.matchAll(/\blocal\s+(?:function\s+)?([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)/g)) {
+      for (const n of m[1]!.split(",")) localNames.add(n.trim());
+    }
     for (let i = 0; i < lines.length; i += 1) {
       const line = lines[i]!;
       const check = (qualified: string, isGlobal: boolean) => {
@@ -227,6 +252,32 @@ export async function validateResource(dir: string, context: ServerContext): Pro
       for (const match of line.matchAll(RE_GLOBAL)) {
         const global = match[1]!;
         if (globalsBySide.client.has(global) || globalsBySide.server.has(global)) check(global, true);
+      }
+      for (const match of line.matchAll(RE_NATIVE_REF)) {
+        const segments = match[1]!.split(".");
+        // Longest catalogued prefix with at least a namespace and a member.
+        let hit: string | null = null;
+        for (let n = segments.length; n >= 3; n -= 1) {
+          const candidate = segments.slice(0, n).join(".");
+          if (byQualified.has(candidate)) { hit = candidate; break; }
+        }
+        if (hit) check(hit, false);
+        else if (segments.length >= 3 && namespaces.has(segments.slice(0, 2).join("."))) {
+          // A member of a real namespace that no card describes: as unknown as a call would be.
+          findings.push({ severity: "error", file: script.file, line: i + 1, message: `${segments.slice(0, 3).join(".")} is not in the catalogue for ${resolved.build}: it does not exist on this build`, fix: `open77_namespace ${segments.slice(0, 2).join(".")} lists the members` });
+        }
+      }
+      for (const match of line.matchAll(RE_SANDBOX_LIBRARY)) {
+        if (!localNames.has(match[1]!)) findings.push({ severity: "error", file: script.file, line: i + 1, message: `${match[1]} is nil in the ${script.side === "shared" ? "client and server" : script.side} sandbox (no os, io, debug or package library)`, fix: match[1] === "os" ? "time: Open77.time.unix() / GetUnixTime() (wall clock), Open77.time.monotonic() / GetGameTimer() (elapsed); persistence: Open77.kvp or the database API" : "the sandbox has math, string, table, utf8, coroutine and json only" });
+      }
+      for (const match of line.matchAll(RE_SANDBOX_FUNCTION)) {
+        if (!localNames.has(match[1]!)) findings.push({ severity: "error", file: script.file, line: i + 1, message: `${match[1]} is nil in the sandbox (no require, load, loadfile, dofile or collectgarbage)`, fix: match[1] === "require" ? "list every file in the manifest (server_script / client_script / shared_script) instead; a later file sees the globals of an earlier one" : "there is no code loading at run time" });
+      }
+      if (script.side !== "server") {
+        for (const match of line.matchAll(RE_CLIENT_SANDBOX)) {
+          const what = match[1] ?? match[2]!;
+          if (!localNames.has(what)) findings.push({ severity: "error", file: script.file, line: i + 1, message: `${what} is nil in the client sandbox`, fix: what.startsWith("coroutine") ? "CreateThread(fn) / Wait(ms) are the client's coroutines" : "metatables are not reachable from a resource" });
+        }
       }
     }
   }

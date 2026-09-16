@@ -46,11 +46,14 @@ shape: the guides were written from measurements in the real game.
    resource may not raise; use your own `myresource:*` names for your events.
 7. **Server-side actions on a player who is not alive crash the client.** Check the player's state
    before teleporting, spawning into, or reviving; gamemode guides show the guarded pattern.
-8. **Nothing reaches a client before the resource is running.** A `TriggerClientEvent`, a chat
-   suggestion or a notification at the top level of a server script answers
-   `nil, "resource_preparing"`: do those from `AddEventHandler("onResourceStart", ...)`, a
-   command, an event or a later tick. Lifecycle handlers (`onResourceStart`, `onPlayerReady`,
-   `onPlayerDisconnected`) are listed by `open77_events` under `prefix=lifecycle`.
+8. **The host bus is closed until the resource is running.** `TriggerEvent` and every
+   `Open77.chat.*` facade at the top level of a server script answer `false, "resource_preparing"`
+   (measured on op77.75): send from `AddEventHandler("onResourceStart", ...)`, a command, an event
+   or a later tick. `TriggerClientEvent` and `Open77.notifications.*` work at top level. Lifecycle
+   handlers (`onResourceStart`, `onPlayerReady`, `onPlayerDisconnected`) are listed by
+   `open77_events` under `prefix=lifecycle`, with their payloads; **every argument of a host event
+   is a string**, and `Open77.chat.send` refuses a string id (`invalid_chat_target`), so
+   `tonumber(playerId)` before handing one to a native that wants a number.
 9. **A new resource must be admitted by `resources.load`.** A server provisioned by the first-run
    wizard lists its resources by name; add yours to `server.jsonc`, then `refresh` + `ensure
    <name>` at the console. `refresh` rescans manifests but never re-reads `server.jsonc`, so a
@@ -59,6 +62,12 @@ shape: the guides were written from measurements in the real game.
 10. **Generation cleanup is automatic, ownership is not.** Handlers, timers and entities a resource
    creates are swept when it stops; exports that act on another resource's behalf must use
    `GetInvokingResource()`, never a name passed as an argument.
+11. **The sandbox has `math`, `string`, `table`, `utf8`, `coroutine` and `json` -- nothing else.**
+   `os`, `io`, `debug`, `package`, `require`, `load`, `loadfile`, `dofile` and `collectgarbage`
+   are nil on both sides (the client also removes `setmetatable`/`getmetatable` and
+   `coroutine.create/resume/wrap`; use `CreateThread`). Wall-clock time is `Open77.time.unix()`,
+   elapsed time `Open77.time.monotonic()`; more files are more `server_script` lines, not
+   `require`. `open77_validate` flags each of these.
 
 ## Manifest
 

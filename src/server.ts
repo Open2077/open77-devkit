@@ -51,12 +51,14 @@ export function renderCard(card: ApiCard, context: ServerContext, guides: Guide[
   lines.push(`# ${cardHeader(card)}`);
   lines.push("");
   lines.push(card.summary);
-  if (card.description) lines.push("", card.description);
+  // A card whose description is its summary (a global documented by one table
+  // row) would print the sentence twice.
+  if (card.description && card.description.trim() !== card.summary.trim()) lines.push("", card.description);
   lines.push("");
   lines.push(`- runtime: ${card.runtime} (${card.api_set})`);
   lines.push(`- permissions: ${card.permissions.length ? card.permissions.join(", ") : "none checked in the handler"}`);
   lines.push(`- since: ${card.since ?? "not in any published build (main only)"}`);
-  if (card.reasons.length) lines.push(`- reasons it can return: ${card.reasons.join(", ")}`);
+  lines.push(`- reasons it can return: ${card.reasons.length ? card.reasons.join(", ") : card.constant ? "none (a table, not a call)" : "none found in the handler; a refusal it forwards from a callee may still reach you as a second return value"}`);
   if (card.returns.length) lines.push(`- returns: ${card.returns.join("; ")}`);
   if (card.inferred) lines.push("- signature: inferred from the handler, not reviewed");
   const available = availabilityNote(card, context);
@@ -112,7 +114,9 @@ export function createMcpServer(context: ServerContext): McpServer {
       title: "Search the Open77 API and guides",
       description:
         "Lexical search over the Open77 Lua natives, guides, open77:* events, manifest permissions and FiveM equivalents. " +
-        "Use it first; then open77_api / open77_guide for the full text. Returns the build it answers for.",
+        "Use it first; then open77_api / open77_guide for the full text. Returns the build it answers for. " +
+        "Pass runtime=server (or client) when writing one side: several names (RegisterCommand, TriggerEvent, Open77.vehicles.get) " +
+        "exist on both with different contracts; a query containing the word server or client applies that filter itself.",
       inputSchema: {
         query: z.string().min(1).describe("Words, a native name (Open77.vehicles.spawn), a FiveM name, an event or a permission"),
         kind: z.enum(["card", "guide", "event", "permission", "fivem"]).optional().describe("Restrict to one kind"),
@@ -122,7 +126,12 @@ export function createMcpServer(context: ServerContext): McpServer {
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async ({ query, kind, runtime, limit }) => {
-      const hits = search.search(query, { kinds: kind ? [kind as SearchKind] : undefined, runtime, limit: limit ?? 12 });
+      // "register command admin only" ranked the client RegisterCommand above the
+      // server one for a server resource (eval 3): a side named in the question
+      // is a filter, unless the caller chose one.
+      const named = /\b(server|client)(?:-side| side)?\b/i.exec(query)?.[1]?.toLowerCase() as "server" | "client" | undefined;
+      const side = runtime ?? named;
+      const hits = search.search(query, { kinds: kind ? [kind as SearchKind] : undefined, runtime: side, limit: limit ?? 12 });
       if (!hits.length) {
         // A question the index cannot answer is a documentation gap. One JSON
         // line on stderr; the hosted container's log is what the digest reads.
@@ -256,7 +265,7 @@ export function createMcpServer(context: ServerContext): McpServer {
         if (wanted === "lifecycle") return Boolean(e.lifecycle) || !e.name.startsWith("open77:");
         return e.name.toLowerCase().startsWith(wanted) || e.name.toLowerCase().includes(wanted);
       });
-      const lines = events.map((e) => `- ${e.name} [${e.sides.join(", ") || "guide only"}]${e.payload ? ` payload ${e.payload}` : ""}${e.guides.length ? ` — ${e.guides.map((g) => `${g.file.replace(/\.md$/, "")}#${g.anchor}`).slice(0, 2).join(", ")}` : ""}`);
+      const lines = events.map((e) => `- ${e.name} [${e.sides.join(", ") || "guide only"}]${e.payload ? ` payload ${e.payload}` : e.lifecycle ? " payload: not documented in any guide" : ""}${e.guides.length ? ` — ${e.guides.map((g) => `${g.file.replace(/\.md$/, "")}#${g.anchor}`).slice(0, 3).join(", ")}` : ""}`);
       const reserved = prefix ? [] : index.events.reservedPrefixes.map((p) => p.prefix);
       const hint = events.length === 0 && wanted
         ? [`Nothing named like "${prefix}". Lifecycle handlers (AddEventHandler("onPlayerReady", ...)) are listed under prefix=lifecycle; an index built before 2026-09-16 carries only open77:* names, in which case the guide is the source: open77_search "${prefix}".`]
@@ -425,14 +434,25 @@ export function createMcpServer(context: ServerContext): McpServer {
       description: "Which natives a newer server build adds compared to an older one, from the since field. Useful to answer 'what do I gain by updating' or 'why does this work on my dev box and not on the owner's server'.",
       inputSchema: {
         from: z.string().describe("Older build, e.g. 2.31.13+op77.54 or just 54"),
-        to: z.string().optional().describe("Newer build; default the served build"),
+        to: z.string().optional().describe("Newer build; default the served build. `main` lists what exists on main and in no published build yet (since null)"),
       },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async ({ from, to }) => {
       const fromN = /^\d+$/.test(from) ? Number(from) : opNumber(from);
+      if (to && /^(main|unreleased|next)$/i.test(to)) {
+        // What a server owner cannot run yet: cards no snapshot registers.
+        const pending = index.cards.filter((c) => !c.since);
+        const later = index.cards.filter((c) => c.since && opNumber(c.since) > fromN);
+        const lines = [
+          `${pending.length} natives on main and in no published build (unusable on any server today), ${later.length} released after op77.${fromN}`,
+          ...pending.map((c) => `- ${cardHeader(c)} — ${c.summary}`),
+        ];
+        if (later.length) lines.push("", `Released after op77.${fromN}: open77_changes from=${fromN} lists them by build.`);
+        return text(lines.join("\n"));
+      }
       const toN = to ? (/^\d+$/.test(to) ? Number(to) : opNumber(to)) : opNumber(context.resolved.build);
-      if (fromN < 0 || toN < 0) return text("Builds are written 2.31.13+op77.NN (or just NN).");
+      if (fromN < 0 || toN < 0) return text("Builds are written 2.31.13+op77.NN (or just NN), or `main` for the unreleased surface.");
       const added = index.cards.filter((c) => c.since && opNumber(c.since) > fromN && opNumber(c.since) <= toN);
       const byBuild = new Map<string, ApiCard[]>();
       for (const c of added) byBuild.set(c.since!, [...(byBuild.get(c.since!) ?? []), c]);
