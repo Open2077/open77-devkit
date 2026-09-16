@@ -79,3 +79,52 @@ read-only tools, and one chat prompt produced, through two approved tool calls, 
 permission and `since 2.31.13+op77.67` (`harness/proof-claude-ai-hosted.jpg`). One Cloudflare
 default rule blocks the `Python-urllib` user agent with a 403; Node, browser and Anthropic
 agents pass.
+
+## Round 2, 2026-09-16 18:00–19:30: four agents, the published package, a stock server
+
+Four subagents were given only `@open2077/mcp@0.1.0` from npm (driven over MCP stdio by
+`harness/mcp-call.mjs`, pointed at the extracted release-75 archive), no repository, no web,
+no server access, and one task each. The resources are in `round2/`.
+
+| Resource | Task | MCP calls | `open77_validate` | On a private stock release-75 server, through the MCP's live tools |
+|---|---|---|---|---|
+| `eval_whereami` | `/whereami` position + vehicle, F9 client key | 45 | OK first try | started; console refusal correct |
+| `eval_skyadmin` | `/settime` `/setweather` `/sky`, ACL-gated, broadcast | 41 | OK first try | started; `/settime 21` → 21:00, `/setweather rain 5` → 4 s transition, `/sky` right |
+| `eval_garage` | `/park` `/garage` `/unpark` with real vehicle records | 37 | OK first try | started; console refusals correct |
+| `eval_port2` | port of a FiveM heal/dv/ping-pong/F5 resource | 73 | OK first try | added at runtime (`refresh` + `ensure`), generation 2 |
+
+Each agent also broke its resource on purpose three times; the validator named the wrong-side
+native, the not-in-build native and the undeclared permission every time, with line and fix.
+
+**What the round found, and what changed because of it** (base #24, app #2, devkit 0.1.1):
+
+- `Open77.notifications.broadcast` answered `permission_denied:network.events` live while its
+  card said none and the validator passed it. Prelude natives that emit to clients never named
+  the gate. The extractor now reads the exact Lua literal, follows one helper and inherits
+  `network.events` (36 cards); expression-bodied C# gates (`CanUseVehicles() => …`) are read,
+  so every vehicle/npc/elevator/loot/prop read carries its `world.*` permission (40 cards); the
+  hand-carded vehicles namespace goes through the same reader. `open77_validate` on
+  `eval_skyadmin` now fails with exactly that missing permission.
+- `open77_guide` refused the `slug#section` refs that search and cards print (3 of 4 agents lost
+  calls); it accepts them, matches headings loosely and lists sections on a miss.
+- `open77_search "spawn vehicle"` returned guides only: camelCase names never matched a word.
+  The tokenizer splits identifiers, folds plurals, and cards alternate with guide sections.
+- `open77_fivem_equivalent` answered nothing for `SetEntityHealth`, `GetVehiclePedIsIn`,
+  `DeleteEntity`, `IsControlJustReleased`; it now searches the words of the name.
+- `Open77.vehicles.seats/flags/doors/windows/occupantFlags` "did not exist"; they are constant
+  cards now. Lifecycle events (`onPlayerReady`, `onResourceStart`, `playerDropped`, `chat:ready`,
+  92 in all) are in the events catalogue (`open77_events prefix=lifecycle`).
+- Cards corrected against the source: `RegisterKeyMapping` returns `(true, key)|(false, reason)`;
+  `acl.isAllowed/roles` take a player id; chat `color` is a positional array (a keyed table is
+  silently ignored by the UI); `players.stats.apply` is the catalogued name; the `create`
+  example used a record that does not exist; seat tables list their fields; client-reaching
+  calls answer `resource_preparing` at chunk top level (`chat.addSuggestions` at start, seen
+  live).
+- A stock server lists its resources by name in `resources.load`; `refresh` never re-reads
+  `server.jsonc`, so a new name needs a restart (seen live: `Resource 'eval_whereami' was not
+  found` after `refresh`). The guide, the skill and `open77_new_resource` say so now.
+- The app never sent the `docs-synced` dispatch the index workflow listens for; app #3 adds it
+  (needs `DEVKIT_DISPATCH_TOKEN`).
+
+Not changed: `open77_data` has no enum for weather presets (they live in the guide prose), and
+the reason lists of `setTime`/`setWeather` differ between card and guide section.
