@@ -13250,7 +13250,7 @@
    "permission_denied:players.controls",
    "unexpected_arguments"
   ],
-  "since": null,
+  "since": "2.31.13+op77.75",
   "constant": false,
   "qualified": "Open77.movement.getWalkMode",
   "route_id": "Open77.movement.getWalkMode"
@@ -13362,7 +13362,7 @@
    "players.controls"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.75",
   "constant": false,
   "qualified": "Open77.movement.setWalkMode",
   "route_id": "Open77.movement.setWalkMode"

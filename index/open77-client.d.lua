@@ -4224,7 +4224,7 @@ function Open77.motion.stop(request) end
 --- Requires `players.controls`. `enabled` is the mode the engine currently applies for this resource, `requested` what the resource last asked for through `setWalkMode`; the two differ while another resource's lease wins or the puppet is not yet attached. `speed` and `requestedSpeed` follow the same split, in metres per second.
 ---
 --- Permissions: players.controls
---- Since: not in any published build
+--- Since: 2.31.13+op77.75
 --- Reasons: game_unavailable_on_this_host, permission_denied:players.controls, unexpected_arguments
 ---@return any table table with `enabled`, `requested`, `speed`, `requestedSpeed`
 ---@return any nil nil, reason (`permission_denied:players.controls`, `unexpected_arguments`, `game_unavailable_on_this_host`)
@@ -4258,7 +4258,7 @@ function Open77.movement.lockState() end
 --- Requires `players.controls`. Every resource holds its own request and the slowest live request wins; `false` releases only this resource's request and never touches another's. `speed` is metres per second between 0.5 and 2.5, default 1.5. Read the applied state back with `getWalkMode`.
 ---
 --- Permissions: players.controls
---- Since: not in any published build
+--- Since: 2.31.13+op77.75
 ---@param enabled boolean
 ---@param speed? number
 ---@return any true true on success, otherwise false
