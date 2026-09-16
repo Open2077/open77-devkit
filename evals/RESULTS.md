@@ -68,3 +68,14 @@ samples are copied). They call the Open77 base checkout's `scripts/agent-play.ps
   matters: a hub menu left open on the passenger's client keeps the vehicle at 0 km/h, the M
   key does not reliably close it and Escape is eaten. Keypad minus (`kpminus` in
   `game-input.ps1`) types `-` where the character path cannot.
+
+## Hosted endpoint from claude.ai (2026-09-16 17:15)
+
+`mcp.open2077.net` resolves through Cloudflare (proxied), `GET /healthz` answers 200 over
+HTTPS, and `POST /mcp` answers `initialize` with server `open77-devkit 0.1.0`. Added as a
+custom connector on claude.ai (no authentication, auto-detected): claude.ai listed the twelve
+read-only tools, and one chat prompt produced, through two approved tool calls, "Build
+2.31.13+op77.69" and the `Open77.players.setFrozen` card with its `players.life.freeze`
+permission and `since 2.31.13+op77.67` (`harness/proof-claude-ai-hosted.jpg`). One Cloudflare
+default rule blocks the `Python-urllib` user agent with a 403; Node, browser and Anthropic
+agents pass.
