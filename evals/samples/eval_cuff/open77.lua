@@ -18,6 +18,7 @@ permissions {
     "players.teleport",
     "players.animations.control",
     "input.actions",
+    "input.blockAll",
 }
 
 client_script "client/main.lua"

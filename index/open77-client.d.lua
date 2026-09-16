@@ -3591,6 +3591,7 @@ function Open77.input.blockableActions() end
 ---
 --- Requires `input.blockAll`, a separate permission from `input.actions` because it is a different blast radius. Consumes the entire gameplay action stream on the player puppet and asserts every blockable lever, minus `except`. Call with `{ except = { "Movement" } }` or nothing to acquire, `false` to release this resource's claim. Chat and voice keep working -- they run on focused browser input, not on the gameplay action stream -- so a blocked player can still say so. Vanilla menus are NOT closed or prevented: menu shortcuts arrive on a different controller alongside the pause menu, which must stay reachable, so block `Map` and `Hub` explicitly. `except` names vocabulary actions, never raw engine actions, and is validated in full before anything is taken.
 ---
+--- Permissions: input.blockAll
 --- Since: 2.31.13+op77.67
 ---@param spec any
 ---@return any true true, otherwise false

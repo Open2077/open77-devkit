@@ -10955,7 +10955,9 @@
   "example": "-- A cutscene: take every gameplay control except looking around\nOpen77.input.blockAll({ except = { \"Movement\" } })\nAddEventHandler(\"cutscene:ended\", function() Open77.input.blockAll(false) end)",
   "inferred": false,
   "source_line": 21141,
-  "permissions": [],
+  "permissions": [
+   "input.blockAll"
+  ],
   "reasons": [],
   "since": "2.31.13+op77.67",
   "qualified": "Open77.input.blockAll",

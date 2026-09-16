@@ -715,6 +715,30 @@
    ]
   },
   {
+   "name": "input.blockAll",
+   "runtimes": [
+    "client"
+   ],
+   "summary": "Enforced by the client; gates 1 native in Open77.input.",
+   "curated": false,
+   "natives": [
+    "Open77.input.blockAll"
+   ],
+   "guides": [
+    "input-blocking.md"
+   ],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14806
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14842
+    }
+   ]
+  },
+  {
    "name": "map.control",
    "runtimes": [
     "client"
@@ -3655,6 +3679,26 @@
     {
      "file": "scripting/src/ResourceHost.cpp",
      "line": 16404
+    }
+   ]
+  },
+  {
+   "name": "world.clearArea.foreign",
+   "runtimes": [
+    "server"
+   ],
+   "summary": "Enforced by the server; gates 0 natives.",
+   "curated": false,
+   "natives": [],
+   "guides": [],
+   "sources": [
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
+     "line": 5804
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
+     "line": 8183
     }
    ]
   },
