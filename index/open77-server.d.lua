@@ -148,21 +148,22 @@ function AddEventHandler(event, handler) end
 ---@return any or or nil, reason
 function AddStateBagChangeHandler(key, bagName, handler) end
 
---- `floorCount`.
+--- Takes a native lift under server authority so every player sees the same cab.
 ---
---- `floorCount`. Constants are in `Open77.elevators.flags`. Low-level aliases are `AdoptElevator`,
+--- The all-positional form of `Open77.elevators.adopt`. `engineEntity` is the lift's engine entity id, which only a client can find (`Open77.elevators.nearby` on the client side); the position is the cab's. `flags` is a bitmask of `1` powered, `2` locked, `4` interaction allowed, `8` doors closed. Answers the elevator id, or `nil, reason`. Requires `world.elevators`. Note the tail order: `flags` is the seventh argument and `floorCount` the eighth, which is why the named form is the safer one to write.
 ---
 --- Permissions: world.elevators
 --- Since: 2.31.13+op77.45
 --- Reasons: elevators_unavailable, permission_denied:world.elevators
----@param arg2 number
----@param arg3 number
----@param arg4 number
----@param arg5 integer
----@param arg6 integer
----@param arg7 integer
----@param arg8 integer
-function AdoptElevator(arg2, arg3, arg4, arg5, arg6, arg7, arg8) end
+---@param engineEntity any
+---@param x number
+---@param y number
+---@param z number
+---@param bucket integer
+---@param initialFloor integer
+---@param flags integer
+---@param floorCount integer
+function AdoptElevator(engineEntity, x, y, z, bucket, initialFloor, flags, floorCount) end
 
 --- `world.effects`;
 ---
@@ -185,15 +186,17 @@ function AdoptElevator(arg2, arg3, arg4, arg5, arg6, arg7, arg8) end
 ---@param soundOnOwner_ any
 function AttachEffect(targetId, kind, effect, slot, localAnchor, localSlot, ttlMs_, radius, hysteresis, localEvent_, soundEvent_, soundOnOwner_) end
 
---- `Open77.players.ban` and `BanPlayer` resolve the player's authenticated device identity, submit a
+--- Low-level alias of `Open77.players.ban`.
 ---
---- `Open77.players.ban` and `BanPlayer` resolve the player's authenticated device identity, submit a
+--- The low-level form of `Open77.players.ban` (bound to the same native). The two are the same function under two names; `Open77.players.ban` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: players.ban
 --- Since: 2.31.13+op77.45
 --- Reasons: ban_failed, invalid_duration, invalid_player_id, invalid_reason, permission_denied:players.ban, server_unavailable
+---@param playerId integer
+---@param reason string
 ---@param seconds integer
-function BanPlayer(seconds) end
+function BanPlayer(playerId, reason, seconds) end
 
 --- Server only. Vetoes the cancellable event this handler is running under.
 ---
@@ -203,29 +206,29 @@ function BanPlayer(seconds) end
 ---@return any true true, or false, reason
 function CancelEvent() end
 
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- Low-level alias of `Open77.npcs.tasks.cancel`.
 ---
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- The low-level form of `Open77.npcs.tasks.cancel` (bound to the same native). The two are the same function under two names; `Open77.npcs.tasks.cancel` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 integer
----@param arg3 string
-function CancelNpcTask(arg1, arg2, arg3) end
+---@param npcId integer
+---@param taskId integer
+---@param reason string
+function CancelNpcTask(npcId, taskId, reason) end
 
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- Low-level alias of `Open77.npcs.tasks.clear`.
 ---
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- The low-level form of `Open77.npcs.tasks.clear` (bound to the same native). The two are the same function under two names; `Open77.npcs.tasks.clear` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
+---@param npcId integer
 ---@param channel integer
----@param arg3 string
-function ClearNpcTasks(arg1, channel, arg3) end
+---@param reason string
+function ClearNpcTasks(npcId, channel, reason) end
 
---- `AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`.
+--- Low-level alias of `Open77.props.clear`.
 ---
---- `AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`. The namespaced API supplies validation and structured
+--- The low-level form of `Open77.props.clear` (bound to the same native). The two are the same function under two names; `Open77.props.clear` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.45
@@ -248,71 +251,99 @@ function ClearTick(id) end
 ---@param id integer
 function ClearTimeout(id) end
 
---- Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,
+--- Registers a looping particle effect at a world point and answers its id as a decimal string.
 ---
---- Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,
+--- The all-positional form of `Open77.effects.create`. The orientation is a quaternion (`qx, qy, qz, qw`), not a yaw, and `visible` is the tenth argument. A registry entry is a **running** system that keeps playing until `Open77.effects.remove` or its `ttl` expires -- `PlayEffect` is the one-shot. Answers `nil, reason` on `invalid_position` or an unknown effect name. Requires `world.effects`.
 ---
 --- Permissions: world.effects
 --- Since: 2.31.13+op77.45
 --- Reasons: invalid_argument, invalid_position, permission_denied:world.effects, world_unavailable
----@param arg10? boolean
-function CreateEffect(arg10) end
+---@param name string
+---@param x number
+---@param y number
+---@param z number
+---@param qx number
+---@param qy number
+---@param qz number
+---@param qw number
+---@param bucket integer
+---@param visible? boolean
+---@param radius number
+---@param hysteresis number
+---@param ttl? integer
+function CreateEffect(name, x, y, z, qx, qy, qz, qw, bucket, visible, radius, hysteresis, ttl) end
 
---- and `ttlMs`.
+--- Low-level alias of `Open77.loot.create`.
 ---
---- and `ttlMs`. Low-level aliases are `CreateLootDrop`, `UpdateLootDrop`, `RemoveLootDrop`,
+--- The low-level form of `Open77.loot.create` (wrapped by). The two are the same function under two names; `Open77.loot.create` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.loot
 --- Since: 2.31.13+op77.45
 --- Reasons: loot_unavailable, permission_denied:world.loot
----@param arg1 string
----@param arg2 integer
----@param arg3 number
----@param arg4 number
----@param arg5 number
----@param arg6 integer
----@param arg7 number
----@param arg8 string
----@param arg9 string
----@param arg10 number
-function CreateLootDrop(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) end
+---@param item string
+---@param quantity integer
+---@param x number
+---@param y number
+---@param z number
+---@param bucket integer
+---@param pickupRadius number
+---@param label string
+---@param model string
+---@param ttlMs number
+function CreateLootDrop(item, quantity, x, y, z, bucket, pickupRadius, label, model, ttlMs) end
 
---- Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,
+--- Spawns a server-owned NPC from a 2.31 `Character.*` record and answers its id.
 ---
---- Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,
+--- The all-positional form of `Open77.npcs.create`. Seventeen arguments in a fixed order, where `aiMode` is `0` tasks / `1` frozen / `2` native / `3` observer and `damagePolicy` is `0` mortal / `1` immortal / `2` invulnerable; `loadoutJson` and `behaviorJson` are JSON **strings**, not tables. Answers the new id, or `nil, reason` when the record, the position or an argument is refused. Requires `world.npcs`. `Open77.npcs.create` takes the same values as a named table and fills in every default -- prefer it, and keep this one for ported code.
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.45
 --- Reasons: npcs_unavailable, permission_denied:world.npcs
----@param arg1 string
----@param arg2 number
----@param arg3 number
----@param arg4 number
----@param arg5 number
----@param arg6 integer
----@param arg7 string
----@param arg8 string
----@param arg9 integer
----@param arg10 integer
----@param arg11 number
----@param arg12 number
----@param arg13 number
----@param arg14 number
----@param arg15? boolean
----@param arg16? boolean
----@param arg17 string
-function CreateNpc(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) end
+---@param template string
+---@param x number
+---@param y number
+---@param z number
+---@param yaw number
+---@param bucket integer
+---@param appearance string
+---@param loadoutJson string
+---@param aiMode integer
+---@param damagePolicy integer
+---@param health number
+---@param maxHealth number
+---@param streamingRadius number
+---@param streamingHysteresis number
+---@param despawnWhenUnobserved? boolean
+---@param persistent? boolean
+---@param behaviorJson string
+function CreateNpc(template, x, y, z, yaw, bucket, appearance, loadoutJson, aiMode, damagePolicy, health, maxHealth, streamingRadius, streamingHysteresis, despawnWhenUnobserved, persistent, behaviorJson) end
 
---- Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,
+--- Places a replicated prop from a catalogue model and answers its id as a decimal string.
 ---
---- Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,
+--- The all-positional form of `Open77.props.create`. `model` is a catalogue alias (`Open77.props.catalog()` lists them), not a `.mesh` path; `kind` defaults to `"prop"` and `physics` to `"static"`. The id comes back as a **string**, because a prop id does not fit a Lua number. Answers `nil, reason` on `invalid_model`, `invalid_position` or a registry refusal. Requires `world.props`. Prefer `Open77.props.create`, which takes the same values as a table and needs only the four you care about.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.45
 --- Reasons: invalid_argument, invalid_model, invalid_position, permission_denied:world.props, world_unavailable
----@param arg10? boolean
----@param arg11? boolean
-function CreateProp(arg10, arg11) end
+---@param model string
+---@param x number
+---@param y number
+---@param z number
+---@param yaw number
+---@param bucket integer
+---@param kind? string
+---@param physics? string
+---@param appearance? string
+---@param collision? boolean
+---@param visible? boolean
+---@param scaleX number
+---@param scaleY number
+---@param scaleZ number
+---@param radius number
+---@param hysteresis number
+---@param light? string
+---@param ttl? integer
+function CreateProp(model, x, y, z, yaw, bucket, kind, physics, appearance, collision, visible, scaleX, scaleY, scaleZ, radius, hysteresis, light, ttl) end
 
 --- Starts a coroutine this resource's scheduler manages.
 ---
@@ -323,48 +354,53 @@ function CreateProp(arg10, arg11) end
 ---@return any task task id
 function CreateThread(body) end
 
---- Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,
+--- Low-level alias of `Open77.vehicles.create`.
 ---
---- Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,
+--- The low-level form of `Open77.vehicles.create` (wrapped by). The two are the same function under two names; `Open77.vehicles.create` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.45
 --- Reasons: permission_denied:world.vehicles, vehicles_unavailable
----@param arg1 string
----@param arg2 number
----@param arg3 number
----@param arg4 number
----@param arg5 number
----@param arg6 integer
----@param arg7 string
----@param arg8 number
----@param arg9 integer
----@param arg10 integer
----@param arg11 integer
----@param arg12 integer
----@param arg13 integer
----@param arg14 integer
----@param arg15 integer
-function CreateVehicle(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15) end
+---@param record string
+---@param x number
+---@param y number
+---@param z number
+---@param yaw number
+---@param bucket integer
+---@param appearance string
+---@param health number
+---@param flags integer
+---@param primary1 integer
+---@param primary2 integer
+---@param primary3 integer
+---@param secondary1 integer
+---@param secondary2 integer
+---@param secondary3 integer
+function CreateVehicle(record, x, y, z, yaw, bucket, appearance, health, flags, primary1, primary2, primary3, secondary1, secondary2, secondary3) end
 
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- Applies damage to an owned NPC and answers whether it landed.
 ---
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- The all-positional form of `Open77.npcs.applyDamage`. `source` defaults to `"script"` and `cause` to `"generic"`; both are free labels carried to the death event, not an enumeration. Answers a plain `true`/`false` with no reason -- `false` covers a missing NPC, one this resource does not own, and a `world.npcs` permission the resource was not granted. An invulnerable NPC takes no damage, so read the health back if you need to know.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 number
----@param arg3 string
----@param arg4 string
-function DamageNpc(arg1, arg2, arg3, arg4) end
+---@param id integer
+---@param amount number
+---@param source string
+---@param cause string
+function DamageNpc(id, amount, source, cause) end
 
---- `RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,
+--- Low-level alias of `Open77.players.damage`.
 ---
---- `RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,
+--- The low-level form of `Open77.players.damage` (wrapped by). The two are the same function under two names; `Open77.players.damage` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: players.stats.apply
 --- Since: 2.31.13+op77.45
-function DamagePlayer() end
+---@param playerId integer
+---@param amount number
+---@param attacker integer
+---@param kindName string
+---@param weaponTdbId integer
+function DamagePlayer(playerId, amount, attacker, kindName, weaponTdbId) end
 
 --- FiveM-style alias for `Open77.kvp.delete`.
 ---
@@ -396,29 +432,31 @@ function DestroySound(id) end
 ---@return any boolean boolean, or false, reason
 function DoesEntityExist(kind, id) end
 
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- Low-level alias of `Open77.players.disconnect`.
 ---
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- The low-level form of `Open77.players.disconnect` (bound to the same native). The two are the same function under two names; `Open77.players.disconnect` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: players.disconnect
 --- Since: 2.31.13+op77.45
 --- Reasons: invalid_player_id, invalid_reason, permission_denied:players.disconnect, player_not_found, server_unavailable
-function DropPlayer() end
+---@param playerId integer
+---@param reason string
+function DropPlayer(playerId, reason) end
 
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- Queues one task on an owned NPC's task channel and answers the task id.
 ---
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- The all-positional form of `Open77.npcs.tasks.enqueue`, and the single native behind every `Open77.npcs.tasks.*` helper. `parametersJson` is a JSON **string**, not a table -- encode it yourself. `channel` is `0` movement / `1` look / `2` action / `3` full body, and a queued task replaces whatever else that channel is doing at the same or lower `priority`. `timeoutMs` of `0` means no timeout. Answers the task id, or `nil, reason` (`npc_not_found`, a rejected task type). Requires `world.npcs`.
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.45
 --- Reasons: permission_denied:world.npcs
----@param arg1 integer
----@param arg2 string
----@param arg3 string
----@param arg4 integer
----@param arg5 integer
----@param arg6 integer
-function EnqueueNpcTask(arg1, arg2, arg3, arg4, arg5, arg6) end
+---@param npcId integer
+---@param type string
+---@param parametersJson string
+---@param channel integer
+---@param priority integer
+---@param timeoutMilliseconds integer
+function EnqueueNpcTask(npcId, type, parametersJson, channel, priority, timeoutMilliseconds) end
 
 --- Addresses one entity's state bag, FiveM style.
 ---
@@ -452,13 +490,15 @@ function ExecuteCommand(line) end
 ---@param options_ any
 function FadePlayerScreen(playerId, out, durationMs_, options_) end
 
---- Vehicle-seat low-level aliases are `SetPlayerIntoVehicle`, `ForcePlayerOutOfVehicle`,
+--- Low-level alias of `Open77.vehicles.forcePlayerOutOfVehicle`.
 ---
---- Vehicle-seat low-level aliases are `SetPlayerIntoVehicle`, `ForcePlayerOutOfVehicle`,
+--- The low-level form of `Open77.vehicles.forcePlayerOutOfVehicle` (bound to the same native). The two are the same function under two names; `Open77.vehicles.forcePlayerOutOfVehicle` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.45
-function ForcePlayerOutOfVehicle() end
+---@param playerId integer
+---@param vehicleId integer
+function ForcePlayerOutOfVehicle(playerId, vehicleId) end
 
 --- Reads a convar as a string, or the caller's default.
 ---
@@ -504,43 +544,45 @@ function GetCurrentResourceGeneration() end
 --- Since: 2.31.13+op77.45
 function GetCurrentResourceName() end
 
---- `GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`.
+--- Low-level alias of `Open77.effects.get`.
 ---
---- `GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`. The namespaced API
+--- The low-level form of `Open77.effects.get` (bound to the same native). The two are the same function under two names; `Open77.effects.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
-function GetEffect() end
+---@param id integer
+function GetEffect(id) end
 
---- `GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`.
+--- Low-level alias of `Open77.effects.all`.
 ---
---- `GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`. The namespaced API
+--- The low-level form of `Open77.effects.all` (bound to the same native). The two are the same function under two names; `Open77.effects.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
-function GetEffects() end
+---@param bucket integer
+function GetEffects(bucket) end
 
---- `RemoveElevator`, `GetElevator`, and `GetElevators`.
+--- Low-level alias of `Open77.elevators.get`.
 ---
---- `RemoveElevator`, `GetElevator`, and `GetElevators`. See [elevators](elevators.md).
+--- The low-level form of `Open77.elevators.get` (bound to the same native). The two are the same function under two names; `Open77.elevators.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetElevator(arg1) end
+---@param id integer
+function GetElevator(id) end
 
---- `RemoveElevator`, `GetElevator`, and `GetElevators`.
+--- Low-level alias of `Open77.elevators.all`.
 ---
---- `RemoveElevator`, `GetElevator`, and `GetElevators`. See [elevators](elevators.md).
+--- The low-level form of `Open77.elevators.all` (bound to the same native). The two are the same function under two names; `Open77.elevators.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetElevators(arg1) end
+---@param bucket integer
+function GetElevators(bucket) end
 
---- `GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and
+--- Low-level alias of `Open77.routingBuckets.getEntity`.
 ---
---- `GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and
+--- The low-level form of `Open77.routingBuckets.getEntity` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.getEntity` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetEntityRoutingBucket(arg1) end
+---@param entityId integer
+function GetEntityRoutingBucket(entityId) end
 
 --- Process-monotonic milliseconds, the clock the server scheduler runs on.
 ---
@@ -573,86 +615,86 @@ function GetInvokingResource() end
 --- Since: 2.31.13+op77.45
 function GetInvokingResourceGeneration() end
 
---- `GetLootDrop`, and `GetLootDrops`.
+--- Low-level alias of `Open77.loot.get`.
 ---
---- `GetLootDrop`, and `GetLootDrops`. See [loot](loot.md) for pickup validation and client projection.
+--- The low-level form of `Open77.loot.get` (bound to the same native). The two are the same function under two names; `Open77.loot.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetLootDrop(arg1) end
+---@param id integer
+function GetLootDrop(id) end
 
---- `GetLootDrop`, and `GetLootDrops`.
+--- Low-level alias of `Open77.loot.all`.
 ---
---- `GetLootDrop`, and `GetLootDrops`. See [loot](loot.md) for pickup validation and client projection.
+--- The low-level form of `Open77.loot.all` (bound to the same native). The two are the same function under two names; `Open77.loot.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
 ---@param bucket integer
 function GetLootDrops(bucket) end
 
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- Low-level alias of `Open77.npcs.get`.
 ---
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- The low-level form of `Open77.npcs.get` (bound to the same native). The two are the same function under two names; `Open77.npcs.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetNpc(arg1) end
+---@param id integer
+function GetNpc(id) end
 
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- Low-level alias of `Open77.npcs.getAttitude`.
 ---
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- The low-level form of `Open77.npcs.getAttitude` (bound to the same native). The two are the same function under two names; `Open77.npcs.getAttitude` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.67
----@param arg1 integer
-function GetNpcAttitude(arg1) end
+---@param id integer
+function GetNpcAttitude(id) end
 
---- `SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`.
+--- Low-level alias of `Open77.npcs.getRelationship`.
 ---
---- `SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`. See
+--- The low-level form of `Open77.npcs.getRelationship` (bound to the same native). The two are the same function under two names; `Open77.npcs.getRelationship` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.67
----@param arg1 string
----@param arg2 string
-function GetNpcRelationship(arg1, arg2) end
+---@param first string
+---@param second string
+function GetNpcRelationship(first, second) end
 
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- Lists the NPCs in one routing bucket, this resource's own unless asked otherwise.
 ---
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- The all-positional form of `Open77.npcs.all`. `bucket` may be `nil` for every bucket. By default the list holds only NPCs this resource created; pass `includeForeign` true to see every resource's, which needs the `npcs.foreign` permission and answers `nil, "permission_denied:npcs.foreign"` without it. Every row carries `owned`, so a shared list can still be filtered. Without `world.npcs` the answer is an empty table, not an error.
 ---
 --- Permissions: npcs.foreign
 --- Since: 2.31.13+op77.45
 --- Reasons: permission_denied:npcs.foreign
----@param arg1 integer
----@param arg2? boolean
-function GetNpcs(arg1, arg2) end
+---@param bucket integer
+---@param includeForeign? boolean
+function GetNpcs(bucket, includeForeign) end
 
---- `SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`.
+--- Low-level alias of `Open77.npcs.target`.
 ---
---- `SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`. See
+--- The low-level form of `Open77.npcs.target` (bound to the same native). The two are the same function under two names; `Open77.npcs.target` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.67
----@param arg1 integer
-function GetNpcTarget(arg1) end
+---@param id integer
+function GetNpcTarget(id) end
 
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- Low-level alias of `Open77.npcs.tasks.get`.
 ---
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- The low-level form of `Open77.npcs.tasks.get` (bound to the same native). The two are the same function under two names; `Open77.npcs.tasks.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 integer
-function GetNpcTask(arg1, arg2) end
+---@param id integer
+---@param taskId integer
+function GetNpcTask(id, taskId) end
 
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- Low-level alias of `Open77.npcs.tasks.all`.
 ---
---- `GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,
+--- The low-level form of `Open77.npcs.tasks.all` (bound to the same native). The two are the same function under two names; `Open77.npcs.tasks.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetNpcTasks(arg1) end
+---@param npcId integer
+function GetNpcTasks(npcId) end
 
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- Low-level alias of `Open77.npcs.templates`.
 ---
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- The low-level form of `Open77.npcs.templates` (bound to the same native). The two are the same function under two names; `Open77.npcs.templates` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
 function GetNpcTemplates() end
@@ -665,12 +707,14 @@ function GetNpcTemplates() end
 ---@return any integer integer
 function GetNumResources() end
 
---- `GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of
+--- Low-level alias of `Open77.players.distance`.
 ---
---- `GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of
+--- The low-level form of `Open77.players.distance` (bound to the same native). The two are the same function under two names; `Open77.players.distance` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.67
-function GetPlayerDistance() end
+---@param reason any
+---@param reason any
+function GetPlayerDistance(reason, reason) end
 
 --- FiveM-style alias for `Open77.players.endpoint`.
 ---
@@ -684,29 +728,30 @@ function GetPlayerDistance() end
 ---@return any reason reason
 function GetPlayerEndpoint(playerId) end
 
---- `RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,
+--- Low-level alias of `Open77.players.getHealth`.
 ---
---- `RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,
+--- The low-level form of `Open77.players.getHealth` (bound to the same native). The two are the same function under two names; `Open77.players.getHealth` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
-function GetPlayerHealth() end
+---@param playerId integer
+function GetPlayerHealth(playerId) end
 
---- `GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of
+--- Low-level alias of `Open77.players.getHoloCallEyes`.
 ---
---- `GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of
+--- The low-level form of `Open77.players.getHoloCallEyes` (wrapped by). The two are the same function under two names; `Open77.players.getHoloCallEyes` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: players.holocall.read
 --- Since: 2.31.13+op77.63
 --- Reasons: holocall_unavailable, invalid_player, permission_denied:players.holocall.read, player_unavailable
 function GetPlayerHoloCallEyes() end
 
---- Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,
+--- Low-level alias of `Open77.players.identifier`.
 ---
---- Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,
+--- The low-level form of `Open77.players.identifier` (bound to the same native). The two are the same function under two names; `Open77.players.identifier` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetPlayerIdentifier(arg1) end
+---@param playerId integer
+function GetPlayerIdentifier(playerId) end
 
 --- One identifier of a connected player, as a bare value.
 ---
@@ -745,12 +790,13 @@ function GetPlayerIdentity(playerId) end
 ---@return any reason reason on failure
 function GetPlayerLastMsg(playerId) end
 
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- Low-level alias of `Open77.players.getLifeState`.
 ---
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- The low-level form of `Open77.players.getLifeState` (bound to the same native). The two are the same function under two names; `Open77.players.getLifeState` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
-function GetPlayerLifeState() end
+---@param playerId integer
+function GetPlayerLifeState(playerId) end
 
 --- FiveM-style alias for `Open77.players.locale`.
 ---
@@ -764,13 +810,13 @@ function GetPlayerLifeState() end
 ---@return any reason reason
 function GetPlayerLocale(playerId) end
 
---- Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,
+--- Low-level alias of `Open77.players.name`.
 ---
---- Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,
+--- The low-level form of `Open77.players.name` (bound to the same native). The two are the same function under two names; `Open77.players.name` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetPlayerName(arg1) end
+---@param playerId integer
+function GetPlayerName(playerId) end
 
 --- FiveM-style alias for `Open77.players.ping`.
 ---
@@ -783,29 +829,30 @@ function GetPlayerName(arg1) end
 ---@return any reason reason
 function GetPlayerPing(playerId) end
 
---- Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,
+--- Low-level alias of `Open77.players.position`.
 ---
---- Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,
+--- The low-level form of `Open77.players.position` (bound to the same native). The two are the same function under two names; `Open77.players.position` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetPlayerPosition(arg1) end
+---@param playerId integer
+function GetPlayerPosition(playerId) end
 
---- `SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,
+--- Low-level alias of `Open77.players.get`.
 ---
---- `SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,
+--- The low-level form of `Open77.players.get` (bound to the same native). The two are the same function under two names; `Open77.players.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.67
 --- Reasons: invalid_player_id, player_not_found, sessions_unavailable
-function GetPlayerRead() end
+---@param playerId integer
+function GetPlayerRead(playerId) end
 
---- The corresponding globals are `GetPlayerRoutingBucket`, `SetPlayerRoutingBucket`,
+--- Low-level alias of `Open77.routingBuckets.getPlayer`.
 ---
---- The corresponding globals are `GetPlayerRoutingBucket`, `SetPlayerRoutingBucket`,
+--- The low-level form of `Open77.routingBuckets.getPlayer` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.getPlayer` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetPlayerRoutingBucket(arg1) end
+---@param playerId integer
+function GetPlayerRoutingBucket(playerId) end
 
 --- Array of every authenticated player id, ascending.
 ---
@@ -823,13 +870,16 @@ function GetPlayers() end
 ---@param bucket any
 function GetPlayersInBucket(bucket) end
 
---- `GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of
+--- Low-level alias of `Open77.players.nearby`.
 ---
---- `GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of
+--- The low-level form of `Open77.players.nearby` (bound to the same native). The two are the same function under two names; `Open77.players.nearby` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.67
 --- Reasons: invalid_options, invalid_radius
-function GetPlayersNearby() end
+---@param reason any
+---@param radius number
+---@param options any
+function GetPlayersNearby(reason, radius, options) end
 
 --- Who this player is watching, or `0`.
 ---
@@ -872,38 +922,42 @@ function GetPlayerStats(playerId) end
 ---@return any reason reason on failure
 function GetPlayerTimeOnline(playerId) end
 
---- `SetPlayerVehicleExitLocked`, and `GetPlayerVehicleSeat`;
+--- Low-level alias of `Open77.vehicles.getPlayerSeat`.
 ---
---- `SetPlayerVehicleExitLocked`, and `GetPlayerVehicleSeat`; their full contract is documented under
+--- The low-level form of `Open77.vehicles.getPlayerSeat` (bound to the same native). The two are the same function under two names; `Open77.vehicles.getPlayerSeat` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
-function GetPlayerVehicleSeat() end
+---@param playerId integer
+function GetPlayerVehicleSeat(playerId) end
 
---- `GetPlayerWeapons`.
+--- Low-level alias of `Open77.weapons.get`.
 ---
---- `GetPlayerWeapons`.
+--- The low-level form of `Open77.weapons.get` (bound to the same native). The two are the same function under two names; `Open77.weapons.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.67
 --- Reasons: invalid_player_id, permission_denied, weapons_unavailable, weapons_unreported
-function GetPlayerWeapons() end
+---@param playerId integer
+function GetPlayerWeapons(playerId) end
 
---- `AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`.
+--- Low-level alias of `Open77.props.get`.
 ---
---- `AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`. The namespaced API supplies validation and structured
+--- The low-level form of `Open77.props.get` (bound to the same native). The two are the same function under two names; `Open77.props.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
-function GetProp() end
+---@param id integer
+function GetProp(id) end
 
---- `AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`.
+--- Low-level alias of `Open77.props.all`.
 ---
---- `AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`. The namespaced API supplies validation and structured
+--- The low-level form of `Open77.props.all` (bound to the same native). The two are the same function under two names; `Open77.props.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
-function GetProps() end
+---@param bucket integer
+function GetProps(bucket) end
 
---- alias behind all four is `GetRecordData`, called as `GetRecordData(kind, record)`.
+--- Reads one row of the shipped 2.31 record catalogue: a vehicle, weapon, item or NPC.
 ---
---- alias behind all four is `GetRecordData`, called as `GetRecordData(kind, record)`.
+--- The single native behind `Open77.data.vehicle`, `.weapon`, `.item` and `.npc`, called as `GetRecordData(kind, record)` where `kind` is one of those four names. `record` is a TweakDB **string**, never a Jenkins hash, and is refused over 256 characters. The answer is a table of the catalogue's columns plus `kind`, `source = "catalogue"` and `build = "2.31"`; an empty cell is absent rather than an empty string, so `row.displayName or row.record` works. Answers `nil, reason` -- `invalid_kind`, `invalid_record`, `record_unknown`. Display names are not localised here: send `localeKey` to a client and localise it there.
 ---
 --- Since: 2.31.13+op77.67
 --- Reasons: invalid_kind, invalid_record, record_unknown
@@ -988,21 +1042,21 @@ function GetUnixTime() end
 --- Since: 2.31.13+op77.45
 function GetUtcTimestamp() end
 
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- Low-level alias of `Open77.vehicles.get`.
 ---
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- The low-level form of `Open77.vehicles.get` (bound to the same native). The two are the same function under two names; `Open77.vehicles.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetVehicle(arg1) end
+---@param id integer
+function GetVehicle(id) end
 
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- Low-level alias of `Open77.vehicles.all`.
 ---
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- The low-level form of `Open77.vehicles.all` (bound to the same native). The two are the same function under two names; `Open77.vehicles.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function GetVehicles(arg1) end
+---@param bucket integer
+function GetVehicles(bucket) end
 
 --- The server-wide state bag, as a table.
 ---
@@ -1012,24 +1066,26 @@ function GetVehicles(arg1) end
 ---@return any the the global bag, indexable by key
 function GlobalState() end
 
---- `GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,
+--- Low-level alias of `Open77.elevators.goTo`.
 ---
---- `GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,
+--- The low-level form of `Open77.elevators.goTo` (wrapped by). The two are the same function under two names; `Open77.elevators.goTo` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 integer
----@param arg3 integer
----@param arg4? boolean
-function GoToElevator(arg1, arg2, arg3, arg4) end
+---@param id integer
+---@param floor integer
+---@param travelMilliseconds integer
+---@param force? boolean
+function GoToElevator(id, floor, travelMilliseconds, force) end
 
---- `RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,
+--- Low-level alias of `Open77.players.heal`.
 ---
---- `RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,
+--- The low-level form of `Open77.players.heal` (bound to the same native). The two are the same function under two names; `Open77.players.heal` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: players.stats.apply
 --- Since: 2.31.13+op77.45
-function HealPlayer() end
+---@param playerId integer
+---@param amount number
+function HealPlayer(playerId, amount) end
 
 --- True in this VM; the client's answer is false.
 ---
@@ -1050,12 +1106,13 @@ function IsDuplicityVersion() end
 ---@return any boolean boolean, or false, reason
 function IsPlayerAceAllowed(playerId, permission) end
 
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- Low-level alias of `Open77.players.isDead`.
 ---
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- The low-level form of `Open77.players.isDead` (bound to the same native). The two are the same function under two names; `Open77.players.isDead` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
-function IsPlayerDead() end
+---@param playerId integer
+function IsPlayerDead(playerId) end
 
 --- Whether the canonical life state is currently frozen, by any resource.
 ---
@@ -1101,22 +1158,29 @@ function IsPrincipalAceAllowed(userId, permission) end
 ---@return any integer integer TweakDBID, or nil, invalid_argument
 function joaat(text) end
 
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- Low-level alias of `Open77.npcs.kill`.
 ---
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- The low-level form of `Open77.npcs.kill` (bound to the same native). The two are the same function under two names; `Open77.npcs.kill` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 string
-function KillNpc(arg1, arg2) end
+---@param id integer
+---@param reason string
+function KillNpc(id, reason) end
 
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- Kills a player where they stand and answers whether the life ledger accepted it.
 ---
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- The all-positional form of `Open77.players.kill`. `cause` must be one of `firearm`, `melee`, `explosion`, `fall`, `vehicle`, `environment`, `script`, `unknown` -- anything else is `invalid_argument`, so a label like `"admin"` does not work here. `killer` may be `nil` or `0` for no killer, `weapon` defaults to `resource:<your resource>`, and the optional impulse is capped at 1000 per axis. Answers `false, reason` (`player_not_found`, `invalid_argument`, `permission_denied:players.life.kill`). Requires `players.life.kill`.
 ---
 --- Permissions: players.life.kill
 --- Since: 2.31.13+op77.45
-function KillPlayer() end
+---@param playerId integer
+---@param killer integer
+---@param causeName string
+---@param weapon string
+---@param impulseX? number
+---@param impulseY? number
+---@param impulseZ? number
+function KillPlayer(playerId, killer, causeName, weapon, impulseX, impulseY, impulseZ) end
 
 --- Reads a file belonging to the calling resource.
 ---
@@ -1129,13 +1193,13 @@ function KillPlayer() end
 ---@return any file file contents, or nil, reason
 function LoadResourceFile(resourceName, path) end
 
---- `GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,
+--- Low-level alias of `Open77.elevators.pause`.
 ---
---- `GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,
+--- The low-level form of `Open77.elevators.pause` (bound to the same native). The two are the same function under two names; `Open77.elevators.pause` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function PauseElevator(arg1) end
+---@param id integer
+function PauseElevator(id) end
 
 --- PauseSound: server-authoritative network package audio.
 ---
@@ -1184,34 +1248,56 @@ function Play2DSound(asset, options) end
 ---@return any integer integer handle, or nil, reason
 function Play3DSound(asset, position, options) end
 
---- Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,
+--- Plays a one-shot particle effect at a world point for everyone in range.
 ---
---- Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,
+--- The all-positional form of `Open77.effects.play`. Unlike `CreateEffect` nothing is registered: the burst plays once on every client within `range` metres of the point and is gone, so there is no id to remove. The orientation is a quaternion. An optional `sound` event plays with it. Answers `true`, or `nil, reason` on `invalid_position` or an unknown effect. Requires `world.effects`.
 ---
 --- Permissions: world.effects
 --- Since: 2.31.13+op77.45
 --- Reasons: invalid_argument, invalid_position, permission_denied:world.effects, world_unavailable
-function PlayEffect() end
+---@param name string
+---@param x number
+---@param y number
+---@param z number
+---@param qx number
+---@param qy number
+---@param qz number
+---@param qw number
+---@param bucket integer
+---@param range number
+---@param sound? string
+function PlayEffect(name, x, y, z, qx, qy, qz, qw, bucket, range, sound) end
 
---- `GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`.
+--- Low-level alias of `Open77.effects.playOn`.
 ---
---- `GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`. The namespaced API
+--- The low-level form of `Open77.effects.playOn` (wrapped by). The two are the same function under two names; `Open77.effects.playOn` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.effects
 --- Since: 2.31.13+op77.45
 --- Reasons: invalid_argument, permission_denied:world.effects, world_unavailable
----@param arg4? boolean
-function PlayEntityEffect(arg4) end
+---@param target integer
+---@param name string
+---@param duration number
+---@param loop? boolean
+---@param slot? string
+---@param targetKind? string
+function PlayEntityEffect(target, name, duration, loop, slot, targetKind) end
 
---- `GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`.
+--- Plays a sound event on an entity, so it follows that entity instead of a fixed point.
 ---
---- `GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`. The namespaced API
+--- The all-positional form of `Open77.effects.sound`. `targetKind` says what the id names and defaults to `"player"`; `unique` (third argument) stops the same `actionId` playing twice over itself; `duration` defaults to 5 seconds. The seventh argument is a table of player ids who will not hear it. Answers `true`, or `nil, reason` -- `invalid_sound_exclusions` when that table is malformed. Requires `world.effects`.
 ---
 --- Permissions: world.effects
 --- Since: 2.31.13+op77.45
 --- Reasons: invalid_argument, invalid_sound_exclusions, permission_denied:world.effects, world_unavailable
----@param arg3? boolean
-function PlayEntitySound(arg3) end
+---@param target integer
+---@param soundEvent string
+---@param unique? boolean
+---@param targetKind? string
+---@param duration? number
+---@param actionId? string
+---@param excluded any
+function PlayEntitySound(target, soundEvent, unique, targetKind, duration, actionId, excluded) end
 
 --- Addresses one player's state bag, FiveM style.
 ---
@@ -1277,21 +1363,23 @@ function RegisterCommand(name, handler, restricted) end
 ---@return any handler handler id, or true when only the name is declared
 function RegisterNetEvent(event, handler) end
 
---- Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,
+--- Low-level alias of `Open77.effects.remove`.
 ---
---- Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,
+--- The low-level form of `Open77.effects.remove` (bound to the same native). The two are the same function under two names; `Open77.effects.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.effects
 --- Since: 2.31.13+op77.45
-function RemoveEffect() end
+---@param id integer
+---@param reason? string
+function RemoveEffect(id, reason) end
 
---- `RemoveElevator`, `GetElevator`, and `GetElevators`.
+--- Low-level alias of `Open77.elevators.remove`.
 ---
---- `RemoveElevator`, `GetElevator`, and `GetElevators`. See [elevators](elevators.md).
+--- The low-level form of `Open77.elevators.remove` (bound to the same native). The two are the same function under two names; `Open77.elevators.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function RemoveElevator(arg1) end
+---@param id integer
+function RemoveElevator(id) end
 
 --- Removes a handler by id; the same function as Open77.events.off.
 ---
@@ -1301,29 +1389,31 @@ function RemoveElevator(arg1) end
 ---@param handlerId integer
 function RemoveEventHandler(handlerId) end
 
---- and `ttlMs`.
+--- Low-level alias of `Open77.loot.remove`.
 ---
---- and `ttlMs`. Low-level aliases are `CreateLootDrop`, `UpdateLootDrop`, `RemoveLootDrop`,
----
---- Since: 2.31.13+op77.45
----@param arg1 integer
-function RemoveLootDrop(arg1) end
-
---- Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,
----
---- Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,
+--- The low-level form of `Open77.loot.remove` (bound to the same native). The two are the same function under two names; `Open77.loot.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function RemoveNpc(arg1) end
+---@param id integer
+function RemoveLootDrop(id) end
 
---- `AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`.
+--- Low-level alias of `Open77.npcs.remove`.
 ---
---- `AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`. The namespaced API supplies validation and structured
+--- The low-level form of `Open77.npcs.remove` (bound to the same native). The two are the same function under two names; `Open77.npcs.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
+---
+--- Since: 2.31.13+op77.45
+---@param id integer
+function RemoveNpc(id) end
+
+--- Low-level alias of `Open77.props.remove`.
+---
+--- The low-level form of `Open77.props.remove` (bound to the same native). The two are the same function under two names; `Open77.props.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.45
-function RemoveProp() end
+---@param id integer
+---@param reason? string
+function RemoveProp(id, reason) end
 
 --- Cancels a subscription made by AddStateBagChangeHandler.
 ---
@@ -1335,37 +1425,46 @@ function RemoveProp() end
 ---@return any or or false, reason
 function RemoveStateBagChangeHandler(subscriptionId) end
 
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- Low-level alias of `Open77.vehicles.remove`.
 ---
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- The low-level form of `Open77.vehicles.remove` (bound to the same native). The two are the same function under two names; `Open77.vehicles.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function RemoveVehicle(arg1) end
+---@param id integer
+function RemoveVehicle(id) end
 
---- `RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,
+--- Low-level alias of `Open77.players.requestLifeResync`.
 ---
---- `RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,
+--- The low-level form of `Open77.players.requestLifeResync` (bound to the same native). The two are the same function under two names; `Open77.players.requestLifeResync` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: players.life.resync
 --- Since: 2.31.13+op77.45
-function RequestPlayerLifeResync() end
+---@param playerId integer
+function RequestPlayerLifeResync(playerId) end
 
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- Drops a custom paint job and returns the vehicle to its record's own colours.
 ---
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- The all-positional form of `Open77.vehicles.resetPaint`, and the undo of `SetVehiclePaint`. Answers a plain `true`/`false` with no reason: `false` covers an unknown vehicle and a missing `world.vehicles` permission alike. A vehicle that was never repainted answers `true` and changes nothing.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
-function ResetVehiclePaint(arg1) end
+---@param id integer
+function ResetVehiclePaint(id) end
 
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- Brings a dead player back at a chosen pose, bucket and health.
 ---
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- The all-positional form of `Open77.players.respawn`. All eight arguments are required: position, `yaw`, `bucket`, `health` and a spawn-protection `graceMs` which must be between 0 and 60000. A successful respawn also moves the player's routing bucket, so this is the one call to make rather than respawning and then re-bucketing. Answers `false, reason` (`invalid_argument`, `player_not_found`, a life-ledger reason). Requires `players.life.respawn`.
 ---
 --- Permissions: players.life.respawn
 --- Since: 2.31.13+op77.45
-function RespawnPlayer() end
+---@param playerId integer
+---@param x number
+---@param y number
+---@param z number
+---@param yaw number
+---@param bucket integer
+---@param health number
+---@param grace integer
+function RespawnPlayer(playerId, x, y, z, yaw, bucket, health, grace) end
 
 --- Fill health.
 ---
@@ -1385,30 +1484,33 @@ function RestorePlayerHealth(playerId) end
 ---@param playerId any
 function RestorePlayerStamina(playerId) end
 
---- `GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,
+--- Low-level alias of `Open77.elevators.resume`.
 ---
---- `GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,
----
---- Since: 2.31.13+op77.45
----@param arg1 integer
-function ResumeElevator(arg1) end
-
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
----
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- The low-level form of `Open77.elevators.resume` (bound to the same native). The two are the same function under two names; `Open77.elevators.resume` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 number
-function ReviveNpc(arg1, arg2) end
+---@param id integer
+function ResumeElevator(id) end
 
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- Low-level alias of `Open77.npcs.revive`.
 ---
---- `GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,
+--- The low-level form of `Open77.npcs.revive` (wrapped by). The two are the same function under two names; `Open77.npcs.revive` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
+---
+--- Since: 2.31.13+op77.45
+---@param id integer
+---@param health number
+function ReviveNpc(id, health) end
+
+--- Low-level alias of `Open77.players.revive`.
+---
+--- The low-level form of `Open77.players.revive` (wrapped by). The two are the same function under two names; `Open77.players.revive` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: players.life.revive
 --- Since: 2.31.13+op77.45
-function RevivePlayer() end
+---@param playerId integer
+---@param health number
+---@param grace integer
+function RevivePlayer(playerId, health, grace) end
 
 --- Writes a file belonging to the calling resource. Server only.
 ---
@@ -1432,54 +1534,62 @@ function SaveResourceFile(resourceName, path, data) end
 ---@return any true true, or failure, reason
 function SeekSound(id, seconds) end
 
---- Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,
+--- Low-level alias of `Open77.combat.setDamageMultiplier`.
 ---
---- Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,
+--- The low-level form of `Open77.combat.setDamageMultiplier` (bound to the same native). The two are the same function under two names; `Open77.combat.setDamageMultiplier` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: combat.config
 --- Since: 2.31.13+op77.45
-function SetCombatDamageMultiplier() end
+---@param multiplier number
+function SetCombatDamageMultiplier(multiplier) end
 
---- Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,
+--- Low-level alias of `Open77.combat.setFriendlyFire`.
 ---
---- Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,
+--- The low-level form of `Open77.combat.setFriendlyFire` (bound to the same native). The two are the same function under two names; `Open77.combat.setFriendlyFire` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: combat.config
 --- Since: 2.31.13+op77.45
----@param arg1? boolean
-function SetCombatFriendlyFire(arg1) end
+---@param enabled? boolean
+function SetCombatFriendlyFire(enabled) end
 
---- `SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.
+--- Low-level alias of `Open77.combat.setHeadshotMultiplier`.
 ---
---- `SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.
+--- The low-level form of `Open77.combat.setHeadshotMultiplier` (bound to the same native). The two are the same function under two names; `Open77.combat.setHeadshotMultiplier` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: combat.config
 --- Since: 2.31.13+op77.45
-function SetCombatHeadshotMultiplier() end
+---@param multiplier number
+function SetCombatHeadshotMultiplier(multiplier) end
 
---- `SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.
+--- Low-level alias of `Open77.combat.setKindDamageMultiplier`.
 ---
---- `SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.
+--- The low-level form of `Open77.combat.setKindDamageMultiplier` (bound to the same native). The two are the same function under two names; `Open77.combat.setKindDamageMultiplier` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: combat.config
 --- Since: 2.31.13+op77.45
-function SetCombatKindMultiplier() end
+---@param kindName string
+---@param multiplier number
+function SetCombatKindMultiplier(kindName, multiplier) end
 
---- Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,
+--- Low-level alias of `Open77.combat.setTeam`.
 ---
---- Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,
+--- The low-level form of `Open77.combat.setTeam` (bound to the same native). The two are the same function under two names; `Open77.combat.setTeam` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: combat.config
 --- Since: 2.31.13+op77.45
-function SetCombatTeam() end
+---@param playerId integer
+---@param team integer
+function SetCombatTeam(playerId, team) end
 
---- `SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.
+--- Low-level alias of `Open77.combat.setWeaponDamageMultiplier`.
 ---
---- `SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.
+--- The low-level form of `Open77.combat.setWeaponDamageMultiplier` (bound to the same native). The two are the same function under two names; `Open77.combat.setWeaponDamageMultiplier` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: combat.config
 --- Since: 2.31.13+op77.45
-function SetCombatWeaponMultiplier() end
+---@param weaponTdbId integer
+---@param multiplier number
+function SetCombatWeaponMultiplier(weaponTdbId, multiplier) end
 
 --- Records a server-wide, in-memory convar override.
 ---
@@ -1492,14 +1602,14 @@ function SetCombatWeaponMultiplier() end
 ---@return any reason reason
 function SetConvar(name, value) end
 
---- `GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,
+--- Low-level alias of `Open77.elevators.setFlags`.
 ---
---- `GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,
+--- The low-level form of `Open77.elevators.setFlags` (bound to the same native). The two are the same function under two names; `Open77.elevators.setFlags` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 integer
-function SetElevatorFlags(arg1, arg2) end
+---@param id integer
+---@param flags integer
+function SetElevatorFlags(id, flags) end
 
 --- FiveM's invincibility toggle under its own name: `Open77.players.setGodMode` for a player, refused by name for every other kind.
 ---
@@ -1513,14 +1623,14 @@ function SetElevatorFlags(arg1, arg2) end
 ---@return any boolean boolean, or false, reason
 function SetEntityInvincible(kind, id, enabled) end
 
---- `GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and
+--- Low-level alias of `Open77.routingBuckets.setEntity`.
 ---
---- `GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and
+--- The low-level form of `Open77.routingBuckets.setEntity` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.setEntity` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 integer
-function SetEntityRoutingBucket(arg1, arg2) end
+---@param entityId integer
+---@param bucket integer
+function SetEntityRoutingBucket(entityId, bucket) end
 
 --- FiveM spelling of a whole-resource inbound HTTP handler.
 ---
@@ -1532,71 +1642,73 @@ function SetEntityRoutingBucket(arg1, arg2) end
 ---@return any reason reason on failure
 function SetHttpHandler(handler) end
 
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- Sets how one owned NPC feels about everyone, one player, one NPC, or a group.
 ---
---- `KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,
+--- The all-positional form of `Open77.npcs.setAttitude`. `scope` picks which of the two trailing arguments is read: `0` everyone (neither), `1` a player id and `2` an NPC id (`targetId`), `3` a group name (`group`). `attitude` is a token (`"friendly"`, `"neutral"`, `"hostile"`) and `nil` clears the row back to the default. Answers `false, reason` -- `npc_attitude_invalid`, `npc_attitude_target_invalid`, `npc_not_found`. Requires `world.npcs`.
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.67
 --- Reasons: npc_attitude_invalid, npc_attitude_target_invalid, npc_not_found, npcs_unavailable, permission_denied:world.npcs
----@param arg1 integer
----@param arg2 string
----@param arg3 integer
----@param arg4 integer
----@param arg5 string
-function SetNpcAttitude(arg1, arg2, arg3, arg4, arg5) end
+---@param npcId integer
+---@param attitude? string
+---@param scope integer
+---@param targetId? integer
+---@param group? string
+function SetNpcAttitude(npcId, attitude, scope, targetId, group) end
 
---- Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,
+--- Low-level alias of `Open77.npcs.setBucket`.
 ---
---- Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,
+--- The low-level form of `Open77.npcs.setBucket` (bound to the same native). The two are the same function under two names; `Open77.npcs.setBucket` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 integer
-function SetNpcBucket(arg1, arg2) end
+---@param id integer
+---@param bucket integer
+function SetNpcBucket(id, bucket) end
 
---- `SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`.
+--- Low-level alias of `Open77.npcs.setGroup`.
 ---
---- `SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`. See
+--- The low-level form of `Open77.npcs.setGroup` (bound to the same native). The two are the same function under two names; `Open77.npcs.setGroup` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.67
 --- Reasons: npc_not_found, npcs_unavailable, permission_denied:world.npcs
----@param arg1 integer
----@param arg2 string
-function SetNpcGroup(arg1, arg2) end
+---@param id integer
+---@param group string
+function SetNpcGroup(id, group) end
 
---- `SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`.
+--- Low-level alias of `Open77.npcs.setRelationship`.
 ---
---- `SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`. See
+--- The low-level form of `Open77.npcs.setRelationship` (bound to the same native). The two are the same function under two names; `Open77.npcs.setRelationship` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.67
 --- Reasons: npc_attitude_invalid, npc_relationship_not_found, npcs_unavailable, permission_denied:world.npcs
----@param arg1 string
----@param arg2 string
----@param arg3 string
-function SetNpcRelationship(arg1, arg2, arg3) end
+---@param first string
+---@param second string
+---@param attitude string
+function SetNpcRelationship(first, second, attitude) end
 
---- Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,
+--- Low-level alias of `Open77.npcs.setTransform`.
 ---
---- Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,
+--- The low-level form of `Open77.npcs.setTransform` (wrapped by). The two are the same function under two names; `Open77.npcs.setTransform` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 number
----@param arg3 number
----@param arg4 number
----@param arg5 number
-function SetNpcTransform(arg1, arg2, arg3, arg4, arg5) end
+---@param id integer
+---@param x number
+---@param y number
+---@param z number
+---@param yaw number
+function SetNpcTransform(id, x, y, z, yaw) end
 
---- `SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,
+--- Low-level alias of `Open77.players.setArmor`.
 ---
---- `SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,
+--- The low-level form of `Open77.players.setArmor` (bound to the same native). The two are the same function under two names; `Open77.players.setArmor` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: players.stats.apply
 --- Since: 2.31.13+op77.45
-function SetPlayerArmor() end
+---@param playerId integer
+---@param armor number
+function SetPlayerArmor(playerId, armor) end
 
 --- `players.stats.apply`;
 ---
@@ -1629,14 +1741,15 @@ function SetPlayerFrozen(playerId, frozen) end
 ---@param options_ any
 function SetPlayerGhosted(playerId, ghosted, options_) end
 
---- `SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,
+--- Low-level alias of `Open77.players.setGodMode`.
 ---
---- `SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,
+--- The low-level form of `Open77.players.setGodMode` (bound to the same native). The two are the same function under two names; `Open77.players.setGodMode` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: players.stats.apply
 --- Since: 2.31.13+op77.45
----@param arg2? boolean
-function SetPlayerGodMode(arg2) end
+---@param playerId integer
+---@param enabled? boolean
+function SetPlayerGodMode(playerId, enabled) end
 
 --- Explicit health setter;
 ---
@@ -1648,13 +1761,19 @@ function SetPlayerGodMode(arg2) end
 ---@param value any
 function SetPlayerHealth(playerId, value) end
 
---- Vehicle-seat low-level aliases are `SetPlayerIntoVehicle`, `ForcePlayerOutOfVehicle`,
+--- Teleports a player straight into a seat, moving their bucket to the vehicle's.
 ---
---- Vehicle-seat low-level aliases are `SetPlayerIntoVehicle`, `ForcePlayerOutOfVehicle`,
+--- The all-positional form of `Open77.vehicles.setPlayerIntoVehicle`. Seats use FiveM's numbering: `-1` driver, `0` front passenger, `1` and `2` the rear. `moveBucket` defaults to true -- pass false and a player in another bucket is refused `wrong_bucket` instead of being moved. `animated` false is the instant snap. A dead or respawning player is refused `player_unavailable`. Other refusals are `vehicle_not_found`, `invalid_seat` and a seat already taken. Requires `world.vehicles`.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.45
-function SetPlayerIntoVehicle() end
+---@param playerId integer
+---@param vehicleId integer
+---@param seat any
+---@param moveBucketValue? boolean
+---@param exitLockedValue? boolean
+---@param animatedValue? boolean
+function SetPlayerIntoVehicle(playerId, vehicleId, seat, moveBucketValue, exitLockedValue, animatedValue) end
 
 --- Explicit health maximum setter.
 ---
@@ -1696,14 +1815,14 @@ function SetPlayerRegen(playerId, rate) end
 ---@param enabled any
 function SetPlayerRegenEnabled(playerId, enabled) end
 
---- The corresponding globals are `GetPlayerRoutingBucket`, `SetPlayerRoutingBucket`,
+--- Low-level alias of `Open77.routingBuckets.setPlayer`.
 ---
---- The corresponding globals are `GetPlayerRoutingBucket`, `SetPlayerRoutingBucket`,
+--- The low-level form of `Open77.routingBuckets.setPlayer` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.setPlayer` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 integer
-function SetPlayerRoutingBucket(arg1, arg2) end
+---@param playerId integer
+---@param bucket integer
+function SetPlayerRoutingBucket(playerId, bucket) end
 
 --- Explicit stamina setter.
 ---
@@ -1735,14 +1854,16 @@ function SetPlayerStaminaRegen(playerId, rate) end
 ---@param enabled any
 function SetPlayerStaminaRegenEnabled(playerId, enabled) end
 
---- `SetPlayerVehicleExitLocked`, and `GetPlayerVehicleSeat`;
+--- Low-level alias of `Open77.vehicles.setPlayerExitLocked`.
 ---
---- `SetPlayerVehicleExitLocked`, and `GetPlayerVehicleSeat`; their full contract is documented under
+--- The low-level form of `Open77.vehicles.setPlayerExitLocked` (bound to the same native). The two are the same function under two names; `Open77.vehicles.setPlayerExitLocked` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.45
----@param arg2? boolean
-function SetPlayerVehicleExitLocked(arg2) end
+---@param playerId integer
+---@param locked? boolean
+---@param vehicleId integer
+function SetPlayerVehicleExitLocked(playerId, locked, vehicleId) end
 
 --- Hide a player's body from every other client, or show it again.
 ---
@@ -1754,21 +1875,31 @@ function SetPlayerVehicleExitLocked(arg2) end
 ---@param visible any
 function SetPlayerVisible(playerId, visible) end
 
---- Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,
+--- Low-level alias of `Open77.props.setBucket`.
 ---
---- Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,
+--- The low-level form of `Open77.props.setBucket` (bound to the same native). The two are the same function under two names; `Open77.props.setBucket` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.45
-function SetPropBucket() end
+---@param id integer
+---@param bucket integer
+function SetPropBucket(id, bucket) end
 
---- Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,
+--- Moves and rotates a prop, optionally rescaling it, and answers whether it took.
 ---
---- Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,
+--- The all-positional form of `Open77.props.setTransform`. The three scale arguments are optional and keep their current value when `nil`. An **attached** prop is refused `prop_attached` rather than moved, because the follow tick would overwrite the move within 100 ms -- detach it first. Other refusals are `not_found`, `invalid_position` and `permission_denied:world.props`. Requires `world.props`.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.45
-function SetPropTransform() end
+---@param id integer
+---@param x number
+---@param y number
+---@param z number
+---@param yaw number
+---@param scaleX? number
+---@param scaleY? number
+---@param scaleZ? number
+function SetPropTransform(id, x, y, z, yaw, scaleX, scaleY, scaleZ) end
 
 --- FiveM-style alias for `Open77.kvp.set`.
 ---
@@ -1781,23 +1912,23 @@ function SetPropTransform() end
 ---@return any reason reason
 function SetResourceKvp(key, value) end
 
---- `GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and
+--- Low-level alias of `Open77.routingBuckets.setLockdownMode`.
 ---
---- `GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and
+--- The low-level form of `Open77.routingBuckets.setLockdownMode` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.setLockdownMode` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
+---@param bucket integer
 ---@param mode string
-function SetRoutingBucketEntityLockdownMode(arg1, mode) end
+function SetRoutingBucketEntityLockdownMode(bucket, mode) end
 
---- `SetRoutingBucketPopulationEnabled`.
+--- Low-level alias of `Open77.routingBuckets.setPopulationEnabled`.
 ---
---- `SetRoutingBucketPopulationEnabled`.
+--- The low-level form of `Open77.routingBuckets.setPopulationEnabled` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.setPopulationEnabled` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2? boolean
-function SetRoutingBucketPopulationEnabled(arg1, arg2) end
+---@param bucket integer
+---@param enabled? boolean
+function SetRoutingBucketPopulationEnabled(bucket, enabled) end
 
 --- SetSoundPosition: server-authoritative network package audio.
 ---
@@ -1840,40 +1971,41 @@ function SetTick(body) end
 ---@return any timer timer id
 function SetTimeout(milliseconds, body) end
 
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- Low-level alias of `Open77.vehicles.setLocked`.
 ---
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- The low-level form of `Open77.vehicles.setLocked` (bound to the same native). The two are the same function under two names; `Open77.vehicles.setLocked` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.45
----@param arg2? boolean
-function SetVehicleLocked(arg2) end
+---@param id integer
+---@param locked? boolean
+function SetVehicleLocked(id, locked) end
 
---- Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,
+--- Repaints a vehicle: primary and secondary colour as six 0-255 channels.
 ---
---- Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,
+--- The all-positional form of `Open77.vehicles.setPaint`. The six trailing arguments are the primary R, G, B then the secondary R, G, B, each clamped to 0-255. Answers a plain `true`/`false` with no reason: `false` covers an unknown vehicle and a missing `world.vehicles` permission alike. `Open77.vehicles.setPaint(id, { primary = ..., secondary = ... })` takes colours as tables and can change only one of the two.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 integer
----@param arg3 integer
----@param arg4 integer
----@param arg5 integer
----@param arg6 integer
----@param arg7 integer
-function SetVehiclePaint(arg1, arg2, arg3, arg4, arg5, arg6, arg7) end
+---@param id integer
+---@param primaryR integer
+---@param primaryG integer
+---@param primaryB integer
+---@param secondaryR integer
+---@param secondaryG integer
+---@param secondaryB integer
+function SetVehiclePaint(id, primaryR, primaryG, primaryB, secondaryR, secondaryG, secondaryB) end
 
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- Teleports a vehicle to a position and heading.
 ---
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- The all-positional form of `Open77.vehicles.setTransform`. Five arguments, no options: the vehicle keeps its occupants, its damage and its paint. Answers a plain `true`/`false` with no reason -- `false` covers an unknown vehicle and a missing `world.vehicles` permission alike. This moves the vehicle, not the players' buckets: use `Open77.routingBuckets.setEntity` if it should also change bucket.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 number
----@param arg3 number
----@param arg4 number
----@param arg5 number
-function SetVehicleTransform(arg1, arg2, arg3, arg4, arg5) end
+---@param id integer
+---@param x number
+---@param y number
+---@param z number
+---@param yaw number
+function SetVehicleTransform(id, x, y, z, yaw) end
 
 --- Put one player behind another player's shoulder: ghost, hide, and a follow camera on the target, as one transaction that fails closed.
 ---
@@ -1918,14 +2050,14 @@ function StopResource(name) end
 ---@return any true true, or failure, reason
 function StopSound(id) end
 
---- `GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,
+--- Low-level alias of `Open77.elevators.teleport`.
 ---
---- `GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,
+--- The low-level form of `Open77.elevators.teleport` (bound to the same native). The two are the same function under two names; `Open77.elevators.teleport` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 integer
-function TeleportElevator(arg1, arg2) end
+---@param id integer
+---@param floor integer
+function TeleportElevator(id, floor) end
 
 --- Server only. Publishes a host-wide event handlers may veto, and returns a verdict handle.
 ---
@@ -1983,84 +2115,110 @@ function TriggerLatentClientEvent(name, target, bytesPerSecond, ___) end
 ---@return any true true
 function TriggerLocalEvent(event, ___) end
 
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- Low-level alias of `Open77.vehicles.triggerHorn`.
 ---
---- `ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,
+--- The low-level form of `Open77.vehicles.triggerHorn` (wrapped by). The two are the same function under two names; `Open77.vehicles.triggerHorn` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.45
+---@param id integer
 ---@param duration integer
-function TriggerVehicleHorn(duration) end
+function TriggerVehicleHorn(id, duration) end
 
---- Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,
+--- Low-level alias of `Open77.effects.update`.
 ---
---- Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,
+--- The low-level form of `Open77.effects.update` (wrapped by). The two are the same function under two names; `Open77.effects.update` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.effects
 --- Since: 2.31.13+op77.45
-function UpdateEffect() end
+---@param id integer
+---@param x? number
+---@param y? number
+---@param z? number
+---@param qx? number
+---@param qy? number
+---@param qz? number
+---@param qw? number
+---@param bucket? integer
+---@param visible? boolean
+---@param radius? number
+---@param hysteresis? number
+---@param ttl? integer
+function UpdateEffect(id, x, y, z, qx, qy, qz, qw, bucket, visible, radius, hysteresis, ttl) end
 
---- and `ttlMs`.
+--- Low-level alias of `Open77.loot.update`.
 ---
---- and `ttlMs`. Low-level aliases are `CreateLootDrop`, `UpdateLootDrop`, `RemoveLootDrop`,
+--- The low-level form of `Open77.loot.update` (wrapped by). The two are the same function under two names; `Open77.loot.update` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 integer
----@param arg3 number
----@param arg4 number
----@param arg5 number
----@param arg6 integer
----@param arg7 number
----@param arg8 string
----@param arg9 string
-function UpdateLootDrop(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) end
+---@param id integer
+---@param quantity integer
+---@param x number
+---@param y number
+---@param z number
+---@param bucket integer
+---@param pickupRadius number
+---@param label string
+---@param model string
+function UpdateLootDrop(id, quantity, x, y, z, bucket, pickupRadius, label, model) end
 
---- Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,
+--- Low-level alias of `Open77.npcs.update`.
 ---
---- Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,
+--- The low-level form of `Open77.npcs.update` (wrapped by). The two are the same function under two names; `Open77.npcs.update` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 string
----@param arg3 string
----@param arg4 integer
----@param arg5 integer
----@param arg6 number
----@param arg7 number
----@param arg8 integer
----@param arg9 string
-function UpdateNpc(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) end
+---@param id integer
+---@param appearance string
+---@param loadoutJson string
+---@param aiMode integer
+---@param damagePolicy integer
+---@param health number
+---@param maxHealth number
+---@param ragdoll integer
+---@param behaviorJson string
+function UpdateNpc(id, appearance, loadoutJson, aiMode, damagePolicy, health, maxHealth, ragdoll, behaviorJson) end
 
---- Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,
+--- Patches a prop in place: appearance, physics, visibility, bucket, light or lifetime.
 ---
---- Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,
+--- The all-positional form of `Open77.props.update`. Every argument after the id is optional and `nil` means leave it alone, so this is a patch and not a replacement. Answers `false, reason` -- `not_found` for an id this resource does not own, `invalid_argument` for a malformed value. Requires `world.props`. The transform is not here: that is `SetPropTransform`.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.45
-function UpdateProp() end
+---@param id integer
+---@param appearance? string
+---@param physics? string
+---@param collision? boolean
+---@param visible? boolean
+---@param bucket? integer
+---@param light? string
+---@param radius? number
+---@param hysteresis? number
+---@param ttl? integer
+function UpdateProp(id, appearance, physics, collision, visible, bucket, light, radius, hysteresis, ttl) end
 
---- Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,
+--- Writes a vehicle's whole replicated state at once: health, flags, paint, damage.
 ---
---- Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,
+--- The all-positional form of `Open77.vehicles.update`, and unlike that one it is a **replacement, not a patch**: all sixteen arguments are written, so read the vehicle first and pass back whatever you are not changing. `bodyDamage` must be a table of exactly 30 numbers between 0 and 1 -- anything else raises a Lua error instead of answering `false`, which is the one refusal here that is not a return value. `doors`, `windows` and `tires` are bitmasks. Answers a plain `true`/`false`. Requires `world.vehicles`.
 ---
+--- Permissions: world.vehicles
 --- Since: 2.31.13+op77.45
----@param arg1 integer
----@param arg2 number
----@param arg3 integer
----@param arg4 integer
----@param arg5 integer
----@param arg6 integer
----@param arg7 integer
----@param arg8 integer
----@param arg9 integer
----@param arg10 integer
----@param arg11 integer
----@param arg12 integer
----@param arg14 integer
----@param arg15 integer
----@param arg16 integer
-function UpdateVehicleState(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg14, arg15, arg16) end
+---@param id integer
+---@param health number
+---@param flags integer
+---@param primaryR integer
+---@param primaryG integer
+---@param primaryB integer
+---@param secondaryR integer
+---@param secondaryG integer
+---@param secondaryB integer
+---@param doors integer
+---@param windows integer
+---@param tires integer
+---@param bodyDamage table
+---@param brokenGlass integer
+---@param brokenLights integer
+---@param detachedParts integer
+function UpdateVehicleState(id, health, flags, primaryR, primaryG, primaryB, secondaryR, secondaryG, secondaryB, doors, windows, tires, bodyDamage, brokenGlass, brokenLights, detachedParts) end
 
 --- Builds a vector of the size the arguments imply.
 ---

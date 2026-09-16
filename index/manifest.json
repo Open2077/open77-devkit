@@ -1,11 +1,11 @@
 {
  "formatVersion": 1,
  "build": "2.31.13+op77.74",
- "generatedAt": "2026-09-16T15:31:55.646Z",
- "docsSyncedAt": "2026-09-16T14:02:10.575Z",
+ "generatedAt": "2026-09-16T17:27:24.310Z",
+ "docsSyncedAt": "2026-09-16T17:24:00.117Z",
  "source": {
   "repository": "https://github.com/Open2077/open77-app",
-  "commit": "2ec518d04a3a35117bed3ce1d6176c8f50da10de"
+  "commit": "3ece81b75f76da92894a1f31c44639eecad7014d"
  },
  "counts": {
   "cards": 1566,
@@ -19,8 +19,8 @@
  },
  "files": {
   "cards.json": {
-   "sha256": "5fe88471e4c2831879bec3efae1f260572eb8579c8c4c9169f931120b84141e2",
-   "bytes": 2043570
+   "sha256": "0edd8270f64a28a4f2f220942cf9462ccc8ec2656071493439d13ccec70bc386",
+   "bytes": 2090673
   },
   "events.json": {
    "sha256": "41e598f599b7e46ca70719c40dc0a09a3f148e0da411460c17a097a470d6ae08",
@@ -87,12 +87,12 @@
    "bytes": 16253
   },
   "open77-client.d.lua": {
-   "sha256": "66db761c790f1ada2e380ca3e5911876ab3fd8055421b02fe735c3021887ffe2",
-   "bytes": 456703
+   "sha256": "9e03f182861d44c603ec1912459fb88fb60763f28264bd809fe8065fa06f1dc0",
+   "bytes": 456759
   },
   "open77-server.d.lua": {
-   "sha256": "266aebf80ff79bc429f480163edd364cc675e9c620e10074d1fc8361dc3ea56c",
-   "bytes": 544428
+   "sha256": "c38574aa747113990a5579671705739194c8840a60b875f36a9848509bf19d0d",
+   "bytes": 567370
   }
  }
 }

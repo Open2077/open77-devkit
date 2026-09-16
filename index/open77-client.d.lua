@@ -1403,8 +1403,9 @@ function Open77.appearance.open(options) end
 ---
 --- Permissions: player.appearance.edit
 --- Since: 2.31.0+op77.3
----@param arg2? boolean
-function Open77.appearance.switchBodyFamily(arg2) end
+---@param gender string
+---@param resumeEditor? boolean
+function Open77.appearance.switchBodyFamily(gender, resumeEditor) end
 
 --- Consumes the pending body-family transition result.
 ---
@@ -5733,8 +5734,8 @@ function Open77.session.characterBootstrap() end
 ---
 --- Permissions: player.appearance.edit
 --- Since: 2.31.0+op77.3
----@param arg1? string
-function Open77.session.failCharacterBootstrap(arg1) end
+---@param reason? string
+function Open77.session.failCharacterBootstrap(reason) end
 
 --- Whether any modal layer -- Open77's or the game's -- owns the screen.
 ---
@@ -5850,8 +5851,8 @@ function Open77.session.resetCharacterBootstrap() end
 ---
 --- Permissions: player.appearance.edit
 --- Since: 2.31.0+op77.3
----@param arg1 string
-function Open77.session.resolveCharacterBootstrap(arg1) end
+---@param family string
+function Open77.session.resolveCharacterBootstrap(family) end
 
 --- Declares that this resource is able to serve the pause menu.
 ---

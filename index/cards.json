@@ -4130,7 +4130,13 @@
   "description": "Starts a guarded transition to the requested body family and optionally resumes the native editor afterward. It requires player.appearance.edit; completion is consumed with takeBodyFamilyTransition.",
   "params": [
    {
-    "name": "arg2",
+    "name": "gender",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "resumeEditor",
     "type": "boolean",
     "optional": true,
     "default": null
@@ -17256,10 +17262,10 @@
   "description": "Marks the active client-local character bootstrap as failed with an optional bounded diagnostic reason. It requires player.appearance.edit and does not disconnect the network session.",
   "params": [
    {
-    "name": "arg1",
+    "name": "reason",
     "type": "string",
     "optional": true,
-    "default": null
+    "default": "\"character_bootstrap_failed\""
    }
   ],
   "returns": [],
@@ -17577,7 +17583,7 @@
   "description": "Completes the active bootstrap with the validated female or male body family. It requires player.appearance.edit and only updates the local bootstrap backend.",
   "params": [
    {
-    "name": "arg1",
+    "name": "family",
     "type": "string",
     "optional": false,
     "default": null
@@ -22998,47 +23004,53 @@
   "namespace": "_G",
   "name": "AdoptElevator",
   "handler": "AdoptElevator",
-  "summary": "`floorCount`.",
-  "description": "`floorCount`. Constants are in `Open77.elevators.flags`. Low-level aliases are `AdoptElevator`,",
+  "summary": "Takes a native lift under server authority so every player sees the same cab.",
+  "description": "The all-positional form of `Open77.elevators.adopt`. `engineEntity` is the lift's engine entity id, which only a client can find (`Open77.elevators.nearby` on the client side); the position is the cab's. `flags` is a bitmask of `1` powered, `2` locked, `4` interaction allowed, `8` doors closed. Answers the elevator id, or `nil, reason`. Requires `world.elevators`. Note the tail order: `flags` is the seventh argument and `floorCount` the eighth, which is why the named form is the safer one to write.",
   "params": [
    {
-    "name": "arg2",
+    "name": "engineEntity",
+    "type": "value",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "x",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "y",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "z",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg6",
+    "name": "initialFloor",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg7",
+    "name": "flags",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg8",
+    "name": "floorCount",
     "type": "integer",
     "optional": false,
     "default": null
@@ -23048,7 +23060,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- Adopt the apartment lift a client just reported, powered and usable.\nRegisterNetEvent(\"lift:found\", function(engineEntity, x, y, z, floors)\n    local lift, reason = AdoptElevator(\n        engineEntity, x, y, z,   -- engineEntity, cab position\n        0, 0,                    -- bucket, initialFloor\n        1 | 4,                   -- flags: powered + interaction allowed\n        floors)                  -- floorCount\n    if not lift then return print(\"adopt failed: \" .. tostring(reason)) end\n    print((\"lift %d adopted with %d floors\"):format(lift, floors))\nend)",
   "inferred": false,
   "source_line": 1034,
   "permissions": [
@@ -23146,7 +23158,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- A smoke plume pinned to a burning car's bonnet, gone in a minute.\nlocal id, reason = AttachEffect(\n    vehicleId, \"vehicle\", \"smoke.column\", \"bonnet\",   -- target, kind, effect, slot\n    \"root\", \"root\",                                   -- localAnchor, localSlot\n    60000,                                            -- ttlMs\n    120.0, 30.0,                                      -- streaming radius, hysteresis\n    nil, \"amb_fire_medium\", true)                     -- localEvent, soundEvent, soundOnOwner\nif not id then return print(\"attach refused: \" .. tostring(reason)) end\n-- Open77.effects.attach(target, effect, options) is the same call with names.",
   "inferred": false,
   "source_line": 987,
   "permissions": [
@@ -23166,9 +23178,21 @@
   "namespace": "_G",
   "name": "BanPlayer",
   "handler": "BanPlayer",
-  "summary": "`Open77.players.ban` and `BanPlayer` resolve the player's authenticated device identity, submit a",
-  "description": "`Open77.players.ban` and `BanPlayer` resolve the player's authenticated device identity, submit a",
+  "summary": "Low-level alias of `Open77.players.ban`.",
+  "description": "The low-level form of `Open77.players.ban` (bound to the same native). The two are the same function under two names; `Open77.players.ban` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "reason",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
    {
     "name": "seconds",
     "type": "integer",
@@ -23181,7 +23205,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- BanPlayer is the low-level form of Open77.players.ban (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- /ban <id> <days> <reason>: a temporary ban published through the master\nRegisterCommand(\"ban\", function(source, args)\n    local target, days = tonumber(args[1]), tonumber(args[2])\n    if not target or not days then return Open77.chat.send(source, \"Usage: /ban <id> <days> <reason>\") end\n    local reason = table.concat(args, \" \", 3)\n    local ok, err = Open77.players.ban(target, reason, days * 86400)\n    if not ok then Open77.chat.send(source, \"Ban failed: \" .. err) end\nend, true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 964,
   "permissions": [
    "players.ban"
@@ -23224,23 +23248,23 @@
   "namespace": "_G",
   "name": "CancelNpcTask",
   "handler": "CancelNpcTask",
-  "summary": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
-  "description": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
+  "summary": "Low-level alias of `Open77.npcs.tasks.cancel`.",
+  "description": "The low-level form of `Open77.npcs.tasks.cancel` (bound to the same native). The two are the same function under two names; `Open77.npcs.tasks.cancel` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "npcId",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "taskId",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "reason",
     "type": "string",
     "optional": false,
     "default": null
@@ -23251,7 +23275,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- CancelNpcTask is the low-level form of Open77.npcs.tasks.cancel (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- The player paid: the guard stops attacking\nlocal task = Open77.npcs.tasks.attack(guardId, playerId)\nAddEventHandler(\"debt:paid\", function()\n    Open77.npcs.tasks.cancel(guardId, task)\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1020,
   "permissions": [],
   "reasons": [],
@@ -23263,11 +23287,11 @@
   "namespace": "_G",
   "name": "ClearNpcTasks",
   "handler": "ClearNpcTasks",
-  "summary": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
-  "description": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
+  "summary": "Low-level alias of `Open77.npcs.tasks.clear`.",
+  "description": "The low-level form of `Open77.npcs.tasks.clear` (bound to the same native). The two are the same function under two names; `Open77.npcs.tasks.clear` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "npcId",
     "type": "integer",
     "optional": false,
     "default": null
@@ -23279,7 +23303,7 @@
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "reason",
     "type": "string",
     "optional": false,
     "default": null
@@ -23290,7 +23314,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- ClearNpcTasks is the low-level form of Open77.npcs.tasks.clear (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Stop everything the NPC was doing\nOpen77.npcs.tasks.clear(npcId)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1021,
   "permissions": [],
   "reasons": [],
@@ -23302,15 +23326,15 @@
   "namespace": "_G",
   "name": "ClearProps",
   "handler": "ClearProps",
-  "summary": "`AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`.",
-  "description": "`AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`. The namespaced API supplies validation and structured",
+  "summary": "Low-level alias of `Open77.props.clear`.",
+  "description": "The low-level form of `Open77.props.clear` (bound to the same native). The two are the same function under two names; `Open77.props.clear` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- ClearProps is the low-level form of Open77.props.clear (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- The event is over: remove every prop this resource placed\nAddEventHandler(\"event:ended\", function()\n    print(\"removed\", Open77.props.clear(), \"props\")\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 979,
   "permissions": [
    "world.props"
@@ -23380,12 +23404,84 @@
   "namespace": "_G",
   "name": "CreateEffect",
   "handler": "CreateEffect",
-  "summary": "Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,",
-  "description": "Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,",
+  "summary": "Registers a looping particle effect at a world point and answers its id as a decimal string.",
+  "description": "The all-positional form of `Open77.effects.create`. The orientation is a quaternion (`qx, qy, qz, qw`), not a yaw, and `visible` is the tenth argument. A registry entry is a **running** system that keeps playing until `Open77.effects.remove` or its `ttl` expires -- `PlayEffect` is the one-shot. Answers `nil, reason` on `invalid_position` or an unknown effect name. Requires `world.effects`.",
   "params": [
    {
-    "name": "arg10",
+    "name": "name",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "x",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "y",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "z",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "qx",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "qy",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "qz",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "qw",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "bucket",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "visible",
     "type": "boolean",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "radius",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "hysteresis",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "ttl",
+    "type": "integer",
     "optional": true,
     "default": null
    }
@@ -23394,7 +23490,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- A burning barrel that keeps burning until the resource removes it.\nlocal fire, reason = CreateEffect(\n    \"fire.barrel\", -1442.2, 127.4, 18.0,   -- name, x, y, z\n    0.0, 0.0, 0.0, 1.0,                    -- quaternion: no rotation\n    0, true,                               -- bucket, visible\n    120.0, 30.0,                           -- streaming radius, hysteresis\n    nil)                                   -- ttlMs: nil means it never expires on its own\nif not fire then return print(\"effect refused: \" .. tostring(reason)) end\nSetTimeout(30000, function() Open77.effects.remove(fire) end)",
   "inferred": false,
   "source_line": 981,
   "permissions": [
@@ -23414,65 +23510,65 @@
   "namespace": "_G",
   "name": "CreateLootDrop",
   "handler": "CreateLootDrop",
-  "summary": "and `ttlMs`.",
-  "description": "and `ttlMs`. Low-level aliases are `CreateLootDrop`, `UpdateLootDrop`, `RemoveLootDrop`,",
+  "summary": "Low-level alias of `Open77.loot.create`.",
+  "description": "The low-level form of `Open77.loot.create` (wrapped by). The two are the same function under two names; `Open77.loot.create` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "item",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "quantity",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "x",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "y",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "z",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg6",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg7",
+    "name": "pickupRadius",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg8",
+    "name": "label",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg9",
+    "name": "model",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg10",
+    "name": "ttlMs",
     "type": "number",
     "optional": false,
     "default": null
@@ -23483,7 +23579,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- CreateLootDrop is the low-level form of Open77.loot.create (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- A dead player drops 200 eddies where they fell, gone after five minutes\nAddEventHandler(\"onPlayerLifeStateChanged\", function(playerId, revision, phase)\n    if phase ~= \"dead\" then return end\n    local pos = Open77.players.position(playerId)\n    if pos then\n        Open77.loot.create({ item = \"Items.money\", quantity = 200, position = pos, label = \"Eddies\", ttlMs = 300000 })\n    end\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 989,
   "permissions": [
    "world.loot"
@@ -23500,107 +23596,107 @@
   "namespace": "_G",
   "name": "CreateNpc",
   "handler": "CreateNpc",
-  "summary": "Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,",
-  "description": "Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,",
+  "summary": "Spawns a server-owned NPC from a 2.31 `Character.*` record and answers its id.",
+  "description": "The all-positional form of `Open77.npcs.create`. Seventeen arguments in a fixed order, where `aiMode` is `0` tasks / `1` frozen / `2` native / `3` observer and `damagePolicy` is `0` mortal / `1` immortal / `2` invulnerable; `loadoutJson` and `behaviorJson` are JSON **strings**, not tables. Answers the new id, or `nil, reason` when the record, the position or an argument is refused. Requires `world.npcs`. `Open77.npcs.create` takes the same values as a named table and fills in every default -- prefer it, and keep this one for ported code.",
   "params": [
    {
-    "name": "arg1",
+    "name": "template",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "x",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "y",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "z",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "yaw",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg6",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg7",
+    "name": "appearance",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg8",
+    "name": "loadoutJson",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg9",
+    "name": "aiMode",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg10",
+    "name": "damagePolicy",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg11",
+    "name": "health",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg12",
+    "name": "maxHealth",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg13",
+    "name": "streamingRadius",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg14",
+    "name": "streamingHysteresis",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg15",
+    "name": "despawnWhenUnobserved",
     "type": "boolean",
     "optional": true,
     "default": null
    },
    {
-    "name": "arg16",
+    "name": "persistent",
     "type": "boolean",
     "optional": true,
     "default": null
    },
    {
-    "name": "arg17",
+    "name": "behaviorJson",
     "type": "string",
     "optional": false,
     "default": null
@@ -23610,7 +23706,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- The raw positional spawn. Ten of the seventeen arguments are only the\n-- defaults the table form would have filled in, which is why nobody writes\n-- this by hand twice: Open77.npcs.create{ record = ..., position = ... }.\nlocal npcId, reason = CreateNpc(\n    \"Character.Judy\", -1442.2, 127.4, 18.0, 180.0, 0,  -- record, x, y, z, yaw, bucket\n    nil, nil,                                          -- appearance, loadoutJson\n    0, 2,                                              -- aiMode = tasks, damagePolicy = invulnerable\n    100.0, 100.0, 180.0, 40.0,                         -- health, maxHealth, streaming radius/hysteresis\n    false, true, nil)                                  -- despawnWhenUnobserved, persistent, behaviorJson\nif not npcId then return print(\"spawn refused: \" .. tostring(reason)) end\nprint((\"shopkeeper %d is up\"):format(npcId))",
   "inferred": false,
   "source_line": 1012,
   "permissions": [
@@ -23628,18 +23724,114 @@
   "namespace": "_G",
   "name": "CreateProp",
   "handler": "CreateProp",
-  "summary": "Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,",
-  "description": "Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,",
+  "summary": "Places a replicated prop from a catalogue model and answers its id as a decimal string.",
+  "description": "The all-positional form of `Open77.props.create`. `model` is a catalogue alias (`Open77.props.catalog()` lists them), not a `.mesh` path; `kind` defaults to `\"prop\"` and `physics` to `\"static\"`. The id comes back as a **string**, because a prop id does not fit a Lua number. Answers `nil, reason` on `invalid_model`, `invalid_position` or a registry refusal. Requires `world.props`. Prefer `Open77.props.create`, which takes the same values as a table and needs only the four you care about.",
   "params": [
    {
-    "name": "arg10",
+    "name": "model",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "x",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "y",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "z",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "yaw",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "bucket",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kind",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "physics",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "appearance",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "collision",
     "type": "boolean",
     "optional": true,
     "default": null
    },
    {
-    "name": "arg11",
+    "name": "visible",
     "type": "boolean",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "scaleX",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "scaleY",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "scaleZ",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "radius",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "hysteresis",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "light",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "ttl",
+    "type": "integer",
     "optional": true,
     "default": null
    }
@@ -23648,7 +23840,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- A crate at the drop point, gone after an hour. Eighteen positional\n-- arguments for what Open77.props.create writes in four lines.\nlocal crate, reason = CreateProp(\n    \"crate.small\", -1442.2, 127.4, 18.0, 45.0, 0,   -- model, x, y, z, yaw, bucket\n    nil, nil, nil,                                  -- kind, physics, appearance\n    true, true,                                     -- collision, visible\n    1.0, 1.0, 1.0,                                  -- scale\n    120.0, 30.0,                                    -- streaming radius, hysteresis\n    nil, 60 * 60 * 1000)                            -- light, ttlMs\nif not crate then return print(\"no crate: \" .. tostring(reason)) end\nprint(\"crate id \" .. crate)   -- a string, not a number",
   "inferred": false,
   "source_line": 972,
   "permissions": [
@@ -23698,95 +23890,95 @@
   "namespace": "_G",
   "name": "CreateVehicle",
   "handler": "CreateVehicle",
-  "summary": "Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,",
-  "description": "Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,",
+  "summary": "Low-level alias of `Open77.vehicles.create`.",
+  "description": "The low-level form of `Open77.vehicles.create` (wrapped by). The two are the same function under two names; `Open77.vehicles.create` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "record",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "x",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "y",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "z",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "yaw",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg6",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg7",
+    "name": "appearance",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg8",
+    "name": "health",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg9",
+    "name": "flags",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg10",
+    "name": "primary1",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg11",
+    "name": "primary2",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg12",
+    "name": "primary3",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg13",
+    "name": "secondary1",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg14",
+    "name": "secondary2",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg15",
+    "name": "secondary3",
     "type": "integer",
     "optional": false,
     "default": null
@@ -23797,7 +23989,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- CreateVehicle is the low-level form of Open77.vehicles.create (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- /car: spawn a Quadra a few metres in front of the caller and put them in the driver seat\nRegisterCommand(\"car\", function(source)\n    local me = Open77.players.get(source)\n    if not me or not me.position then return end\n    local id, reason = Open77.vehicles.create({\n        record = \"Vehicle.v_sport2_quadra_turbo_r\",\n        position = { x = me.position.x + 4.0, y = me.position.y, z = me.position.z },\n        yaw = me.heading,\n        ttlMs = 30 * 60 * 1000, -- gone after 30 minutes if nobody removes it\n    })\n    if not id then return Open77.chat.send(source, \"Spawn failed: \" .. reason) end\n    Open77.vehicles.warpPlayerIntoVehicle(source, id, Open77.vehicles.seats.driver)\nend, false)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 994,
   "permissions": [
    "world.vehicles"
@@ -23814,29 +24006,29 @@
   "namespace": "_G",
   "name": "DamageNpc",
   "handler": "DamageNpc",
-  "summary": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
-  "description": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
+  "summary": "Applies damage to an owned NPC and answers whether it landed.",
+  "description": "The all-positional form of `Open77.npcs.applyDamage`. `source` defaults to `\"script\"` and `cause` to `\"generic\"`; both are free labels carried to the death event, not an enumeration. Answers a plain `true`/`false` with no reason -- `false` covers a missing NPC, one this resource does not own, and a `world.npcs` permission the resource was not granted. An invulnerable NPC takes no damage, so read the health back if you need to know.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "amount",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "source",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "cause",
     "type": "string",
     "optional": false,
     "default": null
@@ -23846,7 +24038,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- Bleed a guard down over five seconds, then say what happened.\nCreateThread(function()\n    for _ = 1, 5 do\n        if not DamageNpc(guardId, 20.0, \"script\", \"poison\") then\n            return print(\"damage refused: no such NPC, or not ours\")\n        end\n        Wait(1000)\n    end\n    local npc = Open77.npcs.get(guardId)\n    print((\"guard health: %.0f\"):format(npc and npc.health or 0))\nend)",
   "inferred": false,
   "source_line": 1026,
   "permissions": [],
@@ -23859,15 +24051,46 @@
   "namespace": "_G",
   "name": "DamagePlayer",
   "handler": "DamagePlayer",
-  "summary": "`RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,",
-  "description": "`RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.damage`.",
+  "description": "The low-level form of `Open77.players.damage` (wrapped by). The two are the same function under two names; `Open77.players.damage` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "amount",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "attacker",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kindName",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "weaponTdbId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- DamagePlayer is the low-level form of Open77.players.damage (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Fall damage reported by a zone trigger: 20 points, no attacker\nRegisterNetEvent(\"parkour:badLanding\", function()\n    Open77.players.damage(source, 20, { cause = \"fall\" })\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1068,
   "permissions": [
    "players.stats.apply"
@@ -23977,15 +24200,28 @@
   "namespace": "_G",
   "name": "DropPlayer",
   "handler": "DropPlayer",
-  "summary": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "description": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.disconnect`.",
+  "description": "The low-level form of `Open77.players.disconnect` (bound to the same native). The two are the same function under two names; `Open77.players.disconnect` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "reason",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- DropPlayer is the low-level form of Open77.players.disconnect (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- /kick <id> <reason>\nRegisterCommand(\"kick\", function(source, args)\n    local target = tonumber(args[1])\n    if not target then return end\n    local reason = table.concat(args, \" \", 2)\n    Open77.players.disconnect(target, reason ~= \"\" and reason or \"Kicked by an admin.\")\nend, true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 963,
   "permissions": [
    "players.disconnect"
@@ -24005,41 +24241,41 @@
   "namespace": "_G",
   "name": "EnqueueNpcTask",
   "handler": "EnqueueNpcTask",
-  "summary": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
-  "description": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
+  "summary": "Queues one task on an owned NPC's task channel and answers the task id.",
+  "description": "The all-positional form of `Open77.npcs.tasks.enqueue`, and the single native behind every `Open77.npcs.tasks.*` helper. `parametersJson` is a JSON **string**, not a table -- encode it yourself. `channel` is `0` movement / `1` look / `2` action / `3` full body, and a queued task replaces whatever else that channel is doing at the same or lower `priority`. `timeoutMs` of `0` means no timeout. Answers the task id, or `nil, reason` (`npc_not_found`, a rejected task type). Requires `world.npcs`.",
   "params": [
    {
-    "name": "arg1",
+    "name": "npcId",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "type",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "parametersJson",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "channel",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "priority",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg6",
+    "name": "timeoutMilliseconds",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24049,7 +24285,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- Walk a guard to the door, on the movement channel, giving up after 20 s.\nlocal taskId, reason = EnqueueNpcTask(\n    guardId, \"moveTo\",                                     -- npc, task type\n    '{\"x\":-1442.2,\"y\":127.4,\"z\":18.0,\"speed\":\"walk\"}',     -- parameters, as JSON TEXT\n    0, 100, 20000)                                         -- channel = movement, priority, timeoutMs\nif not taskId then return print(\"task refused: \" .. tostring(reason)) end\n-- Open77.npcs.tasks.moveTo(guardId, position, options) encodes all of that for you.",
   "inferred": false,
   "source_line": 1019,
   "permissions": [
@@ -24174,15 +24410,28 @@
   "namespace": "_G",
   "name": "ForcePlayerOutOfVehicle",
   "handler": "ForcePlayerOutOfVehicle",
-  "summary": "Vehicle-seat low-level aliases are `SetPlayerIntoVehicle`, `ForcePlayerOutOfVehicle`,",
-  "description": "Vehicle-seat low-level aliases are `SetPlayerIntoVehicle`, `ForcePlayerOutOfVehicle`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.vehicles.forcePlayerOutOfVehicle`.",
+  "description": "The low-level form of `Open77.vehicles.forcePlayerOutOfVehicle` (bound to the same native). The two are the same function under two names; `Open77.vehicles.forcePlayerOutOfVehicle` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "vehicleId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- ForcePlayerOutOfVehicle is the low-level form of Open77.vehicles.forcePlayerOutOfVehicle (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Police stop: pull the driver out of whatever they are driving\nRegisterCommand(\"pullout\", function(source, args)\n    local target = tonumber(args[1])\n    if not target then return end\n    local ok, reason = Open77.vehicles.forcePlayerOutOfVehicle(target)\n    if not ok then Open77.chat.send(source, \"Could not eject: \" .. reason) end\nend, true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1009,
   "permissions": [
    "world.vehicles"
@@ -24308,7 +24557,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.Exports.cs",
-  "example": "",
+  "example": "-- Ignore a reply that belongs to the VM we had before this reload.\nlocal generation = GetCurrentResourceGeneration()\nAddEventHandler(\"bank:reply\", function(payload)\n    if payload.generation ~= generation then\n        return print(\"stale reply from a previous generation, dropped\")\n    end\n    print(\"fresh reply accepted\")\nend)",
   "inferred": false,
   "source_line": 29,
   "permissions": [],
@@ -24341,15 +24590,22 @@
   "namespace": "_G",
   "name": "GetEffect",
   "handler": "GetEffect",
-  "summary": "`GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`.",
-  "description": "`GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`. The namespaced API",
-  "params": [],
+  "summary": "Low-level alias of `Open77.effects.get`.",
+  "description": "The low-level form of `Open77.effects.get` (bound to the same native). The two are the same function under two names; `Open77.effects.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetEffect is the low-level form of Open77.effects.get (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Is the campfire still burning?\nlocal fire = Open77.effects.get(campfireId)\nif not fire then relight() end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 984,
   "permissions": [],
   "reasons": [],
@@ -24361,15 +24617,22 @@
   "namespace": "_G",
   "name": "GetEffects",
   "handler": "GetEffects",
-  "summary": "`GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`.",
-  "description": "`GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`. The namespaced API",
-  "params": [],
+  "summary": "Low-level alias of `Open77.effects.all`.",
+  "description": "The low-level form of `Open77.effects.all` (bound to the same native). The two are the same function under two names; `Open77.effects.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "bucket",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetEffects is the low-level form of Open77.effects.all (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Count the fires still burning in the arena instance\nlocal burning = 0\nfor _, effect in ipairs(Open77.effects.all(ARENA_BUCKET)) do\n    if effect.effect:sub(1, 5) == \"fire.\" then burning = burning + 1 end\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 985,
   "permissions": [],
   "reasons": [],
@@ -24381,11 +24644,11 @@
   "namespace": "_G",
   "name": "GetElevator",
   "handler": "GetElevator",
-  "summary": "`RemoveElevator`, `GetElevator`, and `GetElevators`.",
-  "description": "`RemoveElevator`, `GetElevator`, and `GetElevators`. See [elevators](elevators.md).",
+  "summary": "Low-level alias of `Open77.elevators.get`.",
+  "description": "The low-level form of `Open77.elevators.get` (bound to the same native). The two are the same function under two names; `Open77.elevators.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24396,7 +24659,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetElevator is the low-level form of Open77.elevators.get (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Only accept a new request when the lift is idle\nlocal lift = Open77.elevators.get(elevatorId)\nif lift and lift.phase == \"idle\" then Open77.elevators.goTo(elevatorId, 7) end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1041,
   "permissions": [],
   "reasons": [],
@@ -24408,11 +24671,11 @@
   "namespace": "_G",
   "name": "GetElevators",
   "handler": "GetElevators",
-  "summary": "`RemoveElevator`, `GetElevator`, and `GetElevators`.",
-  "description": "`RemoveElevator`, `GetElevator`, and `GetElevators`. See [elevators](elevators.md).",
+  "summary": "Low-level alias of `Open77.elevators.all`.",
+  "description": "The low-level form of `Open77.elevators.all` (bound to the same native). The two are the same function under two names; `Open77.elevators.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24423,7 +24686,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetElevators is the low-level form of Open77.elevators.all (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Send every lift back to the ground floor at server start\nfor _, lift in ipairs(Open77.elevators.all()) do\n    Open77.elevators.goTo(lift.id, 0)\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1042,
   "permissions": [],
   "reasons": [],
@@ -24435,11 +24698,11 @@
   "namespace": "_G",
   "name": "GetEntityRoutingBucket",
   "handler": "GetEntityRoutingBucket",
-  "summary": "`GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and",
-  "description": "`GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and",
+  "summary": "Low-level alias of `Open77.routingBuckets.getEntity`.",
+  "description": "The low-level form of `Open77.routingBuckets.getEntity` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.getEntity` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "entityId",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24450,7 +24713,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetEntityRoutingBucket is the low-level form of Open77.routingBuckets.getEntity (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Which instance is this vehicle in?\nprint(\"vehicle bucket\", Open77.routingBuckets.getEntity(vehicleEntityId))",
-  "inferred": false,
+  "inferred": true,
   "source_line": 921,
   "permissions": [],
   "reasons": [],
@@ -24520,7 +24783,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.Exports.cs",
-  "example": "",
+  "example": "-- Only the dispatch resource may push a city alert through this one.\nexports(\"alert\", function(playerId, text)\n    local caller = GetInvokingResource()\n    if caller ~= \"open77_dispatch\" then\n        return false, \"denied for \" .. tostring(caller or \"a direct call\")\n    end\n    Open77.chat.send(playerId, text)\n    return true\nend)",
   "inferred": false,
   "source_line": 29,
   "permissions": [],
@@ -24540,7 +24803,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.Exports.cs",
-  "example": "",
+  "example": "-- Remember a caller's handshake, but only for the VM that made it: when that\n-- resource restarts its generation changes and the entry stops matching.\nlocal greeted = {}\nexports(\"hello\", function()\n    local caller, generation = GetInvokingResource(), GetInvokingResourceGeneration()\n    if not caller then return false, \"not called through exports\" end\n    local key = caller .. \":\" .. tostring(generation)\n    if greeted[key] then return true, \"already greeted\" end\n    greeted[key] = true\n    print((\"first call from %s, generation %s\"):format(caller, tostring(generation)))\n    return true\nend)",
   "inferred": false,
   "source_line": 29,
   "permissions": [],
@@ -24553,11 +24816,11 @@
   "namespace": "_G",
   "name": "GetLootDrop",
   "handler": "GetLootDrop",
-  "summary": "`GetLootDrop`, and `GetLootDrops`.",
-  "description": "`GetLootDrop`, and `GetLootDrops`. See [loot](loot.md) for pickup validation and client projection.",
+  "summary": "Low-level alias of `Open77.loot.get`.",
+  "description": "The low-level form of `Open77.loot.get` (bound to the same native). The two are the same function under two names; `Open77.loot.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24568,7 +24831,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetLootDrop is the low-level form of Open77.loot.get (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Is the drop still there before paying out?\nlocal drop = Open77.loot.get(lootId)\nif not drop then print(\"already picked up\") end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 992,
   "permissions": [],
   "reasons": [],
@@ -24580,8 +24843,8 @@
   "namespace": "_G",
   "name": "GetLootDrops",
   "handler": "GetLootDrops",
-  "summary": "`GetLootDrop`, and `GetLootDrops`.",
-  "description": "`GetLootDrop`, and `GetLootDrops`. See [loot](loot.md) for pickup validation and client projection.",
+  "summary": "Low-level alias of `Open77.loot.all`.",
+  "description": "The low-level form of `Open77.loot.all` (bound to the same native). The two are the same function under two names; `Open77.loot.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
     "name": "bucket",
@@ -24595,7 +24858,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetLootDrops is the low-level form of Open77.loot.all (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Count the drops still lying in the arena\nprint(#Open77.loot.all(ARENA_BUCKET), \"drops on the ground\")",
-  "inferred": false,
+  "inferred": true,
   "source_line": 993,
   "permissions": [],
   "reasons": [],
@@ -24607,11 +24870,11 @@
   "namespace": "_G",
   "name": "GetNpc",
   "handler": "GetNpc",
-  "summary": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
-  "description": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
+  "summary": "Low-level alias of `Open77.npcs.get`.",
+  "description": "The low-level form of `Open77.npcs.get` (bound to the same native). The two are the same function under two names; `Open77.npcs.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24621,8 +24884,8 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
-  "inferred": false,
+  "example": "-- GetNpc is the low-level form of Open77.npcs.get (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Is the boss still alive?\nlocal boss = Open77.npcs.get(bossId)\nif boss and boss.health <= 0 then\n    Open77.chat.broadcast(\"The boss is down!\")\nend",
+  "inferred": true,
   "source_line": 1017,
   "permissions": [],
   "reasons": [],
@@ -24634,11 +24897,11 @@
   "namespace": "_G",
   "name": "GetNpcAttitude",
   "handler": "GetNpcAttitude",
-  "summary": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
-  "description": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
+  "summary": "Low-level alias of `Open77.npcs.getAttitude`.",
+  "description": "The low-level form of `Open77.npcs.getAttitude` (bound to the same native). The two are the same function under two names; `Open77.npcs.getAttitude` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24649,7 +24912,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetNpcAttitude is the low-level form of Open77.npcs.getAttitude (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Debug: print how the guard regards everyone\nlocal attitude = Open77.npcs.getAttitude(guardId)\nif attitude then print(\"default attitude:\", attitude.default) end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1029,
   "permissions": [],
   "reasons": [],
@@ -24661,17 +24924,17 @@
   "namespace": "_G",
   "name": "GetNpcRelationship",
   "handler": "GetNpcRelationship",
-  "summary": "`SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`.",
-  "description": "`SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`. See",
+  "summary": "Low-level alias of `Open77.npcs.getRelationship`.",
+  "description": "The low-level form of `Open77.npcs.getRelationship` (bound to the same native). The two are the same function under two names; `Open77.npcs.getRelationship` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "first",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "second",
     "type": "string",
     "optional": false,
     "default": null
@@ -24682,7 +24945,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetNpcRelationship is the low-level form of Open77.npcs.getRelationship (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Check before declaring: are the two gangs already at war?\nif Open77.npcs.getRelationship(\"maelstrom\", \"valentinos\") ~= \"hostile\" then\n    Open77.npcs.setRelationship(\"maelstrom\", \"valentinos\", \"hostile\")\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1032,
   "permissions": [],
   "reasons": [],
@@ -24694,11 +24957,11 @@
   "namespace": "_G",
   "name": "GetNpcTarget",
   "handler": "GetNpcTarget",
-  "summary": "`SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`.",
-  "description": "`SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`. See",
+  "summary": "Low-level alias of `Open77.npcs.target`.",
+  "description": "The low-level form of `Open77.npcs.target` (bound to the same native). The two are the same function under two names; `Open77.npcs.target` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24709,7 +24972,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetNpcTarget is the low-level form of Open77.npcs.target (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Is the guard fighting a player right now?\nlocal target = Open77.npcs.target(guardId)\nif target and target.kind == \"player\" then\n    Open77.chat.send(target.id, \"The guard is after you!\")\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1033,
   "permissions": [],
   "reasons": [],
@@ -24721,17 +24984,17 @@
   "namespace": "_G",
   "name": "GetNpcTask",
   "handler": "GetNpcTask",
-  "summary": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
-  "description": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
+  "summary": "Low-level alias of `Open77.npcs.tasks.get`.",
+  "description": "The low-level form of `Open77.npcs.tasks.get` (bound to the same native). The two are the same function under two names; `Open77.npcs.tasks.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "taskId",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24742,7 +25005,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetNpcTask is the low-level form of Open77.npcs.tasks.get (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Wait until the walk is finished\nCreateThread(function()\n    local task = Open77.npcs.tasks.moveTo(npcId, door)\n    while Open77.npcs.tasks.get(npcId, task) do Wait(250) end\n    print(\"the NPC has arrived (or gave up)\")\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1022,
   "permissions": [],
   "reasons": [],
@@ -24754,11 +25017,11 @@
   "namespace": "_G",
   "name": "GetNpcTasks",
   "handler": "GetNpcTasks",
-  "summary": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
-  "description": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
+  "summary": "Low-level alias of `Open77.npcs.tasks.all`.",
+  "description": "The low-level form of `Open77.npcs.tasks.all` (bound to the same native). The two are the same function under two names; `Open77.npcs.tasks.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "npcId",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24769,7 +25032,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetNpcTasks is the low-level form of Open77.npcs.tasks.all (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Debug: what is the NPC doing?\nfor _, task in ipairs(Open77.npcs.tasks.all(npcId)) do\n    print(task.id, task.type, task.status)\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1023,
   "permissions": [],
   "reasons": [],
@@ -24781,15 +25044,15 @@
   "namespace": "_G",
   "name": "GetNpcTemplates",
   "handler": "GetNpcTemplates",
-  "summary": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
-  "description": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
+  "summary": "Low-level alias of `Open77.npcs.templates`.",
+  "description": "The low-level form of `Open77.npcs.templates` (bound to the same native). The two are the same function under two names; `Open77.npcs.templates` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetNpcTemplates is the low-level form of Open77.npcs.templates (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Print the legacy alias list once at startup\nfor _, template in ipairs(Open77.npcs.templates()) do\n    print(template.name, template.record)\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1027,
   "permissions": [],
   "reasons": [],
@@ -24801,17 +25064,17 @@
   "namespace": "_G",
   "name": "GetNpcs",
   "handler": "GetNpcs",
-  "summary": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
-  "description": "`GetNpc`, `GetNpcs`, `EnqueueNpcTask`, `CancelNpcTask`, `ClearNpcTasks`, `GetNpcTask`, `GetNpcTasks`,",
+  "summary": "Lists the NPCs in one routing bucket, this resource's own unless asked otherwise.",
+  "description": "The all-positional form of `Open77.npcs.all`. `bucket` may be `nil` for every bucket. By default the list holds only NPCs this resource created; pass `includeForeign` true to see every resource's, which needs the `npcs.foreign` permission and answers `nil, \"permission_denied:npcs.foreign\"` without it. Every row carries `owned`, so a shared list can still be filtered. Without `world.npcs` the answer is an empty table, not an error.",
   "params": [
    {
-    "name": "arg1",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "includeForeign",
     "type": "boolean",
     "optional": true,
     "default": null
@@ -24821,7 +25084,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- /npcs: how many NPCs we own here, and how many everybody owns.\nRegisterCommand(\"npcs\", function()\n    local mine = GetNpcs(0, false)\n    local all, reason = GetNpcs(0, true)\n    if not all then return print(\"need npcs.foreign to see the rest: \" .. tostring(reason)) end\n    print((\"bucket 0: %d ours, %d in total\"):format(#mine, #all))\nend, true)",
   "inferred": false,
   "source_line": 1018,
   "permissions": [
@@ -24860,15 +25123,28 @@
   "namespace": "_G",
   "name": "GetPlayerDistance",
   "handler": "GetPlayerDistance",
-  "summary": "`GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of",
-  "description": "`GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.distance`.",
+  "description": "The low-level form of `Open77.players.distance` (bound to the same native). The two are the same function under two names; `Open77.players.distance` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "reason",
+    "type": "value",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "reason",
+    "type": "value",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.PlayerReads.cs",
   "example": "-- GetPlayerDistance is the low-level form of Open77.players.distance (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Handcuffs only work at arm's length\nRegisterCommand(\"cuff\", function(source, args)\n    local target = tonumber(args[1])\n    if not target then return end\n    local metres = Open77.players.distance(source, target)\n    if not metres or metres > 2.0 then\n        return Open77.chat.send(source, \"Get closer.\")\n    end\n    Open77.players.setFrozen(target, true)\nend, false)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 70,
   "permissions": [],
   "reasons": [],
@@ -24917,15 +25193,22 @@
   "namespace": "_G",
   "name": "GetPlayerHealth",
   "handler": "GetPlayerHealth",
-  "summary": "`RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,",
-  "description": "`RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.getHealth`.",
+  "description": "The low-level form of `Open77.players.getHealth` (bound to the same native). The two are the same function under two names; `Open77.players.getHealth` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetPlayerHealth is the low-level form of Open77.players.getHealth (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- /hp <id>: an admin reads a player's health\nRegisterCommand(\"hp\", function(source, args)\n    local hp = Open77.players.getHealth(tonumber(args[1]) or source)\n    if hp then Open77.chat.send(source, (\"Health %d / %d\"):format(hp.health, hp.maxHealth)) end\nend, true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1066,
   "permissions": [],
   "reasons": [],
@@ -24937,15 +25220,15 @@
   "namespace": "_G",
   "name": "GetPlayerHoloCallEyes",
   "handler": "GetHoloCallEyes",
-  "summary": "`GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of",
-  "description": "`GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of",
+  "summary": "Low-level alias of `Open77.players.getHoloCallEyes`.",
+  "description": "The low-level form of `Open77.players.getHoloCallEyes` (wrapped by). The two are the same function under two names; `Open77.players.getHoloCallEyes` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetPlayerHoloCallEyes is the low-level form of Open77.players.getHoloCallEyes (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Is the player already on a call before starting a new one?\nlocal enabled = Open77.players.getHoloCallEyes(playerId)\nif not enabled then Open77.players.setHoloCallEyes(playerId, true, { durationMs = 30000 }) end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 908,
   "permissions": [
    "players.holocall.read"
@@ -24964,11 +25247,11 @@
   "namespace": "_G",
   "name": "GetPlayerIdentifier",
   "handler": "GetPlayerIdentifier",
-  "summary": "Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,",
-  "description": "Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,",
+  "summary": "Low-level alias of `Open77.players.identifier`.",
+  "description": "The low-level form of `Open77.players.identifier` (bound to the same native). The two are the same function under two names; `Open77.players.identifier` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "playerId",
     "type": "integer",
     "optional": false,
     "default": null
@@ -24979,7 +25262,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetPlayerIdentifier is the low-level form of Open77.players.identifier (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Key the player's money on the durable identifier, never on the session id\nAddEventHandler(\"onPlayerReady\", function(playerId)\n    local key = \"money:\" .. Open77.players.identifier(playerId)\n    local balance = Open77.kvp.get(key, 500)\n    Open77.chat.send(playerId, (\"Welcome back. Balance: %d eddies\"):format(balance))\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 935,
   "permissions": [],
   "reasons": [],
@@ -25112,15 +25395,22 @@
   "namespace": "_G",
   "name": "GetPlayerLifeState",
   "handler": "GetPlayerLifeState",
-  "summary": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "description": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.getLifeState`.",
+  "description": "The low-level form of `Open77.players.getLifeState` (bound to the same native). The two are the same function under two names; `Open77.players.getLifeState` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetPlayerLifeState is the low-level form of Open77.players.getLifeState (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Only a living player can accept a job\nRegisterCommand(\"job\", function(source)\n    local life = Open77.players.getLifeState(source)\n    if not life or life.phase ~= \"alive\" then\n        return Open77.chat.send(source, \"Come back when you are on your feet.\")\n    end\n    startJob(source)\nend, false)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1043,
   "permissions": [],
   "reasons": [],
@@ -25170,11 +25460,11 @@
   "namespace": "_G",
   "name": "GetPlayerName",
   "handler": "GetPlayerName",
-  "summary": "Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,",
-  "description": "Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,",
+  "summary": "Low-level alias of `Open77.players.name`.",
+  "description": "The low-level form of `Open77.players.name` (bound to the same native). The two are the same function under two names; `Open77.players.name` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "playerId",
     "type": "integer",
     "optional": false,
     "default": null
@@ -25185,7 +25475,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetPlayerName is the low-level form of Open77.players.name (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Greet the player by name in chat when they are ready\nAddEventHandler(\"onPlayerReady\", function(playerId)\n    Open77.chat.send(-1, (\"%s joined the city.\"):format(Open77.players.name(playerId)))\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 934,
   "permissions": [],
   "reasons": [],
@@ -25231,11 +25521,11 @@
   "namespace": "_G",
   "name": "GetPlayerPosition",
   "handler": "GetPlayerPosition",
-  "summary": "Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,",
-  "description": "Low-level aliases are `GetPlayerName`, `GetPlayerIdentifier`, `GetPlayerPosition`, `GetPlayers`,",
+  "summary": "Low-level alias of `Open77.players.position`.",
+  "description": "The low-level form of `Open77.players.position` (bound to the same native). The two are the same function under two names; `Open77.players.position` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "playerId",
     "type": "integer",
     "optional": false,
     "default": null
@@ -25246,7 +25536,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetPlayerPosition is the low-level form of Open77.players.position (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- /where: print where a player is standing\nRegisterCommand(\"where\", function(source, args)\n    local pos = Open77.players.position(tonumber(args[1]) or source)\n    if not pos then return Open77.chat.send(source, \"Unknown position.\") end\n    Open77.chat.send(source, (\"%.1f, %.1f, %.1f (bucket %d)\"):format(pos.x, pos.y, pos.z, pos.bucket))\nend, true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 936,
   "permissions": [],
   "reasons": [],
@@ -25258,15 +25548,22 @@
   "namespace": "_G",
   "name": "GetPlayerRead",
   "handler": "GetPlayerRead",
-  "summary": "`SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,",
-  "description": "`SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.get`.",
+  "description": "The low-level form of `Open77.players.get` (bound to the same native). The two are the same function under two names; `Open77.players.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.PlayerReads.cs",
   "example": "-- GetPlayerRead is the low-level form of Open77.players.get (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\nlocal read = Open77.players.get(playerId)\nif read and read.position and (read.ageMs or 0) < 5000 then\n  -- your freshness threshold, not ours\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 68,
   "permissions": [],
   "reasons": [
@@ -25282,11 +25579,11 @@
   "namespace": "_G",
   "name": "GetPlayerRoutingBucket",
   "handler": "GetPlayerRoutingBucket",
-  "summary": "The corresponding globals are `GetPlayerRoutingBucket`, `SetPlayerRoutingBucket`,",
-  "description": "The corresponding globals are `GetPlayerRoutingBucket`, `SetPlayerRoutingBucket`,",
+  "summary": "Low-level alias of `Open77.routingBuckets.getPlayer`.",
+  "description": "The low-level form of `Open77.routingBuckets.getPlayer` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.getPlayer` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "playerId",
     "type": "integer",
     "optional": false,
     "default": null
@@ -25297,7 +25594,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetPlayerRoutingBucket is the low-level form of Open77.routingBuckets.getPlayer (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Only players in the same bucket can trade\nif Open77.routingBuckets.getPlayer(a) ~= Open77.routingBuckets.getPlayer(b) then\n    return Open77.chat.send(a, \"You are not in the same instance.\")\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 919,
   "permissions": [],
   "reasons": [],
@@ -25420,15 +25717,22 @@
   "namespace": "_G",
   "name": "GetPlayerVehicleSeat",
   "handler": "GetPlayerVehicleSeat",
-  "summary": "`SetPlayerVehicleExitLocked`, and `GetPlayerVehicleSeat`;",
-  "description": "`SetPlayerVehicleExitLocked`, and `GetPlayerVehicleSeat`; their full contract is documented under",
-  "params": [],
+  "summary": "Low-level alias of `Open77.vehicles.getPlayerSeat`.",
+  "description": "The low-level form of `Open77.vehicles.getPlayerSeat` (bound to the same native). The two are the same function under two names; `Open77.vehicles.getPlayerSeat` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetPlayerVehicleSeat is the low-level form of Open77.vehicles.getPlayerSeat (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Only the driver may pay for fuel\nRegisterCommand(\"refuel\", function(source)\n    local seat = Open77.vehicles.getPlayerSeat(source)\n    if not seat then return Open77.chat.send(source, \"You are not in a vehicle.\") end\n    if seat.seat ~= \"seat_front_left\" then\n        return Open77.chat.send(source, \"Only the driver can refuel.\")\n    end\n    Open77.vehicles.repair(seat.vehicleId, \"mechanical\")\nend, false)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1011,
   "permissions": [],
   "reasons": [],
@@ -25440,15 +25744,22 @@
   "namespace": "_G",
   "name": "GetPlayerWeapons",
   "handler": "GetPlayerWeapons",
-  "summary": "`GetPlayerWeapons`.",
-  "description": "`GetPlayerWeapons`.",
-  "params": [],
+  "summary": "Low-level alias of `Open77.weapons.get`.",
+  "description": "The low-level form of `Open77.weapons.get` (bound to the same native). The two are the same function under two names; `Open77.weapons.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.Weapons.cs",
   "example": "-- GetPlayerWeapons is the low-level form of Open77.weapons.get (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- The shop refuses a sale to a player who already carries a Lexington (cached view)\nlocal weapons = Open77.weapons.get(source)\nif weapons and weapons.activeRecord == \"Items.Preset_Lexington_Default\" then\n    return Open77.chat.send(source, \"You already have one.\")\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 40,
   "permissions": [],
   "reasons": [
@@ -25514,15 +25825,34 @@
   "namespace": "_G",
   "name": "GetPlayersNearby",
   "handler": "GetPlayersNearby",
-  "summary": "`GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of",
-  "description": "`GetPlayersNearby`, `GetPlayerDistance`, and `GetPlayerHoloCallEyes` (the read half of",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.nearby`.",
+  "description": "The low-level form of `Open77.players.nearby` (bound to the same native). The two are the same function under two names; `Open77.players.nearby` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "reason",
+    "type": "value",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "radius",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "options",
+    "type": "value",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.PlayerReads.cs",
   "example": "-- GetPlayersNearby is the low-level form of Open77.players.nearby (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\nfor _, witness in ipairs(Open77.players.nearby(robber, 40)) do\n  Open77.notifications.send(witness.playerId, { text = (\"%.0f m away\"):format(witness.distance) })\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 69,
   "permissions": [],
   "reasons": [
@@ -25557,15 +25887,22 @@
   "namespace": "_G",
   "name": "GetProp",
   "handler": "GetProp",
-  "summary": "`AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`.",
-  "description": "`AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`. The namespaced API supplies validation and structured",
-  "params": [],
+  "summary": "Low-level alias of `Open77.props.get`.",
+  "description": "The low-level form of `Open77.props.get` (bound to the same native). The two are the same function under two names; `Open77.props.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetProp is the low-level form of Open77.props.get (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Is the crate still there before paying for its pickup?\nlocal crate = Open77.props.get(crateId)\nif not crate then return Open77.chat.send(source, \"Somebody already took it.\") end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 977,
   "permissions": [],
   "reasons": [],
@@ -25577,15 +25914,22 @@
   "namespace": "_G",
   "name": "GetProps",
   "handler": "GetProps",
-  "summary": "`AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`.",
-  "description": "`AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`. The namespaced API supplies validation and structured",
-  "params": [],
+  "summary": "Low-level alias of `Open77.props.all`.",
+  "description": "The low-level form of `Open77.props.all` (bound to the same native). The two are the same function under two names; `Open77.props.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "bucket",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetProps is the low-level form of Open77.props.all (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Count the props in the event instance\nprint(#Open77.props.all(EVENT_BUCKET), \"props in the event\")",
-  "inferred": false,
+  "inferred": true,
   "source_line": 978,
   "permissions": [],
   "reasons": [],
@@ -25597,14 +25941,14 @@
   "namespace": "_G",
   "name": "GetRecordData",
   "handler": "GetRecordData",
-  "summary": "alias behind all four is `GetRecordData`, called as `GetRecordData(kind, record)`.",
-  "description": "alias behind all four is `GetRecordData`, called as `GetRecordData(kind, record)`.",
+  "summary": "Reads one row of the shipped 2.31 record catalogue: a vehicle, weapon, item or NPC.",
+  "description": "The single native behind `Open77.data.vehicle`, `.weapon`, `.item` and `.npc`, called as `GetRecordData(kind, record)` where `kind` is one of those four names. `record` is a TweakDB **string**, never a Jenkins hash, and is refused over 256 characters. The answer is a table of the catalogue's columns plus `kind`, `source = \"catalogue\"` and `build = \"2.31\"`; an empty cell is absent rather than an empty string, so `row.displayName or row.record` works. Answers `nil, reason` -- `invalid_kind`, `invalid_record`, `record_unknown`. Display names are not localised here: send `localeKey` to a client and localise it there.",
   "params": [],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.Data.cs",
-  "example": "",
+  "example": "-- Refuse to sell a vehicle the 2.31 catalogue does not know.\nRegisterNetEvent(\"shop:buy\", function(record)\n    local row, reason = GetRecordData(\"vehicle\", record)\n    if not row then\n        return Open77.chat.send(source, \"Unknown vehicle: \" .. tostring(reason))\n    end\n    print((\"%s, %d seats, from the %s catalogue\"):format(\n        row.displayName or row.record, row.seats or 0, row.source))\nend)",
   "inferred": false,
   "source_line": 42,
   "permissions": [],
@@ -25863,11 +26207,11 @@
   "namespace": "_G",
   "name": "GetVehicle",
   "handler": "GetVehicle",
-  "summary": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
-  "description": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
+  "summary": "Low-level alias of `Open77.vehicles.get`.",
+  "description": "The low-level form of `Open77.vehicles.get` (bound to the same native). The two are the same function under two names; `Open77.vehicles.get` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -25878,7 +26222,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetVehicle is the low-level form of Open77.vehicles.get (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Speed camera: check every car's speed once a second\nCreateThread(function()\n    while true do\n        Wait(1000)\n        for _, entry in ipairs(Open77.vehicles.all()) do\n            local car = Open77.vehicles.get(entry.id)\n            if car and car.speedKph > 120 and car.driverPlayerId then\n                Open77.chat.send(car.driverPlayerId, (\"Slow down! %.0f km/h\"):format(car.speedKph))\n            end\n        end\n    end\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1002,
   "permissions": [],
   "reasons": [],
@@ -25890,11 +26234,11 @@
   "namespace": "_G",
   "name": "GetVehicles",
   "handler": "GetVehicles",
-  "summary": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
-  "description": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
+  "summary": "Low-level alias of `Open77.vehicles.all`.",
+  "description": "The low-level form of `Open77.vehicles.all` (bound to the same native). The two are the same function under two names; `Open77.vehicles.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
@@ -25905,7 +26249,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GetVehicles is the low-level form of Open77.vehicles.all (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- /cars: how many server vehicles exist, and how many in the caller's bucket\nRegisterCommand(\"cars\", function(source)\n    local everywhere = Open77.vehicles.all()\n    local here = Open77.vehicles.all(Open77.players.get(source).bucket)\n    Open77.chat.send(source, (\"%d vehicles on the server, %d in your instance\"):format(#everywhere, #here))\nend, true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1003,
   "permissions": [],
   "reasons": [],
@@ -25939,29 +26283,29 @@
   "namespace": "_G",
   "name": "GoToElevator",
   "handler": "GoToElevator",
-  "summary": "`GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,",
-  "description": "`GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,",
+  "summary": "Low-level alias of `Open77.elevators.goTo`.",
+  "description": "The low-level form of `Open77.elevators.goTo` (wrapped by). The two are the same function under two names; `Open77.elevators.goTo` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "floor",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "travelMilliseconds",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "force",
     "type": "boolean",
     "optional": true,
     "default": null
@@ -25972,7 +26316,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- GoToElevator is the low-level form of Open77.elevators.goTo (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- A slow freight lift: 15 seconds to the top floor\nOpen77.elevators.goTo(elevatorId, 11, { travelMs = 15000 })",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1035,
   "permissions": [],
   "reasons": [],
@@ -25984,15 +26328,28 @@
   "namespace": "_G",
   "name": "HealPlayer",
   "handler": "HealPlayer",
-  "summary": "`RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,",
-  "description": "`RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.heal`.",
+  "description": "The low-level form of `Open77.players.heal` (bound to the same native). The two are the same function under two names; `Open77.players.heal` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "amount",
+    "type": "number",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- HealPlayer is the low-level form of Open77.players.heal (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- A medkit pickup heals 50 points\nRegisterNetEvent(\"shop:useMedkit\", function()\n    Open77.players.heal(source, 50)\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1069,
   "permissions": [
    "players.stats.apply"
@@ -26065,15 +26422,22 @@
   "namespace": "_G",
   "name": "IsPlayerDead",
   "handler": "IsPlayerDead",
-  "summary": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "description": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.isDead`.",
+  "description": "The low-level form of `Open77.players.isDead` (bound to the same native). The two are the same function under two names; `Open77.players.isDead` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- IsPlayerDead is the low-level form of Open77.players.isDead (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- A dead player cannot use the shop\nRegisterCommand(\"shop\", function(source)\n    if Open77.players.isDead(source) then\n        return Open77.chat.send(source, \"You are in no state to shop.\")\n    end\n    openShop(source)\nend, false)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1044,
   "permissions": [],
   "reasons": [],
@@ -26203,17 +26567,17 @@
   "namespace": "_G",
   "name": "KillNpc",
   "handler": "KillNpc",
-  "summary": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
-  "description": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
+  "summary": "Low-level alias of `Open77.npcs.kill`.",
+  "description": "The low-level form of `Open77.npcs.kill` (bound to the same native). The two are the same function under two names; `Open77.npcs.kill` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "reason",
     "type": "string",
     "optional": false,
     "default": null
@@ -26223,8 +26587,8 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
-  "inferred": false,
+  "example": "-- KillNpc is the low-level form of Open77.npcs.kill (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- /killnpc <id>\nRegisterCommand(\"killnpc\", function(source, args)\n    local npcId = tonumber(args[1])\n    if npcId then Open77.npcs.kill(npcId) end\nend, true)",
+  "inferred": true,
   "source_line": 1024,
   "permissions": [],
   "reasons": [],
@@ -26236,14 +26600,57 @@
   "namespace": "_G",
   "name": "KillPlayer",
   "handler": "KillPlayer",
-  "summary": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "description": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "params": [],
+  "summary": "Kills a player where they stand and answers whether the life ledger accepted it.",
+  "description": "The all-positional form of `Open77.players.kill`. `cause` must be one of `firearm`, `melee`, `explosion`, `fall`, `vehicle`, `environment`, `script`, `unknown` -- anything else is `invalid_argument`, so a label like `\"admin\"` does not work here. `killer` may be `nil` or `0` for no killer, `weapon` defaults to `resource:<your resource>`, and the optional impulse is capped at 1000 per axis. Answers `false, reason` (`player_not_found`, `invalid_argument`, `permission_denied:players.life.kill`). Requires `players.life.kill`.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "killer",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "causeName",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "weapon",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "impulseX",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "impulseY",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "impulseZ",
+    "type": "number",
+    "optional": true,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- /slay <id>: an admin kills a player, blaming the script.\nRegisterCommand(\"slay\", function(source, args)\n    local target = tonumber(args[1])\n    if not target then return end\n    local ok, reason = KillPlayer(target, source, \"script\", \"admin command\")\n    if not ok then print((\"slay refused: %s\"):format(tostring(reason))) end\nend, true)",
   "inferred": false,
   "source_line": 1045,
   "permissions": [
@@ -26295,11 +26702,11 @@
   "namespace": "_G",
   "name": "PauseElevator",
   "handler": "PauseElevator",
-  "summary": "`GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,",
-  "description": "`GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,",
+  "summary": "Low-level alias of `Open77.elevators.pause`.",
+  "description": "The low-level form of `Open77.elevators.pause` (bound to the same native). The two are the same function under two names; `Open77.elevators.pause` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -26310,7 +26717,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- PauseElevator is the low-level form of Open77.elevators.pause (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Power cut: every lift stops where it is\nfor _, lift in ipairs(Open77.elevators.all()) do Open77.elevators.pause(lift.id) end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1037,
   "permissions": [],
   "reasons": [],
@@ -26488,14 +26895,81 @@
   "namespace": "_G",
   "name": "PlayEffect",
   "handler": "PlayEffect",
-  "summary": "Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,",
-  "description": "Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,",
-  "params": [],
+  "summary": "Plays a one-shot particle effect at a world point for everyone in range.",
+  "description": "The all-positional form of `Open77.effects.play`. Unlike `CreateEffect` nothing is registered: the burst plays once on every client within `range` metres of the point and is gone, so there is no id to remove. The orientation is a quaternion. An optional `sound` event plays with it. Answers `true`, or `nil, reason` on `invalid_position` or an unknown effect. Requires `world.effects`.",
+  "params": [
+   {
+    "name": "name",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "x",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "y",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "z",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "qx",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "qy",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "qz",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "qw",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "bucket",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "range",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "sound",
+    "type": "string",
+    "optional": true,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- Sparks and a clunk where a lockpick failed.\nRegisterNetEvent(\"lockpick:failed\", function()\n    local me = Open77.players.position(source)\n    if not me then return end\n    local ok, reason = PlayEffect(\n        \"sparks.burst.small\", me.x, me.y, me.z,   -- name, x, y, z\n        0.0, 0.0, 0.0, 1.0,                       -- quaternion: no rotation\n        0, 50.0,                                  -- bucket, range in metres\n        nil)                                      -- optional sound event\n    if not ok then print(\"sparks refused: \" .. tostring(reason)) end\nend)",
   "inferred": false,
   "source_line": 980,
   "permissions": [
@@ -26515,12 +26989,42 @@
   "namespace": "_G",
   "name": "PlayEntityEffect",
   "handler": "PlayEntityEffect",
-  "summary": "`GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`.",
-  "description": "`GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`. The namespaced API",
+  "summary": "Low-level alias of `Open77.effects.playOn`.",
+  "description": "The low-level form of `Open77.effects.playOn` (wrapped by). The two are the same function under two names; `Open77.effects.playOn` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg4",
+    "name": "target",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "name",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "duration",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "loop",
     "type": "boolean",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "slot",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "targetKind",
+    "type": "string",
     "optional": true,
     "default": null
    }
@@ -26530,7 +27034,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- PlayEntityEffect is the low-level form of Open77.effects.playOn (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\nlocal ok, err = Open77.effects.playOn({kind=\"player\",id=tostring(playerId)}, nativeEvent, {duration=1})\nif not ok then print(err) end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 986,
   "permissions": [
    "world.effects"
@@ -26548,13 +27052,49 @@
   "namespace": "_G",
   "name": "PlayEntitySound",
   "handler": "PlayEntitySound",
-  "summary": "`GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`.",
-  "description": "`GetEffect`, `GetEffects`, `PlayEntityEffect`, and `PlayEntitySound`. The namespaced API",
+  "summary": "Plays a sound event on an entity, so it follows that entity instead of a fixed point.",
+  "description": "The all-positional form of `Open77.effects.sound`. `targetKind` says what the id names and defaults to `\"player\"`; `unique` (third argument) stops the same `actionId` playing twice over itself; `duration` defaults to 5 seconds. The seventh argument is a table of player ids who will not hear it. Answers `true`, or `nil, reason` -- `invalid_sound_exclusions` when that table is malformed. Requires `world.effects`.",
   "params": [
    {
-    "name": "arg3",
+    "name": "target",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "soundEvent",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "unique",
     "type": "boolean",
     "optional": true,
+    "default": null
+   },
+   {
+    "name": "targetKind",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "duration",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "actionId",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "excluded",
+    "type": "value",
+    "optional": false,
     "default": null
    }
   ],
@@ -26562,7 +27102,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- The ripperdoc's drill, heard by everyone near the patient except the\n-- patient, who gets their own first-person cue from the client side.\nlocal ok, reason = PlayEntitySound(\n    patientId, \"ono_v_effort_short\",   -- target, sound event\n    true, \"player\",                    -- unique, targetKind\n    4.0, \"ripper.drill\",               -- duration seconds, actionId\n    { patientId })                     -- players who do not hear it\nif not ok then print(\"sound refused: \" .. tostring(reason)) end",
   "inferred": false,
   "source_line": 988,
   "permissions": [
@@ -26761,15 +27301,28 @@
   "namespace": "_G",
   "name": "RemoveEffect",
   "handler": "RemoveEffect",
-  "summary": "Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,",
-  "description": "Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.effects.remove`.",
+  "description": "The low-level form of `Open77.effects.remove` (bound to the same native). The two are the same function under two names; `Open77.effects.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "reason",
+    "type": "string",
+    "optional": true,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- RemoveEffect is the low-level form of Open77.effects.remove (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- The firefighters put the fire out\nOpen77.effects.remove(fireId)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 983,
   "permissions": [
    "world.effects"
@@ -26783,11 +27336,11 @@
   "namespace": "_G",
   "name": "RemoveElevator",
   "handler": "RemoveElevator",
-  "summary": "`RemoveElevator`, `GetElevator`, and `GetElevators`.",
-  "description": "`RemoveElevator`, `GetElevator`, and `GetElevators`. See [elevators](elevators.md).",
+  "summary": "Low-level alias of `Open77.elevators.remove`.",
+  "description": "The low-level form of `Open77.elevators.remove` (bound to the same native). The two are the same function under two names; `Open77.elevators.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -26798,7 +27351,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- RemoveElevator is the low-level form of Open77.elevators.remove (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Hand the lift back to the engine when the resource no longer needs it\nOpen77.elevators.remove(elevatorId)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1040,
   "permissions": [],
   "reasons": [],
@@ -26837,11 +27390,11 @@
   "namespace": "_G",
   "name": "RemoveLootDrop",
   "handler": "RemoveLootDrop",
-  "summary": "and `ttlMs`.",
-  "description": "and `ttlMs`. Low-level aliases are `CreateLootDrop`, `UpdateLootDrop`, `RemoveLootDrop`,",
+  "summary": "Low-level alias of `Open77.loot.remove`.",
+  "description": "The low-level form of `Open77.loot.remove` (bound to the same native). The two are the same function under two names; `Open77.loot.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -26852,7 +27405,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- RemoveLootDrop is the low-level form of Open77.loot.remove (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Round over: clear the leftover drops\nfor _, drop in ipairs(Open77.loot.all(ARENA_BUCKET)) do Open77.loot.remove(drop.id) end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 991,
   "permissions": [],
   "reasons": [],
@@ -26864,11 +27417,11 @@
   "namespace": "_G",
   "name": "RemoveNpc",
   "handler": "RemoveNpc",
-  "summary": "Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,",
-  "description": "Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,",
+  "summary": "Low-level alias of `Open77.npcs.remove`.",
+  "description": "The low-level form of `Open77.npcs.remove` (bound to the same native). The two are the same function under two names; `Open77.npcs.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -26878,8 +27431,8 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
-  "inferred": false,
+  "example": "-- RemoveNpc is the low-level form of Open77.npcs.remove (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Clean up every NPC this resource spawned when the event ends\nAddEventHandler(\"event:ended\", function()\n    for _, npcId in ipairs(spawned) do Open77.npcs.remove(npcId) end\n    spawned = {}\nend)",
+  "inferred": true,
   "source_line": 1016,
   "permissions": [],
   "reasons": [],
@@ -26891,15 +27444,28 @@
   "namespace": "_G",
   "name": "RemoveProp",
   "handler": "RemoveProp",
-  "summary": "`AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`.",
-  "description": "`AttachProp`, `DetachProp`, `RemoveProp`, `GetProp`, `GetProps`, and `ClearProps`. The namespaced API supplies validation and structured",
-  "params": [],
+  "summary": "Low-level alias of `Open77.props.remove`.",
+  "description": "The low-level form of `Open77.props.remove` (bound to the same native). The two are the same function under two names; `Open77.props.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "reason",
+    "type": "string",
+    "optional": true,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- RemoveProp is the low-level form of Open77.props.remove (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- The player picked up the crate\nRegisterNetEvent(\"crates:pickup\", function(crateId)\n    if Open77.props.remove(crateId) then giveReward(source) end\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 976,
   "permissions": [
    "world.props"
@@ -26943,11 +27509,11 @@
   "namespace": "_G",
   "name": "RemoveVehicle",
   "handler": "RemoveVehicle",
-  "summary": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
-  "description": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
+  "summary": "Low-level alias of `Open77.vehicles.remove`.",
+  "description": "The low-level form of `Open77.vehicles.remove` (bound to the same native). The two are the same function under two names; `Open77.vehicles.remove` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -26958,7 +27524,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- RemoveVehicle is the low-level form of Open77.vehicles.remove (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- /dv: delete the vehicle the caller is sitting in\nRegisterCommand(\"dv\", function(source)\n    local seat = Open77.vehicles.getPlayerSeat(source)\n    if not seat then return Open77.chat.send(source, \"You are not in a vehicle.\") end\n    Open77.vehicles.remove(seat.vehicleId)\nend, true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1001,
   "permissions": [],
   "reasons": [],
@@ -26970,15 +27536,22 @@
   "namespace": "_G",
   "name": "RequestPlayerLifeResync",
   "handler": "RequestPlayerLifeResync",
-  "summary": "`RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,",
-  "description": "`RequestPlayerLifeResync`, `GetPlayerHealth`, `DamagePlayer`, `HealPlayer`, `SetPlayerHealth`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.requestLifeResync`.",
+  "description": "The low-level form of `Open77.players.requestLifeResync` (bound to the same native). The two are the same function under two names; `Open77.players.requestLifeResync` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- RequestPlayerLifeResync is the low-level form of Open77.players.requestLifeResync (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- A player reports \"I look dead but I am alive\": push the canonical state again\nRegisterCommand(\"resync\", function(source)\n    Open77.players.requestLifeResync(source)\nend, false)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1050,
   "permissions": [
    "players.life.resync"
@@ -26992,11 +27565,11 @@
   "namespace": "_G",
   "name": "ResetVehiclePaint",
   "handler": "ResetVehiclePaint",
-  "summary": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
-  "description": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
+  "summary": "Drops a custom paint job and returns the vehicle to its record's own colours.",
+  "description": "The all-positional form of `Open77.vehicles.resetPaint`, and the undo of `SetVehiclePaint`. Answers a plain `true`/`false` with no reason: `false` covers an unknown vehicle and a missing `world.vehicles` permission alike. A vehicle that was never repainted answers `true` and changes nothing.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -27006,7 +27579,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- /unpaint <id>: hand a vehicle back its factory colours.\nRegisterCommand(\"unpaint\", function(source, args)\n    local id = tonumber(args[1])\n    if id and not ResetVehiclePaint(id) then\n        Open77.chat.send(source, \"No such vehicle, or not ours.\")\n    end\nend, true)",
   "inferred": false,
   "source_line": 997,
   "permissions": [],
@@ -27019,14 +27592,63 @@
   "namespace": "_G",
   "name": "RespawnPlayer",
   "handler": "RespawnPlayer",
-  "summary": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "description": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "params": [],
+  "summary": "Brings a dead player back at a chosen pose, bucket and health.",
+  "description": "The all-positional form of `Open77.players.respawn`. All eight arguments are required: position, `yaw`, `bucket`, `health` and a spawn-protection `graceMs` which must be between 0 and 60000. A successful respawn also moves the player's routing bucket, so this is the one call to make rather than respawning and then re-bucketing. Answers `false, reason` (`invalid_argument`, `player_not_found`, a life-ledger reason). Requires `players.life.respawn`.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "x",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "y",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "z",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "yaw",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "bucket",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "health",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "grace",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- Respawn anyone who dies at the clinic, with five seconds of protection.\nAddEventHandler(\"open77:playerDied\", function(playerId)\n    local ok, reason = RespawnPlayer(\n        playerId, -1442.2, 127.4, 18.0, 180.0,   -- player, x, y, z, yaw\n        0, 100.0, 5000)                          -- bucket, health, graceMs\n    if not ok then print((\"respawn refused: %s\"):format(tostring(reason))) end\nend)",
   "inferred": false,
   "source_line": 1047,
   "permissions": [
@@ -27099,11 +27721,11 @@
   "namespace": "_G",
   "name": "ResumeElevator",
   "handler": "ResumeElevator",
-  "summary": "`GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,",
-  "description": "`GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,",
+  "summary": "Low-level alias of `Open77.elevators.resume`.",
+  "description": "The low-level form of `Open77.elevators.resume` (bound to the same native). The two are the same function under two names; `Open77.elevators.resume` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
@@ -27114,7 +27736,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- ResumeElevator is the low-level form of Open77.elevators.resume (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Power is back\nfor _, lift in ipairs(Open77.elevators.all()) do Open77.elevators.resume(lift.id) end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1038,
   "permissions": [],
   "reasons": [],
@@ -27126,17 +27748,17 @@
   "namespace": "_G",
   "name": "ReviveNpc",
   "handler": "ReviveNpc",
-  "summary": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
-  "description": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
+  "summary": "Low-level alias of `Open77.npcs.revive`.",
+  "description": "The low-level form of `Open77.npcs.revive` (wrapped by). The two are the same function under two names; `Open77.npcs.revive` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "health",
     "type": "number",
     "optional": false,
     "default": null
@@ -27146,8 +27768,8 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
-  "inferred": false,
+  "example": "-- ReviveNpc is the low-level form of Open77.npcs.revive (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- The medic revives the fallen bodyguard at half health\nOpen77.npcs.revive(bodyguardId, 50)",
+  "inferred": true,
   "source_line": 1025,
   "permissions": [],
   "reasons": [],
@@ -27159,15 +27781,34 @@
   "namespace": "_G",
   "name": "RevivePlayer",
   "handler": "RevivePlayer",
-  "summary": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "description": "`GetPlayersInBucket`, `GetPlayersPositions`, `DropPlayer`, `BanPlayer`, `GetPlayerLifeState`, `IsPlayerDead`, `KillPlayer`, `RevivePlayer`, `RespawnPlayer`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.revive`.",
+  "description": "The low-level form of `Open77.players.revive` (wrapped by). The two are the same function under two names; `Open77.players.revive` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "health",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "grace",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- RevivePlayer is the low-level form of Open77.players.revive (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- A medic revives a downed player nearby\nRegisterCommand(\"revive\", function(source)\n    local patient = Open77.players.closest(source, { radius = 3 })\n    if not patient or not Open77.players.isDead(patient.playerId) then\n        return Open77.chat.send(source, \"Nobody to revive here.\")\n    end\n    Open77.players.revive(patient.playerId, { health = 0.3, graceMs = 5000 })\nend, false)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1046,
   "permissions": [
    "players.life.revive"
@@ -27259,15 +27900,22 @@
   "namespace": "_G",
   "name": "SetCombatDamageMultiplier",
   "handler": "SetCombatDamageMultiplier",
-  "summary": "Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,",
-  "description": "Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.combat.setDamageMultiplier`.",
+  "description": "The low-level form of `Open77.combat.setDamageMultiplier` (bound to the same native). The two are the same function under two names; `Open77.combat.setDamageMultiplier` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "multiplier",
+    "type": "number",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetCombatDamageMultiplier is the low-level form of Open77.combat.setDamageMultiplier (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- /dmg <factor>: an admin halves or doubles all damage for the round\nRegisterCommand(\"dmg\", function(source, args)\n    local factor = tonumber(args[1])\n    if factor then Open77.combat.setDamageMultiplier(factor) end\nend, true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1085,
   "permissions": [
    "combat.config"
@@ -27281,11 +27929,11 @@
   "namespace": "_G",
   "name": "SetCombatFriendlyFire",
   "handler": "SetCombatFriendlyFire",
-  "summary": "Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,",
-  "description": "Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,",
+  "summary": "Low-level alias of `Open77.combat.setFriendlyFire`.",
+  "description": "The low-level form of `Open77.combat.setFriendlyFire` (bound to the same native). The two are the same function under two names; `Open77.combat.setFriendlyFire` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "enabled",
     "type": "boolean",
     "optional": true,
     "default": null
@@ -27296,7 +27944,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetCombatFriendlyFire is the low-level form of Open77.combat.setFriendlyFire (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- PvP is on everywhere on this server\nOpen77.combat.setFriendlyFire(true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1083,
   "permissions": [
    "combat.config"
@@ -27310,15 +27958,22 @@
   "namespace": "_G",
   "name": "SetCombatHeadshotMultiplier",
   "handler": "SetCombatHeadshotMultiplier",
-  "summary": "`SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.",
-  "description": "`SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.",
-  "params": [],
+  "summary": "Low-level alias of `Open77.combat.setHeadshotMultiplier`.",
+  "description": "The low-level form of `Open77.combat.setHeadshotMultiplier` (bound to the same native). The two are the same function under two names; `Open77.combat.setHeadshotMultiplier` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "multiplier",
+    "type": "number",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetCombatHeadshotMultiplier is the low-level form of Open77.combat.setHeadshotMultiplier (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- A \"one in the head\" round: headshots do five times the damage\nOpen77.combat.setHeadshotMultiplier(5)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1086,
   "permissions": [
    "combat.config"
@@ -27332,15 +27987,28 @@
   "namespace": "_G",
   "name": "SetCombatKindMultiplier",
   "handler": "SetCombatKindMultiplier",
-  "summary": "`SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.",
-  "description": "`SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.",
-  "params": [],
+  "summary": "Low-level alias of `Open77.combat.setKindDamageMultiplier`.",
+  "description": "The low-level form of `Open77.combat.setKindDamageMultiplier` (bound to the same native). The two are the same function under two names; `Open77.combat.setKindDamageMultiplier` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "kindName",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "multiplier",
+    "type": "number",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetCombatKindMultiplier is the low-level form of Open77.combat.setKindDamageMultiplier (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Fists-only round: guns and explosions do nothing, melee does double\nOpen77.combat.setKindDamageMultiplier(\"ranged\", 0)\nOpen77.combat.setKindDamageMultiplier(\"explosion\", 0)\nOpen77.combat.setKindDamageMultiplier(\"melee\", 2)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1088,
   "permissions": [
    "combat.config"
@@ -27354,15 +28022,28 @@
   "namespace": "_G",
   "name": "SetCombatTeam",
   "handler": "SetCombatTeam",
-  "summary": "Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,",
-  "description": "Low-level aliases are `SetCombatFriendlyFire`, `SetCombatTeam`, `SetCombatDamageMultiplier`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.combat.setTeam`.",
+  "description": "The low-level form of `Open77.combat.setTeam` (bound to the same native). The two are the same function under two names; `Open77.combat.setTeam` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "team",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetCombatTeam is the low-level form of Open77.combat.setTeam (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Split the arena players into two teams; team-mates cannot hurt each other\nfor i, playerId in ipairs(Open77.players.inBucket(ARENA_BUCKET)) do\n    Open77.combat.setTeam(playerId, (i % 2) + 1)\nend",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1084,
   "permissions": [
    "combat.config"
@@ -27376,15 +28057,28 @@
   "namespace": "_G",
   "name": "SetCombatWeaponMultiplier",
   "handler": "SetCombatWeaponMultiplier",
-  "summary": "`SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.",
-  "description": "`SetCombatHeadshotMultiplier`, `SetCombatWeaponMultiplier`, and `SetCombatKindMultiplier`.",
-  "params": [],
+  "summary": "Low-level alias of `Open77.combat.setWeaponDamageMultiplier`.",
+  "description": "The low-level form of `Open77.combat.setWeaponDamageMultiplier` (bound to the same native). The two are the same function under two names; `Open77.combat.setWeaponDamageMultiplier` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "weaponTdbId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "multiplier",
+    "type": "number",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetCombatWeaponMultiplier is the low-level form of Open77.combat.setWeaponDamageMultiplier (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- The Lexington is a training pistol here: a quarter of its damage\nOpen77.combat.setWeaponDamageMultiplier(\"Items.Preset_Lexington_Default\", 0.25)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1087,
   "permissions": [
    "combat.config"
@@ -27434,17 +28128,17 @@
   "namespace": "_G",
   "name": "SetElevatorFlags",
   "handler": "SetElevatorFlags",
-  "summary": "`GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,",
-  "description": "`GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,",
+  "summary": "Low-level alias of `Open77.elevators.setFlags`.",
+  "description": "The low-level form of `Open77.elevators.setFlags` (bound to the same native). The two are the same function under two names; `Open77.elevators.setFlags` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "flags",
     "type": "integer",
     "optional": false,
     "default": null
@@ -27455,7 +28149,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetElevatorFlags is the low-level form of Open77.elevators.setFlags (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Lock the lift for the heist: keep it powered but not usable\nlocal f = Open77.elevators.flags\nOpen77.elevators.setFlags(elevatorId, f.powered | f.locked)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1039,
   "permissions": [],
   "reasons": [],
@@ -27510,17 +28204,17 @@
   "namespace": "_G",
   "name": "SetEntityRoutingBucket",
   "handler": "SetEntityRoutingBucket",
-  "summary": "`GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and",
-  "description": "`GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and",
+  "summary": "Low-level alias of `Open77.routingBuckets.setEntity`.",
+  "description": "The low-level form of `Open77.routingBuckets.setEntity` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.setEntity` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "entityId",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
@@ -27531,7 +28225,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetEntityRoutingBucket is the low-level form of Open77.routingBuckets.setEntity (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Move the entity into the arena instance\nOpen77.routingBuckets.setEntity(entityId, ARENA_BUCKET)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 922,
   "permissions": [],
   "reasons": [],
@@ -27573,37 +28267,37 @@
   "namespace": "_G",
   "name": "SetNpcAttitude",
   "handler": "SetNpcAttitude",
-  "summary": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
-  "description": "`KillNpc`, `ReviveNpc`, `DamageNpc`, `GetNpcTemplates`, `SetNpcAttitude`, `GetNpcAttitude`,",
+  "summary": "Sets how one owned NPC feels about everyone, one player, one NPC, or a group.",
+  "description": "The all-positional form of `Open77.npcs.setAttitude`. `scope` picks which of the two trailing arguments is read: `0` everyone (neither), `1` a player id and `2` an NPC id (`targetId`), `3` a group name (`group`). `attitude` is a token (`\"friendly\"`, `\"neutral\"`, `\"hostile\"`) and `nil` clears the row back to the default. Answers `false, reason` -- `npc_attitude_invalid`, `npc_attitude_target_invalid`, `npc_not_found`. Requires `world.npcs`.",
   "params": [
    {
-    "name": "arg1",
+    "name": "npcId",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "attitude",
     "type": "string",
-    "optional": false,
+    "optional": true,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "scope",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "targetId",
     "type": "integer",
-    "optional": false,
+    "optional": true,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "group",
     "type": "string",
-    "optional": false,
+    "optional": true,
     "default": null
    }
   ],
@@ -27611,7 +28305,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- A bodyguard hostile to everyone by default, but never to its client.\nlocal ok, reason = SetNpcAttitude(guardId, \"hostile\", 0)      -- scope 0: everyone\nif not ok then return print(\"attitude refused: \" .. tostring(reason)) end\nSetNpcAttitude(guardId, \"friendly\", 1, clientPlayerId)        -- scope 1: one player\nSetNpcAttitude(guardId, \"friendly\", 3, nil, \"valentinos\")     -- scope 3: a group",
   "inferred": false,
   "source_line": 1028,
   "permissions": [
@@ -27632,17 +28326,17 @@
   "namespace": "_G",
   "name": "SetNpcBucket",
   "handler": "SetNpcBucket",
-  "summary": "Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,",
-  "description": "Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,",
+  "summary": "Low-level alias of `Open77.npcs.setBucket`.",
+  "description": "The low-level form of `Open77.npcs.setBucket` (bound to the same native). The two are the same function under two names; `Open77.npcs.setBucket` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
@@ -27652,8 +28346,8 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
-  "inferred": false,
+  "example": "-- SetNpcBucket is the low-level form of Open77.npcs.setBucket (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Move the arena boss into the arena instance\nOpen77.npcs.setBucket(bossId, ARENA_BUCKET)",
+  "inferred": true,
   "source_line": 1015,
   "permissions": [],
   "reasons": [],
@@ -27665,17 +28359,17 @@
   "namespace": "_G",
   "name": "SetNpcGroup",
   "handler": "SetNpcGroup",
-  "summary": "`SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`.",
-  "description": "`SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`. See",
+  "summary": "Low-level alias of `Open77.npcs.setGroup`.",
+  "description": "The low-level form of `Open77.npcs.setGroup` (bound to the same native). The two are the same function under two names; `Open77.npcs.setGroup` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "group",
     "type": "string",
     "optional": false,
     "default": null
@@ -27686,7 +28380,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetNpcGroup is the low-level form of Open77.npcs.setGroup (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Two spawned gang members become allies through a shared group\nOpen77.npcs.setGroup(firstId, \"maelstrom\")\nOpen77.npcs.setGroup(secondId, \"maelstrom\")",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1030,
   "permissions": [
    "world.npcs"
@@ -27704,23 +28398,23 @@
   "namespace": "_G",
   "name": "SetNpcRelationship",
   "handler": "SetNpcRelationship",
-  "summary": "`SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`.",
-  "description": "`SetNpcGroup`, `SetNpcRelationship`, `GetNpcRelationship`, and `GetNpcTarget`. See",
+  "summary": "Low-level alias of `Open77.npcs.setRelationship`.",
+  "description": "The low-level form of `Open77.npcs.setRelationship` (bound to the same native). The two are the same function under two names; `Open77.npcs.setRelationship` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "first",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "second",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "attitude",
     "type": "string",
     "optional": false,
     "default": null
@@ -27731,7 +28425,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetNpcRelationship is the low-level form of Open77.npcs.setRelationship (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Gang war: every Maelstrom NPC this resource owns hates every Valentino\nOpen77.npcs.setRelationship(\"maelstrom\", \"valentinos\", \"hostile\")",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1031,
   "permissions": [
    "world.npcs"
@@ -27750,35 +28444,35 @@
   "namespace": "_G",
   "name": "SetNpcTransform",
   "handler": "SetNpcTransform",
-  "summary": "Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,",
-  "description": "Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,",
+  "summary": "Low-level alias of `Open77.npcs.setTransform`.",
+  "description": "The low-level form of `Open77.npcs.setTransform` (wrapped by). The two are the same function under two names; `Open77.npcs.setTransform` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "x",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "y",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "z",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "yaw",
     "type": "number",
     "optional": false,
     "default": null
@@ -27788,8 +28482,8 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
-  "inferred": false,
+  "example": "-- SetNpcTransform is the low-level form of Open77.npcs.setTransform (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Teleport the shopkeeper back behind the counter\nOpen77.npcs.setTransform(shopkeeperId, { position = counter, yaw = 180.0 })",
+  "inferred": true,
   "source_line": 1014,
   "permissions": [],
   "reasons": [],
@@ -27801,15 +28495,28 @@
   "namespace": "_G",
   "name": "SetPlayerArmor",
   "handler": "SetPlayerArmor",
-  "summary": "`SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,",
-  "description": "`SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.players.setArmor`.",
+  "description": "The low-level form of `Open77.players.setArmor` (bound to the same native). The two are the same function under two names; `Open77.players.setArmor` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "armor",
+    "type": "number",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetPlayerArmor is the low-level form of Open77.players.setArmor (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Buying a vest at the shop\nRegisterNetEvent(\"shop:buyArmor\", function()\n    Open77.players.setArmor(source, 100)\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1073,
   "permissions": [
    "players.stats.apply"
@@ -27934,11 +28641,17 @@
   "namespace": "_G",
   "name": "SetPlayerGodMode",
   "handler": "SetPlayerGodMode",
-  "summary": "`SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,",
-  "description": "`SetPlayerMaxHealth`, `SetPlayerArmor`, `SetPlayerGodMode`, `SetPlayerRegen`, `GetPlayerRead`,",
+  "summary": "Low-level alias of `Open77.players.setGodMode`.",
+  "description": "The low-level form of `Open77.players.setGodMode` (bound to the same native). The two are the same function under two names; `Open77.players.setGodMode` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg2",
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "enabled",
     "type": "boolean",
     "optional": true,
     "default": null
@@ -27949,7 +28662,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetPlayerGodMode is the low-level form of Open77.players.setGodMode (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- /god toggles invulnerability for an admin\nRegisterCommand(\"god\", function(source)\n    godMode[source] = not godMode[source]\n    Open77.players.setGodMode(source, godMode[source])\n    Open77.chat.send(source, godMode[source] and \"God mode on.\" or \"God mode off.\")\nend, true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1074,
   "permissions": [
    "players.stats.apply"
@@ -27998,14 +28711,51 @@
   "namespace": "_G",
   "name": "SetPlayerIntoVehicle",
   "handler": "SetPlayerIntoVehicle",
-  "summary": "Vehicle-seat low-level aliases are `SetPlayerIntoVehicle`, `ForcePlayerOutOfVehicle`,",
-  "description": "Vehicle-seat low-level aliases are `SetPlayerIntoVehicle`, `ForcePlayerOutOfVehicle`,",
-  "params": [],
+  "summary": "Teleports a player straight into a seat, moving their bucket to the vehicle's.",
+  "description": "The all-positional form of `Open77.vehicles.setPlayerIntoVehicle`. Seats use FiveM's numbering: `-1` driver, `0` front passenger, `1` and `2` the rear. `moveBucket` defaults to true -- pass false and a player in another bucket is refused `wrong_bucket` instead of being moved. `animated` false is the instant snap. A dead or respawning player is refused `player_unavailable`. Other refusals are `vehicle_not_found`, `invalid_seat` and a seat already taken. Requires `world.vehicles`.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "vehicleId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "seat",
+    "type": "value",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "moveBucketValue",
+    "type": "boolean",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "exitLockedValue",
+    "type": "boolean",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "animatedValue",
+    "type": "boolean",
+    "optional": true,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- /taxi: drop the caller into the driver's seat of the nearest cab.\nRegisterCommand(\"taxi\", function(source)\n    local ok, reason = SetPlayerIntoVehicle(\n        source, cabId, -1,      -- player, vehicle, seat -1 = driver\n        true, false, false)     -- moveBucket, exitLocked, animated\n    if not ok then Open77.chat.send(source, \"No ride: \" .. tostring(reason)) end\nend, true)",
   "inferred": false,
   "source_line": 1008,
   "permissions": [
@@ -28160,17 +28910,17 @@
   "namespace": "_G",
   "name": "SetPlayerRoutingBucket",
   "handler": "SetPlayerRoutingBucket",
-  "summary": "The corresponding globals are `GetPlayerRoutingBucket`, `SetPlayerRoutingBucket`,",
-  "description": "The corresponding globals are `GetPlayerRoutingBucket`, `SetPlayerRoutingBucket`,",
+  "summary": "Low-level alias of `Open77.routingBuckets.setPlayer`.",
+  "description": "The low-level form of `Open77.routingBuckets.setPlayer` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.setPlayer` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "playerId",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
@@ -28181,7 +28931,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetPlayerRoutingBucket is the low-level form of Open77.routingBuckets.setPlayer (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Each apartment is its own instance: bucket 1000 + house id\nRegisterNetEvent(\"house:enter\", function(houseId)\n    Open77.routingBuckets.setPlayer(source, 1000 + houseId)\nend)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 920,
   "permissions": [],
   "reasons": [],
@@ -28298,13 +29048,25 @@
   "namespace": "_G",
   "name": "SetPlayerVehicleExitLocked",
   "handler": "SetPlayerVehicleExitLocked",
-  "summary": "`SetPlayerVehicleExitLocked`, and `GetPlayerVehicleSeat`;",
-  "description": "`SetPlayerVehicleExitLocked`, and `GetPlayerVehicleSeat`; their full contract is documented under",
+  "summary": "Low-level alias of `Open77.vehicles.setPlayerExitLocked`.",
+  "description": "The low-level form of `Open77.vehicles.setPlayerExitLocked` (bound to the same native). The two are the same function under two names; `Open77.vehicles.setPlayerExitLocked` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg2",
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "locked",
     "type": "boolean",
     "optional": true,
+    "default": null
+   },
+   {
+    "name": "vehicleId",
+    "type": "integer",
+    "optional": false,
     "default": null
    }
   ],
@@ -28313,7 +29075,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetPlayerVehicleExitLocked is the low-level form of Open77.vehicles.setPlayerExitLocked (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Arrest: the suspect cannot leave the cruiser until released\nOpen77.vehicles.warpPlayerIntoVehicle(suspectId, cruiserId, Open77.vehicles.seats.rearLeft)\nOpen77.vehicles.setPlayerExitLocked(suspectId, true, cruiserId)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1010,
   "permissions": [
    "world.vehicles"
@@ -28362,15 +29124,28 @@
   "namespace": "_G",
   "name": "SetPropBucket",
   "handler": "SetPropBucket",
-  "summary": "Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,",
-  "description": "Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.props.setBucket`.",
+  "description": "The low-level form of `Open77.props.setBucket` (bound to the same native). The two are the same function under two names; `Open77.props.setBucket` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "bucket",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetPropBucket is the low-level form of Open77.props.setBucket (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Move the stage props into the concert instance\nfor _, propId in ipairs(stageProps) do Open77.props.setBucket(propId, CONCERT_BUCKET) end",
-  "inferred": false,
+  "inferred": true,
   "source_line": 975,
   "permissions": [
    "world.props"
@@ -28384,14 +29159,63 @@
   "namespace": "_G",
   "name": "SetPropTransform",
   "handler": "SetPropTransform",
-  "summary": "Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,",
-  "description": "Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,",
-  "params": [],
+  "summary": "Moves and rotates a prop, optionally rescaling it, and answers whether it took.",
+  "description": "The all-positional form of `Open77.props.setTransform`. The three scale arguments are optional and keep their current value when `nil`. An **attached** prop is refused `prop_attached` rather than moved, because the follow tick would overwrite the move within 100 ms -- detach it first. Other refusals are `not_found`, `invalid_position` and `permission_denied:world.props`. Requires `world.props`.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "x",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "y",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "z",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "yaw",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "scaleX",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "scaleY",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "scaleZ",
+    "type": "number",
+    "optional": true,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- Slide a barrier aside when the gate opens, then put it back.\nlocal ok, reason = SetPropTransform(barrierId, -1442.2, 131.0, 18.0, 90.0)\nif not ok then print(\"could not move the barrier: \" .. tostring(reason)) end\nSetTimeout(10000, function()\n    SetPropTransform(barrierId, -1442.2, 127.4, 18.0, 90.0)\nend)",
   "inferred": false,
   "source_line": 974,
   "permissions": [
@@ -28442,11 +29266,11 @@
   "namespace": "_G",
   "name": "SetRoutingBucketEntityLockdownMode",
   "handler": "SetRoutingBucketLockdownMode",
-  "summary": "`GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and",
-  "description": "`GetEntityRoutingBucket`, `SetEntityRoutingBucket`, `SetRoutingBucketEntityLockdownMode`, and",
+  "summary": "Low-level alias of `Open77.routingBuckets.setLockdownMode`.",
+  "description": "The low-level form of `Open77.routingBuckets.setLockdownMode` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.setLockdownMode` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
@@ -28463,7 +29287,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetRoutingBucketEntityLockdownMode is the low-level form of Open77.routingBuckets.setLockdownMode (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Nothing client-created may exist in the competitive arena\nOpen77.routingBuckets.setLockdownMode(ARENA_BUCKET, \"strict\")",
-  "inferred": false,
+  "inferred": true,
   "source_line": 923,
   "permissions": [],
   "reasons": [],
@@ -28475,17 +29299,17 @@
   "namespace": "_G",
   "name": "SetRoutingBucketPopulationEnabled",
   "handler": "SetRoutingBucketPopulationEnabled",
-  "summary": "`SetRoutingBucketPopulationEnabled`.",
-  "description": "`SetRoutingBucketPopulationEnabled`.",
+  "summary": "Low-level alias of `Open77.routingBuckets.setPopulationEnabled`.",
+  "description": "The low-level form of `Open77.routingBuckets.setPopulationEnabled` (bound to the same native). The two are the same function under two names; `Open77.routingBuckets.setPopulationEnabled` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "enabled",
     "type": "boolean",
     "optional": true,
     "default": null
@@ -28496,7 +29320,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetRoutingBucketPopulationEnabled is the low-level form of Open77.routingBuckets.setPopulationEnabled (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- No traffic or crowd in the arena instance\nOpen77.routingBuckets.setPopulationEnabled(ARENA_BUCKET, false)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 924,
   "permissions": [],
   "reasons": [],
@@ -28646,11 +29470,17 @@
   "namespace": "_G",
   "name": "SetVehicleLocked",
   "handler": "SetVehicleLocked",
-  "summary": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
-  "description": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
+  "summary": "Low-level alias of `Open77.vehicles.setLocked`.",
+  "description": "The low-level form of `Open77.vehicles.setLocked` (bound to the same native). The two are the same function under two names; `Open77.vehicles.setLocked` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg2",
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "locked",
     "type": "boolean",
     "optional": true,
     "default": null
@@ -28661,7 +29491,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- SetVehicleLocked is the low-level form of Open77.vehicles.setLocked (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Personal vehicles spawn locked; the owner unlocks with /unlock\nlocal id = Open77.vehicles.create({ record = record, position = spot })\nOpen77.vehicles.setLocked(id, true)\nOpen77.vehicles.setLockedForPlayer(id, ownerId, false)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 998,
   "permissions": [
    "world.vehicles"
@@ -28675,47 +29505,47 @@
   "namespace": "_G",
   "name": "SetVehiclePaint",
   "handler": "SetVehiclePaint",
-  "summary": "Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,",
-  "description": "Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,",
+  "summary": "Repaints a vehicle: primary and secondary colour as six 0-255 channels.",
+  "description": "The all-positional form of `Open77.vehicles.setPaint`. The six trailing arguments are the primary R, G, B then the secondary R, G, B, each clamped to 0-255. Answers a plain `true`/`false` with no reason: `false` covers an unknown vehicle and a missing `world.vehicles` permission alike. `Open77.vehicles.setPaint(id, { primary = ..., secondary = ... })` takes colours as tables and can change only one of the two.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "primaryR",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "primaryG",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "primaryB",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "secondaryR",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg6",
+    "name": "secondaryG",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg7",
+    "name": "secondaryB",
     "type": "integer",
     "optional": false,
     "default": null
@@ -28725,7 +29555,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- Paint the gang's cars: deep red body, black trim.\nfor _, vehicle in ipairs(Open77.vehicles.all(0) or {}) do\n    if vehicle.owned then\n        SetVehiclePaint(vehicle.id, 160, 16, 24, 20, 20, 20)\n    end\nend",
   "inferred": false,
   "source_line": 996,
   "permissions": [],
@@ -28738,35 +29568,35 @@
   "namespace": "_G",
   "name": "SetVehicleTransform",
   "handler": "SetVehicleTransform",
-  "summary": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
-  "description": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
+  "summary": "Teleports a vehicle to a position and heading.",
+  "description": "The all-positional form of `Open77.vehicles.setTransform`. Five arguments, no options: the vehicle keeps its occupants, its damage and its paint. Answers a plain `true`/`false` with no reason -- `false` covers an unknown vehicle and a missing `world.vehicles` permission alike. This moves the vehicle, not the players' buckets: use `Open77.routingBuckets.setEntity` if it should also change bucket.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "x",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "y",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "z",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "yaw",
     "type": "number",
     "optional": false,
     "default": null
@@ -28776,7 +29606,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- /recall <id>: bring a stranded vehicle back to the garage door.\nRegisterCommand(\"recall\", function(source, args)\n    local id = tonumber(args[1])\n    if not id then return end\n    if not SetVehicleTransform(id, -1442.2, 127.4, 18.0, 180.0) then\n        Open77.chat.send(source, \"No such vehicle, or not ours.\")\n    end\nend, true)",
   "inferred": false,
   "source_line": 1000,
   "permissions": [],
@@ -28925,17 +29755,17 @@
   "namespace": "_G",
   "name": "TeleportElevator",
   "handler": "TeleportElevator",
-  "summary": "`GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,",
-  "description": "`GoToElevator`, `TeleportElevator`, `PauseElevator`, `ResumeElevator`, `SetElevatorFlags`,",
+  "summary": "Low-level alias of `Open77.elevators.teleport`.",
+  "description": "The low-level form of `Open77.elevators.teleport` (bound to the same native). The two are the same function under two names; `Open77.elevators.teleport` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "floor",
     "type": "integer",
     "optional": false,
     "default": null
@@ -28946,7 +29776,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- TeleportElevator is the low-level form of Open77.elevators.teleport (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Admin recovery for a lift stuck between floors\nRegisterCommand(\"liftfix\", function(source, args)\n    Open77.elevators.teleport(tonumber(args[1]), 0)\nend, true)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 1036,
   "permissions": [],
   "reasons": [],
@@ -29157,9 +29987,15 @@
   "namespace": "_G",
   "name": "TriggerVehicleHorn",
   "handler": "TriggerVehicleHorn",
-  "summary": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
-  "description": "`ResetVehiclePaint`, `SetVehicleLocked`, `TriggerVehicleHorn`, `SetVehicleTransform`, `RemoveVehicle`, `GetVehicle`, `GetVehicles`,",
+  "summary": "Low-level alias of `Open77.vehicles.triggerHorn`.",
+  "description": "The low-level form of `Open77.vehicles.triggerHorn` (wrapped by). The two are the same function under two names; `Open77.vehicles.triggerHorn` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
    {
     "name": "duration",
     "type": "integer",
@@ -29172,7 +30008,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- TriggerVehicleHorn is the low-level form of Open77.vehicles.triggerHorn (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Honk when the player's rental is unlocked remotely\nOpen77.vehicles.unlock(vehicleId)\nOpen77.vehicles.triggerHorn(vehicleId, 200)",
-  "inferred": false,
+  "inferred": true,
   "source_line": 999,
   "permissions": [
    "world.vehicles"
@@ -29186,15 +30022,94 @@
   "namespace": "_G",
   "name": "UpdateEffect",
   "handler": "UpdateEffect",
-  "summary": "Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,",
-  "description": "Low-level aliases are `PlayEffect`, `CreateEffect`, `UpdateEffect`, `RemoveEffect`,",
-  "params": [],
+  "summary": "Low-level alias of `Open77.effects.update`.",
+  "description": "The low-level form of `Open77.effects.update` (wrapped by). The two are the same function under two names; `Open77.effects.update` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "x",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "y",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "z",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "qx",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "qy",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "qz",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "qw",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "bucket",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "visible",
+    "type": "boolean",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "radius",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "hysteresis",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "ttl",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- UpdateEffect is the low-level form of Open77.effects.update (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- The fire moves with the burning car\nOpen77.effects.update(fireId, { position = Open77.vehicles.getPosition(carId) })",
-  "inferred": false,
+  "inferred": true,
   "source_line": 982,
   "permissions": [
    "world.effects"
@@ -29208,59 +30123,59 @@
   "namespace": "_G",
   "name": "UpdateLootDrop",
   "handler": "UpdateLootDrop",
-  "summary": "and `ttlMs`.",
-  "description": "and `ttlMs`. Low-level aliases are `CreateLootDrop`, `UpdateLootDrop`, `RemoveLootDrop`,",
+  "summary": "Low-level alias of `Open77.loot.update`.",
+  "description": "The low-level form of `Open77.loot.update` (wrapped by). The two are the same function under two names; `Open77.loot.update` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "quantity",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "x",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "y",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "z",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg6",
+    "name": "bucket",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg7",
+    "name": "pickupRadius",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg8",
+    "name": "label",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg9",
+    "name": "model",
     "type": "string",
     "optional": false,
     "default": null
@@ -29271,7 +30186,7 @@
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- UpdateLootDrop is the low-level form of Open77.loot.update (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- The wind blows the crate two metres; quantity and label stay\nOpen77.loot.update(lootId, { position = { x = -1444.2, y = 127.4, z = 18.0 } })",
-  "inferred": false,
+  "inferred": true,
   "source_line": 990,
   "permissions": [],
   "reasons": [],
@@ -29283,59 +30198,59 @@
   "namespace": "_G",
   "name": "UpdateNpc",
   "handler": "UpdateNpc",
-  "summary": "Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,",
-  "description": "Low-level aliases are `CreateNpc`, `UpdateNpc`, `SetNpcTransform`, `SetNpcBucket`, `RemoveNpc`,",
+  "summary": "Low-level alias of `Open77.npcs.update`.",
+  "description": "The low-level form of `Open77.npcs.update` (wrapped by). The two are the same function under two names; `Open77.npcs.update` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "appearance",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "loadoutJson",
     "type": "string",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "aiMode",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "damagePolicy",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg6",
+    "name": "health",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg7",
+    "name": "maxHealth",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg8",
+    "name": "ragdoll",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg9",
+    "name": "behaviorJson",
     "type": "string",
     "optional": false,
     "default": null
@@ -29345,8 +30260,8 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
-  "inferred": false,
+  "example": "-- UpdateNpc is the low-level form of Open77.npcs.update (wrapped by);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Change several things in one replicated patch\nOpen77.npcs.update(npcId, {\n    health = 100,\n    damagePolicy = \"mortal\",\n    behavior = { combatEnabled = true },\n})",
+  "inferred": true,
   "source_line": 1013,
   "permissions": [],
   "reasons": [],
@@ -29358,14 +30273,75 @@
   "namespace": "_G",
   "name": "UpdateProp",
   "handler": "UpdateProp",
-  "summary": "Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,",
-  "description": "Low-level aliases are `CreateProp`, `UpdateProp`, `SetPropTransform`, `SetPropBucket`,",
-  "params": [],
+  "summary": "Patches a prop in place: appearance, physics, visibility, bucket, light or lifetime.",
+  "description": "The all-positional form of `Open77.props.update`. Every argument after the id is optional and `nil` means leave it alone, so this is a patch and not a replacement. Answers `false, reason` -- `not_found` for an id this resource does not own, `invalid_argument` for a malformed value. Requires `world.props`. The transform is not here: that is `SetPropTransform`.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "appearance",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "physics",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "collision",
+    "type": "boolean",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "visible",
+    "type": "boolean",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "bucket",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "light",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "radius",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "hysteresis",
+    "type": "number",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "ttl",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   }
+  ],
   "returns": [],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- Blackout: hide the neon sign, then bring it back lit twenty seconds later.\nlocal ok, reason = UpdateProp(signId, nil, nil, nil, false)\nif not ok then return print(\"sign refused the patch: \" .. tostring(reason)) end\nSetTimeout(20000, function()\n    UpdateProp(signId, nil, nil, nil, true, nil, \"neon.pink\")\nend)",
   "inferred": false,
   "source_line": 973,
   "permissions": [
@@ -29380,95 +30356,101 @@
   "namespace": "_G",
   "name": "UpdateVehicleState",
   "handler": "UpdateVehicleState",
-  "summary": "Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,",
-  "description": "Low-level aliases are `CreateVehicle`, `UpdateVehicleState`, `SetVehiclePaint`,",
+  "summary": "Writes a vehicle's whole replicated state at once: health, flags, paint, damage.",
+  "description": "The all-positional form of `Open77.vehicles.update`, and unlike that one it is a **replacement, not a patch**: all sixteen arguments are written, so read the vehicle first and pass back whatever you are not changing. `bodyDamage` must be a table of exactly 30 numbers between 0 and 1 -- anything else raises a Lua error instead of answering `false`, which is the one refusal here that is not a return value. `doors`, `windows` and `tires` are bitmasks. Answers a plain `true`/`false`. Requires `world.vehicles`.",
   "params": [
    {
-    "name": "arg1",
+    "name": "id",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg2",
+    "name": "health",
     "type": "number",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg3",
+    "name": "flags",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg4",
+    "name": "primaryR",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg5",
+    "name": "primaryG",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg6",
+    "name": "primaryB",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg7",
+    "name": "secondaryR",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg8",
+    "name": "secondaryG",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg9",
+    "name": "secondaryB",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg10",
+    "name": "doors",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg11",
+    "name": "windows",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg12",
+    "name": "tires",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg14",
+    "name": "bodyDamage",
+    "type": "table",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "brokenGlass",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg15",
+    "name": "brokenLights",
     "type": "integer",
     "optional": false,
     "default": null
    },
    {
-    "name": "arg16",
+    "name": "detachedParts",
     "type": "integer",
     "optional": false,
     "default": null
@@ -29478,10 +30460,12 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- Repair a wreck: full health, clean body, nothing broken. Read first,\n-- because every one of the sixteen arguments is written, not patched.\nlocal v = GetVehicle(vehicleId)\nif not v then return print(\"no such vehicle\") end\nlocal clean = {}\nfor i = 1, 30 do clean[i] = 0.0 end\nlocal ok = UpdateVehicleState(vehicleId, 1000.0, v.flags,\n    v.primaryR, v.primaryG, v.primaryB, v.secondaryR, v.secondaryG, v.secondaryB,\n    0, 0, 0,        -- doors, windows, tires: no damage bits\n    clean, 0, 0, 0) -- bodyDamage (30 values), glass, lights, detached parts\nprint(ok and \"repaired\" or \"refused: unknown vehicle, or not ours\")",
   "inferred": false,
   "source_line": 995,
-  "permissions": [],
+  "permissions": [
+   "world.vehicles"
+  ],
   "reasons": [],
   "since": "2.31.13+op77.45",
   "qualified": "UpdateVehicleState",
@@ -29517,7 +30501,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "",
+  "example": "-- Send a taxi to the club, then read the AI driving state back.\nlocal state, reason = VehicleDrivingCommand(\"driveTo\", cabId, {\n    position = { x = -1442.2, y = 127.4, z = 18.0 },\n    speed = 12.0,\n})\nif not state then return print(\"driving refused: \" .. tostring(reason)) end\n-- The \"state\" operation reads without commanding anything; it answers nil\n-- (with no reason) when the vehicle simply has no driving state yet.\nprint(\"driving state: \" .. tostring(VehicleDrivingCommand(\"state\", cabId)))",
   "inferred": false,
   "source_line": 1004,
   "permissions": [
@@ -41805,7 +42789,7 @@
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "-- /slay <id>: an admin kills a player\nRegisterCommand(\"slay\", function(source, args)\n    local target = tonumber(args[1])\n    if not target then return end\n    local ok, reason = Open77.players.kill(target, { killer = source, cause = \"admin\" })\n    if not ok then Open77.chat.send(source, \"Refused: \" .. reason) end\nend, true)",
+  "example": "-- /slay <id>: an admin kills a player\nRegisterCommand(\"slay\", function(source, args)\n    local target = tonumber(args[1])\n    if not target then return end\n    local ok, reason = Open77.players.kill(target, { killer = source, cause = \"script\" })\n    if not ok then Open77.chat.send(source, \"Refused: \" .. reason) end\nend, true)",
   "inferred": false,
   "source_line": 8457,
   "permissions": [
