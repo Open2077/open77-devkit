@@ -25,6 +25,9 @@ on:
         required: false
         default: main
 
+permissions:
+  contents: write
+
 jobs:
   index:
     name: Build and publish the index
@@ -75,7 +78,8 @@ jobs:
         run: |
           rm -rf index
           cp -r index-build index
-          if git diff --quiet -- index; then echo "snapshot unchanged"; exit 0; fi
+          # manifest.json always changes (generatedAt, commit); commit only when a content file did.
+          if git diff --quiet -- index ':(exclude)index/manifest.json'; then git checkout -- index; echo "snapshot unchanged"; exit 0; fi
           git config user.name "open77-devkit-bot"
           git config user.email "noreply@open2077.net"
           git add index
