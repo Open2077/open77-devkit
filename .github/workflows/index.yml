@@ -43,6 +43,7 @@ jobs:
       - name: Build the index
         id: build
         run: |
+          set -o pipefail
           COMMIT=$(git -C open77-app rev-parse HEAD)
           ARGS="--content open77-app/content --out index-build --commit $COMMIT"
           if [ -n "${{ github.event.inputs.build }}" ]; then ARGS="$ARGS --build ${{ github.event.inputs.build }}"; fi
