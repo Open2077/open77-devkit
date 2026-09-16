@@ -869,7 +869,7 @@
     "client",
     "server"
    ],
-   "summary": "Enforced by the client and server; gates 23 natives in Open77.net, Open77.perspective, Open77.state, Open77.weapons, _G.",
+   "summary": "Enforced by the client and server; gates 56 natives in Open77.appearance, Open77.clothing, Open77.heldItems, Open77.net, Open77.notifications, Open77.perspective, Open77.sound, Open77.state, Open77.weapons, _G.",
    "curated": false,
    "natives": [
     "Open77.net.call",
@@ -882,6 +882,16 @@
     "Open77.state.request",
     "RegisterNetEvent",
     "TriggerServerEvent",
+    "server:Open77.appearance.apply",
+    "server:Open77.appearance.capture",
+    "server:Open77.clothing.clear",
+    "server:Open77.clothing.equip",
+    "server:Open77.clothing.requestSnapshot",
+    "server:Open77.clothing.set",
+    "server:Open77.clothing.unequip",
+    "server:Open77.heldItems.hold",
+    "server:Open77.heldItems.release",
+    "server:Open77.heldItems.requestSnapshot",
     "server:Open77.net.callClient",
     "server:Open77.net.callClientAwait",
     "server:Open77.net.emitClient",
@@ -889,9 +899,32 @@
     "server:Open77.net.on",
     "server:Open77.net.register",
     "server:Open77.net.unregister",
+    "server:Open77.notifications.broadcast",
+    "server:Open77.notifications.clear",
+    "server:Open77.notifications.dismiss",
+    "server:Open77.notifications.send",
+    "server:Open77.notifications.update",
     "server:Open77.perspective.policy",
     "server:Open77.perspective.setPolicy",
+    "server:Open77.sound.broadcast",
+    "server:Open77.sound.play",
+    "server:Open77.sound.setPosition",
+    "server:Open77.sound.setVolume",
+    "server:Open77.sound.stop",
+    "server:Open77.sound.stopAll",
+    "server:Open77.weapons.assign",
     "server:Open77.weapons.clear",
+    "server:Open77.weapons.giveGadget",
+    "server:Open77.weapons.holster",
+    "server:Open77.weapons.remove",
+    "server:Open77.weapons.removeComponent",
+    "server:Open77.weapons.requestComponents",
+    "server:Open77.weapons.requestGadgets",
+    "server:Open77.weapons.requestSnapshot",
+    "server:Open77.weapons.setActive",
+    "server:Open77.weapons.setAmmo",
+    "server:Open77.weapons.setComponent",
+    "server:Open77.weapons.takeGadget",
     "server:RegisterNetEvent",
     "server:TriggerClientEvent",
     "server:TriggerLatentClientEvent"
@@ -2249,11 +2282,9 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 1 native in Open77.players.",
+   "summary": "Enforced by the client; gates 0 natives.",
    "curated": false,
-   "natives": [
-    "server:Open77.players.getHealth"
-   ],
+   "natives": [],
    "guides": [],
    "sources": [
     {
@@ -2815,11 +2846,12 @@
    "runtimes": [
     "server"
    ],
-   "summary": "Enforced by the server; gates 45 natives in Open77.players, Open77.stats, _G.",
+   "summary": "Enforced by the server; gates 46 natives in Open77.players, Open77.stats, _G.",
    "curated": false,
    "natives": [
     "server:DamagePlayer",
     "server:HealPlayer",
+    "server:Open77.players.damage",
     "server:Open77.players.heal",
     "server:Open77.players.restoreHealth",
     "server:Open77.players.restoreStamina",
@@ -2933,12 +2965,13 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 9 natives in Open77.players, Open77.stats.",
+   "summary": "Enforced by the client; gates 10 natives in Open77.players, Open77.stats.",
    "curated": false,
    "natives": [
     "Open77.stats.get",
     "Open77.stats.getHealth",
     "Open77.stats.getStamina",
+    "server:Open77.players.getHealth",
     "server:Open77.players.getStats",
     "server:Open77.stats.get",
     "server:Open77.stats.getHealth",
@@ -4074,7 +4107,7 @@
     "client",
     "server"
    ],
-   "summary": "Enforced by the client and server; gates 33 natives in Open77.effects, Open77.sfx, Open77.vfx, _G.",
+   "summary": "Enforced by the client and server; gates 35 natives in Open77.effects, Open77.sfx, Open77.vfx, _G.",
    "curated": false,
    "natives": [
     "Open77.sfx.clear",
@@ -4094,6 +4127,8 @@
     "Open77.vfx.update",
     "server:AttachEffect",
     "server:CreateEffect",
+    "server:GetEffect",
+    "server:GetEffects",
     "server:Open77.effects.all",
     "server:Open77.effects.attach",
     "server:Open77.effects.create",
@@ -4202,10 +4237,13 @@
    "runtimes": [
     "server"
    ],
-   "summary": "Enforced by the server; gates 11 natives in Open77.elevators, _G.",
+   "summary": "Enforced by the server; gates 19 natives in Open77.elevators, _G.",
    "curated": false,
    "natives": [
     "server:AdoptElevator",
+    "server:GetElevator",
+    "server:GetElevators",
+    "server:GoToElevator",
     "server:Open77.elevators.adopt",
     "server:Open77.elevators.all",
     "server:Open77.elevators.call",
@@ -4215,7 +4253,12 @@
     "server:Open77.elevators.remove",
     "server:Open77.elevators.resume",
     "server:Open77.elevators.setFlags",
-    "server:Open77.elevators.teleport"
+    "server:Open77.elevators.teleport",
+    "server:PauseElevator",
+    "server:RemoveElevator",
+    "server:ResumeElevator",
+    "server:SetElevatorFlags",
+    "server:TeleportElevator"
    ],
    "guides": [
     "elevators.md"
@@ -4355,7 +4398,7 @@
     "client",
     "server"
    ],
-   "summary": "Enforced by the client and server; gates 12 natives in Open77.loot, _G.",
+   "summary": "Enforced by the client and server; gates 16 natives in Open77.loot, _G.",
    "curated": false,
    "natives": [
     "Open77.loot.acceptPickup",
@@ -4365,11 +4408,15 @@
     "Open77.loot.setAuthorityEnabled",
     "Open77.loot.upsert",
     "server:CreateLootDrop",
+    "server:GetLootDrop",
+    "server:GetLootDrops",
     "server:Open77.loot.all",
     "server:Open77.loot.create",
     "server:Open77.loot.get",
     "server:Open77.loot.remove",
-    "server:Open77.loot.update"
+    "server:Open77.loot.update",
+    "server:RemoveLootDrop",
+    "server:UpdateLootDrop"
    ],
    "guides": [
     "loot.md",
@@ -4459,11 +4506,23 @@
    "runtimes": [
     "server"
    ],
-   "summary": "Enforced by the server; gates 66 natives in Open77.npcs, Open77.npcs.tasks, _G.",
+   "summary": "Enforced by the server; gates 83 natives in Open77.npcs, Open77.npcs.tasks, _G.",
    "curated": false,
    "natives": [
+    "server:CancelNpcTask",
+    "server:ClearNpcTasks",
     "server:CreateNpc",
+    "server:DamageNpc",
     "server:EnqueueNpcTask",
+    "server:GetNpc",
+    "server:GetNpcAttitude",
+    "server:GetNpcRelationship",
+    "server:GetNpcTarget",
+    "server:GetNpcTask",
+    "server:GetNpcTasks",
+    "server:GetNpcTemplates",
+    "server:GetNpcs",
+    "server:KillNpc",
     "server:Open77.npcs.all",
     "server:Open77.npcs.applyDamage",
     "server:Open77.npcs.create",
@@ -4525,9 +4584,14 @@
     "server:Open77.npcs.templates",
     "server:Open77.npcs.update",
     "server:Open77.npcs.whenReady",
+    "server:RemoveNpc",
+    "server:ReviveNpc",
     "server:SetNpcAttitude",
+    "server:SetNpcBucket",
     "server:SetNpcGroup",
-    "server:SetNpcRelationship"
+    "server:SetNpcRelationship",
+    "server:SetNpcTransform",
+    "server:UpdateNpc"
    ],
    "guides": [
     "npcs.md"
@@ -4643,7 +4707,7 @@
     "client",
     "server"
    ],
-   "summary": "Enforced by the client and server; gates 33 natives in Open77.props, _G.",
+   "summary": "Enforced by the client and server; gates 35 natives in Open77.props, _G.",
    "curated": false,
    "natives": [
     "Open77.props.attach",
@@ -4661,6 +4725,8 @@
     "Open77.props.update",
     "server:ClearProps",
     "server:CreateProp",
+    "server:GetProp",
+    "server:GetProps",
     "server:Open77.props.all",
     "server:Open77.props.attach",
     "server:Open77.props.attachedTo",
@@ -4978,11 +5044,14 @@
    "runtimes": [
     "server"
    ],
-   "summary": "Enforced by the server; gates 136 natives in Open77.effects, Open77.players, Open77.vehicles, Open77.vehicles.ai, _G.",
+   "summary": "Enforced by the server; gates 148 natives in Open77.effects, Open77.players, Open77.vehicles, Open77.vehicles.ai, _G.",
    "curated": false,
    "natives": [
     "server:CreateVehicle",
     "server:ForcePlayerOutOfVehicle",
+    "server:GetPlayerVehicleSeat",
+    "server:GetVehicle",
+    "server:GetVehicles",
     "server:Open77.effects.explosion",
     "server:Open77.effects.fire",
     "server:Open77.players.forceOutOfVehicle",
@@ -5003,6 +5072,7 @@
     "server:Open77.vehicles.ai.setSpeed",
     "server:Open77.vehicles.ai.state",
     "server:Open77.vehicles.ai.stop",
+    "server:Open77.vehicles.all",
     "server:Open77.vehicles.areLightsOn",
     "server:Open77.vehicles.breakAllGlass",
     "server:Open77.vehicles.breakGlass",
@@ -5021,6 +5091,7 @@
     "server:Open77.vehicles.explode",
     "server:Open77.vehicles.forcePlayerOutOfVehicle",
     "server:Open77.vehicles.freeSeats",
+    "server:Open77.vehicles.get",
     "server:Open77.vehicles.getAdoptPolicy",
     "server:Open77.vehicles.getAppearance",
     "server:Open77.vehicles.getDriver",
@@ -5030,6 +5101,7 @@
     "server:Open77.vehicles.getLights",
     "server:Open77.vehicles.getLightsHue",
     "server:Open77.vehicles.getPerformance",
+    "server:Open77.vehicles.getPlayerSeat",
     "server:Open77.vehicles.getPosition",
     "server:Open77.vehicles.getProperties",
     "server:Open77.vehicles.getSpeed",
@@ -5051,6 +5123,7 @@
     "server:Open77.vehicles.owner",
     "server:Open77.vehicles.registerDamageProfile",
     "server:Open77.vehicles.remove",
+    "server:Open77.vehicles.removePlayerFromVehicle",
     "server:Open77.vehicles.repair",
     "server:Open77.vehicles.repairAllGlass",
     "server:Open77.vehicles.repairAllLights",
@@ -5112,10 +5185,15 @@
     "server:Open77.vehicles.unlockForAll",
     "server:Open77.vehicles.update",
     "server:Open77.vehicles.warpPlayerIntoVehicle",
+    "server:RemoveVehicle",
+    "server:ResetVehiclePaint",
     "server:SetPlayerIntoVehicle",
     "server:SetPlayerVehicleExitLocked",
     "server:SetVehicleLocked",
+    "server:SetVehiclePaint",
+    "server:SetVehicleTransform",
     "server:TriggerVehicleHorn",
+    "server:UpdateVehicleState",
     "server:VehicleDrivingCommand"
    ],
    "guides": [

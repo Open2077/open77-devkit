@@ -742,8 +742,8 @@ function RegisterCommand(name, handler, restricted, suggestion) end
 ---@param key string
 ---@param onPressed? function
 ---@param onReleased? function
----@return any the the effective key
----@return any reason reason for the refusal
+---@return any boolean boolean: true when the mapping is installed, false when it was refused
+---@return any string string: the effective key (the player's rebinding, or the default) on success, the reason on refusal
 function RegisterKeyMapping(id, name, key, onPressed, onReleased) end
 
 --- Allows an event to arrive from the server.
@@ -894,9 +894,9 @@ function TriggerEvent(event, ___) end
 --- Since: 2.31.0+op77.3
 --- Reasons: invalid_network_event, network_payload_not_serializable, network_payload_too_large, network_unavailable, permission_denied:network.events, reserved_callback_event, reserved_event, resource_preparing
 ---@param event string
----@param payload? table
+---@param ___? any
 ---@return any boolean boolean
-function TriggerServerEvent(event, payload) end
+function TriggerServerEvent(event, ___) end
 
 --- Builds a vector of the size the arguments imply.
 ---
@@ -4378,9 +4378,9 @@ function Open77.net.callAwait(name, ___) end
 --- Since: 2.31.0+op77.3
 --- Reasons: invalid_network_event, network_payload_not_serializable, network_payload_too_large, network_unavailable, permission_denied:network.events, reserved_callback_event, reserved_event, resource_preparing
 ---@param event string
----@param payload? table
+---@param ___? any
 ---@return any boolean boolean
-function Open77.net.emitServer(event, payload) end
+function Open77.net.emitServer(event, ___) end
 
 --- Listens for an event coming from the server.
 ---
@@ -4949,7 +4949,7 @@ function Open77.players.getLocalDeathContext() end
 --- Permissions: vehicles.read
 --- Since: 2.31.7+op77.16
 ---@param playerId? any
----@return any seat seat assignment table, or nil
+---@return any table table { playerId, vehicleId, seat (canonical name: driver, passenger, rear_left, rear_right...), flags (integer bitfield), entering, exiting, forcedEntry, exitLocked, forcedExit (booleans); the client copy adds animatedEntry and occupants }, or nil when the player is not assigned to a vehicle
 function Open77.players.getVehicleSeat(playerId) end
 
 --- Graph-produced aiming state, including toggle aim.
@@ -6369,7 +6369,7 @@ function Open77.vehicles.getPaint(id) end
 --- Permissions: vehicles.read
 --- Since: 2.31.7+op77.16
 ---@param playerId? any
----@return any seat seat assignment table, or nil
+---@return any table table { playerId, vehicleId, seat (canonical name: driver, passenger, rear_left, rear_right...), flags (integer bitfield), entering, exiting, forcedEntry, exitLocked, forcedExit (booleans); the client copy adds animatedEntry and occupants }, or nil when the player is not assigned to a vehicle
 function Open77.vehicles.getPlayerSeat(playerId) end
 
 --- Reads one weapon mount by its stable one-based index.
