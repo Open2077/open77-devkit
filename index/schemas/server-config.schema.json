@@ -174,10 +174,16 @@
       "additionalProperties": false,
       "properties": {
         "enabled": { "type": "boolean" },
-        "connectionString": {
-          "type": "string",
-          "description": "MySQL connection string used by resources with the database.access permission."
-        },
+          "connectionString": {
+            "type": "string",
+            "description": "MySQL connection string used by resources with the database.access permission."
+          },
+          "connectionStringEnvironmentVariable": {
+            "type": "string",
+            "minLength": 1,
+            "default": "OP77_DATABASE_CONNECTION",
+            "description": "Environment variable holding the MySqlConnector connection string. A nonblank explicit connectionString takes precedence. Read once at server startup."
+          },
         "maxRows": { "type": "integer", "minimum": 1, "maximum": 1000000 }
       }
     },

@@ -3493,7 +3493,10 @@
   "inferred": false,
   "source_line": 22858,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "anchors_backend_unavailable",
+   "options_must_be_a_table"
+  ],
   "since": "2.31.0+op77.7",
   "constant": false,
   "qualified": "Open77.anchors.create",
@@ -3517,7 +3520,9 @@
   "inferred": false,
   "source_line": 22862,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "anchors_backend_unavailable"
+  ],
   "since": "2.31.0+op77.7",
   "constant": false,
   "qualified": "Open77.anchors.list",
@@ -4868,7 +4873,10 @@
   "permissions": [
    "ui.vanilla.map"
   ],
-  "reasons": [],
+  "reasons": [
+   "blips_backend_unavailable",
+   "permission_denied:ui.vanilla.map"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.blips.create",
@@ -4901,7 +4909,11 @@
   "permissions": [
    "ui.vanilla.map"
   ],
-  "reasons": [],
+  "reasons": [
+   "blips_backend_unavailable",
+   "invalid_blip_id",
+   "permission_denied:ui.vanilla.map"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.blips.get",
@@ -4926,7 +4938,10 @@
   "permissions": [
    "ui.vanilla.map"
   ],
-  "reasons": [],
+  "reasons": [
+   "blips_backend_unavailable",
+   "permission_denied:ui.vanilla.map"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.blips.list",
@@ -5405,7 +5420,9 @@
   "inferred": false,
   "source_line": 22830,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "blips_backend_unavailable"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.blips.sprites",
@@ -9869,7 +9886,10 @@
   "permissions": [
    "world.environment"
   ],
-  "reasons": [],
+  "reasons": [
+   "environment_backend_unavailable",
+   "permission_denied:world.environment"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.environment.getTime",
@@ -9895,7 +9915,10 @@
   "permissions": [
    "world.environment"
   ],
-  "reasons": [],
+  "reasons": [
+   "environment_backend_unavailable",
+   "permission_denied:world.environment"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.environment.isWeatherFrozen",
@@ -10897,7 +10920,11 @@
   "permissions": [
    "ui.vanilla.hud"
   ],
-  "reasons": [],
+  "reasons": [
+   "hud_unavailable_on_this_host",
+   "invalid_notification_channel",
+   "permission_denied:ui.vanilla.hud"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.hud.clearNotify",
@@ -10965,7 +10992,10 @@
   "permissions": [
    "ui.vanilla.hud"
   ],
-  "reasons": [],
+  "reasons": [
+   "hud_unavailable_on_this_host",
+   "permission_denied:ui.vanilla.hud"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.hud.help",
@@ -11035,7 +11065,10 @@
   "permissions": [
    "ui.vanilla.hud"
   ],
-  "reasons": [],
+  "reasons": [
+   "hud_unavailable_on_this_host",
+   "permission_denied:ui.vanilla.hud"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.hud.log",
@@ -11068,7 +11101,11 @@
   "permissions": [
    "ui.vanilla.hud"
   ],
-  "reasons": [],
+  "reasons": [
+   "hud_unavailable_on_this_host",
+   "invalid_notification_preset",
+   "permission_denied:ui.vanilla.hud"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.hud.menu",
@@ -11107,7 +11144,10 @@
   "permissions": [
    "ui.vanilla.hud"
   ],
-  "reasons": [],
+  "reasons": [
+   "hud_unavailable_on_this_host",
+   "permission_denied:ui.vanilla.hud"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.hud.notify",
@@ -11146,7 +11186,12 @@
   "permissions": [
    "ui.vanilla.hud"
   ],
-  "reasons": [],
+  "reasons": [
+   "hud_unavailable_on_this_host",
+   "invalid_hud_arguments",
+   "invalid_hud_component",
+   "permission_denied:ui.vanilla.hud"
+  ],
   "since": "2.31.8+op77.20",
   "constant": false,
   "qualified": "Open77.hud.setVisible",
@@ -11214,7 +11259,10 @@
   "permissions": [
    "ui.vanilla.hud"
   ],
-  "reasons": [],
+  "reasons": [
+   "hud_unavailable_on_this_host",
+   "permission_denied:ui.vanilla.hud"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.hud.subtitle",
@@ -12937,7 +12985,10 @@
   "permissions": [
    "world.markers"
   ],
-  "reasons": [],
+  "reasons": [
+   "markers_backend_unavailable",
+   "permission_denied:world.markers"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.markers.create",
@@ -12963,7 +13014,10 @@
   "permissions": [
    "world.markers"
   ],
-  "reasons": [],
+  "reasons": [
+   "markers_backend_unavailable",
+   "permission_denied:world.markers"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.markers.list",
@@ -13530,7 +13584,10 @@
   "permissions": [
    "ui.nameplates"
   ],
-  "reasons": [],
+  "reasons": [
+   "nameplates_backend_unavailable",
+   "permission_denied:ui.nameplates"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.nameplates.snapshot",
@@ -16359,7 +16416,11 @@
   "permissions": [
    "world.props"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_attachment_parent",
+   "permission_denied:world.props",
+   "props_backend_unavailable"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "Open77.props.bones",
@@ -16417,7 +16478,10 @@
   "permissions": [
    "world.props"
   ],
-  "reasons": [],
+  "reasons": [
+   "permission_denied:world.props",
+   "props_backend_unavailable"
+  ],
   "since": "2.31.1+op77.9",
   "constant": false,
   "qualified": "Open77.props.create",
@@ -16474,7 +16538,10 @@
   "permissions": [
    "world.props"
   ],
-  "reasons": [],
+  "reasons": [
+   "permission_denied:world.props",
+   "props_backend_unavailable"
+  ],
   "since": "2.31.1+op77.9",
   "constant": false,
   "qualified": "Open77.props.list",
@@ -16513,7 +16580,12 @@
   "permissions": [
    "world.props"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_position",
+   "invalid_radius",
+   "permission_denied:world.props",
+   "props_backend_unavailable"
+  ],
   "since": "2.31.2+op77.10",
   "constant": false,
   "qualified": "Open77.props.nearest",
@@ -17072,7 +17144,7 @@
   "name": "readPackedFile",
   "handler": "LuaReadPackedFile",
   "summary": "Reads a file another resource declared, as base64.",
-  "description": "Requires `resources.files.read`, which only the bundled audio service holds: every other resource reads its own files with `Open77.resource.readFile`, and a resource holding this one can read any **declared** file of any resource, which is why the grant is visible in the manifest. Only files listed in the named resource's `files` entry are reachable -- scripts, the manifest itself and anything merely present on disk are not, so a resource author publishes deliberately rather than by accident. The 1 MiB ceiling is `readFile`'s; base64 of that is 1.37 MiB, which still clears the 2 MiB JSON limit a `page:send` payload rides, and base64 rather than raw bytes because a raw audio file is not valid UTF-8 and the encoder would refuse the whole event. Refusals: `permission_denied:resources.files.read`, `invalid_resource_path`, `resource_not_found`, `file_not_declared`, `file_too_large`.",
+  "description": "Requires `resources.files.read`, which only the bundled audio service holds: every other resource reads its own files with `Open77.resource.readFile`, and a resource holding this one can read any **declared** file of any resource, which is why the grant is visible in the manifest. Only files listed in the named resource's `files` entry are reachable -- scripts, the manifest itself and anything merely present on disk are not, so a resource author publishes deliberately rather than by accident. The updated client accepts up to 3 MiB of raw file data (older clients: 1 MiB). The 2 MiB WebUI JSON message cap is unchanged: the Base64 result of a larger file may not fit in one `page:send`. See [runtime quotas and client availability](/docs/resource-runtime#sandbox-and-quotas). Base64 is used because arbitrary binary data is not valid UTF-8. Refusals: `permission_denied:resources.files.read`, `invalid_resource_path`, `resource_not_found`, `file_not_declared`, `file_too_large`.",
   "params": [
    {
     "name": "resource",
@@ -18338,7 +18410,10 @@
   "permissions": [
    "world.effects"
   ],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable",
+   "permission_denied:world.effects"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.sfx.list",
@@ -18377,7 +18452,11 @@
   "permissions": [
    "world.effects"
   ],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable",
+   "options_must_be_a_table",
+   "permission_denied:world.effects"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.sfx.play",
@@ -18410,7 +18489,11 @@
   "permissions": [
    "world.effects"
   ],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable",
+   "invalid_sfx_event",
+   "permission_denied:world.effects"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.sfx.play2d",
@@ -18449,7 +18532,13 @@
   "permissions": [
    "world.effects"
   ],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable",
+   "invalid_entity",
+   "invalid_voice",
+   "options_must_be_a_table",
+   "permission_denied:world.effects"
+  ],
   "since": "2.31.13+op77.73",
   "constant": false,
   "qualified": "Open77.sfx.playVoice",
@@ -20880,7 +20969,9 @@
   "inferred": false,
   "source_line": 22879,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.vfx.catalog",
@@ -20932,7 +21023,10 @@
   "permissions": [
    "world.effects"
   ],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable",
+   "permission_denied:world.effects"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.vfx.list",
@@ -20971,7 +21065,13 @@
   "permissions": [
    "world.effects"
   ],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable",
+   "invalid_orientation",
+   "invalid_position",
+   "options_must_be_a_table",
+   "permission_denied:world.effects"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.vfx.play",
@@ -21010,7 +21110,12 @@
   "permissions": [
    "world.effects"
   ],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable",
+   "invalid_anchor",
+   "options_must_be_a_table",
+   "permission_denied:world.effects"
+  ],
   "since": "2.31.0+op77.3",
   "constant": false,
   "qualified": "Open77.vfx.playEntity",
@@ -21043,7 +21148,13 @@
   "permissions": [
    "world.effects"
   ],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable",
+   "invalid_target",
+   "invalid_target_id",
+   "invalid_target_kind",
+   "permission_denied:world.effects"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "Open77.vfx.resolveTarget",
@@ -21082,7 +21193,13 @@
   "permissions": [
    "vfx.screen"
   ],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable",
+   "invalid_screen_effect",
+   "invalid_strength",
+   "options_must_be_a_table",
+   "permission_denied:vfx.screen"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.vfx.screen",
@@ -21105,7 +21222,9 @@
   "inferred": false,
   "source_line": 22883,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "effects_backend_unavailable"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.vfx.screenCatalog",
@@ -21255,7 +21374,11 @@
   "permissions": [
    "voice.client"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_device_flow",
+   "permission_denied:voice.client",
+   "voice_backend_unavailable"
+  ],
   "since": "2.31.1+op77.9",
   "constant": false,
   "qualified": "Open77.voice.devices",
@@ -21280,7 +21403,10 @@
   "permissions": [
    "voice.client"
   ],
-  "reasons": [],
+  "reasons": [
+   "permission_denied:voice.client",
+   "voice_backend_unavailable"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "Open77.voice.getLipSyncStatus",
@@ -21312,7 +21438,11 @@
   "permissions": [
    "voice.client"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_player_id",
+   "permission_denied:voice.client",
+   "voice_backend_unavailable"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "Open77.voice.getPlayerLipSyncState",
@@ -21807,7 +21937,10 @@
   "permissions": [
    "voice.client"
   ],
-  "reasons": [],
+  "reasons": [
+   "permission_denied:voice.client",
+   "voice_backend_unavailable"
+  ],
   "since": "2.31.1+op77.9",
   "constant": false,
   "qualified": "Open77.voice.status",
@@ -21833,7 +21966,10 @@
   "permissions": [
    "voice.client"
   ],
-  "reasons": [],
+  "reasons": [
+   "permission_denied:voice.client",
+   "voice_backend_unavailable"
+  ],
   "since": "2.31.1+op77.9",
   "constant": false,
   "qualified": "Open77.voice.talkers",
@@ -22569,7 +22705,7 @@
   "name": "create",
   "handler": "LuaWebUiCreate",
   "summary": "Creates a web surface.",
-  "description": "**Creation is asynchronous.** A `show()` issued right after `create` loses the race against the `visible` flag the request carried, and the surface then never paints at all. So a surface meant to stay up is created with `visible = true`, and the page shows or hides its own content.\n\nValid layers: `hud`, `menu`, `modal`, `system` (needs the `webui.system` permission), `debug`.",
+  "description": "**Creation is asynchronous.** A `show()` issued right after `create` loses the race against the `visible` flag the request carried, and the surface then never paints at all. So a surface meant to stay up is created with `visible = true`, and the page shows or hides its own content.\n\nValid layers: `hud`, `menu`, `modal` (requires `webui.modal`), `system` (requires `webui.system`), `debug` (requires `webui.debug`). The updated client also accepts HTTP(S) `entry` URLs without `web_files`; bundled entries still require declared files. External scripts, media, requests and embeds are allowed, while CORS and TLS remain enforced. Only the top-level configured entry origin receives the Lua bridge. See [remote WebUI and client availability](/docs/resource-runtime#remote-pages-external-content-and-hot-reload); older CDN clients may not support remote pages.",
   "params": [
    {
     "name": "options",
@@ -22603,7 +22739,7 @@
   "name": "default",
   "handler": "LuaWebUiDefault",
   "summary": "The surface declared by `web_ui_page` in the manifest.",
-  "description": "Returns the auto-created WebUI page declared by `web_ui_page` in the current manifest. It returns `nil, reason` when the resource has no live default page; the handle is generation-owned and becomes stale after destroy or reload.",
+  "description": "Returns the auto-created WebUI page declared by `ui_page` (alias `web_ui_page`) in the current manifest. The updated client accepts a declared local file or an HTTP(S) entry; see [remote WebUI and client availability](/docs/resource-runtime#remote-pages-external-content-and-hot-reload). It returns `nil, reason` when the resource has no live default page; the handle is generation-owned and becomes stale after destroy or reload.",
   "params": [],
   "returns": [
    "surface, or nil"
@@ -23617,7 +23753,7 @@
   "name": "AddEventHandler",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Listens for an event in this resource; the same function as Open77.events.on.",
-  "description": "No permission. One handler list serves three sources: this VM's TriggerLocalEvent, the host-wide bus, and the platform's own lifecycle events (onResourceStart, onPlayerReady, playerDropped), so a resource listens for its own and the platform's events the same way. Handlers run as managed tasks and may Wait. The limit is 2,048 handlers per resource; beyond it registration raises `handler quota exceeded`. Returns the id RemoveEventHandler takes.",
+  "description": "No permission. One handler list serves three sources: this VM's TriggerLocalEvent, the host-wide bus, and the platform's own lifecycle events (onResourceStart, onPlayerReady, playerDropped), so a resource listens for its own and the platform's events the same way. Every argument of a platform lifecycle event arrives as a **string** -- a player id, a vehicle id, a revision -- so convert with `tonumber` before handing one to a native that wants a number (`Open77.chat.send`) and compare with `tostring(id)` against ids read from natives. Handlers run as managed tasks and may Wait. The limit is 2,048 handlers per resource; beyond it registration raises `handler quota exceeded`. Returns the id RemoveEventHandler takes.",
   "params": [
    {
     "name": "event",
@@ -23638,7 +23774,7 @@
   "api_set": "shared",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "-- React to a player leaving: save their money before the session is gone\nAddEventHandler(\"onPlayerDisconnected\", function(playerId, reason)\n    local key = \"money:\" .. (Open77.players.identifier(playerId) or \"\")\n    Open77.kvp.set(key, wallet[playerId] or 0)\n    wallet[playerId] = nil\nend)",
+  "example": "-- React to a player leaving: save their money before the session is gone\nAddEventHandler(\"onPlayerDisconnected\", function(playerId, reason)\n    -- playerId is a string here, like every host-event argument\n    local key = \"money:\" .. (Open77.players.identifier(playerId) or \"\")\n    Open77.kvp.set(key, wallet[playerId] or 0)\n    wallet[playerId] = nil\nend)",
   "inferred": false,
   "source_line": 6104,
   "permissions": [],
@@ -23685,7 +23821,13 @@
   "inferred": false,
   "source_line": 463,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_state_key",
+   "invalid_state_op",
+   "invalid_state_selector",
+   "state_unavailable",
+   "unknown_bag"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "AddStateBagChangeHandler",
@@ -23933,7 +24075,9 @@
   "inferred": false,
   "source_line": 175,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "not_in_cancellable_event"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "CancelEvent",
@@ -24842,7 +24986,9 @@
   "inferred": false,
   "source_line": 317,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "DeleteResourceKvp",
@@ -24874,7 +25020,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "DestroySound",
@@ -24910,7 +25068,12 @@
   "inferred": false,
   "source_line": 260,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "id_required",
+   "invalid_entity_id",
+   "kind_required",
+   "unknown_entity_kind"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "DoesEntityExist",
@@ -25044,7 +25207,13 @@
   "inferred": false,
   "source_line": 449,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_state_key",
+   "invalid_state_op",
+   "invalid_state_selector",
+   "state_unavailable",
+   "unknown_bag"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Entity",
@@ -25077,7 +25246,20 @@
   "permissions": [
    "runtime.commands"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_command_line",
+   "invalid_delay",
+   "invalid_operation",
+   "invalid_reason",
+   "invalid_resource_name",
+   "permission_denied:resources.control",
+   "permission_denied:runtime.commands",
+   "permission_denied:runtime.restart",
+   "restart_control_unavailable",
+   "runtime_control_unavailable",
+   "unknown_metadata_key",
+   "unknown_resource"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "ExecuteCommand",
@@ -25306,13 +25488,15 @@
   "name": "GetCurrentResourceName",
   "handler": "GetCurrentResourceName",
   "summary": "Return this manifest's resource name.",
-  "description": "Return this manifest's resource name.",
+  "description": "The `resource \"...\"` line of this resource's own `open77.lua`, as the host loaded it. A local read with no permission and no failure; `Open77.resource.name()` is the same function. Compare it with the argument of `onResourceStart` / `onResourceStop` to react to this resource's own lifecycle only.",
   "params": [],
-  "returns": [],
-  "api_set": "network",
+  "returns": [
+   "resource name"
+  ],
+  "api_set": "shared",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "-- GetCurrentResourceName is the low-level form of Open77.resource.name (bound to the same native);\n-- the example shows the Open77.* spelling resources are told to prefer.\n-- Prefix log lines with the resource name\nprint((\"[%s] started\"):format(Open77.resource.name()))",
+  "example": "AddEventHandler(\"onResourceStart\", function(name)\n    if name ~= GetCurrentResourceName() then return end\n    print(\"up\")\nend)",
   "inferred": false,
   "source_line": 902,
   "permissions": [],
@@ -25517,7 +25701,9 @@
   "inferred": false,
   "source_line": 222,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_argument"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "GetHashKey",
@@ -25896,7 +26082,18 @@
   "inferred": false,
   "source_line": 372,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_delay",
+   "invalid_operation",
+   "invalid_reason",
+   "permission_denied:resources.control",
+   "permission_denied:runtime.commands",
+   "permission_denied:runtime.restart",
+   "restart_control_unavailable",
+   "runtime_control_unavailable",
+   "unknown_metadata_key",
+   "unknown_resource"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "GetNumResources",
@@ -25930,7 +26127,13 @@
   "inferred": true,
   "source_line": 70,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_argument",
+   "invalid_position",
+   "player_not_found",
+   "position_unknown",
+   "sessions_unavailable"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "GetPlayerDistance",
@@ -26088,7 +26291,10 @@
   "inferred": false,
   "source_line": 327,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_identifier_type",
+   "unknown_identifier_type"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "GetPlayerIdentifierByType",
@@ -26118,7 +26324,9 @@
   "inferred": false,
   "source_line": 341,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "player_not_found"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "GetPlayerIdentifiers",
@@ -26665,8 +26873,16 @@
   "source_line": 69,
   "permissions": [],
   "reasons": [
+   "invalid_argument",
+   "invalid_bucket",
+   "invalid_limit",
+   "invalid_max_age",
    "invalid_options",
-   "invalid_radius"
+   "invalid_position",
+   "invalid_radius",
+   "player_not_found",
+   "position_unknown",
+   "sessions_unavailable"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -26797,7 +27013,19 @@
   "inferred": false,
   "source_line": 368,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_delay",
+   "invalid_operation",
+   "invalid_reason",
+   "invalid_resource_name",
+   "permission_denied:resources.control",
+   "permission_denied:runtime.commands",
+   "permission_denied:runtime.restart",
+   "restart_control_unavailable",
+   "runtime_control_unavailable",
+   "unknown_metadata_key",
+   "unknown_resource"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "GetRegisteredCommands",
@@ -26827,7 +27055,18 @@
   "inferred": false,
   "source_line": 379,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_delay",
+   "invalid_operation",
+   "invalid_reason",
+   "permission_denied:resources.control",
+   "permission_denied:runtime.commands",
+   "permission_denied:runtime.restart",
+   "restart_control_unavailable",
+   "runtime_control_unavailable",
+   "unknown_metadata_key",
+   "unknown_resource"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "GetResourceByFindIndex",
@@ -26864,7 +27103,9 @@
   "inferred": false,
   "source_line": 316,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "GetResourceKvp",
@@ -26901,7 +27142,19 @@
   "inferred": false,
   "source_line": 369,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_delay",
+   "invalid_operation",
+   "invalid_reason",
+   "invalid_resource_name",
+   "permission_denied:resources.control",
+   "permission_denied:runtime.commands",
+   "permission_denied:runtime.restart",
+   "restart_control_unavailable",
+   "runtime_control_unavailable",
+   "unknown_metadata_key",
+   "unknown_resource"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "GetResourceMetadata",
@@ -26982,7 +27235,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "GetSoundState",
@@ -27214,7 +27479,10 @@
   "inferred": false,
   "source_line": 48,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_tick_function",
+   "task_limit_or_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "IsDuplicityVersion",
@@ -27402,7 +27670,13 @@
   "permissions": [
    "acl.read"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_permission",
+   "invalid_player_id",
+   "invalid_user_id",
+   "permission_denied:acl.read",
+   "principal_not_connected"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "IsPrincipalAceAllowed",
@@ -27542,7 +27816,11 @@
   "permissions": [
    "filesystem.read"
   ],
-  "reasons": [],
+  "reasons": [
+   "cross_resource_read_denied",
+   "invalid_argument",
+   "permission_denied:filesystem.read"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "LoadResourceFile",
@@ -27604,7 +27882,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "PauseSound",
@@ -27660,7 +27950,16 @@
   "permissions": [
    "http.request"
   ],
-  "reasons": [],
+  "reasons": [
+   "http_unavailable",
+   "invalid_body",
+   "invalid_headers",
+   "invalid_method",
+   "invalid_request_id",
+   "invalid_url",
+   "permission_denied:http.request",
+   "too_many_headers"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "PerformHttpRequest",
@@ -27698,7 +27997,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "Play2DSound",
@@ -27742,7 +28053,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "Play3DSound",
@@ -28004,7 +28327,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "PlaySound",
@@ -28087,7 +28422,7 @@
   "name": "RegisterCommand",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Registers a command usable from the server console and from chat.",
-  "description": "No permission to register. The handler receives (source, args, raw), where source is the player id or 0 for the console, args is the packed argument list and raw is the untouched line. Names are 1 to 64 characters of letters, digits, `_`, `.`, `:` or `-`, matched case-insensitively; registering one twice raises `duplicate command`. With restricted = true the caller must hold the ACL entry command.<name> -- see Identity and ACL.",
+  "description": "No permission to register. The handler receives `(source, args, raw)`: `source` is a number -- the player id, or `0` for the server console and Warden; `args` is `table.pack` of the arguments after the command name, so `args.n` is their count and every one is a **string** (`\"42\"`, not `42`); `raw` is the command name followed by those arguments joined with single spaces, without the leading `/`. From chat the client splits the line shell-style (quotes group words, backslash escapes, at most 32 arguments) before sending it; from the console the line is split on spaces only, so quotes arrive literally. A chat `/name` and a console `name` reach the same handler, which runs on the next scheduler tick, not inline. Names are 1 to 64 characters of letters, digits, `_`, `.`, `:` or `-`, matched case-insensitively; registering one twice raises `duplicate command`. With `restricted = true` a player must hold the ACL entry `command.<name>` (lower-case) -- the console always may -- see Identity and ACL.",
   "params": [
    {
     "name": "name",
@@ -28114,7 +28449,7 @@
   "api_set": "shared",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
-  "example": "RegisterCommand(\"hello\", function(source, args)\n    print((\"player %d said hello\"):format(source))\nend, false)",
+  "example": "-- /pay <playerId> <amount>: every argument is a string, convert what must be a number\nRegisterCommand(\"pay\", function(source, args, raw)\n    local target, amount = tonumber(args[1]), tonumber(args[2])\n    if source == 0 then return print(\"pay: run this from the game, not the console\") end\n    if not target or not amount then\n        return Open77.chat.send(source, \"Usage: /pay <playerId> <amount>\")\n    end\n    transfer(source, target, amount)\nend, false)",
   "inferred": false,
   "source_line": 6125,
   "permissions": [],
@@ -28387,7 +28722,13 @@
   "inferred": false,
   "source_line": 486,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_state_key",
+   "invalid_state_op",
+   "invalid_state_selector",
+   "state_unavailable",
+   "unknown_bag"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "RemoveStateBagChangeHandler",
@@ -28759,7 +29100,11 @@
   "inferred": false,
   "source_line": 205,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "cross_resource_write_denied",
+   "invalid_argument",
+   "permission_denied:filesystem.write"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "SaveResourceFile",
@@ -28797,7 +29142,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "SeekSound",
@@ -29032,7 +29389,11 @@
   "inferred": false,
   "source_line": 140,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "convars_unavailable",
+   "invalid_convar_name",
+   "invalid_convar_value"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "SetConvar",
@@ -29112,7 +29473,13 @@
   "permissions": [
    "players.stats.apply"
   ],
-  "reasons": [],
+  "reasons": [
+   "id_required",
+   "invalid_argument",
+   "kind_required",
+   "unknown_entity_kind",
+   "unsupported_entity_kind"
+  ],
   "since": "2.31.13+op77.74",
   "constant": false,
   "qualified": "SetEntityInvincible",
@@ -30234,7 +30601,9 @@
   "inferred": false,
   "source_line": 315,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "SetResourceKvp",
@@ -30340,7 +30709,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "SetSoundPosition",
@@ -30378,7 +30759,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "SetSoundVolume",
@@ -30408,7 +30801,10 @@
   "inferred": false,
   "source_line": 66,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_tick_function",
+   "task_limit_or_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "SetTick",
@@ -30680,7 +31076,19 @@
   "permissions": [
    "resources.control"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_delay",
+   "invalid_operation",
+   "invalid_reason",
+   "invalid_resource_name",
+   "permission_denied:resources.control",
+   "permission_denied:runtime.commands",
+   "permission_denied:runtime.restart",
+   "restart_control_unavailable",
+   "runtime_control_unavailable",
+   "unknown_metadata_key",
+   "unknown_resource"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "StartResource",
@@ -30713,7 +31121,19 @@
   "permissions": [
    "resources.control"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_delay",
+   "invalid_operation",
+   "invalid_reason",
+   "invalid_resource_name",
+   "permission_denied:resources.control",
+   "permission_denied:runtime.commands",
+   "permission_denied:runtime.restart",
+   "restart_control_unavailable",
+   "runtime_control_unavailable",
+   "unknown_metadata_key",
+   "unknown_resource"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "StopResource",
@@ -30745,7 +31165,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "StopSound",
@@ -30817,7 +31249,14 @@
   "inferred": false,
   "source_line": 237,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
+   "invalid_event_name",
+   "resource_preparing",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "TriggerCancellableEvent",
@@ -30898,7 +31337,15 @@
   "inferred": false,
   "source_line": 186,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
+   "invalid_event_name",
+   "reserved_hacking_event",
+   "resource_preparing",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "TriggerEvent",
@@ -30949,7 +31396,19 @@
   "permissions": [
    "network.events"
   ],
-  "reasons": [],
+  "reasons": [
+   "event_argument_limit",
+   "invalid_event_name",
+   "invalid_player_id",
+   "invalid_rate",
+   "latent_payload_not_serializable",
+   "latent_payload_too_large",
+   "latent_stream_limit",
+   "network_unavailable",
+   "permission_denied:network.events",
+   "player_not_found",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.73",
   "constant": false,
   "qualified": "TriggerLatentClientEvent",
@@ -30985,7 +31444,9 @@
   "inferred": false,
   "source_line": 6164,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "reserved_hacking_event"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "TriggerLocalEvent",
@@ -32096,7 +32557,10 @@
   "source_line": 225,
   "permissions": [],
   "reasons": [
-   "await_requires_scheduler_coroutine"
+   "await_requires_scheduler_coroutine",
+   "pending",
+   "settled",
+   "unknown"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -32120,7 +32584,11 @@
   "inferred": false,
   "source_line": 220,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "pending",
+   "settled",
+   "unknown"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.EventVerdict.canceled",
@@ -32143,7 +32611,11 @@
   "inferred": false,
   "source_line": 216,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "pending",
+   "settled",
+   "unknown"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.EventVerdict.status",
@@ -32330,9 +32802,11 @@
   "reasons": [
    "abilities_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -32369,9 +32843,11 @@
   "reasons": [
    "abilities_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -32408,9 +32884,11 @@
   "reasons": [
    "abilities_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -32453,9 +32931,11 @@
   "reasons": [
    "abilities_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -32492,9 +32972,11 @@
   "reasons": [
    "abilities_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -32791,7 +33273,9 @@
    "access_persistence_failed",
    "access_unavailable",
    "ban_persistence_failed",
+   "invalid_json",
    "invalid_user_id",
+   "json_too_large",
    "permission_denied:players.access",
    "unknown_operation"
   ],
@@ -32876,6 +33360,9 @@
    "invalid_permission",
    "invalid_role",
    "invalid_user_id",
+   "permission_denied:acl.read",
+   "runtime_acl_limit",
+   "scope_not_delegable",
    "unknown_operation"
   ],
   "since": "2.31.13+op77.67",
@@ -32919,6 +33406,9 @@
    "invalid_permission",
    "invalid_role",
    "invalid_user_id",
+   "permission_denied:acl.read",
+   "runtime_acl_limit",
+   "scope_not_delegable",
    "unknown_operation"
   ],
   "since": "2.31.13+op77.67",
@@ -32962,6 +33452,9 @@
    "invalid_permission",
    "invalid_role",
    "invalid_user_id",
+   "permission_denied:acl.read",
+   "runtime_acl_limit",
+   "scope_not_delegable",
    "unknown_operation"
   ],
   "since": "2.31.13+op77.67",
@@ -32999,6 +33492,9 @@
    "invalid_permission",
    "invalid_role",
    "invalid_user_id",
+   "permission_denied:acl.read",
+   "runtime_acl_limit",
+   "scope_not_delegable",
    "unknown_operation"
   ],
   "since": "2.31.13+op77.67",
@@ -33084,6 +33580,9 @@
    "invalid_permission",
    "invalid_role",
    "invalid_user_id",
+   "permission_denied:acl.read",
+   "runtime_acl_limit",
+   "scope_not_delegable",
    "unknown_operation"
   ],
   "since": "2.31.13+op77.67",
@@ -33127,6 +33626,9 @@
    "invalid_permission",
    "invalid_role",
    "invalid_user_id",
+   "permission_denied:acl.read",
+   "runtime_acl_limit",
+   "scope_not_delegable",
    "unknown_operation"
   ],
   "since": "2.31.13+op77.67",
@@ -33195,10 +33697,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33234,10 +33738,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33273,10 +33779,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33312,10 +33820,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33351,10 +33861,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33402,10 +33914,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33465,10 +33979,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33516,10 +34032,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33567,10 +34085,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33612,10 +34132,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33651,10 +34173,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -33705,7 +34229,8 @@
   ],
   "reasons": [
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -33742,7 +34267,8 @@
   ],
   "reasons": [
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -33839,7 +34365,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "Open77.audio.pause",
@@ -33871,7 +34409,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "Open77.audio.play",
@@ -33909,7 +34459,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "Open77.audio.play2D",
@@ -33953,7 +34515,19 @@
   "permissions": [
    "audio.network"
   ],
-  "reasons": [],
+  "reasons": [
+   "audio_asset_not_declared_or_unsafe",
+   "audio_unavailable",
+   "invalid_audio_options",
+   "invalid_audio_request",
+   "invalid_json",
+   "json_too_large",
+   "loop_requires_duration",
+   "permission_denied:audio.network",
+   "resource_stopping",
+   "server_audio_must_be_networked",
+   "sound_not_found"
+  ],
   "since": "2.31.13+op77.63",
   "constant": false,
   "qualified": "Open77.audio.play3D",
@@ -34140,8 +34714,20 @@
   "example": "-- Ask one client to confirm a purchase (alias of Open77.net.callClient)\nCreateThread(function()\n    local pending = Open77.callbacks.callClient(source, \"confirmPurchase\", \"ammo_box\", 50)\n    local confirmed = pending and pending:await()\n    if confirmed then sell(source, \"ammo_box\") end\nend)",
   "inferred": false,
   "source_line": 501,
-  "permissions": [],
-  "reasons": [],
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [
+   "callback_arguments_not_serializable",
+   "callback_payload_too_large",
+   "callback_request_limit",
+   "callback_too_many_arguments",
+   "invalid_callback_name",
+   "invalid_callback_timeout",
+   "network_unavailable",
+   "permission_denied:network.events",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.callbacks.callClient",
@@ -34182,8 +34768,20 @@
   "example": "-- The same question, awaited in one line\nCreateThread(function()\n    local confirmed = Open77.callbacks.callClientAwait(source, \"confirmPurchase\", \"ammo_box\", 50)\n    if confirmed then sell(source, \"ammo_box\") end\nend)",
   "inferred": false,
   "source_line": 501,
-  "permissions": [],
-  "reasons": [],
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [
+   "callback_arguments_not_serializable",
+   "callback_payload_too_large",
+   "callback_request_limit",
+   "callback_too_many_arguments",
+   "invalid_callback_name",
+   "invalid_callback_timeout",
+   "network_unavailable",
+   "permission_denied:network.events",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.callbacks.callClientAwait",
@@ -34218,10 +34816,15 @@
   "example": "-- Answer a client's question with the authenticated source (alias of Open77.net.register)\nOpen77.callbacks.register(\"getStock\", function(source, item)\n    return stock[item] or 0, prices[item]\nend)",
   "inferred": false,
   "source_line": 500,
-  "permissions": [],
+  "permissions": [
+   "network.events"
+  ],
   "reasons": [
    "callback_function_required",
-   "invalid_callback_name"
+   "callback_registration_limit",
+   "invalid_callback_name",
+   "permission_denied:network.events",
+   "resource_stopping"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -34253,6 +34856,7 @@
   "source_line": 500,
   "permissions": [],
   "reasons": [
+   "callback_not_found",
    "invalid_callback_name"
   ],
   "since": "2.31.13+op77.67",
@@ -34265,7 +34869,7 @@
   "name": "addSuggestion",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Publishes one slash-command suggestion to a player's chat.",
-  "description": "Facade over `chat:addSuggestion`. `target` is a playerId or -1 for everyone; `command` is the command text (for example \"/tow\"), `help` a one-line description, `parameters` a list of { name, help } tables. The suggestion list is also what the admin menu harvests. Anything that reaches clients is refused with `resource_preparing` while the resource's chunk is still loading: call it from `AddEventHandler(\"onResourceStart\", ...)` (or from a command, an event or a later tick), not at the top level of the script.",
+  "description": "Facade over `chat:addSuggestion`. `target` is a playerId or -1 for everyone; `command` is the command text (for example \"/tow\"), `help` a one-line description, `parameters` a list of { name, help } tables. The suggestion list is also what the admin menu harvests. Publishes on the host bus, so it answers `resource_preparing` at the top level of a script: call it from `AddEventHandler(\"onResourceStart\", ...)`, a command or an event handler.",
   "params": [
    {
     "name": "target",
@@ -34304,9 +34908,16 @@
   "source_line": 303,
   "permissions": [],
   "reasons": [
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
    "invalid_chat_command",
    "invalid_chat_suggestion",
-   "invalid_chat_target"
+   "invalid_chat_target",
+   "invalid_event_name",
+   "reserved_hacking_event",
+   "resource_preparing",
+   "resource_stopping"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -34318,11 +34929,11 @@
   "name": "addSuggestions",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Publishes a list of slash-command suggestions at once.",
-  "description": "Facade over `chat:addSuggestions`. The list is an array of { command, help, parameters } tables. Usually sent from a `chat:ready` handler, when a player's chat UI comes up. Anything that reaches clients is refused with `resource_preparing` while the resource's chunk is still loading: call it from `AddEventHandler(\"onResourceStart\", ...)` (or from a command, an event or a later tick), not at the top level of the script.",
+  "description": "Facade over `chat:addSuggestions`. `target` is a player id (a number) or `-1` for everyone; the list is an array of { command, help, parameters } tables. Usually sent from a `chat:ready` handler (raised by each player's chat UI once it is up; `source` is that player) and once from `onResourceStart` with `-1`, for the players already connected. Publishes on the host bus, so it answers `resource_preparing` at the top level of a script.",
   "params": [
    {
     "name": "target",
-    "type": "integer",
+    "type": "integer|-1",
     "optional": false,
     "default": null
    },
@@ -34345,8 +34956,15 @@
   "source_line": 314,
   "permissions": [],
   "reasons": [
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
    "invalid_chat_suggestion",
-   "invalid_chat_target"
+   "invalid_chat_target",
+   "invalid_event_name",
+   "reserved_hacking_event",
+   "resource_preparing",
+   "resource_stopping"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -34358,7 +34976,7 @@
   "name": "broadcast",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sends a chat message to every player.",
-  "description": "Exactly `Open77.chat.send(-1, message)`. Same asynchrony and same ordering caveat.",
+  "description": "Exactly `Open77.chat.send(-1, message)`: the same reasons, the same asynchrony and the same ordering caveat, and the same `resource_preparing` answer at the top level of a script.",
   "params": [
    {
     "name": "message",
@@ -34378,7 +34996,16 @@
   "inferred": false,
   "source_line": 291,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
+   "invalid_chat_message",
+   "invalid_chat_target",
+   "invalid_event_name",
+   "resource_preparing",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.chat.broadcast",
@@ -34410,7 +35037,14 @@
   "source_line": 327,
   "permissions": [],
   "reasons": [
-   "invalid_chat_target"
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
+   "invalid_chat_target",
+   "invalid_event_name",
+   "reserved_hacking_event",
+   "resource_preparing",
+   "resource_stopping"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -34482,8 +35116,15 @@
   "source_line": 320,
   "permissions": [],
   "reasons": [
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
    "invalid_chat_command",
-   "invalid_chat_target"
+   "invalid_chat_target",
+   "invalid_event_name",
+   "reserved_hacking_event",
+   "resource_preparing",
+   "resource_stopping"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -34495,11 +35136,11 @@
   "name": "send",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sends a chat message to one player, or to everyone with -1.",
-  "description": "A thin facade over `chat:addMessage` on the host-wide event bus; `open77_chat` remains the only chat authority and does the actual push to clients. `message` is a plain string or the full table the chat UI renders ({ type, author, text, playerId, color = { r, g, b } as a positional array of three 0-255 numbers, e.g. `{ 0, 229, 255 }` -- a keyed `{ r = ..., g = ..., b = ... }` table is silently ignored by the chat UI }). Grants nothing: the facade never reaches a client itself, so it needs no `network.events`. Delivery is asynchronous -- it lands on the next tick boundary -- and two sends in the same tick arrive in the opposite order, because the resource scheduler collects ready tasks back to front. Put a `Wait(0)` between lines that must read in order. With no chat authority running the call still returns true, since the bus cannot tell a publisher that nobody listened.",
+  "description": "A thin facade over `chat:addMessage` on the host-wide event bus; `open77_chat` remains the only chat authority and does the actual push to clients. `playerId` must be a **number**: an integer id, `-1` or `nil` for everyone. A player id delivered by a host event (`onPlayerReady`, `onPlayerDisconnected`, `onPlayerEnteredVehicle`...) is a string and is refused with `invalid_chat_target` -- pass `tonumber(playerId)`; `source` inside a net-event or command handler is already a number. `message` is a plain string (1 to 4,096 bytes) or the full table the chat UI renders ({ type, author, text, playerId, color = { r, g, b } as a positional array of three 0-255 numbers, e.g. `{ 0, 229, 255 }` -- a keyed `{ r = ..., g = ..., b = ... }` table is silently ignored by the chat UI }). Grants nothing: the facade never reaches a client itself, so it needs no `network.events`. Because it publishes on the host bus it answers `resource_preparing` at the top level of a script, before the chunk has loaded: send from `onResourceStart`, a command or an event handler. Delivery is asynchronous -- it lands on the next tick boundary -- and two sends in the same tick arrive in the opposite order, because the resource scheduler collects ready tasks back to front. Put a `Wait(0)` between lines that must read in order. With no chat authority running the call still returns true, since the bus cannot tell a publisher that nobody listened.",
   "params": [
    {
     "name": "playerId",
-    "type": "integer",
+    "type": "integer|-1|nil",
     "optional": false,
     "default": null
    },
@@ -34522,8 +35163,15 @@
   "source_line": 281,
   "permissions": [],
   "reasons": [
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
    "invalid_chat_message",
-   "invalid_chat_target"
+   "invalid_chat_target",
+   "invalid_event_name",
+   "reserved_hacking_event",
+   "resource_preparing",
+   "resource_stopping"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -34559,7 +35207,8 @@
   ],
   "reasons": [
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -34608,7 +35257,8 @@
   "reasons": [
    "invalid_record",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -34644,7 +35294,8 @@
   ],
   "reasons": [
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -34693,7 +35344,8 @@
   "reasons": [
    "invalid_wardrobe",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -34736,7 +35388,8 @@
   "reasons": [
    "invalid_slot",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -35239,6 +35892,7 @@
   "source_line": 151,
   "permissions": [],
   "reasons": [
+   "convars_unavailable",
    "invalid_convar_name",
    "invalid_convar_value"
   ],
@@ -35275,10 +35929,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35322,10 +35978,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35369,10 +36027,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35410,10 +36070,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35451,10 +36113,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35492,10 +36156,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35551,10 +36217,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35610,10 +36278,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35651,10 +36321,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35685,10 +36357,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35732,10 +36406,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35779,10 +36455,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35820,10 +36498,12 @@
   "reasons": [
    "cyberware_storage_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "player_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -35867,9 +36547,11 @@
   "reasons": [
    "dash_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -35899,9 +36581,11 @@
   "reasons": [
    "dash_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -35938,9 +36622,11 @@
   "reasons": [
    "dash_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -35977,9 +36663,11 @@
   "reasons": [
    "dash_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -36022,9 +36710,11 @@
   "reasons": [
    "dash_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -36061,9 +36751,11 @@
   "reasons": [
    "dash_unavailable",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -37801,7 +38493,14 @@
   "permissions": [
    "world.environment"
   ],
-  "reasons": [],
+  "reasons": [
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
+   "permission_denied:world.environment",
+   "resource_preparing",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.environment.publishChange",
@@ -38037,7 +38736,9 @@
   "inferred": false,
   "source_line": 248,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "not_in_cancellable_event"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.events.cancel",
@@ -38073,7 +38774,15 @@
   "inferred": false,
   "source_line": 245,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
+   "invalid_event_name",
+   "reserved_hacking_event",
+   "resource_preparing",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "Open77.events.emit",
@@ -38109,7 +38818,14 @@
   "inferred": false,
   "source_line": 247,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "event_argument_limit",
+   "event_payload_not_serializable",
+   "event_queue_limit",
+   "invalid_event_name",
+   "resource_preparing",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.events.emitCancellable",
@@ -38279,7 +38995,12 @@
   "inferred": false,
   "source_line": 413,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "export_arguments_not_serializable",
+   "invalid_export_name",
+   "resource_preparing",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "Open77.exports.call",
@@ -38321,7 +39042,18 @@
   "inferred": false,
   "source_line": 420,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "export_arguments_not_serializable",
+   "export_host_error",
+   "export_not_found",
+   "export_recursion_limit",
+   "export_resource_unavailable",
+   "export_stack_limit",
+   "export_target_stopped",
+   "invalid_export_name",
+   "resource_preparing",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.exports.callSync",
@@ -38358,11 +39090,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38403,11 +39137,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38441,11 +39177,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38486,11 +39224,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38537,11 +39277,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38582,11 +39324,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38627,11 +39371,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38672,11 +39418,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38741,11 +39489,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38810,11 +39560,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38855,11 +39607,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38900,11 +39654,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -38958,7 +39714,8 @@
    "invalid_item_record",
    "invalid_slot",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -39002,7 +39759,8 @@
    "invalid_argument",
    "invalid_slot",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -39038,7 +39796,8 @@
   ],
   "reasons": [
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -39160,7 +39919,16 @@
   "permissions": [
    "http.request"
   ],
-  "reasons": [],
+  "reasons": [
+   "http_unavailable",
+   "invalid_body",
+   "invalid_headers",
+   "invalid_method",
+   "invalid_request_id",
+   "invalid_url",
+   "permission_denied:http.request",
+   "too_many_headers"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "Open77.http.request",
@@ -39529,6 +40297,8 @@
    "filesystem.read"
   ],
   "reasons": [
+   "invalid_json",
+   "json_too_large",
    "permission_denied:filesystem.read"
   ],
   "since": "2.31.13+op77.45",
@@ -39714,7 +40484,9 @@
   "inferred": false,
   "source_line": 305,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.clear",
@@ -39757,7 +40529,9 @@
   "inferred": false,
   "source_line": 308,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.compareAndSet",
@@ -39788,7 +40562,9 @@
   "inferred": false,
   "source_line": 302,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.delete",
@@ -39825,7 +40601,9 @@
   "inferred": false,
   "source_line": 303,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.find",
@@ -39862,7 +40640,9 @@
   "inferred": false,
   "source_line": 300,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.get",
@@ -39893,7 +40673,9 @@
   "inferred": false,
   "source_line": 301,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.has",
@@ -39930,7 +40712,9 @@
   "inferred": false,
   "source_line": 306,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.increment",
@@ -39967,7 +40751,9 @@
   "inferred": false,
   "source_line": 304,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.keys",
@@ -40004,7 +40790,9 @@
   "inferred": false,
   "source_line": 299,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.set",
@@ -40041,7 +40829,9 @@
   "inferred": false,
   "source_line": 307,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.setIfAbsent",
@@ -40065,7 +40855,9 @@
   "inferred": false,
   "source_line": 311,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_operation"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.kvp.stats",
@@ -40386,9 +41178,11 @@
   "permissions": [],
   "reasons": [
    "invalid_duration",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "motion_unavailable",
    "resource_stopping"
   ],
@@ -40424,9 +41218,11 @@
   "permissions": [],
   "reasons": [
    "invalid_duration",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "motion_unavailable",
    "resource_stopping"
   ],
@@ -40468,9 +41264,11 @@
   "permissions": [],
   "reasons": [
    "invalid_duration",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "motion_unavailable",
    "resource_stopping"
   ],
@@ -40517,7 +41315,17 @@
   "permissions": [
    "network.events"
   ],
-  "reasons": [],
+  "reasons": [
+   "callback_arguments_not_serializable",
+   "callback_payload_too_large",
+   "callback_request_limit",
+   "callback_too_many_arguments",
+   "invalid_callback_name",
+   "invalid_callback_timeout",
+   "network_unavailable",
+   "permission_denied:network.events",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.net.callClient",
@@ -40561,7 +41369,17 @@
   "permissions": [
    "network.events"
   ],
-  "reasons": [],
+  "reasons": [
+   "callback_arguments_not_serializable",
+   "callback_payload_too_large",
+   "callback_request_limit",
+   "callback_too_many_arguments",
+   "invalid_callback_name",
+   "invalid_callback_timeout",
+   "network_unavailable",
+   "permission_denied:network.events",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.net.callClientAwait",
@@ -40693,7 +41511,19 @@
   "permissions": [
    "network.events"
   ],
-  "reasons": [],
+  "reasons": [
+   "event_argument_limit",
+   "invalid_event_name",
+   "invalid_player_id",
+   "invalid_rate",
+   "latent_payload_not_serializable",
+   "latent_payload_too_large",
+   "latent_stream_limit",
+   "network_unavailable",
+   "permission_denied:network.events",
+   "player_not_found",
+   "resource_stopping"
+  ],
   "since": "2.31.13+op77.73",
   "constant": false,
   "qualified": "Open77.net.emitLatent",
@@ -40724,7 +41554,9 @@
   "inferred": false,
   "source_line": 403,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "not_found"
+  ],
   "since": "2.31.13+op77.73",
   "constant": false,
   "qualified": "Open77.net.latentStatus",
@@ -40802,7 +41634,10 @@
   ],
   "reasons": [
    "callback_function_required",
-   "invalid_callback_name"
+   "callback_registration_limit",
+   "invalid_callback_name",
+   "permission_denied:network.events",
+   "resource_stopping"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -40836,6 +41671,7 @@
    "network.events"
   ],
   "reasons": [
+   "callback_not_found",
    "invalid_callback_name"
   ],
   "since": "2.31.13+op77.67",
@@ -40848,7 +41684,7 @@
   "name": "broadcast",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sends one notification to every player.",
-  "description": "`send` with a player id of `-1`. The returned id addresses the whole broadcast, so one `update` or `dismiss` reaches everyone who received it. Anything that reaches clients is refused with `resource_preparing` while the resource's chunk is still loading: call it from `AddEventHandler(\"onResourceStart\", ...)` (or from a command, an event or a later tick), not at the top level of the script.",
+  "description": "`send` with a player id of `-1`. The returned id addresses the whole broadcast, so one `update` or `dismiss` reaches everyone who received it. Delivered through `TriggerClientEvent`, so it needs `network.events` and works from the top level of a script as well as from handlers (unlike the `Open77.chat` facades, which publish on the host bus and answer `resource_preparing` until the chunk has loaded). Declare `dependency \"open77_notifications\"` in the manifest: a server whose load list lacks the package then refuses to start the resource instead of dropping every toast.",
   "params": [
    {
     "name": "definition",
@@ -40957,7 +41793,7 @@
   "name": "send",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sends a notification to one player.",
-  "description": "Routes to the official `open77_notifications` client package. Ids and mutation rights are isolated per calling server resource, so one resource cannot dismiss another's notification. See [notifications](notifications.md) for every definition field and the queue limits. Anything that reaches clients is refused with `resource_preparing` while the resource's chunk is still loading: call it from `AddEventHandler(\"onResourceStart\", ...)` (or from a command, an event or a later tick), not at the top level of the script.",
+  "description": "Routes to the official `open77_notifications` client package. Ids and mutation rights are isolated per calling server resource, so one resource cannot dismiss another's notification. See [notifications](notifications.md) for every definition field and the queue limits. Delivered through `TriggerClientEvent`, so it needs `network.events` and works from the top level of a script as well as from handlers (unlike the `Open77.chat` facades, which publish on the host bus and answer `resource_preparing` until the chunk has loaded). Declare `dependency \"open77_notifications\"` in the manifest: a server whose load list lacks the package then refuses to start the resource instead of dropping every toast.",
   "params": [
    {
     "name": "playerId",
@@ -41314,7 +42150,10 @@
   "permissions": [
    "world.npcs"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_json",
+   "json_too_large"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.npcs.getGroup",
@@ -42415,7 +43254,10 @@
   ],
   "reasons": [
    "invalid_npc_id",
-   "invalid_timeout"
+   "invalid_timeout",
+   "npc_not_found",
+   "npcs_unavailable",
+   "permission_denied:world.npcs"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -43598,10 +44440,12 @@
   ],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "npc_task_invalid_duration",
    "npc_task_invalid_workspot",
    "permission_denied:world.npcs",
@@ -43639,10 +44483,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -43755,9 +44601,11 @@
   "permissions": [],
   "reasons": [
    "interactions_unavailable",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_request",
+   "json_too_large",
    "resource_stopping"
   ],
   "since": "2.31.13+op77.63",
@@ -43791,9 +44639,11 @@
   "permissions": [],
   "reasons": [
    "interactions_unavailable",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_request",
+   "json_too_large",
    "resource_stopping"
   ],
   "since": "2.31.13+op77.63",
@@ -43827,9 +44677,11 @@
   "permissions": [],
   "reasons": [
    "interactions_unavailable",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_request",
+   "json_too_large",
    "resource_stopping"
   ],
   "since": "2.31.13+op77.63",
@@ -43863,9 +44715,11 @@
   "permissions": [],
   "reasons": [
    "interactions_unavailable",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_request",
+   "json_too_large",
    "resource_stopping"
   ],
   "since": "2.31.13+op77.63",
@@ -43892,9 +44746,11 @@
   "permissions": [],
   "reasons": [
    "interactions_unavailable",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_request",
+   "json_too_large",
    "resource_stopping"
   ],
   "since": "2.31.13+op77.63",
@@ -43946,9 +44802,11 @@
   "permissions": [],
   "reasons": [
    "interactions_unavailable",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_request",
+   "json_too_large",
    "resource_stopping"
   ],
   "since": "2.31.13+op77.63",
@@ -44097,8 +44955,16 @@
   "source_line": 8425,
   "permissions": [],
   "reasons": [
+   "invalid_argument",
+   "invalid_bucket",
+   "invalid_limit",
+   "invalid_max_age",
    "invalid_options",
-   "invalid_radius"
+   "invalid_position",
+   "invalid_radius",
+   "player_not_found",
+   "position_unknown",
+   "sessions_unavailable"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -44228,7 +45094,13 @@
   "inferred": false,
   "source_line": 8440,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_argument",
+   "invalid_position",
+   "player_not_found",
+   "position_unknown",
+   "sessions_unavailable"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.players.distance",
@@ -44358,7 +45230,9 @@
   "permissions": [
    "players.screen"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_argument"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.players.fadeIn",
@@ -44403,7 +45277,9 @@
   "permissions": [
    "players.screen"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_argument"
+  ],
   "since": "2.31.13+op77.67",
   "constant": false,
   "qualified": "Open77.players.fadeOut",
@@ -44680,10 +45556,12 @@
   "permissions": [],
   "reasons": [
    "invalid_bucket",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "prevention_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -45247,8 +46125,16 @@
   "source_line": 8424,
   "permissions": [],
   "reasons": [
+   "invalid_argument",
+   "invalid_bucket",
+   "invalid_limit",
+   "invalid_max_age",
    "invalid_options",
-   "invalid_radius"
+   "invalid_position",
+   "invalid_radius",
+   "player_not_found",
+   "position_unknown",
+   "sessions_unavailable"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -45377,7 +46263,17 @@
   "reasons": [
    "invalid_argument",
    "invalid_direction",
-   "invalid_duration"
+   "invalid_duration",
+   "invalid_json",
+   "invalid_operation",
+   "invalid_player",
+   "invalid_player_id",
+   "invalid_request",
+   "json_too_large",
+   "motion_unavailable",
+   "player_not_found",
+   "resource_stopping",
+   "sessions_unavailable"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -45451,6 +46347,8 @@
    "players.screenshot"
   ],
   "reasons": [
+   "callback_payload_too_large",
+   "callback_request_limit",
    "format_unsupported",
    "invalid_callback_timeout",
    "invalid_field",
@@ -45465,7 +46363,11 @@
    "invalid_upload_option:field",
    "invalid_upload_option:filename",
    "invalid_url",
-   "region_invalid"
+   "network_unavailable",
+   "permission_denied:players.screenshot",
+   "player_not_found",
+   "region_invalid",
+   "resource_stopping"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -46140,10 +47042,12 @@
   "permissions": [],
   "reasons": [
    "invalid_bucket",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "prevention_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -46473,10 +47377,12 @@
   "permissions": [],
   "reasons": [
    "invalid_bucket",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "prevention_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -46782,7 +47688,18 @@
   "permissions": [
    "world.vehicles"
   ],
-  "reasons": [],
+  "reasons": [
+   "invalid_argument",
+   "invalid_player_id",
+   "invalid_seat",
+   "invalid_vehicle_id",
+   "permission_denied:world.vehicles",
+   "player_not_found",
+   "player_unavailable",
+   "vehicle_not_found",
+   "vehicles_unavailable",
+   "wrong_bucket"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "Open77.players.warpIntoVehicle",
@@ -47261,8 +48178,19 @@
    "world.props"
   ],
   "reasons": [
+   "invalid_argument",
+   "invalid_attachment",
+   "invalid_attachment_bone",
+   "invalid_attachment_parent",
+   "invalid_attachment_target",
+   "invalid_operation",
+   "invalid_prop_id",
+   "invalid_revision",
    "not_attached",
-   "not_found"
+   "not_found",
+   "permission_denied:world.props",
+   "resource_stopping",
+   "world_unavailable"
   ],
   "since": "2.31.13+op77.63",
   "constant": false,
@@ -47568,7 +48496,10 @@
   "inferred": false,
   "source_line": 7821,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_json",
+   "json_too_large"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "Open77.ready.status",
@@ -47601,9 +48532,11 @@
   "permissions": [],
   "reasons": [
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "reflex_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -47632,9 +48565,11 @@
   "permissions": [],
   "reasons": [
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "reflex_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -47670,9 +48605,11 @@
   "permissions": [],
   "reasons": [
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "reflex_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -47709,9 +48646,11 @@
   "permissions": [],
   "reasons": [
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "reflex_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -47754,9 +48693,11 @@
   "permissions": [],
   "reasons": [
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "reflex_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -47793,9 +48734,11 @@
   "permissions": [],
   "reasons": [
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "reflex_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -47862,6 +48805,7 @@
    "permission_denied:runtime.restart",
    "restart_control_unavailable",
    "runtime_control_unavailable",
+   "unknown_metadata_key",
    "unknown_resource"
   ],
   "since": "2.31.13+op77.67",
@@ -47910,6 +48854,7 @@
    "permission_denied:runtime.restart",
    "restart_control_unavailable",
    "runtime_control_unavailable",
+   "unknown_metadata_key",
    "unknown_resource"
   ],
   "since": "2.31.13+op77.67",
@@ -47977,6 +48922,7 @@
    "permission_denied:runtime.restart",
    "restart_control_unavailable",
    "runtime_control_unavailable",
+   "unknown_metadata_key",
    "unknown_resource"
   ],
   "since": "2.31.13+op77.67",
@@ -48021,6 +48967,7 @@
    "permission_denied:runtime.restart",
    "restart_control_unavailable",
    "runtime_control_unavailable",
+   "unknown_metadata_key",
    "unknown_resource"
   ],
   "since": "2.31.13+op77.67",
@@ -48095,6 +49042,7 @@
    "permission_denied:runtime.restart",
    "restart_control_unavailable",
    "runtime_control_unavailable",
+   "unknown_metadata_key",
    "unknown_resource"
   ],
   "since": "2.31.13+op77.67",
@@ -48335,6 +49283,7 @@
    "permission_denied:runtime.restart",
    "restart_control_unavailable",
    "runtime_control_unavailable",
+   "unknown_metadata_key",
    "unknown_resource"
   ],
   "since": "2.31.13+op77.67",
@@ -48369,6 +49318,7 @@
    "permission_denied:runtime.restart",
    "restart_control_unavailable",
    "runtime_control_unavailable",
+   "unknown_metadata_key",
    "unknown_resource"
   ],
   "since": "2.31.13+op77.67",
@@ -48413,6 +49363,7 @@
    "permission_denied:runtime.restart",
    "restart_control_unavailable",
    "runtime_control_unavailable",
+   "unknown_metadata_key",
    "unknown_resource"
   ],
   "since": "2.31.13+op77.67",
@@ -48522,6 +49473,7 @@
    "permission_denied:runtime.restart",
    "restart_control_unavailable",
    "runtime_control_unavailable",
+   "unknown_metadata_key",
    "unknown_resource"
   ],
   "since": "2.31.13+op77.67",
@@ -48571,6 +49523,7 @@
    "permission_denied:runtime.restart",
    "restart_control_unavailable",
    "runtime_control_unavailable",
+   "unknown_metadata_key",
    "unknown_resource"
   ],
   "since": "2.31.13+op77.67",
@@ -48667,7 +49620,12 @@
    "network.events"
   ],
   "reasons": [
+   "invalid_argument",
+   "invalid_bucket",
+   "invalid_limit",
+   "invalid_max_age",
    "invalid_options",
+   "invalid_position",
    "invalid_radius",
    "invalid_sound_action",
    "invalid_sound_file",
@@ -48677,6 +49635,9 @@
    "network_unavailable",
    "no_audience",
    "permission_denied:network.events",
+   "player_not_found",
+   "position_unknown",
+   "sessions_unavailable",
    "sound_audience_too_large",
    "sound_payload_not_serializable",
    "sound_payload_too_large"
@@ -48875,7 +49836,12 @@
    "network.events"
   ],
   "reasons": [
+   "invalid_argument",
+   "invalid_bucket",
+   "invalid_limit",
+   "invalid_max_age",
    "invalid_options",
+   "invalid_position",
    "invalid_radius",
    "invalid_sound_action",
    "invalid_sound_payload",
@@ -48883,6 +49849,9 @@
    "network_unavailable",
    "no_audience",
    "permission_denied:network.events",
+   "player_not_found",
+   "position_unknown",
+   "sessions_unavailable",
    "sound_audience_too_large",
    "sound_payload_not_serializable",
    "sound_payload_too_large"
@@ -48931,7 +49900,10 @@
   "permissions": [],
   "reasons": [
    "invalid_state_key",
+   "invalid_state_op",
    "invalid_state_selector",
+   "state_unavailable",
+   "unknown_bag",
    "validator_required"
   ],
   "since": "2.31.13+op77.67",
@@ -49046,7 +50018,10 @@
   "permissions": [],
   "reasons": [
    "invalid_state_key",
-   "invalid_state_selector"
+   "invalid_state_op",
+   "invalid_state_selector",
+   "state_unavailable",
+   "unknown_bag"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -49110,7 +50085,10 @@
   "inferred": false,
   "source_line": 7855,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_json",
+   "json_too_large"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "Open77.state.load",
@@ -49142,7 +50120,12 @@
   "source_line": 432,
   "permissions": [],
   "reasons": [
-   "invalid_subscription"
+   "invalid_state_key",
+   "invalid_state_op",
+   "invalid_state_selector",
+   "invalid_subscription",
+   "state_unavailable",
+   "unknown_bag"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -49188,7 +50171,11 @@
   "permissions": [],
   "reasons": [
    "handler_required",
-   "invalid_state_selector"
+   "invalid_state_key",
+   "invalid_state_op",
+   "invalid_state_selector",
+   "state_unavailable",
+   "unknown_bag"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -50078,11 +51065,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -50123,11 +51112,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -50168,11 +51159,13 @@
    "hacking_unavailable",
    "invalid_action",
    "invalid_definition",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
    "invalid_target",
+   "json_too_large",
    "operation_id_required",
    "request_too_large",
    "resource_stopping"
@@ -50320,10 +51313,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -50416,10 +51411,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -50447,10 +51444,12 @@
   "permissions": [],
   "reasons": [
    "animations_unavailable",
+   "invalid_json",
    "invalid_options",
    "invalid_player",
    "invalid_query",
    "invalid_request",
+   "json_too_large",
    "request_too_large",
    "resource_stopping"
   ],
@@ -51219,7 +52218,7 @@
   "source_line": 8706,
   "permissions": [],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.45",
   "constant": true,
   "qualified": "Open77.vehicles.doors",
   "route_id": "server:Open77.vehicles.doors"
@@ -51262,10 +52261,10 @@
   "name": "flags",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Bit values of a vehicle's `flags` field.",
-  "description": "A public constant table for the `flags` integer a vehicle snapshot carries: `engineOn = 1`, `locked = 2`, `destroyed = 4`, `exploded = 8`, `invulnerable = 16`, `immortal = 32`, `lightsOn = 64`, `highBeams = 128`, `sirenOn = 256`, plus `paintApplied` (the runtime's own bit). Test a bit with `flags & Open77.vehicles.flags.locked ~= 0`; `create` accepts the same names as booleans in its definition.",
+  "description": "A public constant table for the `flags` integer a vehicle snapshot carries: `engineOn = 1`, `locked = 2`, `destroyed = 4`, `exploded = 8`, `invulnerable = 16`, `immortal = 32`, `lightsOn = 64`, `highBeams = 128`, `sirenOn = 256`, `paintApplied = 512` (set by the runtime once a paint job has been applied; not a `create` option). Test a bit with `flags & Open77.vehicles.flags.locked ~= 0`; `create` accepts the other nine names as booleans in its definition.",
   "params": [],
   "returns": [
-   "table of bit values"
+   "table { engineOn = 1, locked = 2, destroyed = 4, exploded = 8, invulnerable = 16, immortal = 32, lightsOn = 64, highBeams = 128, sirenOn = 256, paintApplied = 512 }"
   ],
   "api_set": "network",
   "runtime": "server",
@@ -51275,7 +52274,7 @@
   "source_line": 8701,
   "permissions": [],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.45",
   "constant": true,
   "qualified": "Open77.vehicles.flags",
   "route_id": "server:Open77.vehicles.flags"
@@ -51811,17 +52810,17 @@
   "name": "getPlayerSeat",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Reads one player's canonical vehicle-seat assignment.",
-  "description": "Returns the server ledger entry with vehicle ID, canonical seat name, numeric flags, and transition/policy booleans. It returns `nil` when the player is not assigned to a vehicle.",
+  "description": "Requires `world.vehicles`. Returns the server ledger entry for the player: a table `{ playerId, vehicleId (integer), seat (canonical name such as `seat_front_left`), flags (integer, bits of `Open77.vehicles.occupantFlags`), entering, exiting, forcedEntry, exitLocked, forcedExit (booleans) }`. A single `nil`, with no reason, when the player is not seated, is unknown, or the permission is missing. The same table shape describes each entry of a vehicle snapshot's `occupants` list and the second value of `occupantInSeat`. `vehicleId` is a plain integer; a vehicle id delivered by a host event (`onPlayerLeftVehicle`) is the same number as a string, so `tostring(seat.vehicleId)` compares equal to it.",
   "params": [
    {
     "name": "playerId",
-    "type": "integer",
+    "type": "integer|string",
     "optional": false,
     "default": null
    }
   ],
   "returns": [
-   "seat assignment table, or `nil`"
+   "seat assignment table { playerId, vehicleId, seat, flags, entering, exiting, forcedEntry, exitLocked, forcedExit }, or a single nil"
   ],
   "api_set": "network",
   "runtime": "server",
@@ -52584,7 +53583,7 @@
   "source_line": 8711,
   "permissions": [],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.45",
   "constant": true,
   "qualified": "Open77.vehicles.occupantFlags",
   "route_id": "server:Open77.vehicles.occupantFlags"
@@ -52594,7 +53593,7 @@
   "name": "occupantInSeat",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Who is in one seat of a vehicle.",
-  "description": "Requires `world.vehicles`. The `GetPedInVehicleSeat` of FiveM. Answers the player id and, as a second value, the full occupant record with its transition flags; a plain `nil` means the seat is free.",
+  "description": "Requires `world.vehicles`. The `GetPedInVehicleSeat` of FiveM. Three answers, told apart by the second value: `playerId, record` when someone holds the seat (the record is the seat-assignment table `getPlayerSeat` returns: `playerId`, `vehicleId`, `seat`, `flags`, `entering`, `exiting`, `forcedEntry`, `exitLocked`, `forcedExit`); a single `nil` when the seat is free; `nil, reason` (a string: `invalid_seat`, `vehicle_not_found`) when the call itself failed. So `local who, extra = ...; if who then ... elseif type(extra) == \"string\" then error ... else free`.",
   "params": [
    {
     "name": "id",
@@ -52610,8 +53609,8 @@
    }
   ],
   "returns": [
-   "playerId and occupant record, or nil",
-   "reason: invalid_seat, vehicle_not_found"
+   "playerId (integer) and the occupant's seat-assignment table; a single nil for a free seat",
+   "reason (string) only when the call failed: invalid_seat, vehicle_not_found"
   ],
   "api_set": "network",
   "runtime": "server",
@@ -53267,8 +54266,8 @@
    }
   ],
   "returns": [
-   "boolean, or nil",
-   "reason: invalid_seat, vehicle_not_found"
+   "true or false for a known vehicle and seat; nil when the call failed",
+   "reason: invalid_seat, vehicle_not_found (only with nil)"
   ],
   "api_set": "network",
   "runtime": "server",
@@ -53333,7 +54332,7 @@
   "source_line": 8710,
   "permissions": [],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.45",
   "constant": true,
   "qualified": "Open77.vehicles.seats",
   "route_id": "server:Open77.vehicles.seats"
@@ -54673,7 +55672,18 @@
   "inferred": false,
   "source_line": 8729,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_argument",
+   "invalid_player_id",
+   "invalid_seat",
+   "invalid_vehicle_id",
+   "permission_denied:world.vehicles",
+   "player_not_found",
+   "player_unavailable",
+   "vehicle_not_found",
+   "vehicles_unavailable",
+   "wrong_bucket"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "Open77.vehicles.setPlayerIntoVehicle",
@@ -55586,7 +56596,7 @@
   "source_line": 8709,
   "permissions": [],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.45",
   "constant": true,
   "qualified": "Open77.vehicles.windows",
   "route_id": "server:Open77.vehicles.windows"
@@ -55849,7 +56859,10 @@
   "inferred": false,
   "source_line": 8696,
   "permissions": [],
-  "reasons": [],
+  "reasons": [
+   "invalid_json",
+   "json_too_large"
+  ],
   "since": "2.31.13+op77.57",
   "constant": false,
   "qualified": "Open77.vehicles.ai.on",
@@ -56093,7 +57106,9 @@
    "voice.manage"
   ],
   "reasons": [
+   "invalid_json",
    "invalid_voice_request",
+   "json_too_large",
    "permission_denied:voice.manage",
    "voice_unavailable"
   ],
@@ -56130,7 +57145,9 @@
    "voice.manage"
   ],
   "reasons": [
+   "invalid_json",
    "invalid_voice_request",
+   "json_too_large",
    "options_required",
    "permission_denied:voice.manage",
    "voice_unavailable"
@@ -56168,7 +57185,9 @@
    "voice.manage"
   ],
   "reasons": [
+   "invalid_json",
    "invalid_voice_request",
+   "json_too_large",
    "permission_denied:voice.manage",
    "voice_unavailable"
   ],
@@ -56205,7 +57224,9 @@
    "voice.manage"
   ],
   "reasons": [
+   "invalid_json",
    "invalid_voice_request",
+   "json_too_large",
    "permission_denied:voice.manage",
    "voice_unavailable"
   ],
@@ -56235,7 +57256,9 @@
    "voice.manage"
   ],
   "reasons": [
+   "invalid_json",
    "invalid_voice_request",
+   "json_too_large",
    "permission_denied:voice.manage",
    "voice_unavailable"
   ],
@@ -56649,7 +57672,9 @@
    "voice.manage"
   ],
   "reasons": [
+   "invalid_json",
    "invalid_voice_request",
+   "json_too_large",
    "permission_denied:voice.manage",
    "voice_unavailable"
   ],
@@ -56692,7 +57717,9 @@
    "voice.manage"
   ],
   "reasons": [
+   "invalid_json",
    "invalid_voice_request",
+   "json_too_large",
    "patch_must_be_table",
    "permission_denied:voice.manage",
    "voice_unavailable"
@@ -56738,8 +57765,18 @@
   "example": "-- Draw the player's slot 1 when the round starts\nOpen77.weapons.activate(playerId, 1)",
   "inferred": false,
   "source_line": 8017,
-  "permissions": [],
-  "reasons": [],
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [
+   "invalid_weapon_options",
+   "invalid_weapon_slot",
+   "invalid_weapon_target",
+   "invalid_weapon_template",
+   "network_unavailable",
+   "permission_denied:network.events",
+   "reserved_hacking_event"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "Open77.weapons.activate",
@@ -56795,7 +57832,8 @@
    "invalid_weapon_slot",
    "invalid_weapon_template",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -56831,7 +57869,8 @@
   ],
   "reasons": [
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -56872,7 +57911,10 @@
    "player.weapons.read"
   ],
   "reasons": [
+   "invalid_player_id",
    "invalid_weapon_slot",
+   "permission_denied",
+   "weapons_unavailable",
    "weapons_unreported"
   ],
   "since": "2.31.13+op77.73",
@@ -56908,7 +57950,11 @@
    "player.weapons.read"
   ],
   "reasons": [
-   "gadgets_unreported"
+   "gadgets_unreported",
+   "invalid_player_id",
+   "permission_denied",
+   "weapons_unavailable",
+   "weapons_unreported"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -57003,7 +58049,8 @@
    "invalid_gadget_template",
    "invalid_weapon_options",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -57039,7 +58086,8 @@
   ],
   "reasons": [
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -57082,7 +58130,8 @@
   "reasons": [
    "invalid_weapon_slot",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -57132,7 +58181,8 @@
    "invalid_attachment_slot",
    "invalid_weapon_slot",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -57175,7 +58225,8 @@
   "reasons": [
    "invalid_weapon_slot",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -57211,7 +58262,8 @@
   ],
   "reasons": [
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -57247,7 +58299,8 @@
   ],
   "reasons": [
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -57299,7 +58352,8 @@
    "invalid_weapon_target",
    "invalid_weapon_template",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -57349,7 +58403,8 @@
    "invalid_weapon_ammo",
    "invalid_weapon_slot",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.45",
   "constant": false,
@@ -57407,7 +58462,8 @@
    "invalid_weapon_options",
    "invalid_weapon_slot",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -57457,7 +58513,8 @@
    "invalid_gadget_count",
    "invalid_gadget_template",
    "network_unavailable",
-   "permission_denied:network.events"
+   "permission_denied:network.events",
+   "reserved_hacking_event"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -57494,8 +58551,15 @@
   "example": "-- Same as remove: take the weapon out of slot 1\nOpen77.weapons.unequip(playerId, 1)",
   "inferred": false,
   "source_line": 8026,
-  "permissions": [],
-  "reasons": [],
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [
+   "invalid_weapon_slot",
+   "network_unavailable",
+   "permission_denied:network.events",
+   "reserved_hacking_event"
+  ],
   "since": "2.31.13+op77.45",
   "constant": false,
   "qualified": "Open77.weapons.unequip",
@@ -57542,7 +58606,8 @@
    "bucket_required_for_population",
    "invalid_bucket",
    "invalid_options",
-   "invalid_radius"
+   "invalid_radius",
+   "permission_denied:npcs.foreign"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,
@@ -57609,7 +58674,8 @@
   "source_line": 481,
   "permissions": [],
   "reasons": [
-   "invalid_bucket"
+   "invalid_bucket",
+   "timescale_unavailable_on_this_host"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -57651,13 +58717,24 @@
   ],
   "reasons": [
    "await_requires_scheduler_coroutine",
+   "callback_request_limit",
+   "cancelled",
    "invalid_bucket",
    "invalid_callback_timeout",
    "invalid_options",
    "invalid_player_id",
    "invalid_position",
    "invalid_radius",
-   "no_ground"
+   "network_unavailable",
+   "no_ground",
+   "no_observer",
+   "pending",
+   "permission_denied:world.query",
+   "player_not_found",
+   "promise_cancelled",
+   "rejected",
+   "resolved",
+   "resource_stopping"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -57746,10 +58823,12 @@
   ],
   "reasons": [
    "invalid_bucket",
+   "invalid_json",
    "invalid_operation",
    "invalid_options",
    "invalid_player",
    "invalid_request",
+   "json_too_large",
    "prevention_unavailable",
    "request_too_large",
    "resource_stopping"
@@ -57803,7 +58882,9 @@
    "invalid_duration",
    "invalid_ease",
    "invalid_options",
-   "invalid_scale"
+   "invalid_scale",
+   "permission_denied:world.timescale",
+   "timescale_unavailable_on_this_host"
   ],
   "since": "2.31.13+op77.73",
   "constant": false,
@@ -57998,9 +59079,16 @@
   "source_line": 8123,
   "permissions": [],
   "reasons": [
+   "invalid_argument",
+   "invalid_bucket",
    "invalid_limit",
+   "invalid_max_age",
    "invalid_options",
-   "invalid_radius"
+   "invalid_position",
+   "invalid_radius",
+   "player_not_found",
+   "position_unknown",
+   "sessions_unavailable"
   ],
   "since": "2.31.13+op77.67",
   "constant": false,

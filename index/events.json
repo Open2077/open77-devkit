@@ -7,7 +7,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(source, name, text)",
    "guides": [
     {
      "file": "server-api.md",
@@ -310,7 +310,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(revision, by, operation)",
    "guides": [
     {
      "file": "server-acl.md",
@@ -343,7 +343,7 @@
     "client",
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(name)",
    "guides": [
     {
      "file": "context-menu.md",
@@ -570,7 +570,7 @@
     "client",
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(name)",
    "guides": [
     {
      "file": "cameras.md",
@@ -797,7 +797,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, sequence, reason)",
    "guides": [
     {
      "file": "server-api.md",
@@ -836,8 +836,16 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, encodedResult)",
    "guides": [
+    {
+     "file": "cyberware.md",
+     "anchor": "native-input-admission-and-trust-boundary"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "resource-lifecycle-events"
+    },
     {
      "file": "server-api.md",
      "anchor": "cyberware"
@@ -875,8 +883,16 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, encodedState)",
    "guides": [
+    {
+     "file": "cyberware.md",
+     "anchor": "temporary-loadouts"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "cyberware-and-living-motion"
+    },
     {
      "file": "server-api.md",
      "anchor": "cyberware"
@@ -904,8 +920,12 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(victimId, attackerId, sequence, amount)",
    "guides": [
+    {
+     "file": "cyberware.md",
+     "anchor": "combat-notifications"
+    },
     {
      "file": "server-api.md",
      "anchor": "cyberware"
@@ -943,8 +963,12 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(victimId, attackerId, encodedHit)",
    "guides": [
+    {
+     "file": "cyberware.md",
+     "anchor": "combat-notifications"
+    },
     {
      "file": "server-api.md",
      "anchor": "cyberware"
@@ -982,8 +1006,12 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(victimId, attackerId, encodedOutcome)",
    "guides": [
+    {
+     "file": "cyberware.md",
+     "anchor": "combat-notifications"
+    },
     {
      "file": "server-api.md",
      "anchor": "cyberware"
@@ -1021,11 +1049,19 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, ticket, encodedResult)",
    "guides": [
+    {
+     "file": "cyberware.md",
+     "anchor": "complete-transactions-not-just-requests"
+    },
     {
      "file": "gorilla-arms.md",
      "anchor": "a-minimal-self-service-resource"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "cyberware-and-living-motion"
     },
     {
      "file": "server-api.md",
@@ -1064,7 +1100,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(player, encoded)",
    "guides": [
     {
      "file": "dash.md",
@@ -1107,7 +1143,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(player, encodedPermit)",
    "guides": [
     {
      "file": "dash.md",
@@ -1150,7 +1186,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, resource, effect)",
    "guides": [
     {
      "file": "effects.md",
@@ -1163,6 +1199,10 @@
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "entity-lifecycle-events"
     }
    ],
    "sources": [
@@ -1192,7 +1232,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, reason, resource)",
    "guides": [
     {
      "file": "effects.md",
@@ -1201,6 +1241,10 @@
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "entity-lifecycle-events"
     }
    ],
    "sources": [
@@ -1230,7 +1274,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, revision, reason)",
    "guides": [
     {
      "file": "elevators.md",
@@ -1316,8 +1360,24 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(kind, id, resource)",
    "guides": [
+    {
+     "file": "effects.md",
+     "anchor": "server-events"
+    },
+    {
+     "file": "loot.md",
+     "anchor": "server-events"
+    },
+    {
+     "file": "npcs.md",
+     "anchor": "events"
+    },
+    {
+     "file": "props.md",
+     "anchor": "server-events"
+    },
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
@@ -1329,6 +1389,10 @@
     {
      "file": "server-api.md",
      "anchor": "permission-summary"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "server-events"
     }
    ],
    "sources": [
@@ -1363,8 +1427,24 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(kind, id, reason)",
    "guides": [
+    {
+     "file": "effects.md",
+     "anchor": "server-events"
+    },
+    {
+     "file": "loot.md",
+     "anchor": "server-events"
+    },
+    {
+     "file": "npcs.md",
+     "anchor": "events"
+    },
+    {
+     "file": "props.md",
+     "anchor": "server-events"
+    },
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
@@ -1376,6 +1456,10 @@
     {
      "file": "server-api.md",
      "anchor": "permission-summary"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "server-events"
     }
    ],
    "sources": [
@@ -1409,7 +1493,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(state)",
    "guides": [
     {
      "file": "server-api.md",
@@ -1555,7 +1639,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, record, remaining)",
    "guides": [
     {
      "file": "fivem-compatibility.md",
@@ -1675,7 +1759,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, resource, item)",
    "guides": [
     {
      "file": "loot.md",
@@ -1684,6 +1768,10 @@
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "entity-lifecycle-events"
     }
    ],
    "sources": [
@@ -1713,7 +1801,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, dropId, item, quantity, ownerResource)",
    "guides": [
     {
      "file": "loot.md",
@@ -1765,7 +1853,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, reason, resource)",
    "guides": [
     {
      "file": "loot.md",
@@ -1774,6 +1862,10 @@
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "entity-lifecycle-events"
     }
    ],
    "sources": [
@@ -1803,7 +1895,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(npcId, playerId, epoch, reason)",
    "guides": [
     {
      "file": "npcs.md",
@@ -1836,7 +1928,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(npcId, revision)",
    "guides": [
     {
      "file": "npcs.md",
@@ -1860,11 +1952,15 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, resource, template)",
    "guides": [
     {
      "file": "npcs.md",
      "anchor": "events"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "entity-lifecycle-events"
     }
    ],
    "sources": [
@@ -1889,7 +1985,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(npcId, source, amount, health, cause)",
    "guides": [
     {
      "file": "npcs.md",
@@ -1933,7 +2029,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(npcId, source, cause)",
    "guides": [
     {
      "file": "npcs.md",
@@ -1982,7 +2078,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(npcId, playerId, interactionId, choiceId, distance)",
    "guides": [
     {
      "file": "interactions.md",
@@ -2024,7 +2120,7 @@
     "client",
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(npcId, entity)",
    "guides": [
     {
      "file": "fivem-compatibility.md",
@@ -2066,11 +2162,15 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, reason, resource)",
    "guides": [
     {
      "file": "npcs.md",
      "anchor": "events"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "entity-lifecycle-events"
     }
    ],
    "sources": [
@@ -2099,7 +2199,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(npcId, revision)",
    "guides": [
     {
      "file": "npcs.md",
@@ -2122,7 +2222,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(npcId, reason)",
    "guides": [
     {
      "file": "npcs.md",
@@ -2150,11 +2250,15 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(npcId, kind, targetId, previousKind, previousTargetId)",
    "guides": [
     {
      "file": "npcs.md",
      "anchor": "events"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "task-queue"
     }
    ],
    "sources": [
@@ -2174,7 +2278,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(npcId, taskId, status, reason)",
    "guides": [
     {
      "file": "npcs.md",
@@ -2202,7 +2306,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(npcId, revision)",
    "guides": [
     {
      "file": "npcs.md",
@@ -2230,7 +2334,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(effect, x, y, z, loop, bucket, by)",
    "guides": [
     {
      "file": "effects.md",
@@ -2282,7 +2386,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, state)",
    "guides": [
     {
      "file": "rp-animations.md",
@@ -2377,8 +2481,12 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId)",
    "guides": [
+    {
+     "file": "connection-control.md",
+     "anchor": "where-the-gate-sits"
+    },
     {
      "file": "connection-control.md",
      "anchor": "the-fivem-names"
@@ -2525,7 +2633,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(player, deferrals)",
    "guides": [
     {
      "file": "connection-control.md",
@@ -2538,6 +2646,10 @@
     {
      "file": "connection-control.md",
      "anchor": "deferrals"
+    },
+    {
+     "file": "connection-control.md",
+     "anchor": "the-fivem-names"
     },
     {
      "file": "connection-control.md",
@@ -2601,11 +2713,19 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, reason)",
    "guides": [
     {
      "file": "connection-control.md",
+     "anchor": "where-the-gate-sits"
+    },
+    {
+     "file": "connection-control.md",
      "anchor": "onplayerdisconnectedplayerid-reason"
+    },
+    {
+     "file": "connection-control.md",
+     "anchor": "the-fivem-names"
     },
     {
      "file": "connection-control.md",
@@ -2848,7 +2968,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, forPlayerId, reason)",
    "guides": [
     {
      "file": "fivem-compatibility.md",
@@ -2898,7 +3018,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, vehicleId, seat)",
    "guides": [
     {
      "file": "server-api.md",
@@ -2942,7 +3062,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, vehicleId, seat)",
    "guides": [
     {
      "file": "server-api.md",
@@ -2978,7 +3098,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, enabled)",
    "guides": [
     {
      "file": "holocall-eyes.md",
@@ -3001,7 +3121,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(state)",
    "guides": [
     {
      "file": "player-interactions.md",
@@ -3032,7 +3152,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(state)",
    "guides": [
     {
      "file": "player-interactions.md",
@@ -3059,7 +3179,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(state)",
    "guides": [
     {
      "file": "player-interactions.md",
@@ -3090,7 +3210,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(state)",
    "guides": [
     {
      "file": "player-interactions.md",
@@ -3114,7 +3234,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, forPlayerId, reason)",
    "guides": [
     {
      "file": "server-api.md",
@@ -3160,7 +3280,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, vehicleId, seat)",
    "guides": [
     {
      "file": "server-api.md",
@@ -3201,7 +3321,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, revision, phase)",
    "guides": [
     {
      "file": "player-stats.md",
@@ -3280,15 +3400,31 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(player,id,phase,reason)",
    "guides": [
     {
      "file": "cyberware.md",
      "anchor": "combat-notifications"
     },
     {
+     "file": "cyberware.md",
+     "anchor": "reusable-reactions-and-effects"
+    },
+    {
+     "file": "player-freeze.md",
+     "anchor": "a-ragdoll-is-the-knockdown-with-a-clock"
+    },
+    {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "cyberware-and-living-motion"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "forced-motion"
     }
    ],
    "sources": [
@@ -3318,7 +3454,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, detail)",
    "guides": [
     {
      "file": "connection-control.md",
@@ -3331,6 +3467,10 @@
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "join-time-readiness-gate"
     }
    ],
    "sources": [
@@ -3400,7 +3540,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(userId, name, code, message)",
    "guides": [
     {
      "file": "connection-control.md",
@@ -3457,7 +3597,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, level, previous)",
    "guides": [
     {
      "file": "server-api.md",
@@ -3489,8 +3629,12 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(playerId, slot, record, drawn)",
    "guides": [
+    {
+     "file": "server-api.md",
+     "anchor": "reading-what-a-player-is-carrying"
+    },
     {
      "file": "weapons-api.md",
      "anchor": "onplayerweaponchanged"
@@ -3518,7 +3662,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, current, previous, reason, revision)",
    "guides": [
     {
      "file": "attachments.md",
@@ -3547,7 +3691,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, resource, model)",
    "guides": [
     {
      "file": "props.md",
@@ -3556,6 +3700,10 @@
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "entity-lifecycle-events"
     }
    ],
    "sources": [
@@ -3590,7 +3738,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, reason, resource)",
    "guides": [
     {
      "file": "props.md",
@@ -3599,6 +3747,10 @@
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "entity-lifecycle-events"
     }
    ],
    "sources": [
@@ -3718,7 +3870,7 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(revision)`",
+   "payload": "()",
    "guides": [
     {
      "file": "server-api.md",
@@ -3761,7 +3913,7 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(resourceName, revision)`",
+   "payload": "(resourceName)",
    "guides": [
     {
      "file": "mods.md",
@@ -3786,6 +3938,10 @@
     {
      "file": "server-exports.md",
      "anchor": "or-call-it-synchronously"
+    },
+    {
+     "file": "server-resources.md",
+     "anchor": "publishing-and-reloading"
     },
     {
      "file": "sky-advertising.md",
@@ -3999,7 +4155,7 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(resourceName)`",
+   "payload": "(resourceName)",
    "guides": [
     {
      "file": "fivem-compatibility.md",
@@ -4012,6 +4168,10 @@
     {
      "file": "server-api.md",
      "anchor": "resource-lifecycle-events"
+    },
+    {
+     "file": "server-resources.md",
+     "anchor": "publishing-and-reloading"
     }
    ],
    "sources": [
@@ -4047,7 +4207,7 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(resourceName, revision)`",
+   "payload": "(resourceName, reason)",
    "guides": [
     {
      "file": "server-api.md",
@@ -4060,6 +4220,10 @@
     {
      "file": "server-api.md",
      "anchor": "what-a-shutdown-notice-can-and-cannot-promise"
+    },
+    {
+     "file": "server-resources.md",
+     "anchor": "publishing-and-reloading"
     }
    ],
    "sources": [
@@ -4282,11 +4446,15 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(key, value, pending)",
    "guides": [
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
+    },
+    {
+     "file": "server-api.md",
+     "anchor": "operator-tunable-settings"
     }
    ],
    "sources": [
@@ -4341,7 +4509,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, owner, epoch, reason)",
    "guides": [
     {
      "file": "server-api.md",
@@ -4373,8 +4541,12 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(id, resource, record)",
    "guides": [
+    {
+     "file": "server-api.md",
+     "anchor": "entity-lifecycle-events"
+    },
     {
      "file": "vehicles.md",
      "anchor": "server-events"
@@ -4397,7 +4569,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, revision)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -4426,7 +4598,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, revision)",
    "guides": [
     {
      "file": "server-api.md",
@@ -4462,7 +4634,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(id, revision)",
    "guides": [
     {
      "file": "vehicle-paint.md",
@@ -4490,7 +4662,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(id, reason)",
    "guides": [
     {
      "file": "server-api.md",
@@ -4532,7 +4704,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(id, revision)",
    "guides": [
     {
      "file": "server-api.md",
@@ -4689,8 +4861,12 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(text)`",
+   "payload": "(text)",
    "guides": [
+    {
+     "file": "fivem-compatibility.md",
+     "anchor": "txadmin-events-under-open77-names"
+    },
     {
      "file": "server-api.md",
      "anchor": "admin-events"
@@ -4718,8 +4894,12 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(playerId, author, durationSeconds)`",
+   "payload": "(playerId, author, durationSeconds)",
    "guides": [
+    {
+     "file": "fivem-compatibility.md",
+     "anchor": "txadmin-events-under-open77-names"
+    },
     {
      "file": "server-api.md",
      "anchor": "admin-events"
@@ -4747,8 +4927,12 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(playerId, author)`",
+   "payload": "(playerId, author)",
    "guides": [
+    {
+     "file": "fivem-compatibility.md",
+     "anchor": "txadmin-events-under-open77-names"
+    },
     {
      "file": "server-api.md",
      "anchor": "admin-events"
@@ -4756,6 +4940,10 @@
     {
      "file": "server-api.md",
      "anchor": "reserved-as-a-whole-namespace"
+    },
+    {
+     "file": "warden-players.md",
+     "anchor": "heal"
     }
    ],
    "sources": [
@@ -4780,8 +4968,12 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(playerId, author)`",
+   "payload": "(playerId, author)",
    "guides": [
+    {
+     "file": "fivem-compatibility.md",
+     "anchor": "txadmin-events-under-open77-names"
+    },
     {
      "file": "server-api.md",
      "anchor": "admin-events"
@@ -4809,8 +5001,12 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(playerId, author)`",
+   "payload": "(playerId, author)",
    "guides": [
+    {
+     "file": "fivem-compatibility.md",
+     "anchor": "txadmin-events-under-open77-names"
+    },
     {
      "file": "server-api.md",
      "anchor": "admin-events"
@@ -4838,7 +5034,7 @@
     "resource-server",
     "server"
    ],
-   "payload": "`()`",
+   "payload": "()",
    "guides": [
     {
      "file": "server-api.md",
@@ -4867,8 +5063,12 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(secondsRemaining, reason)`",
+   "payload": "(secondsRemaining, reason)",
    "guides": [
+    {
+     "file": "fivem-compatibility.md",
+     "anchor": "txadmin-events-under-open77-names"
+    },
     {
      "file": "server-api.md",
      "anchor": "admin-events"
@@ -4896,8 +5096,12 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(reason)`",
+   "payload": "(reason)",
    "guides": [
+    {
+     "file": "fivem-compatibility.md",
+     "anchor": "txadmin-events-under-open77-names"
+    },
     {
      "file": "server-api.md",
      "anchor": "admin-events"
@@ -6432,8 +6636,13 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
-   "guides": [],
+   "payload": "(reason)",
+   "guides": [
+    {
+     "file": "context-menu.md",
+     "anchor": "exports-and-lifecycle"
+    }
+   ],
    "sources": [
     {
      "side": "resource-client",
@@ -6441,7 +6650,7 @@
      "line": 83
     }
    ],
-   "documented": false,
+   "documented": true,
    "inCode": true,
    "lifecycle": false
   },
@@ -6473,8 +6682,13 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
-   "guides": [],
+   "payload": "(context)",
+   "guides": [
+    {
+     "file": "context-menu.md",
+     "anchor": "exports-and-lifecycle"
+    }
+   ],
    "sources": [
     {
      "side": "resource-client",
@@ -6482,7 +6696,7 @@
      "line": 192
     }
    ],
-   "documented": false,
+   "documented": true,
    "inCode": true,
    "lifecycle": false
   },
@@ -7400,7 +7614,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(engineEntity, className, choice, allowed)",
    "guides": [
     {
      "file": "device-interactions.md",
@@ -7530,7 +7744,7 @@
   {
    "name": "open77:districtChanged",
    "sides": [],
-   "payload": null,
+   "payload": "(place)",
    "guides": [
     {
      "file": "world-queries.md",
@@ -7647,7 +7861,7 @@
    "sides": [
     "resource-server"
    ],
-   "payload": null,
+   "payload": "(id, accepted, reason)",
    "guides": [
     {
      "file": "doors.md",
@@ -7670,7 +7884,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id, state)",
    "guides": [
     {
      "file": "doors.md",
@@ -7693,7 +7907,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id)",
    "guides": [
     {
      "file": "doors.md",
@@ -7745,7 +7959,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id, state)",
    "guides": [
     {
      "file": "doors.md",
@@ -8079,7 +8293,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id, snapshot)",
    "guides": [
     {
      "file": "elevators.md",
@@ -8102,7 +8316,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id)",
    "guides": [
     {
      "file": "elevators.md",
@@ -8125,7 +8339,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id, snapshot)",
    "guides": [
     {
      "file": "elevators.md",
@@ -8394,8 +8608,12 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(vehicleId, litres, previous)",
    "guides": [
+    {
+     "file": "resource-exports.md",
+     "anchor": "open77fuel"
+    },
     {
      "file": "state-bags.md",
      "anchor": "the-fuel-sample-open77fuel"
@@ -8417,8 +8635,17 @@
    "sides": [
     "resource-server"
    ],
-   "payload": null,
-   "guides": [],
+   "payload": "(vehicleId)",
+   "guides": [
+    {
+     "file": "resource-exports.md",
+     "anchor": "open77fuel"
+    },
+    {
+     "file": "state-bags.md",
+     "anchor": "the-fuel-sample-open77fuel"
+    }
+   ],
    "sources": [
     {
      "side": "resource-server",
@@ -8426,7 +8653,7 @@
      "line": 73
     }
    ],
-   "documented": false,
+   "documented": true,
    "inCode": true,
    "lifecycle": false
   },
@@ -8652,7 +8879,7 @@
    "sides": [
     "server"
    ],
-   "payload": null,
+   "payload": "(player, id, operation, accepted, reason, result)",
    "guides": [
     {
      "file": "props.md",
@@ -8737,7 +8964,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": "the **attacker's** client, when the server credited a hit by the local player on a *player*",
+   "payload": "(victimId, amount, bodyPart, lethal)",
    "guides": [
     {
      "file": "fivem-compatibility.md",
@@ -8935,7 +9162,7 @@
     "client",
     "resource-client"
    ],
-   "payload": null,
+   "payload": "()",
    "guides": [
     {
      "file": "keybindings.md",
@@ -9144,7 +9371,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": "the **victim's** client, when the local player lost health",
+   "payload": "(attackerId, amount, dirX, dirY, dirZ)",
    "guides": [
     {
      "file": "fivem-compatibility.md",
@@ -9304,7 +9531,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id, accepted, reason, item, quantity)",
    "guides": [
     {
      "file": "loot.md",
@@ -9378,7 +9605,7 @@
   {
    "name": "open77:map:closed",
    "sides": [],
-   "payload": "`{open=false}`",
+   "payload": null,
    "guides": [
     {
      "file": "native-map.md",
@@ -9393,7 +9620,7 @@
   {
    "name": "open77:map:markerSelected",
    "sides": [],
-   "payload": "`{marker=markerOrNil}`",
+   "payload": null,
    "guides": [
     {
      "file": "native-map.md",
@@ -9408,7 +9635,7 @@
   {
    "name": "open77:map:opened",
    "sides": [],
-   "payload": "`{open=true}`",
+   "payload": null,
    "guides": [
     {
      "file": "native-map.md",
@@ -9441,7 +9668,7 @@
   {
    "name": "open77:map:pointPicked",
    "sides": [],
-   "payload": null,
+   "payload": "(result)",
    "guides": [
     {
      "file": "native-map.md",
@@ -9486,7 +9713,7 @@
   {
    "name": "open77:map:waypointChanged",
    "sides": [],
-   "payload": null,
+   "payload": "(change)",
    "guides": [
     {
      "file": "native-map.md",
@@ -9539,7 +9766,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(open, pauseMenu, source, scenario)",
    "guides": [
     {
      "file": "ui-kit.md",
@@ -9836,8 +10063,17 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
-   "guides": [],
+   "payload": "(npcId, damage, hitZ, weaponTdbId, attackKind)",
+   "guides": [
+    {
+     "file": "fivem-compatibility.md",
+     "anchor": "damage-feedback-events-client"
+    },
+    {
+     "file": "player-stats.md",
+     "anchor": "damage-feedback-events-client"
+    }
+   ],
    "sources": [
     {
      "side": "resource-client",
@@ -9870,7 +10106,7 @@
      "line": 70
     }
    ],
-   "documented": false,
+   "documented": true,
    "inCode": true,
    "lifecycle": false
   },
@@ -10185,7 +10421,7 @@
     "resource-server",
     "server"
    ],
-   "payload": "every client that has the victim's proxy — the observer feed for nameplates and kill feeds",
+   "payload": null,
    "guides": [
     {
      "file": "fivem-compatibility.md",
@@ -10335,7 +10571,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(victim, killer)",
    "guides": [
     {
      "file": "world-time.md",
@@ -10808,7 +11044,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id, record)",
    "guides": [
     {
      "file": "props.md",
@@ -10919,7 +11155,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id, reason)",
    "guides": [
     {
      "file": "props.md",
@@ -11091,7 +11327,7 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(revision)`",
+   "payload": "(revision)",
    "guides": [
     {
      "file": "server-api.md",
@@ -11125,7 +11361,7 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(resourceName, revision)`",
+   "payload": "(resourceName, revision)",
    "guides": [
     {
      "file": "server-api.md",
@@ -11159,7 +11395,7 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(resourceName)`",
+   "payload": "(resourceName)",
    "guides": [
     {
      "file": "server-api.md",
@@ -11197,7 +11433,7 @@
     "resource-server",
     "server"
    ],
-   "payload": "`(resourceName, revision)`",
+   "payload": "(resourceName, revision)",
    "guides": [
     {
      "file": "server-api.md",
@@ -11511,7 +11747,7 @@
   {
    "name": "open77:screen:black",
    "sides": [],
-   "payload": "Same boundary, only when all RGB channels are zero.",
+   "payload": "(state)",
    "guides": [
     {
      "file": "screen-transitions.md",
@@ -11530,7 +11766,7 @@
   {
    "name": "open77:screen:cancelled",
    "sides": [],
-   "payload": "Requested cancellation, safety timeout, world loss or a vanilla transition taking over.",
+   "payload": null,
    "guides": [
     {
      "file": "screen-transitions.md",
@@ -11583,7 +11819,7 @@
   {
    "name": "open77:screen:covered",
    "sides": [],
-   "payload": "Native outgoing fade has completed, including non-black colors.",
+   "payload": null,
    "guides": [
     {
      "file": "screen-transitions.md",
@@ -11598,7 +11834,7 @@
   {
    "name": "open77:screen:failed",
    "sides": [],
-   "payload": "A native operation/restoration failed.",
+   "payload": null,
    "guides": [
     {
      "file": "screen-transitions.md",
@@ -11617,7 +11853,7 @@
   {
    "name": "open77:screen:finished",
    "sides": [],
-   "payload": "Native return fade has completed.",
+   "payload": null,
    "guides": [
     {
      "file": "screen-transitions.md",
@@ -12290,7 +12526,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id, ownerPlayerId)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -12314,7 +12550,7 @@
     "client",
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id)",
    "guides": [
     {
      "file": "fivem-compatibility.md",
@@ -12348,7 +12584,7 @@
   {
    "name": "open77:vehicleDamageChanged",
    "sides": [],
-   "payload": null,
+   "payload": "(id, revision)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -12363,7 +12599,7 @@
   {
    "name": "open77:vehicleDrivableChanged",
    "sides": [],
-   "payload": null,
+   "payload": "(id, state)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -12378,7 +12614,7 @@
   {
    "name": "open77:vehicleEngineChanged",
    "sides": [],
-   "payload": null,
+   "payload": "(id, state)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -12393,7 +12629,7 @@
   {
    "name": "open77:vehicleEntered",
    "sides": [],
-   "payload": null,
+   "payload": "(id, seat)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -12408,7 +12644,7 @@
   {
    "name": "open77:vehicleEntering",
    "sides": [],
-   "payload": null,
+   "payload": "(id, seat)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -12423,7 +12659,7 @@
   {
    "name": "open77:vehicleLeft",
    "sides": [],
-   "payload": null,
+   "payload": "(id, seat)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -12438,7 +12674,7 @@
   {
    "name": "open77:vehicleLightsChanged",
    "sides": [],
-   "payload": null,
+   "payload": "(id, mode)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -12455,7 +12691,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(id, revision)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -12478,8 +12714,13 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
-   "guides": [],
+   "payload": "(id, ownerPlayerId)",
+   "guides": [
+    {
+     "file": "vehicles.md",
+     "anchor": "client-snapshot-fields"
+    }
+   ],
    "sources": [
     {
      "side": "resource-client",
@@ -12487,14 +12728,14 @@
      "line": 21
     }
    ],
-   "documented": false,
+   "documented": true,
    "inCode": true,
    "lifecycle": false
   },
   {
    "name": "open77:vehiclePaintChanged",
    "sides": [],
-   "payload": null,
+   "payload": "(id, revision)",
    "guides": [
     {
      "file": "vehicle-paint.md",
@@ -12515,7 +12756,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(vehicleId)",
    "guides": [
     {
      "file": "state-bags.md",
@@ -12542,8 +12783,13 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
-   "guides": [],
+   "payload": "(vehicleSnapshot, revision)",
+   "guides": [
+    {
+     "file": "vehicles.md",
+     "anchor": "client-snapshot-fields"
+    }
+   ],
    "sources": [
     {
      "side": "resource-client",
@@ -12551,14 +12797,14 @@
      "line": 27
     }
    ],
-   "documented": false,
+   "documented": true,
    "inCode": true,
    "lifecycle": false
   },
   {
    "name": "open77:vehicleSirenChanged",
    "sides": [],
-   "payload": null,
+   "payload": "(id, state)",
    "guides": [
     {
      "file": "vehicles.md",
@@ -12711,8 +12957,13 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
-   "guides": [],
+   "payload": "(localPlayerId, enabled, 0, distance)",
+   "guides": [
+    {
+     "file": "voice.md",
+     "anchor": "client-lua-api"
+    }
+   ],
    "sources": [
     {
      "side": "resource-client",
@@ -12720,7 +12971,7 @@
      "line": 191
     }
    ],
-   "documented": false,
+   "documented": true,
    "inCode": true,
    "lifecycle": false
   },
@@ -12729,8 +12980,13 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
-   "guides": [],
+   "payload": "(mode, canonicalDistance, enabled)",
+   "guides": [
+    {
+     "file": "voice.md",
+     "anchor": "client-lua-api"
+    }
+   ],
    "sources": [
     {
      "side": "resource-client",
@@ -12738,7 +12994,7 @@
      "line": 197
     }
    ],
-   "documented": false,
+   "documented": true,
    "inCode": true,
    "lifecycle": false
   },
@@ -12747,8 +13003,13 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
-   "guides": [],
+   "payload": "(distance, mode)",
+   "guides": [
+    {
+     "file": "voice.md",
+     "anchor": "client-lua-api"
+    }
+   ],
    "sources": [
     {
      "side": "resource-client",
@@ -12761,7 +13022,7 @@
      "line": 133
     }
    ],
-   "documented": false,
+   "documented": true,
    "inCode": true,
    "lifecycle": false
   },
@@ -12883,8 +13144,13 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
-   "guides": [],
+   "payload": "(playerId, talking, level, detail)",
+   "guides": [
+    {
+     "file": "voice.md",
+     "anchor": "client-lua-api"
+    }
+   ],
    "sources": [
     {
      "side": "resource-client",
@@ -12897,7 +13163,7 @@
      "line": 173
     }
    ],
-   "documented": false,
+   "documented": true,
    "inCode": true,
    "lifecycle": false
   },
@@ -13116,7 +13382,7 @@
   {
    "name": "open77:waypointChanged",
    "sides": [],
-   "payload": null,
+   "payload": "(state)",
    "guides": [
     {
      "file": "blips.md",
@@ -13631,7 +13897,7 @@
    "sides": [
     "resource-server"
    ],
-   "payload": null,
+   "payload": "(state)",
    "guides": [
     {
      "file": "weather.md",
@@ -13716,7 +13982,7 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(state)",
    "guides": [
     {
      "file": "weather.md",
@@ -13943,8 +14209,12 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(name, setKickReason, deferrals)",
    "guides": [
+    {
+     "file": "connection-control.md",
+     "anchor": "the-fivem-names"
+    },
     {
      "file": "connection-control.md",
      "anchor": "setkickreason-and-cancelevent-exactly-as-in-fivem"
@@ -13989,8 +14259,12 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(reason)",
    "guides": [
+    {
+     "file": "connection-control.md",
+     "anchor": "where-the-gate-sits"
+    },
     {
      "file": "connection-control.md",
      "anchor": "the-fivem-names"
@@ -14084,7 +14358,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(data)",
    "guides": [
     {
      "file": "fivem-compatibility.md",
@@ -14135,7 +14409,7 @@
     "resource-server",
     "server"
    ],
-   "payload": null,
+   "payload": "(oldId)",
    "guides": [
     {
      "file": "connection-control.md",

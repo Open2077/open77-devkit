@@ -1144,6 +1144,7 @@ function Open77.anchors.clear() end
 --- The batched `open77:anchors` event a page receives is the COMPLETE set for that surface; an id that is absent is hidden, out of its distance band, behind the camera, or its entity is not streamed. Treat absence as gone rather than holding the last coordinate. Limits are 32 anchors per resource and 128 in total.
 ---
 --- Since: 2.31.0+op77.7
+--- Reasons: anchors_backend_unavailable, options_must_be_a_table
 ---@param options table
 ---@return any anchor anchor handle string, or nil
 ---@return any reason reason
@@ -1154,6 +1155,7 @@ function Open77.anchors.create(options) end
 --- Each snapshot carries its requested definition plus `render` (echoing its style), `resolved` (where the anchor actually was on the last frame -- for an entity anchor the live transform plus the offset, not what was registered) and `screen` (`x`, `y` normalised to [0..1] with a top-left origin, and `depth` in metres in front of the camera), `distance`, `onScreen`, and `projected`. An invisible anchor is still projected and still listed, so this stays the way to decide which of a resource's world points deserve one of its 32 slots.
 ---
 --- Since: 2.31.0+op77.7
+--- Reasons: anchors_backend_unavailable
 ---@return any array array of { id, tag, kind, render, entity, offset, surface, maxDistance, minDistance, visible, projected, onScreen, distance, position, resolved, screen }, or nil
 ---@return any reason reason
 function Open77.anchors.list() end
@@ -1586,6 +1588,7 @@ function Open77.blips.clearWaypoint() end
 ---
 --- Permissions: ui.vanilla.map
 --- Since: 2.31.0+op77.3
+--- Reasons: blips_backend_unavailable, permission_denied:ui.vanilla.map
 ---@param options any
 ---@return any decimal decimal-string blip id, or nil
 ---@return any reason reason
@@ -1597,6 +1600,7 @@ function Open77.blips.create(options) end
 ---
 --- Permissions: ui.vanilla.map
 --- Since: 2.31.0+op77.3
+--- Reasons: blips_backend_unavailable, invalid_blip_id, permission_denied:ui.vanilla.map
 ---@param id any
 ---@return any snapshot snapshot table, or nil
 ---@return any reason reason
@@ -1608,6 +1612,7 @@ function Open77.blips.get(id) end
 ---
 --- Permissions: ui.vanilla.map
 --- Since: 2.31.0+op77.3
+--- Reasons: blips_backend_unavailable, permission_denied:ui.vanilla.map
 ---@return any array array of snapshot tables
 function Open77.blips.list() end
 
@@ -1758,6 +1763,7 @@ function Open77.blips.setWaypoint(position) end
 --- Returns 147 entries for Cyberpunk 2077 2.31. This metadata query does not require map mutation permission.
 ---
 --- Since: 2.31.0+op77.3
+--- Reasons: blips_backend_unavailable
 ---@return any array array of { name, value }
 function Open77.blips.sprites() end
 
@@ -3146,6 +3152,7 @@ function Open77.elevators.request(id, floor, action) end
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
+--- Reasons: environment_backend_unavailable, permission_denied:world.environment
 ---@return any table table { day, hour, minute, second, totalSeconds, frozen }, ou nil
 ---@return any raison raison si indisponible
 function Open77.environment.getTime() end
@@ -3156,6 +3163,7 @@ function Open77.environment.getTime() end
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
+--- Reasons: environment_backend_unavailable, permission_denied:world.environment
 ---@return any boolean boolean, ou nil
 ---@return any raison raison si indisponible
 function Open77.environment.isWeatherFrozen() end
@@ -3457,6 +3465,7 @@ function Open77.hacking.present(options) end
 ---
 --- Permissions: ui.vanilla.hud
 --- Since: 2.31.13+op77.67
+--- Reasons: hud_unavailable_on_this_host, invalid_notification_channel, permission_denied:ui.vanilla.hud
 ---@param channel? string
 ---@return any true true on success, otherwise false
 ---@return any failure failure reason
@@ -3479,6 +3488,7 @@ function Open77.hud.components() end
 ---
 --- Permissions: ui.vanilla.hud
 --- Since: 2.31.13+op77.67
+--- Reasons: hud_unavailable_on_this_host, permission_denied:ui.vanilla.hud
 ---@param text string
 ---@param durationMs? number
 ---@return any false false
@@ -3503,6 +3513,7 @@ function Open77.hud.isVisible(component) end
 ---
 --- Permissions: ui.vanilla.hud
 --- Since: 2.31.13+op77.67
+--- Reasons: hud_unavailable_on_this_host, permission_denied:ui.vanilla.hud
 ---@param text string
 ---@return any true true on success, otherwise false
 ---@return any failure failure reason
@@ -3514,6 +3525,7 @@ function Open77.hud.log(text) end
 ---
 --- Permissions: ui.vanilla.hud
 --- Since: 2.31.13+op77.67
+--- Reasons: hud_unavailable_on_this_host, invalid_notification_preset, permission_denied:ui.vanilla.hud
 ---@param preset string
 ---@return any true true on success, otherwise false
 ---@return any failure failure reason
@@ -3525,6 +3537,7 @@ function Open77.hud.menu(preset) end
 ---
 --- Permissions: ui.vanilla.hud
 --- Since: 2.31.13+op77.67
+--- Reasons: hud_unavailable_on_this_host, permission_denied:ui.vanilla.hud
 ---@param text string
 ---@param options? table
 ---@return any true true on success, otherwise false
@@ -3537,6 +3550,7 @@ function Open77.hud.notify(text, options) end
 ---
 --- Permissions: ui.vanilla.hud
 --- Since: 2.31.8+op77.20
+--- Reasons: hud_unavailable_on_this_host, invalid_hud_arguments, invalid_hud_component, permission_denied:ui.vanilla.hud
 ---@param component string
 ---@param visible boolean
 ---@return any true true on success, otherwise false
@@ -3560,6 +3574,7 @@ function Open77.hud.state() end
 ---
 --- Permissions: ui.vanilla.hud
 --- Since: 2.31.13+op77.67
+--- Reasons: hud_unavailable_on_this_host, permission_denied:ui.vanilla.hud
 ---@param text string
 ---@param durationMs? number
 ---@return any false false
@@ -4125,6 +4140,7 @@ function Open77.markers.clear() end
 ---
 --- Permissions: world.markers
 --- Since: 2.31.0+op77.3
+--- Reasons: markers_backend_unavailable, permission_denied:world.markers
 ---@param options table
 ---@return any marker marker handle string, or nil
 ---@return any reason reason
@@ -4136,6 +4152,7 @@ function Open77.markers.create(options) end
 ---
 --- Permissions: world.markers
 --- Since: 2.31.0+op77.3
+--- Reasons: markers_backend_unavailable, permission_denied:world.markers
 ---@return any array array of { id, shape, style, radius, maxDistance, minDistance, visible, rendered, position }, or nil
 ---@return any reason reason
 function Open77.markers.list() end
@@ -4323,6 +4340,7 @@ function Open77.nameplates.setTalking(playerId, talking) end
 ---
 --- Permissions: ui.nameplates
 --- Since: 2.31.0+op77.3
+--- Reasons: nameplates_backend_unavailable, permission_denied:ui.nameplates
 ---@return any array array of { id, label, color, x, y, distance }, or nil
 ---@return any reason reason
 function Open77.nameplates.snapshot() end
@@ -5277,6 +5295,7 @@ function Open77.props.attach(propId, binding) end
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.63
+--- Reasons: invalid_attachment_parent, permission_denied:world.props, props_backend_unavailable
 ---@param parentType string
 ---@param parentId integer
 ---@return any string string[] or nil, reason
@@ -5297,6 +5316,7 @@ function Open77.props.clear() end
 ---
 --- Permissions: world.props
 --- Since: 2.31.1+op77.9
+--- Reasons: permission_denied:world.props, props_backend_unavailable
 ---@param options any
 ---@return any decimal decimal-string prop id, or nil
 ---@return any reason reason
@@ -5318,6 +5338,7 @@ function Open77.props.detach(propId) end
 ---
 --- Permissions: world.props
 --- Since: 2.31.1+op77.9
+--- Reasons: permission_denied:world.props, props_backend_unavailable
 ---@return any array array of prop snapshots
 function Open77.props.list() end
 
@@ -5327,6 +5348,7 @@ function Open77.props.list() end
 ---
 --- Permissions: world.props
 --- Since: 2.31.2+op77.10
+--- Reasons: invalid_position, invalid_radius, permission_denied:world.props, props_backend_unavailable
 ---@param position any
 ---@param radius? number
 ---@return any prop prop snapshot and distance, or nil
@@ -5509,7 +5531,7 @@ function Open77.resource.readFile(path) end
 
 --- Reads a file another resource declared, as base64.
 ---
---- Requires `resources.files.read`, which only the bundled audio service holds: every other resource reads its own files with `Open77.resource.readFile`, and a resource holding this one can read any **declared** file of any resource, which is why the grant is visible in the manifest. Only files listed in the named resource's `files` entry are reachable -- scripts, the manifest itself and anything merely present on disk are not, so a resource author publishes deliberately rather than by accident. The 1 MiB ceiling is `readFile`'s; base64 of that is 1.37 MiB, which still clears the 2 MiB JSON limit a `page:send` payload rides, and base64 rather than raw bytes because a raw audio file is not valid UTF-8 and the encoder would refuse the whole event. Refusals: `permission_denied:resources.files.read`, `invalid_resource_path`, `resource_not_found`, `file_not_declared`, `file_too_large`.
+--- Requires `resources.files.read`, which only the bundled audio service holds: every other resource reads its own files with `Open77.resource.readFile`, and a resource holding this one can read any **declared** file of any resource, which is why the grant is visible in the manifest. Only files listed in the named resource's `files` entry are reachable -- scripts, the manifest itself and anything merely present on disk are not, so a resource author publishes deliberately rather than by accident. The updated client accepts up to 3 MiB of raw file data (older clients: 1 MiB). The 2 MiB WebUI JSON message cap is unchanged: the Base64 result of a larger file may not fit in one `page:send`. See [runtime quotas and client availability](/docs/resource-runtime#sandbox-and-quotas). Base64 is used because arbitrary binary data is not valid UTF-8. Refusals: `permission_denied:resources.files.read`, `invalid_resource_path`, `resource_not_found`, `file_not_declared`, `file_too_large`.
 ---
 --- Permissions: resources.files.read
 --- Since: 2.31.13+op77.67
@@ -5920,6 +5942,7 @@ function Open77.sfx.clear() end
 ---
 --- Permissions: world.effects
 --- Since: 2.31.0+op77.3
+--- Reasons: effects_backend_unavailable, permission_denied:world.effects
 ---@return any array array of { id, kind, name, entity, remaining }, or nil
 ---@return any reason reason
 function Open77.sfx.list() end
@@ -5930,6 +5953,7 @@ function Open77.sfx.list() end
 ---
 --- Permissions: world.effects
 --- Since: 2.31.0+op77.3
+--- Reasons: effects_backend_unavailable, options_must_be_a_table, permission_denied:world.effects
 ---@param event string
 ---@param options? table
 ---@return any effect effect handle string, or nil
@@ -5942,6 +5966,7 @@ function Open77.sfx.play(event, options) end
 ---
 --- Permissions: world.effects
 --- Since: 2.31.13+op77.67
+--- Reasons: effects_backend_unavailable, invalid_sfx_event, permission_denied:world.effects
 ---@param event string
 ---@return any true true on success, otherwise nil
 ---@return any failure failure reason
@@ -5953,6 +5978,7 @@ function Open77.sfx.play2d(event) end
 ---
 --- Permissions: world.effects
 --- Since: 2.31.13+op77.73
+--- Reasons: effects_backend_unavailable, invalid_entity, invalid_voice, options_must_be_a_table, permission_denied:world.effects
 ---@param voice string
 ---@param options any
 ---@return any true true on success, otherwise nil
@@ -6715,6 +6741,7 @@ function Open77.vfx.attach(effectId, entity, slot, anchor) end
 --- Catalog access does not start an effect. Raw cooked paths remain build-dependent even when present.
 ---
 --- Since: 2.31.0+op77.3
+--- Reasons: effects_backend_unavailable
 ---@return any table table mapping alias to effect path, or nil
 ---@return any reason reason
 function Open77.vfx.catalog() end
@@ -6735,6 +6762,7 @@ function Open77.vfx.clear() end
 ---
 --- Permissions: world.effects
 --- Since: 2.31.0+op77.3
+--- Reasons: effects_backend_unavailable, permission_denied:world.effects
 ---@return any array array of { id, kind, name, entity, remaining }, or nil
 ---@return any reason reason
 function Open77.vfx.list() end
@@ -6745,6 +6773,7 @@ function Open77.vfx.list() end
 ---
 --- Permissions: world.effects
 --- Since: 2.31.0+op77.3
+--- Reasons: effects_backend_unavailable, invalid_orientation, invalid_position, options_must_be_a_table, permission_denied:world.effects
 ---@param effect string
 ---@param options table
 ---@return any effect effect handle string, or nil
@@ -6757,6 +6786,7 @@ function Open77.vfx.play(effect, options) end
 ---
 --- Permissions: world.effects
 --- Since: 2.31.0+op77.3
+--- Reasons: effects_backend_unavailable, invalid_anchor, options_must_be_a_table, permission_denied:world.effects
 ---@param effect string
 ---@param options? table
 ---@return any effect effect handle string, or nil
@@ -6769,6 +6799,7 @@ function Open77.vfx.playEntity(effect, options) end
 ---
 --- Permissions: world.effects
 --- Since: 2.31.13+op77.63
+--- Reasons: effects_backend_unavailable, invalid_target, invalid_target_id, invalid_target_kind, permission_denied:world.effects
 ---@param target table
 ---@return any decimal decimal string local handle
 ---@return any nil nil, reason on rejection
@@ -6780,6 +6811,7 @@ function Open77.vfx.resolveTarget(target) end
 ---
 --- Permissions: vfx.screen
 --- Since: 2.31.13+op77.67
+--- Reasons: effects_backend_unavailable, invalid_screen_effect, invalid_strength, options_must_be_a_table, permission_denied:vfx.screen
 ---@param name string
 ---@param options table
 ---@return any effect effect handle string, or nil
@@ -6791,6 +6823,7 @@ function Open77.vfx.screen(name, options) end
 --- Client-only and ungated, like `Open77.vfx.catalog`: knowing the vocabulary is not the power, playing it is. Returns `{ [alias] = engineEffectName }`. Tiered families appear as their tiers (`drunk.light`, `drunk.medium`, `drunk.heavy`), never as the bare family name -- the family is an input convenience for `strength`, the tiers are what exists. See the Effects guide.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: effects_backend_unavailable
 ---@return any table table of alias to engine effect name
 function Open77.vfx.screenCatalog() end
 
@@ -6836,6 +6869,7 @@ function Open77.vfx.update(effectId, options) end
 ---
 --- Permissions: voice.client
 --- Since: 2.31.1+op77.9
+--- Reasons: invalid_device_flow, permission_denied:voice.client, voice_backend_unavailable
 ---@param flow? string
 ---@return any array array of { id, name, flow, default, selected, available }, or nil
 ---@return any reason reason
@@ -6847,6 +6881,7 @@ function Open77.voice.devices(flow) end
 ---
 --- Permissions: voice.client
 --- Since: 2.31.13+op77.63
+--- Reasons: permission_denied:voice.client, voice_backend_unavailable
 ---@return any status status table, or nil, reason
 function Open77.voice.getLipSyncStatus() end
 
@@ -6856,6 +6891,7 @@ function Open77.voice.getLipSyncStatus() end
 ---
 --- Permissions: voice.client
 --- Since: 2.31.13+op77.63
+--- Reasons: invalid_player_id, permission_denied:voice.client, voice_backend_unavailable
 ---@param playerId integer
 ---@return any state state table, or nil, reason
 function Open77.voice.getPlayerLipSyncState(playerId) end
@@ -7014,6 +7050,7 @@ function Open77.voice.setVoiceActivation(enabled, threshold) end
 ---
 --- Permissions: voice.client
 --- Since: 2.31.1+op77.9
+--- Reasons: permission_denied:voice.client, voice_backend_unavailable
 ---@return any table table, or nil
 ---@return any reason reason
 function Open77.voice.status() end
@@ -7024,6 +7061,7 @@ function Open77.voice.status() end
 ---
 --- Permissions: voice.client
 --- Since: 2.31.1+op77.9
+--- Reasons: permission_denied:voice.client, voice_backend_unavailable
 ---@return any array array of talker snapshots, or nil
 ---@return any reason reason
 function Open77.voice.talkers() end
@@ -7262,7 +7300,7 @@ function Open77.weapons.unequip(slot) end
 ---
 --- **Creation is asynchronous.** A `show()` issued right after `create` loses the race against the `visible` flag the request carried, and the surface then never paints at all. So a surface meant to stay up is created with `visible = true`, and the page shows or hides its own content.
 ---
---- Valid layers: `hud`, `menu`, `modal`, `system` (needs the `webui.system` permission), `debug`.
+--- Valid layers: `hud`, `menu`, `modal` (requires `webui.modal`), `system` (requires `webui.system`), `debug` (requires `webui.debug`). The updated client also accepts HTTP(S) `entry` URLs without `web_files`; bundled entries still require declared files. External scripts, media, requests and embeds are allowed, while CORS and TLS remain enforced. Only the top-level configured entry origin receives the Lua bridge. See [remote WebUI and client availability](/docs/resource-runtime#remote-pages-external-content-and-hot-reload); older CDN clients may not support remote pages.
 ---
 --- Since: 2.31.0+op77.3
 --- Reasons: invalid_webui_draw_bounds, invalid_webui_options
@@ -7273,7 +7311,7 @@ function Open77.webui.create(options) end
 
 --- The surface declared by `web_ui_page` in the manifest.
 ---
---- Returns the auto-created WebUI page declared by `web_ui_page` in the current manifest. It returns `nil, reason` when the resource has no live default page; the handle is generation-owned and becomes stale after destroy or reload.
+--- Returns the auto-created WebUI page declared by `ui_page` (alias `web_ui_page`) in the current manifest. The updated client accepts a declared local file or an HTTP(S) entry; see [remote WebUI and client availability](/docs/resource-runtime#remote-pages-external-content-and-hot-reload). It returns `nil, reason` when the resource has no live default page; the handle is generation-owned and becomes stale after destroy or reload.
 ---
 --- Since: 2.31.0+op77.3
 ---@return any surface surface, or nil

@@ -869,7 +869,7 @@
     "client",
     "server"
    ],
-   "summary": "Enforced by the client and server; gates 56 natives in Open77.appearance, Open77.clothing, Open77.heldItems, Open77.net, Open77.notifications, Open77.perspective, Open77.sound, Open77.state, Open77.weapons, _G.",
+   "summary": "Enforced by the client and server; gates 61 natives in Open77.appearance, Open77.callbacks, Open77.clothing, Open77.heldItems, Open77.net, Open77.notifications, Open77.perspective, Open77.sound, Open77.state, Open77.weapons, _G.",
    "curated": false,
    "natives": [
     "Open77.net.call",
@@ -884,6 +884,9 @@
     "TriggerServerEvent",
     "server:Open77.appearance.apply",
     "server:Open77.appearance.capture",
+    "server:Open77.callbacks.callClient",
+    "server:Open77.callbacks.callClientAwait",
+    "server:Open77.callbacks.register",
     "server:Open77.clothing.clear",
     "server:Open77.clothing.equip",
     "server:Open77.clothing.requestSnapshot",
@@ -912,6 +915,7 @@
     "server:Open77.sound.setVolume",
     "server:Open77.sound.stop",
     "server:Open77.sound.stopAll",
+    "server:Open77.weapons.activate",
     "server:Open77.weapons.assign",
     "server:Open77.weapons.clear",
     "server:Open77.weapons.giveGadget",
@@ -925,6 +929,7 @@
     "server:Open77.weapons.setAmmo",
     "server:Open77.weapons.setComponent",
     "server:Open77.weapons.takeGadget",
+    "server:Open77.weapons.unequip",
     "server:RegisterNetEvent",
     "server:TriggerClientEvent",
     "server:TriggerLatentClientEvent"

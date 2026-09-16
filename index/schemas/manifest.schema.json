@@ -84,6 +84,18 @@
    "singular": "preload_mod",
    "form": "list",
    "description": "Mod packages (archives) the client must have before the game starts; each pattern must match at least one file. See the Mods guide."
+  },
+  {
+   "name": "exports",
+   "singular": "export",
+   "form": "list",
+   "description": "Declarative client exports, FiveM's `exports { ... }`: names of global functions the client scripts define, published as exports without a call to `exports()`, after the last client script ran. A name that is not a global function by then fails the start with `manifest_export_missing:<name>`. Names are `^[a-z0-9][a-z0-9_-]{0,63}$`. See the resource-exports and lua-modules guides."
+  },
+  {
+   "name": "server_exports",
+   "singular": "server_export",
+   "form": "list",
+   "description": "Declarative server exports, FiveM's `server_exports { ... }`: the same rule for the dedicated server's scripts, registered through the same `exports(name, fn)` path (so the runtime's limits and replace-on-duplicate rule apply). Names are `^[a-z0-9][a-z0-9_-]{0,63}$`."
   }
  ],
  "example": "resource \"hello\"\nversion \"1.0.0\"\nauto_start true\n\npermissions { \"network.events\", \"hud.notify\" }\ndependency \"open77_zones\"\n\nshared_script \"shared/config.lua\"\nclient_script \"client/main.lua\"\nserver_script \"server/main.lua\"\nweb_files { \"web/**\" }\n"

@@ -128,7 +128,7 @@ promise = promise or {}
 
 --- Listens for an event in this resource; the same function as Open77.events.on.
 ---
---- No permission. One handler list serves three sources: this VM's TriggerLocalEvent, the host-wide bus, and the platform's own lifecycle events (onResourceStart, onPlayerReady, playerDropped), so a resource listens for its own and the platform's events the same way. Handlers run as managed tasks and may Wait. The limit is 2,048 handlers per resource; beyond it registration raises `handler quota exceeded`. Returns the id RemoveEventHandler takes.
+--- No permission. One handler list serves three sources: this VM's TriggerLocalEvent, the host-wide bus, and the platform's own lifecycle events (onResourceStart, onPlayerReady, playerDropped), so a resource listens for its own and the platform's events the same way. Every argument of a platform lifecycle event arrives as a **string** -- a player id, a vehicle id, a revision -- so convert with `tonumber` before handing one to a native that wants a number (`Open77.chat.send`) and compare with `tostring(id)` against ids read from natives. Handlers run as managed tasks and may Wait. The limit is 2,048 handlers per resource; beyond it registration raises `handler quota exceeded`. Returns the id RemoveEventHandler takes.
 ---
 --- Since: 2.31.13+op77.45
 ---@param event string
@@ -141,6 +141,7 @@ function AddEventHandler(event, handler) end
 --- Wraps `Open77.state.onChange` in the FiveM signature. `key` may be a key name, or nil or `"*"` for every key. `bagName` may be nil for every bag, `"global"`, `"player:<id>"`, `"<kind>:<id>"`, or `"entity:<id>"`, which matches any entity kind carrying that id. The handler receives `(bagName, key, value, reserved, replicated)`; `reserved` is always nil and `replicated` always true, so a ported signature lines up. It runs at a tick boundary rather than inside the write, so it may Wait. Only subscribed resources are touched: the filter is on the host side, so one resource's interest in a key does not marshal that key into every other resource.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_state_key, invalid_state_op, invalid_state_selector, state_unavailable, unknown_bag
 ---@param key? string
 ---@param bagName? string
 ---@param handler function
@@ -203,6 +204,7 @@ function BanPlayer(playerId, reason, seconds) end
 --- Meaningful only inside a handler reached by TriggerCancellableEvent; anywhere else it answers false, not_in_cancellable_event rather than raising. The flag is shared by every resource in the dispatch, so the first cancel wins and the remaining handlers still run and can read it.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: not_in_cancellable_event
 ---@return any true true, or false, reason
 function CancelEvent() end
 
@@ -411,6 +413,7 @@ function DamagePlayer(playerId, amount, attacker, kindName, weaponTdbId) end
 --- See `SetResourceKvp`.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param key string
 ---@return any boolean boolean
 ---@return any reason reason
@@ -422,6 +425,7 @@ function DeleteResourceKvp(key) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param id integer
 ---@return any true true, or failure, reason
 function DestroySound(id) end
@@ -431,6 +435,7 @@ function DestroySound(id) end
 --- FiveM has one opaque handle space; Open77 has one registry per kind, so the kind has to be named: vehicle, npc, prop, loot, effect, elevator or player. The one-argument FiveM form cannot be answered and is refused with false, kind_required rather than guessed at. Each kind is answered by the registry that already owns it, under that registry's permissions, so a resource that may not read vehicles gets false -- the same answer an absent id gets. Call the namespace function directly when you need to tell denied from absent. Other reasons: id_required, invalid_entity_id, unknown_entity_kind.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: id_required, invalid_entity_id, kind_required, unknown_entity_kind
 ---@param kind string
 ---@param id integer
 ---@return any boolean boolean, or false, reason
@@ -467,6 +472,7 @@ function EnqueueNpcTask(npcId, type, parametersJson, channel, priority, timeoutM
 --- `Entity(id).state` is `Open77.state.entity(kind, id)` with the kind resolved by looking the id up in the vehicle, NPC and prop registries in turn. FiveM has one entity namespace and Open77 has three, so an id that exists in more than one registry is ambiguous: prefer `Open77.state.entity(kind, id)` in new code and keep this for ported scripts. The bag's audience is the entity's own viewer set, so it is visible exactly when the entity is, and it dies with it.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_state_key, invalid_state_op, invalid_state_selector, state_unavailable, unknown_bag
 ---@param entityId integer
 ---@return any a a table with `state`
 function Entity(entityId) end
@@ -477,6 +483,7 @@ function Entity(entityId) end
 ---
 --- Permissions: runtime.commands
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_command_line, invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param line string
 ---@return any true true when queued, otherwise false
 ---@return any reason reason
@@ -544,9 +551,10 @@ function GetCurrentResourceGeneration() end
 
 --- Return this manifest's resource name.
 ---
---- Return this manifest's resource name.
+--- The `resource "..."` line of this resource's own `open77.lua`, as the host loaded it. A local read with no permission and no failure; `Open77.resource.name()` is the same function. Compare it with the argument of `onResourceStart` / `onResourceStop` to react to this resource's own lifecycle only.
 ---
 --- Since: 2.31.13+op77.45
+---@return any resource resource name
 function GetCurrentResourceName() end
 
 --- Low-level alias of `Open77.effects.get`.
@@ -606,6 +614,7 @@ function GetGameTimer() end
 --- CRC-32/ISO-HDLC of the name in the low 32 bits with the name length in byte 4, which is what REDengine computes and the only hash that resolves to anything in this game. It is deliberately NOT the Jenkins one-at-a-time hash FiveM's GetHashKey returns, so a hash constant copied out of a FiveM resource names a GTA model and matches nothing here: port the string, not the number. Non-string input answers nil, invalid_argument. The client computes the identical value, and results are memoised up to 1,024 names per resource.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_argument
 ---@param text string
 ---@return any integer integer TweakDBID, or nil, invalid_argument
 function GetHashKey(text) end
@@ -722,6 +731,7 @@ function GetNpcTemplates() end
 --- Counts `Open77.resource.list()`, so it counts every discovered resource, running or not.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@return any integer integer
 function GetNumResources() end
 
@@ -730,6 +740,7 @@ function GetNumResources() end
 --- The low-level form of `Open77.players.distance` (bound to the same native). The two are the same function under two names; `Open77.players.distance` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_argument, invalid_position, player_not_found, position_unknown, sessions_unavailable
 ---@param reason any
 ---@param reason any
 function GetPlayerDistance(reason, reason) end
@@ -776,6 +787,7 @@ function GetPlayerIdentifier(playerId) end
 --- Recognised types, matched case-insensitively: open77 and userId both give the account GUID, name the display name, fingerprint the SHA-256 of the identity public key. Anything else answers nil, unknown_identifier_type, and a non-string type answers nil, invalid_identifier_type. The value is bare, without the "type:" prefix GetPlayerIdentifiers puts on it.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_identifier_type, unknown_identifier_type
 ---@param playerId any
 ---@param identifierType string
 ---@return any identifier identifier, or nil, reason
@@ -786,6 +798,7 @@ function GetPlayerIdentifierByType(playerId, identifierType) end
 --- Each entry is "type:value" -- open77:<account guid>, name:<display name>, fingerprint:<sha-256> -- so `for _, id in ipairs(GetPlayerIdentifiers(source))` ports unchanged. Entries the session does not carry are left out rather than emitted empty, and a player id that names nobody answers nil, player_not_found. There is no steam, license or discord entry: Open77 has one account identity, and inventing the others would let ported code believe it had verified something.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: player_not_found
 ---@param playerId any
 ---@return any array array of strings, or nil, player_not_found
 function GetPlayerIdentifiers(playerId) end
@@ -893,7 +906,7 @@ function GetPlayersInBucket(bucket) end
 --- The low-level form of `Open77.players.nearby` (bound to the same native). The two are the same function under two names; `Open77.players.nearby` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_options, invalid_radius
+--- Reasons: invalid_argument, invalid_bucket, invalid_limit, invalid_max_age, invalid_options, invalid_position, invalid_radius, player_not_found, position_unknown, sessions_unavailable
 ---@param reason any
 ---@param radius number
 ---@param options any
@@ -989,6 +1002,7 @@ function GetRecordData() end
 --- Entries carry `source` in addition to FiveM's `name` and `resource`, because this list has two origins.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@return any array array of tables, or nil
 ---@return any reason reason
 function GetRegisteredCommands() end
@@ -998,6 +1012,7 @@ function GetRegisteredCommands() end
 --- The one zero-based function in this API, because it exists only so that a `for i = 0, GetNumResources() - 1` loop copied out of a FiveM resource runs unchanged. Prefer `Open77.resource.list()`, which is an ordinary 1-based Lua array carrying state and version as well.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param index integer
 ---@return any string string, or nil
 function GetResourceByFindIndex(index) end
@@ -1007,6 +1022,7 @@ function GetResourceByFindIndex(index) end
 --- See `SetResourceKvp`.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param key string
 ---@param default? any
 ---@return any value value, default or nil
@@ -1018,6 +1034,7 @@ function GetResourceKvp(key, default) end
 --- FiveM's third `index` argument is not accepted: an Open77 manifest directive is a list, returned whole, rather than a repeated key addressed by position.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param name string
 ---@param key? string
 ---@return any table table or field value, or nil
@@ -1045,6 +1062,7 @@ function GetScreenEffectCatalog() end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param id integer
 ---@return any table table, or nil, reason
 function GetSoundState(id) end
@@ -1116,6 +1134,7 @@ function HealPlayer(playerId, amount) end
 --- The one call that lets a single shared_script branch between the two runtimes, and the only reason a shared file needs to know which side it is on. It takes no arguments and cannot be spoofed: the two runtimes install two different functions.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_tick_function, task_limit_or_stopping
 ---@return any true true
 function IsDuplicityVersion() end
 
@@ -1168,6 +1187,7 @@ function IsPlayerVisible(playerId) end
 ---
 --- Permissions: acl.read
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_permission, invalid_player_id, invalid_user_id, permission_denied:acl.read, principal_not_connected
 ---@param userId string
 ---@param permission string
 ---@return any boolean boolean, or false, reason
@@ -1213,6 +1233,7 @@ function KillPlayer(playerId, killer, causeName, weapon, impulseX, impulseY, imp
 ---
 --- Permissions: filesystem.read
 --- Since: 2.31.13+op77.67
+--- Reasons: cross_resource_read_denied, invalid_argument, permission_denied:filesystem.read
 ---@param resourceName string
 ---@param path string
 ---@return any file file contents, or nil, reason
@@ -1233,6 +1254,7 @@ function PauseElevator(id) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param id integer
 ---@return any true true, or failure, reason
 function PauseSound(id) end
@@ -1243,6 +1265,7 @@ function PauseSound(id) end
 ---
 --- Permissions: http.request
 --- Since: 2.31.13+op77.45
+--- Reasons: http_unavailable, invalid_body, invalid_headers, invalid_method, invalid_request_id, invalid_url, permission_denied:http.request, too_many_headers
 ---@param url string
 ---@param callback? function
 ---@param method? string
@@ -1257,6 +1280,7 @@ function PerformHttpRequest(url, callback, method, body, headers) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param asset string
 ---@param options? table
 ---@return any integer integer handle, or nil, reason
@@ -1268,6 +1292,7 @@ function Play2DSound(asset, options) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param asset string
 ---@param position table
 ---@param options? table
@@ -1351,6 +1376,7 @@ function PlayerScreenEffect(playerId, name, opts_) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param id integer
 ---@return any true true, or failure, reason
 function PlaySound(id) end
@@ -1369,7 +1395,7 @@ function quat(x, y, z, w) end
 
 --- Registers a command usable from the server console and from chat.
 ---
---- No permission to register. The handler receives (source, args, raw), where source is the player id or 0 for the console, args is the packed argument list and raw is the untouched line. Names are 1 to 64 characters of letters, digits, `_`, `.`, `:` or `-`, matched case-insensitively; registering one twice raises `duplicate command`. With restricted = true the caller must hold the ACL entry command.<name> -- see Identity and ACL.
+--- No permission to register. The handler receives `(source, args, raw)`: `source` is a number -- the player id, or `0` for the server console and Warden; `args` is `table.pack` of the arguments after the command name, so `args.n` is their count and every one is a **string** (`"42"`, not `42`); `raw` is the command name followed by those arguments joined with single spaces, without the leading `/`. From chat the client splits the line shell-style (quotes group words, backslash escapes, at most 32 arguments) before sending it; from the console the line is split on spaces only, so quotes arrive literally. A chat `/name` and a console `name` reach the same handler, which runs on the next scheduler tick, not inline. Names are 1 to 64 characters of letters, digits, `_`, `.`, `:` or `-`, matched case-insensitively; registering one twice raises `duplicate command`. With `restricted = true` a player must hold the ACL entry `command.<name>` (lower-case) -- the console always may -- see Identity and ACL.
 ---
 --- Since: 2.31.13+op77.45
 ---@param name string
@@ -1451,6 +1477,7 @@ function RemoveProp(id, reason) end
 --- Takes the id that call returned; the same function as `Open77.state.offChange`. An id that was already cancelled, or never issued, is ignored rather than raising. Stopping the resource cancels its subscriptions for you, so this is for a resource that wants to stop listening while it keeps running.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_state_key, invalid_state_op, invalid_state_selector, state_unavailable, unknown_bag
 ---@param subscriptionId integer
 ---@return any true true
 ---@return any or or false, reason
@@ -1552,6 +1579,7 @@ function RevivePlayer(playerId, health, grace) end
 --- Open77.io.write under the FiveM name, rooted at this resource's data/ directory and gated by filesystem.write. Naming another resource answers false, cross_resource_write_denied. There is no client counterpart: a client resource's directory is the signed download and is not writable.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: cross_resource_write_denied, invalid_argument, permission_denied:filesystem.write
 ---@param resourceName string
 ---@param path string
 ---@param data string
@@ -1564,6 +1592,7 @@ function SaveResourceFile(resourceName, path, data) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param id integer
 ---@param seconds number
 ---@return any true true, or failure, reason
@@ -1631,6 +1660,7 @@ function SetCombatWeaponMultiplier(weaponTdbId, multiplier) end
 --- Server-wide, not per resource -- `SetConvar` here is visible to `GetConvar` in another resource, which is what the FiveM code being ported assumes and is exactly why a convar is a poor place for anything two resources might both want to own. **In memory only**: the value is gone on the next restart and the `convars` block of `server.jsonc` comes back. Making it durable would mean writing to the operator's tracked configuration file from Lua. Booleans and numbers are coerced to their string form. 512 overrides, 4096-byte values, names `[A-Za-z0-9_.:-]` up to 128 bytes.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: convars_unavailable, invalid_convar_name, invalid_convar_value
 ---@param name string
 ---@param value any
 ---@return any true true, or false
@@ -1653,6 +1683,7 @@ function SetElevatorFlags(id, flags) end
 ---
 --- Permissions: players.stats.apply
 --- Since: 2.31.13+op77.74
+--- Reasons: id_required, invalid_argument, kind_required, unknown_entity_kind, unsupported_entity_kind
 ---@param kind string
 ---@param id integer
 ---@param enabled boolean
@@ -1948,6 +1979,7 @@ function SetPropTransform(id, x, y, z, yaw, scaleX, scaleY, scaleZ) end
 --- The same three bare globals the client publishes, over the server's own store. FiveM's typed variants (`SetResourceKvpInt`, `GetResourceKvpFloat`, ...) are deliberately absent: they are one line of Lua each, and spelling the two Open77 runtimes identically is worth more than matching FiveM on a side that never had the API at all.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param key string
 ---@param value any
 ---@return any boolean boolean
@@ -1978,6 +2010,7 @@ function SetRoutingBucketPopulationEnabled(bucket, enabled) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param id integer
 ---@param position table
 ---@return any true true, or failure, reason
@@ -1989,6 +2022,7 @@ function SetSoundPosition(id, position) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param id integer
 ---@param volume number
 ---@return any true true, or failure, reason
@@ -1999,6 +2033,7 @@ function SetSoundVolume(id, volume) end
 --- A scheduler task looping with an implicit Wait(0), so it is bounded by the same budget and counted against the same 1,024-task quota as a CreateThread loop. The difference is the pcall: an error inside the function is logged and the tick survives it, up to five *consecutive* failures, after which the tick cancels itself rather than filling the log for the rest of the session. One successful pass resets the count. Answers nil, invalid_tick_function for a non-function and nil, task_limit_or_stopping when no task slot is available.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_tick_function, task_limit_or_stopping
 ---@param body function
 ---@return any tick tick id, or nil, reason
 function SetTick(body) end
@@ -2069,6 +2104,7 @@ function SpectatePlayer(playerId, targetId_false, options_) end
 ---
 --- Permissions: resources.control
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param name string
 ---@return any true true when queued, otherwise false
 ---@return any reason reason
@@ -2080,6 +2116,7 @@ function StartResource(name) end
 ---
 --- Permissions: resources.control
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param name string
 ---@return any true true when queued, otherwise false
 ---@return any reason reason
@@ -2091,6 +2128,7 @@ function StopResource(name) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param id integer
 ---@return any true true, or failure, reason
 function StopSound(id) end
@@ -2110,6 +2148,7 @@ function TeleportElevator(id, floor) end
 --- Only events published this way can be cancelled; an ordinary TriggerEvent ignores CancelEvent(). Handlers run inline during the host drain, in resource-name order then registration order, so Wait() is not available inside one. Every handler still runs after a veto (FiveM semantics) and a later one reads the flag with WasEventCanceled(). The handle settles one tick later: verdict:await() answers true when a handler cancelled, verdict:canceled() answers nil plus status while pending, verdict:status() answers pending, settled or unknown. An unread verdict is forgotten 30 s after it settles. Same caps and reserved list as TriggerEvent.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_event_name, resource_preparing, resource_stopping
 ---@param event string
 ---@param ___? any
 ---@return any verdict verdict handle, or nil, reason
@@ -2132,6 +2171,7 @@ function TriggerClientEvent(event, playerId__1, ___) end
 --- No permission, to publish or to receive. Delivery is queued and never re-entrant: publishing appends to the host's queue, the host drains it at the next tick boundary and pushes the event into each VM in resource-name order, so one resource's error cannot abort the fan-out. Arguments cross by value through the export marshaller -- 32 values, 4,096 nodes, depth 16, 48 KiB -- and functions, userdata, cyclic tables and non-finite numbers are refused. `source` is not propagated, so a publisher that wants receivers to know which player caused the event passes the id as an argument. Platform event names are refused with reserved_event. The client function of this name is local to its own VM; this one is the bus. Failure tokens: invalid_event_name, reserved_event, resource_stopping, resource_preparing, event_argument_limit, event_payload_not_serializable, event_queue_limit.
 ---
 --- Since: 2.31.13+op77.45
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_event_name, reserved_hacking_event, resource_preparing, resource_stopping
 ---@param event string
 ---@param ___? any
 ---@return any true true, or false, reason
@@ -2143,6 +2183,7 @@ function TriggerEvent(event, ___) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.73
+--- Reasons: event_argument_limit, invalid_event_name, invalid_player_id, invalid_rate, latent_payload_not_serializable, latent_payload_too_large, latent_stream_limit, network_unavailable, permission_denied:network.events, player_not_found, resource_stopping
 ---@param name string
 ---@param target any
 ---@param bytesPerSecond number
@@ -2156,6 +2197,7 @@ function TriggerLatentClientEvent(name, target, bytesPerSecond, ___) end
 --- The behaviour server TriggerEvent had before the host-wide bus: no marshalling, no reserved-name filter, no host round trip. Use it for a resource's own internal signalling, and wherever a fixture must simulate a host lifecycle event inside its own VM.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: reserved_hacking_event
 ---@param event string
 ---@param ___? any
 ---@return any true true
@@ -2436,7 +2478,7 @@ function json.encode(value) end
 --- Requires `players.abilities.manage`. Use it to interrupt a slam in progress without taking the ability away; `revoke` does both.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: abilities_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: abilities_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId any
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason
@@ -2447,7 +2489,7 @@ function Open77.abilities.cancel(playerId) end
 --- Requires `players.abilities.read`. Reports what the server believes the client is projecting, which is admission state rather than proof of a rendered animation.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: abilities_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: abilities_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId any
 ---@return any projection projection snapshot, or nil
 ---@return any reason reason
@@ -2458,7 +2500,7 @@ function Open77.abilities.current(playerId) end
 --- Requires `players.abilities.define`. The definition names the ability and its native parameters; grants later refer to it by id. Definitions belong to the declaring resource, so a reload republishes them. See the [ground slam guide](ground-slam.md) for the definition fields and the projection contract.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: abilities_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: abilities_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param definition table
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason
@@ -2469,7 +2511,7 @@ function Open77.abilities.define(definition) end
 --- Requires `players.abilities.manage`. Acceptance is entitlement, not rendering: native projection on the target client can still be pending when this returns. Only the granting resource may revoke or cancel it.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: abilities_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: abilities_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId any
 ---@param definition any
 ---@return any ok { ok = true }, or nil
@@ -2481,7 +2523,7 @@ function Open77.abilities.grant(playerId, definition) end
 --- Requires `players.abilities.manage`. Scoped to the calling resource: another resource's grant on the same player is untouched. Resource stop revokes automatically.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: abilities_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: abilities_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId any
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason
@@ -2569,7 +2611,7 @@ function Open77.access.setWhitelist(enabled) end
 ---
 --- Permissions: players.access
 --- Since: 2.31.13+op77.45
---- Reasons: access_persistence_failed, access_unavailable, ban_persistence_failed, invalid_user_id, permission_denied:players.access, unknown_operation
+--- Reasons: access_persistence_failed, access_unavailable, ban_persistence_failed, invalid_json, invalid_user_id, json_too_large, permission_denied:players.access, unknown_operation
 ---@return any table table, or false
 ---@return any reason reason
 function Open77.access.status() end
@@ -2591,7 +2633,7 @@ function Open77.access.unban(userId) end
 --- FiveM's `add_principal`. Requires `acl.grant:<pattern>`, and the check is on the role's **entire reach**, not on its name: every permission behind it must be inside the scope or the call is refused `role_exceeds_scope`. Without that rule a resource scoped to `job.police.*` would collect `command.*` by adding the operator's `moderator` role, which is the same escalation arriving one indirection later. The role may be one this resource defined with `definePermission` or one the operator defined in `acl.jsonc`. Idempotent. Shows up in `Open77.acl.roles`. Publishes `onAclChanged`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, unknown_operation
+--- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, permission_denied:acl.read, runtime_acl_limit, scope_not_delegable, unknown_operation
 ---@param userId any
 ---@param role string
 ---@return any true true, or nil
@@ -2603,7 +2645,7 @@ function Open77.acl.addRole(userId, role) end
 --- FiveM's `add_ace` against a group. Requires the **second** capability, `acl.define:<pattern>`, because retuning a role changes the rights of everyone holding it at once and retroactively -- a resource that may promote people should not also decide what the promotion is worth. Every permission, and every permission the role *currently* holds, must be inside that scope. Passing nil or an empty list deletes the role and takes it off every subject holding it, rather than leaving a name that resolves to nothing. A role the operator defined in `acl.jsonc` is theirs: `role_defined_by_operator`. `owner` and `admin` are reserved. Publishes `onAclChanged`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, unknown_operation
+--- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, permission_denied:acl.read, runtime_acl_limit, scope_not_delegable, unknown_operation
 ---@param role string
 ---@param permissions any
 ---@return any true true, or nil
@@ -2615,7 +2657,7 @@ function Open77.acl.definePermission(role, permissions) end
 --- Native-parity A12, FiveM's `add_ace`. Requires a scoped `acl.grant:<pattern>` in the manifest; there is no bare `acl.grant`, and `acl.grant:*` is not a wildcard scope but is dropped, leaving `scope_not_delegable`. The permission must fall inside one of the declared patterns or the call is refused `permission_not_delegable` -- that scope is the whole answer to whether a resource may grant a right it does not itself hold. The subject is a **master-issued userId**, the string `Open77.players.identity(playerId).userId` answers, never a playerId: a grant outlives the session that earned it. Writes to `acl.runtime.jsonc`, the machine-owned sibling of `acl.jsonc`, atomically through a temporary; the operator's own document is never touched and can never be reduced by this call. Takes effect on the very next `isAllowed`, with no reload. Idempotent. Publishes `onAclChanged`. See the [ACL guide](server-acl.md).
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, unknown_operation
+--- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, permission_denied:acl.read, runtime_acl_limit, scope_not_delegable, unknown_operation
 ---@param userId any
 ---@param permission string
 ---@return any true true, or nil
@@ -2627,7 +2669,7 @@ function Open77.acl.grant(userId, permission) end
 --- Requires the existing `acl.read`. Answers `{ permissions = {}, roles = {} }`, with empty tables for a subject that has no runtime grant. It reports **only** what the resource layer granted at runtime and never a principal from the operator's `acl.jsonc`, so it widens nothing a per-permission `isAllowed` could not already answer. For the effective answer, which unions both layers, call `Open77.acl.isAllowed`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, unknown_operation
+--- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, permission_denied:acl.read, runtime_acl_limit, scope_not_delegable, unknown_operation
 ---@param userId any
 ---@return any table table { permissions, roles }, or nil
 ---@return any reason reason: permission_denied:acl.read, invalid_user_id, acl_unavailable
@@ -2650,7 +2692,7 @@ function Open77.acl.isAllowed(playerId, right) end
 --- The same scope and the same `role_exceeds_scope` check as `addRole`. Removes only from the runtime overlay: a role assigned by the operator's own principal answers `operator_grant`, and one nobody assigned answers `not_granted`. Publishes `onAclChanged`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, unknown_operation
+--- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, permission_denied:acl.read, runtime_acl_limit, scope_not_delegable, unknown_operation
 ---@param userId any
 ---@param role string
 ---@return any true true, or nil
@@ -2662,7 +2704,7 @@ function Open77.acl.removeRole(userId, role) end
 --- FiveM's `remove_ace`. Same `acl.grant:<pattern>` scope and the same refusals as `grant`, so a resource cannot strip a right it could not have handed out -- which is what stops one resource tampering with another's job model. It removes only from the runtime overlay: a permission the operator wrote into `acl.jsonc` answers `operator_grant` rather than appearing to work, and one nobody granted answers `not_granted`. Publishes `onAclChanged`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, unknown_operation
+--- Reasons: acl_unavailable, invalid_permission, invalid_role, invalid_user_id, permission_denied:acl.read, runtime_acl_limit, scope_not_delegable, unknown_operation
 ---@param userId any
 ---@param permission string
 ---@return any true true, or nil
@@ -2685,7 +2727,7 @@ function Open77.acl.roles(playerId) end
 --- Clip-first discovery, the counterpart of get(). Returns the owning profile table, or nil when no shipped device's authored tree carries that clip. Requires no capability, like list() and get(). Clip names are case-sensitive. An absent result is the answer, not an error: a name can appear in the game's discovery inventory and still be unaddressable here. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param clip string
 ---@return any Profile Profile table, or nil when no shipped device carries the clip
 function Open77.animations.clip(clip) end
@@ -2695,7 +2737,7 @@ function Open77.animations.clip(clip) end
 --- The nearest equivalent this engine offers to enumerating an animation dictionary, and the discovery step before playClip(). Returns one row per clip, { clip = string, profile = string }, ordered by clip name. The optional query is a case-insensitive substring matched against both the clip name and the profile ID, at most 128 characters. Requires no capability. This is the complete addressable set, not a catalogue of what the game contains. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param query? string
 ---@return any Array Array of { clip, profile } rows
 ---@return any nil nil, invalid_query when the query exceeds 128 characters
@@ -2706,7 +2748,7 @@ function Open77.animations.clips(query) end
 --- Requires players.animations.read. Returns the active state synchronously, or nil without an error when inactive. Fields include epoch, revision, playerId, playbackId, active, bucket, steps, loop, startedAtMs, serverTimeMs, cycle, step, elapsedMs and remainingMs. Timestamps are monotonic server time and step/cycle indices are zero-based. clientRequestId is internal correlation, not a cancellation token. State proves scheduling, not that a native clip rendered. Unlike client current(entity), this does not return a raw clip name. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.48
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any Active Active playback state, or nil when inactive
 ---@return any nil nil, error on failure
@@ -2717,7 +2759,7 @@ function Open77.animations.current(playerId) end
 --- No capability is required. Looks up an exact, case-sensitive profile ID such as smoke or phone. Returns nil without an error for an unknown profile. Use the returned clip and clips fields to construct a valid playback request instead of passing arbitrary game animation names. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.48
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param profileId string
 ---@return any Profile Profile table, or nil when absent
 ---@return any nil nil, error on failure
@@ -2728,7 +2770,7 @@ function Open77.animations.get(profileId) end
 --- No capability is required. Returns profile definitions synchronously, not a Promise. Search is a case-insensitive substring across ID, label and category; the maximum query length is 128 characters. Empty search returns all 15 profiles and no match returns an empty array. Definitions include clip variants and rig metadata, which must not be mistaken for proof of native rendering. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.48
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param query? string
 ---@return any Profile Profile array on success
 ---@return any nil nil, error on failure
@@ -2739,7 +2781,7 @@ function Open77.animations.list(query) end
 --- Requires players.animations.control. The player must be ready, alive, on foot and have a known position. The calling resource VM generation owns the action; another resource cannot replace it. Options are clip, durationMs and loop only. loop defaults to true; omitted/zero duration is indefinite when looping. With loop=false the default is 5000 ms. Nonzero durations are integers from 1000 to 600000 ms; variants must belong to the profile. Returns authoritative acceptance, not proof of native mounting. The local view temporarily uses third person. Unlike the legacy client play(entity, rawClip), this method replicates a curated profile. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.48
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param profileId string
 ---@param options? table
@@ -2752,7 +2794,7 @@ function Open77.animations.play(playerId, profileId, options) end
 --- Requires players.animations.control -- the same capability as play, because a placement is an animation with a pose, not a second power. The body is first moved to position with the given yaw (degrees about Z, the props convention) through the platform's own placement channel -- no fade, the same gate and settle watch a Warden move gets -- and once it stands there the workspot device is spawned under it and the posture plays: that is what sits a player on a chair that has no device of its own, leans them on a wall, or lies them on a bed. (The engine does not pull a body onto a device two metres away; measured 2026-09-16, so the server carries it.) The three portable postures are the chair, lean and lie profiles; any catalogue profile accepts a pose. The anchor must be within 5 m of the player's current position or the call is refused with anchor_too_far: past that a placement would be a teleport reachable without players.teleport, and Open77.players.teleport is the call that owns journeys. position is { x, y, z } or a three-element array; yaw is optional and defaults to 0. options are those of play (clip, durationMs, loop). Returns the accepted playback state with an anchor field; the playbackId is the handle stopAt takes. Resources see the accepted state at once; clients hear about the posture only when the body has arrived, and its clock starts then. The move watchdog is measured against the anchor and armed 5 s after acceptance; a body that never reaches its anchor in that window ends with anchor_unreached rather than moved. Acceptance is server authority, not proof -- observe onPlayerAnimationChanged. Refusals add invalid_anchor, anchor_too_far and anchor_move_refused (the body is not ready, not alive, or in a vehicle) to those of play. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.73
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param profileId string
 ---@param position any
@@ -2767,7 +2809,7 @@ function Open77.animations.playAt(playerId, profileId, position, yaw, options) e
 --- Requires players.animations.control and the same readiness, ownership and duration rules as play(); only the addressing differs. The owning profile is resolved from the generated catalogue, so the caller names the animation rather than the action that carries it. This is the closest honest analogue of FiveM's TaskPlayAnim. It is not 'play any clip': Cyberpunk plays a named clip only through a workspot bound into a device entity at asset-build time, so the addressable set is the 70 clips of the twelve shipped devices. A name outside it -- including a name from the 23,044-entry discovery inventory -- is refused with unknown_clip rather than started and ignored by the engine. Options are durationMs and loop only. blendIn, blendOut, upperBody, holdLastFrame, flags, dict and playbackRate are refused by name as unsupported_option:<key>, because an author porting a TaskPlayAnim call has to be able to see which concept is missing rather than assume a bad value. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param clip string
 ---@param options? table
@@ -2780,7 +2822,7 @@ function Open77.animations.playClip(playerId, clip, options) end
 --- Requires players.animations.control and the same readiness and ownership checks as play(). Accepts 1–16 steps with profile, optional clip and durationMs. Each step defaults to 5000 ms and must last at least 1000 ms; the total cannot exceed 600000 ms. The only sequence option is loop, default false. Durations schedule server transitions and are not measured native clip lengths. Profile switches require workspot exit/re-entry and may not blend seamlessly. Server resource stop, player death, vehicle entry, movement or bucket changes cancel the action. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.48
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param steps any
 ---@param options? table
@@ -2793,7 +2835,7 @@ function Open77.animations.sequence(playerId, steps, options) end
 --- Requires players.animations.control. Omitting playbackId stops the current action owned by this VM generation; an action owned by another resource is refused. Pass the recorded ID in delayed callbacks so an old timer cannot stop a newer action: stale IDs return stale_playback. Stopping an already inactive player succeeds. The authoritative onPlayerAnimationChanged event carries the player ID string and JSON state string; native detachment may finish asynchronously on clients. This is not the client-local stop(entity) method. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.48
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param playbackId? string
 ---@return any true true on success, including already inactive
@@ -2805,7 +2847,7 @@ function Open77.animations.stop(playerId, playbackId) end
 --- Requires players.animations.control. Takes the playbackId that playAt (or play) returned and ends that action, tearing down its workspot device on every client; nothing else needs remembering, in particular not which player it belonged to. Refuses with animation_owned when another resource VM started it and invalid_playback for an empty or oversized handle. A handle whose action already ended succeeds, exactly as stop does on an idle player: once the entry is gone, 'already finished' and 'never existed' are the same answer, and the caller's intent -- nothing running under this handle -- holds either way. Resource stop, restart and disposal tear placed actions down without this call, as they do every other action the VM owns. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.73
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playbackId string
 ---@return any true true, including when the handle no longer names a running action
 ---@return any nil nil, error on rejection
@@ -2817,7 +2859,7 @@ function Open77.animations.stopAt(playbackId) end
 ---
 --- Permissions: network.events, players.appearance.relay
 --- Since: 2.31.13+op77.67
---- Reasons: network_unavailable, permission_denied:network.events
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param snapshot table
 ---@param options? table
@@ -2831,7 +2873,7 @@ function Open77.appearance.apply(playerId, snapshot, options) end
 ---
 --- Permissions: network.events, players.appearance.relay
 --- Since: 2.31.13+op77.67
---- Reasons: network_unavailable, permission_denied:network.events
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@return any request request id, or nil
 ---@return any reason reason: permission_denied:players.appearance.relay, invalid_player, dispatch_failed
@@ -2863,6 +2905,7 @@ function Open77.audio.getState(id) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param id integer
 ---@return any true true, or failure, reason
 function Open77.audio.pause(id) end
@@ -2873,6 +2916,7 @@ function Open77.audio.pause(id) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param id integer
 ---@return any true true, or failure, reason
 function Open77.audio.play(id) end
@@ -2883,6 +2927,7 @@ function Open77.audio.play(id) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param asset string
 ---@param options? table
 ---@return any integer integer handle, or nil, reason
@@ -2894,6 +2939,7 @@ function Open77.audio.play2D(asset, options) end
 ---
 --- Permissions: audio.network
 --- Since: 2.31.13+op77.63
+--- Reasons: audio_asset_not_declared_or_unsafe, audio_unavailable, invalid_audio_options, invalid_audio_request, invalid_json, json_too_large, loop_requires_duration, permission_denied:audio.network, resource_stopping, server_audio_must_be_networked, sound_not_found
 ---@param asset string
 ---@param position table
 ---@param options? table
@@ -2947,7 +2993,9 @@ function Open77.audio.stop(id) end
 ---
 --- Asks one client a question and returns an Open77.Promise, or nil, reason when the request is refused before it leaves.
 ---
+--- Permissions: network.events
 --- Since: 2.31.13+op77.67
+--- Reasons: callback_arguments_not_serializable, callback_payload_too_large, callback_request_limit, callback_too_many_arguments, invalid_callback_name, invalid_callback_timeout, network_unavailable, permission_denied:network.events, resource_stopping
 ---@param playerId integer
 ---@param name any
 ---@param ___? any
@@ -2958,7 +3006,9 @@ function Open77.callbacks.callClient(playerId, name, ___) end
 ---
 --- Awaits the promise, so it needs a CreateThread or another managed task.
 ---
+--- Permissions: network.events
 --- Since: 2.31.13+op77.67
+--- Reasons: callback_arguments_not_serializable, callback_payload_too_large, callback_request_limit, callback_too_many_arguments, invalid_callback_name, invalid_callback_timeout, network_unavailable, permission_denied:network.events, resource_stopping
 ---@param playerId integer
 ---@param name any
 ---@param ___? any
@@ -2969,8 +3019,9 @@ function Open77.callbacks.callClientAwait(playerId, name, ___) end
 ---
 --- Open77.callbacks is the same four callback functions under a second name, for resources that prefer to read the callback surface as its own namespace. Pick one spelling per resource; these are the same functions, not copies.
 ---
+--- Permissions: network.events
 --- Since: 2.31.13+op77.67
---- Reasons: callback_function_required, invalid_callback_name
+--- Reasons: callback_function_required, callback_registration_limit, invalid_callback_name, permission_denied:network.events, resource_stopping
 ---@param name string
 ---@param handler function
 ---@return any true true, or nil, reason
@@ -2981,17 +3032,17 @@ function Open77.callbacks.register(name, handler) end
 --- Stops answering that name; a later request is refused with callback_not_found on the next frame.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_callback_name
+--- Reasons: callback_not_found, invalid_callback_name
 ---@param name string
 ---@return any true true, or false, reason
 function Open77.callbacks.unregister(name) end
 
 --- Publishes one slash-command suggestion to a player's chat.
 ---
---- Facade over `chat:addSuggestion`. `target` is a playerId or -1 for everyone; `command` is the command text (for example "/tow"), `help` a one-line description, `parameters` a list of { name, help } tables. The suggestion list is also what the admin menu harvests. Anything that reaches clients is refused with `resource_preparing` while the resource's chunk is still loading: call it from `AddEventHandler("onResourceStart", ...)` (or from a command, an event or a later tick), not at the top level of the script.
+--- Facade over `chat:addSuggestion`. `target` is a playerId or -1 for everyone; `command` is the command text (for example "/tow"), `help` a one-line description, `parameters` a list of { name, help } tables. The suggestion list is also what the admin menu harvests. Publishes on the host bus, so it answers `resource_preparing` at the top level of a script: call it from `AddEventHandler("onResourceStart", ...)`, a command or an event handler.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_chat_command, invalid_chat_suggestion, invalid_chat_target
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_chat_command, invalid_chat_suggestion, invalid_chat_target, invalid_event_name, reserved_hacking_event, resource_preparing, resource_stopping
 ---@param target integer
 ---@param command string
 ---@param help? string
@@ -3002,11 +3053,11 @@ function Open77.chat.addSuggestion(target, command, help, parameters) end
 
 --- Publishes a list of slash-command suggestions at once.
 ---
---- Facade over `chat:addSuggestions`. The list is an array of { command, help, parameters } tables. Usually sent from a `chat:ready` handler, when a player's chat UI comes up. Anything that reaches clients is refused with `resource_preparing` while the resource's chunk is still loading: call it from `AddEventHandler("onResourceStart", ...)` (or from a command, an event or a later tick), not at the top level of the script.
+--- Facade over `chat:addSuggestions`. `target` is a player id (a number) or `-1` for everyone; the list is an array of { command, help, parameters } tables. Usually sent from a `chat:ready` handler (raised by each player's chat UI once it is up; `source` is that player) and once from `onResourceStart` with `-1`, for the players already connected. Publishes on the host bus, so it answers `resource_preparing` at the top level of a script.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_chat_suggestion, invalid_chat_target
----@param target integer
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_chat_suggestion, invalid_chat_target, invalid_event_name, reserved_hacking_event, resource_preparing, resource_stopping
+---@param target any
 ---@param list table
 ---@return any true true on success, otherwise false
 ---@return any failure failure reason
@@ -3014,9 +3065,10 @@ function Open77.chat.addSuggestions(target, list) end
 
 --- Sends a chat message to every player.
 ---
---- Exactly `Open77.chat.send(-1, message)`. Same asynchrony and same ordering caveat.
+--- Exactly `Open77.chat.send(-1, message)`: the same reasons, the same asynchrony and the same ordering caveat, and the same `resource_preparing` answer at the top level of a script.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_chat_message, invalid_chat_target, invalid_event_name, resource_preparing, resource_stopping
 ---@param message any
 ---@return any true true on success, otherwise false
 ---@return any failure failure reason
@@ -3027,7 +3079,7 @@ function Open77.chat.broadcast(message) end
 --- Facade over `chat:clear`. Presentation only -- it empties what that client is showing and deletes nothing on the server.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_chat_target
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_chat_target, invalid_event_name, reserved_hacking_event, resource_preparing, resource_stopping
 ---@param target integer
 ---@return any true true on success, otherwise false
 ---@return any failure failure reason
@@ -3049,7 +3101,7 @@ function Open77.chat.onMessage(handler) end
 --- Facade over `chat:removeSuggestion`. Use it when a command stops being available to that player rather than leaving a suggestion that will be refused.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_chat_command, invalid_chat_target
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_chat_command, invalid_chat_target, invalid_event_name, reserved_hacking_event, resource_preparing, resource_stopping
 ---@param target integer
 ---@param command string
 ---@return any true true on success, otherwise false
@@ -3058,11 +3110,11 @@ function Open77.chat.removeSuggestion(target, command) end
 
 --- Sends a chat message to one player, or to everyone with -1.
 ---
---- A thin facade over `chat:addMessage` on the host-wide event bus; `open77_chat` remains the only chat authority and does the actual push to clients. `message` is a plain string or the full table the chat UI renders ({ type, author, text, playerId, color = { r, g, b } as a positional array of three 0-255 numbers, e.g. `{ 0, 229, 255 }` -- a keyed `{ r = ..., g = ..., b = ... }` table is silently ignored by the chat UI }). Grants nothing: the facade never reaches a client itself, so it needs no `network.events`. Delivery is asynchronous -- it lands on the next tick boundary -- and two sends in the same tick arrive in the opposite order, because the resource scheduler collects ready tasks back to front. Put a `Wait(0)` between lines that must read in order. With no chat authority running the call still returns true, since the bus cannot tell a publisher that nobody listened.
+--- A thin facade over `chat:addMessage` on the host-wide event bus; `open77_chat` remains the only chat authority and does the actual push to clients. `playerId` must be a **number**: an integer id, `-1` or `nil` for everyone. A player id delivered by a host event (`onPlayerReady`, `onPlayerDisconnected`, `onPlayerEnteredVehicle`...) is a string and is refused with `invalid_chat_target` -- pass `tonumber(playerId)`; `source` inside a net-event or command handler is already a number. `message` is a plain string (1 to 4,096 bytes) or the full table the chat UI renders ({ type, author, text, playerId, color = { r, g, b } as a positional array of three 0-255 numbers, e.g. `{ 0, 229, 255 }` -- a keyed `{ r = ..., g = ..., b = ... }` table is silently ignored by the chat UI }). Grants nothing: the facade never reaches a client itself, so it needs no `network.events`. Because it publishes on the host bus it answers `resource_preparing` at the top level of a script, before the chunk has loaded: send from `onResourceStart`, a command or an event handler. Delivery is asynchronous -- it lands on the next tick boundary -- and two sends in the same tick arrive in the opposite order, because the resource scheduler collects ready tasks back to front. Put a `Wait(0)` between lines that must read in order. With no chat authority running the call still returns true, since the bus cannot tell a publisher that nobody listened.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_chat_message, invalid_chat_target
----@param playerId integer
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_chat_message, invalid_chat_target, invalid_event_name, reserved_hacking_event, resource_preparing, resource_stopping
+---@param playerId any
 ---@param message any
 ---@return any true true on success, otherwise false
 ---@return any failure failure reason
@@ -3074,7 +3126,7 @@ function Open77.chat.send(playerId, message) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: network_unavailable, permission_denied:network.events
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@return any request request id, or nil
 ---@return any reason reason
@@ -3086,7 +3138,7 @@ function Open77.clothing.clear(playerId) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_record, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_record, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param record string
 ---@param options? table
@@ -3100,7 +3152,7 @@ function Open77.clothing.equip(playerId, record, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: network_unavailable, permission_denied:network.events
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@return any request request id, or nil
 ---@return any reason reason
@@ -3112,7 +3164,7 @@ function Open77.clothing.requestSnapshot(playerId) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_wardrobe, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_wardrobe, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param wardrobe table
 ---@param options? table
@@ -3126,7 +3178,7 @@ function Open77.clothing.set(playerId, wardrobe, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_slot, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_slot, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param slot string
 ---@return any request request id, or nil
@@ -3280,7 +3332,7 @@ function Open77.convars.getInt(name, default) end
 --- The same function value.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_convar_name, invalid_convar_value
+--- Reasons: convars_unavailable, invalid_convar_name, invalid_convar_value
 ---@param name string
 ---@param value any
 ---@return any true true, or false
@@ -3292,7 +3344,7 @@ function Open77.convars.set(name, value) end
 --- Requires players.cyberware.read. Returns {player,incarnation,sequence,armed,holding,charged,chargeExpired,holdAt,elapsedMs,remainingMs,maxChargeMs,definition,grade}. Null for unavailable/stale (over1500ms) body/implant activity. Values drive presentation, not an extra permission to commit damage. Hold expiry latches until release/new swing.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any activity activity table, or nil
 ---@return any nil nil, reason on failure
@@ -3303,7 +3355,7 @@ function Open77.cyberware.activity(playerId) end
 --- Requires players.cyberware.identity. The user UUID comes from the connection; only the character key is supplied. Identity ownership is exclusive to a resource. Starts asynchronous database/native restoration; success is not readiness. Prefer the shipped appearance identity adapter and never accept an unvalidated client-selected character key.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param character string
 ---@return any ok {ok=true,...}
@@ -3315,7 +3367,7 @@ function Open77.cyberware.bind(playerId, character) end
 --- Requires players.cyberware.manage. Supply the ticket from the same resource's operation. Native staging is rolled back; an already submitted storage transaction returns operation_committing and completes normally. Never refund irrevocably until the correlated operation outcome is known.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param ticket string
 ---@return any ok {ok=true,...}
@@ -3327,7 +3379,7 @@ function Open77.cyberware.cancel(playerId, ticket) end
 --- Requires players.cyberware.read. Returned synchronously, not a Promise. Record fields are revision, arms and operationId; arms includes instanceId, definition, definitionVersion, profile, slot and the committed grade snapshot. Returns nil while loading/projecting/failed. An empty arms value means no installed implant. Temporary arena overlays do not overwrite this record. A ready record does not imply its definition provider is running.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any record record table, or nil when not ready
 ---@return any nil nil, reason on failure
@@ -3338,7 +3390,7 @@ function Open77.cyberware.current(playerId) end
 --- Requires players.cyberware.define. definition={id,version,slot="arms",profile="gorilla_arms",grades={...}}. IDs use1..96 ASCII alphanumeric/_.:- characters; version positive;1..32 unique grades. Required grade fields: id,normalDamage/chargedDamage(0..300),knockbackMeters(0..6),cooldownMs(100..600000),chargeMs(100..10000). Optional normalKnockbackMeters defaults to35% of charged, maxChargeMs defaults10000 and must be>=chargeMs and<=60000; nullable normalStaminaCost/chargedStaminaCost0..300 retain native price when omitted. nonlethal/cosmetic defaultfalse; blockDamageMultiplier0..1 default0 and blockAngleDegrees0..180 default45. Stop unregisters the provider and disables its grants without deleting paid records.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param definition table
 ---@return any ok {ok=true,error=nil,ticket=nil,lease=nil}
 ---@return any nil nil, reason on rejection
@@ -3349,7 +3401,7 @@ function Open77.cyberware.define(definition) end
 --- Requires players.cyberware.read. Returned synchronously, not a Promise. Record fields are revision, arms and operationId; arms includes instanceId, definition, definitionVersion, profile, slot and the committed grade snapshot. An active lease overlays arms; durable revision/operationId retain their base meaning. Pending/restoring projections return nil. Use current() for paid storage identity and effective() for ready presentation/gameplay loadout.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any effective effective record table, or nil
 ---@return any nil nil, reason on failure
@@ -3360,7 +3412,7 @@ function Open77.cyberware.effective(playerId) end
 --- Requires players.cyberware.manage. options requires expectedRevision and operationId. Compare-and-swap and receipt storage are atomic; reuse the same ID/contents on retries. Native projection occurs before commit. Completion is asynchronous via onCyberwareOperationCompleted(playerId,ticket,encodedResult), correlated by ticket; retain the pending operation until final outcome. Rejected/failed work restores the prior paid record. Server makers own consent, costs and progression.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param definition string
 ---@param grade string
@@ -3374,7 +3426,7 @@ function Open77.cyberware.install(playerId, definition, grade, options) end
 --- Requires players.cyberware.temporary. options.durationMs is1000..300000, default300000. Requires a ready bound character and registered definition/grade. pending→active only after native acknowledgement. Wait for the matching onCyberwareLeaseChanged state before admitting PvP. Owner stop, body/bucket change, expiry or disconnect releases the overlay; native restoration remains asynchronous.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param definition string
 ---@param grade string
@@ -3388,7 +3440,7 @@ function Open77.cyberware.lease(playerId, definition, grade, options) end
 --- Requires players.cyberware.read. Returns {id,player,phase,definition,grade,expiresAt,ticket,reason}, or nil when none exists. Phases pending/active/restoring/failed; ended is an event state, then the read becomes nil. expiresAt is server-monotonic milliseconds. Wait for nil AND current() ready before another lease.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any lease lease-state table, or nil
 ---@return any nil nil, reason on failure
@@ -3399,7 +3451,7 @@ function Open77.cyberware.leaseState(playerId) end
 --- Requires players.cyberware.manage. Returns a32-character GUID string. Store it with the pending operation and reuse the same ID, expectedRevision and contents when retrying; generating a new ID per retry loses receipt idempotency. This does not start a transaction.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@return any operation operation ID string
 ---@return any nil nil, reason on rejection
 function Open77.cyberware.newOperationId() end
@@ -3409,7 +3461,7 @@ function Open77.cyberware.newOperationId() end
 --- Requires players.cyberware.temporary. Works during pending/active; repeated restoration requests return the same ticket. Lease id and resource owner must match. An ended event due to body loss alone is not proof of native paid restoration: wait for no lease and a ready current record.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param lease string
 ---@return any ok {ok=true,ticket=string,...}
@@ -3421,7 +3473,7 @@ function Open77.cyberware.releaseLease(playerId, lease) end
 --- Requires players.cyberware.manage. options requires expectedRevision and operationId. Compare-and-swap and receipt storage are atomic; reuse the same ID/contents on retries. Native projection occurs before commit. Completion is asynchronous via onCyberwareOperationCompleted(playerId,ticket,encodedResult), correlated by ticket; retain the pending operation until final outcome. Rejected/failed work restores the prior paid record. Server makers own consent, costs and progression.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param options table
 ---@return any ok {ok=true,ticket=string,...}; ticket may be absent on a completed idempotent replay
@@ -3433,7 +3485,7 @@ function Open77.cyberware.remove(playerId, options) end
 --- Requires players.cyberware.identity. Does not delete durable implants. Stops current projection/temporary ownership and prevents stale acknowledgements from restoring the old grant. Another owner cannot unbind the character.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, player_unavailable, request_too_large, resource_stopping
+--- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any ok {ok=true,...}
 ---@return any nil nil, reason on rejection
@@ -3444,7 +3496,7 @@ function Open77.cyberware.unbind(playerId) end
 --- Requires `players.dash.manage`. Cancellation keeps bounded server movement ownership during native recovery, until the correlated native-exit acknowledgement or a 1500 ms deadline; `current().phase` reports `recovering` in that window. The charge and stamina spent on acceptance are not refunded.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: dash_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: dash_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param activationId string
 ---@return any ok { ok = true }, or nil
@@ -3456,7 +3508,7 @@ function Open77.dash.cancel(playerId, activationId) end
 --- Requires `players.dash.read`. The one `profile` (`dash`), the configuration bounds `define` enforces, the presentation presets and the movement model. Read it to build a definition editor rather than hard-coding the table in [Dash / Air Dash](dash.md).
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: dash_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: dash_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@return any capabilities capabilities table
 ---@return any nil nil, reason on failure
 function Open77.dash.capabilities() end
@@ -3466,7 +3518,7 @@ function Open77.dash.capabilities() end
 --- Requires `players.dash.read`. Answers `{ projection, charges, cooldownUntil, nextChargeAt, airUsed, activation, phase, ownedByCaller }` -- times in server monotonic milliseconds -- or `nil` when the player holds no Dash. `ownedByCaller` is server-derived and stays accurate across projection restarts; a definition id or revision alone is not proof of ownership.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: dash_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: dash_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any activity activity table, or nil when absent
 ---@return any reason reason on failure
@@ -3477,7 +3529,7 @@ function Open77.dash.current(playerId) end
 --- Requires `players.dash.define`. `definition` is `{ id, version, profile = "dash", config }`; `config` takes `inputKey`, `allowGround`, `allowAir`, `requireDoubleJump`, `movementProfile = "native"`, `presentation` (`native` | `silent` | `none`), `staminaCost` (0..300), `cooldownMs` (300..600000), `maxCharges` (1..3), `chargeRegenMs`, `landingRearmMs` (150..1000), `maxAirborneMs` (100..10000) and `maxFallSpeed` (0.1..30). Speed, distance and immunity are not configurable. Ownership comes from the resource, never from a supplied owner name. See [Dash / Air Dash](dash.md).
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: dash_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: dash_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param definition table
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -3488,7 +3540,7 @@ function Open77.dash.define(definition) end
 --- Requires `players.dash.manage`. A success means pending native work, not a usable Dash: read `current(player).projection.status == "ready"` before presenting it. Grants require the authenticated cyberware character binding and an alive, ready, unmounted body. They are session capabilities -- no implant is purchased or replaced -- and cooldown or charge debt survives revoke and regrant within the session.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: dash_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: dash_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param definitionId string
 ---@return any ok { ok = true }, or nil
@@ -3500,7 +3552,7 @@ function Open77.dash.grant(playerId, definitionId) end
 --- Requires `players.dash.manage`. Only the calling resource's capability is removed; another resource's grant and every installed implant stay. Charge and cooldown debt are retained for the session.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: dash_unavailable, invalid_definition, invalid_operation, invalid_player, invalid_request, request_too_large, resource_stopping
+--- Reasons: dash_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -4021,6 +4073,7 @@ function Open77.environment.getState(bucket) end
 ---
 --- Permissions: world.environment
 --- Since: 2.31.13+op77.67
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, permission_denied:world.environment, resource_preparing, resource_stopping
 ---@param state table
 ---@return any true true, or false
 ---@return any reason reason: permission_denied:world.environment, resource_stopping, resource_preparing, event_payload_not_serializable, event_queue_limit
@@ -4094,6 +4147,7 @@ function Open77.environment.setWeatherFrozen(frozen, bucket) end
 --- Alias of CancelEvent.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: not_in_cancellable_event
 ---@return any true true, or false, reason
 function Open77.events.cancel() end
 
@@ -4102,6 +4156,7 @@ function Open77.events.cancel() end
 --- No permission. Since the host-wide bus exists, this reaches every running resource that handles the name, not only this VM: the fan-out is queued and drained at the next tick boundary, in resource-name order. Open77.events.emitLocal is the one that stays inside this VM. Host events (onPlayerReady, onPlayerDisconnected, the resource lifecycle events) arrive through the same handler list a resource uses for its own, so it listens for both the same way.
 ---
 --- Since: 2.31.13+op77.45
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_event_name, reserved_hacking_event, resource_preparing, resource_stopping
 ---@param event string
 ---@param ___ any
 ---@return any true true, or false, reason
@@ -4112,6 +4167,7 @@ function Open77.events.emit(event, ___) end
 --- Alias of TriggerCancellableEvent.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_event_name, resource_preparing, resource_stopping
 ---@param event string
 ---@param ___? any
 ---@return any verdict verdict handle, or nil, reason
@@ -4160,7 +4216,7 @@ function Open77.events.wasCanceled() end
 --- Settles one tick after publication. Needs a managed coroutine -- a CreateThread, a command or an event handler -- and answers false, await_requires_scheduler_coroutine outside one rather than blocking the server tick.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: await_requires_scheduler_coroutine
+--- Reasons: await_requires_scheduler_coroutine, pending, settled, unknown
 ---@return any true true when a handler cancelled, false otherwise
 ---@return any false false, reason outside a managed coroutine
 function Open77.EventVerdict:await() end
@@ -4170,6 +4226,7 @@ function Open77.EventVerdict:await() end
 --- Answers nil plus the status while the event is still in flight, so a caller that must not yield can poll instead of awaiting. True means some handler, in this resource or another, called CancelEvent.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: pending, settled, unknown
 ---@return any boolean boolean, or nil, status
 function Open77.EventVerdict:canceled() end
 
@@ -4178,6 +4235,7 @@ function Open77.EventVerdict:canceled() end
 --- `pending` while the host is still offering the event to the other resources, `settled` once every running resource has been given it, `unknown` when the handle has been released or has expired. A verdict nobody reads is forgotten 30 seconds after it settles.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: pending, settled, unknown
 ---@return any pending "pending", "settled" or "unknown"
 function Open77.EventVerdict:status() end
 
@@ -4186,6 +4244,7 @@ function Open77.EventVerdict:status() end
 --- Asynchronous and cross-resource, unlike `TriggerEvent`, which never leaves this VM. Returns an `Open77.Promise`: `promise:await()` yields the copied return values, `promise:status()` reports pending, resolved, rejected or cancelled. Awaiting a pending call requires a managed coroutine. Call it from a running resource, not during preparation. The provider keeps its own permissions and identity: arguments never supply caller identity, and the exported coroutine does not inherit the player `source`. See [Cross-resource server exports](server-exports.md).
 ---
 --- Since: 2.31.13+op77.45
+--- Reasons: export_arguments_not_serializable, invalid_export_name, resource_preparing, resource_stopping
 ---@param target any
 ---@param name any
 ---@param ___ any
@@ -4198,6 +4257,7 @@ function Open77.exports.call(target, name, ___) end
 --- The non-sugar form of exports.resource:name(...). Runs the callee in its own VM before returning and yields its values directly. It RAISES on failure instead of returning nil, reason -- the one place Open77 departs from its own convention, so that ported FiveM code behaves the same; use pcall to handle failure. The callee must not yield (export_yielded), gets its own instruction budget (export_budget_exhausted fails only that call), and chains are capped at 8 frames (export_recursion_limit). Arguments and results are copied, never shared, so no Lua value is held across the boundary. Prefer Open77.exports.call when the callee can be slow, because a synchronous call holds the tick.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: export_arguments_not_serializable, export_host_error, export_not_found, export_recursion_limit, export_resource_unavailable, export_stack_limit, export_target_stopped, invalid_export_name, resource_preparing, resource_stopping
 ---@param target any
 ---@param name any
 ---@param ___ any
@@ -4209,7 +4269,7 @@ function Open77.exports.callSync(target, name, ___) end
 --- Requires `players.hacking.read`. A completed, blocked or cancelled action is kept for a bounded time so a resource that only holds the id can still learn how it ended; after that the answer is `nil`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param actionId string
 ---@return any action action table, or nil when unknown or expired
 ---@return any reason reason on failure
@@ -4220,7 +4280,7 @@ function Open77.hacking.action(actionId) end
 --- Requires `players.hacking.cancel`. Only an upload this resource started can be cancelled; the victim is released and the actor keeps whatever the acceptance already cost.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param actionId string
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -4231,7 +4291,7 @@ function Open77.hacking.cancel(actionId) end
 --- Requires `players.hacking.read`. The grade schema each `define*` accepts, the six hack kinds, the evidence model (clients submit intent and visibility only; the server decides) and the bounds -- read it instead of copying the tables out of [Hacking and counterplay](hacking.md).
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@return any capabilities capabilities table
 ---@return any nil nil, reason on failure
 function Open77.hacking.capabilities() end
@@ -4241,7 +4301,7 @@ function Open77.hacking.capabilities() end
 --- Requires `players.hacking.policy`. Another provider's safe-area or resistance scope on the same player is untouched.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -4252,7 +4312,7 @@ function Open77.hacking.clearProtection(playerId) end
 --- Requires `players.hacking.policy`. `options.safeArea = true` refuses every upload against the player; `options.resistance` (0..1) scales electrical damage. The scope belongs to this provider and to the current body: a new body needs a new call.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param options any
 ---@return any ok { ok = true }, or nil
@@ -4264,7 +4324,7 @@ function Open77.hacking.configureProtection(playerId, options) end
 --- Requires `players.hacking.define`. `definition` is `{ id, version, grades = { { id, range, uploadMs, staminaCost, cooldownMs, damage, statusMs, recoveryMs, lockHacking, nonlethal, kind? } } }`; `kind` selects Short Circuit, Overheat, Cyberware Malfunction, Cripple Movement, Reboot Optics or Weapon Glitch, six kinds of one warned, interruptible upload. Register the matching implant through `Open77.cyberware.define` with the same provider, id, version and grade ids, in the `operating_system` slot. See [Hacking and counterplay](hacking.md).
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param definition table
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -4275,7 +4335,7 @@ function Open77.hacking.define(definition) end
 --- Requires `players.hacking.define`. Grades carry `charges` and `rechargeMs`; a victim whose Self-ICE has a charge blocks an incoming upload and spends it. The matching implant lives in the `self_ice` slot, profile `self_ice`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param definition table
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -4286,7 +4346,7 @@ function Open77.hacking.defineIce(definition) end
 --- Requires `players.hacking.define`. Grades carry `staminaCost`, `cooldownMs`, `allowSelf`, `allowAlly`, `range`, `cancelUploads` and `removeStatuses`. The matching implant lives in the `purge` slot, profile `active_purge`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param definition table
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -4297,7 +4357,7 @@ function Open77.hacking.definePurge(definition) end
 --- Requires `players.hacking.activate`. Goes through the same defence authority as a player's own purge input: the actor must own the grade, the target must be self or an ally the grade allows, and stamina and cooldown are spent. `options.operationId` is required, as for `start`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param targetId integer
 ---@param definitionId string
@@ -4312,7 +4372,7 @@ function Open77.hacking.purge(playerId, targetId, definitionId, gradeId, options
 --- Requires `players.hacking.activate`. The actor must own the matching installed implant grade; the server checks range, visibility evidence, stamina, cooldown, Self-ICE and protection scopes, then runs the warned upload. `options.operationId` is REQUIRED and must be stable across retries of the same operation -- the same id with different arguments is rejected. Progress arrives on `onHackingTransition`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param targetId integer
 ---@param definitionId string
@@ -4327,7 +4387,7 @@ function Open77.hacking.start(playerId, targetId, definitionId, gradeId, options
 --- Requires `players.hacking.read`. Includes the active upload if any and the remaining status windows: `cyberwareSuspendedMs`, `frozenMs`, `malfunctionMs`, `malfunctionBlocks`, `crippledMs`, `crippleHeavy`, `blindedMs` and `weaponGlitchedMs`. This is the server's ledger, not the victim's rendering.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any state state table
 ---@return any nil nil, reason on failure
@@ -4338,7 +4398,7 @@ function Open77.hacking.state(playerId) end
 --- Requires `players.hacking.read`. Same answer as `Open77.statuses.list`: every status any provider applied to this player, with its kind, provider, action id and deadline.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any array array of status tables
 ---@return any nil nil, reason on failure
@@ -4350,7 +4410,7 @@ function Open77.hacking.statuses(playerId) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_argument, invalid_item_record, invalid_slot, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_argument, invalid_item_record, invalid_slot, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param record string
 ---@param options? any
@@ -4364,7 +4424,7 @@ function Open77.heldItems.hold(playerId, record, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_argument, invalid_slot, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_argument, invalid_slot, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param options? any
 ---@return any request request id, or nil
@@ -4377,7 +4437,7 @@ function Open77.heldItems.release(playerId, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
---- Reasons: network_unavailable, permission_denied:network.events
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@return any request request id, or nil
 ---@return any reason reason
@@ -4409,6 +4469,7 @@ function Open77.http.listen(prefix, handler) end
 ---
 --- Permissions: http.request
 --- Since: 2.31.13+op77.45
+--- Reasons: http_unavailable, invalid_body, invalid_headers, invalid_method, invalid_request_id, invalid_url, permission_denied:http.request, too_many_headers
 ---@param url any
 ---@param callback? any
 ---@param method? any
@@ -4532,7 +4593,7 @@ function Open77.io.read(path) end
 ---
 --- Permissions: filesystem.read
 --- Since: 2.31.13+op77.45
---- Reasons: permission_denied:filesystem.read
+--- Reasons: invalid_json, json_too_large, permission_denied:filesystem.read
 ---@param path string
 ---@return any value value, or nil
 ---@return any reason reason: invalid_json among the read reasons
@@ -4593,6 +4654,7 @@ function Open77.io.writeJson(path, value) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`. An empty or omitted prefix clears the whole store.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param prefix? string
 ---@return any removed removed count, or nil
 ---@return any reason reason
@@ -4603,6 +4665,7 @@ function Open77.kvp.clear(prefix) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`. `expected = nil` means "must be absent"; `replacement = nil` deletes. The comparison is TYPED: an integer 1 does not satisfy an expectation written as 1.0, because the store keeps the two apart and a later read would answer differently.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param key string
 ---@param expected any
 ---@param replacement any
@@ -4615,6 +4678,7 @@ function Open77.kvp.compareAndSet(key, expected, replacement) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`. Deleting an absent key is `false`, not an error.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param key string
 ---@return any true true when removed, false when absent
 ---@return any reason reason on storage failure
@@ -4625,6 +4689,7 @@ function Open77.kvp.delete(key) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`. Keys are ordinal-sorted. `limit` must be 1..4096; anything else is `invalid_limit` rather than a silent clamp.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param prefix? string
 ---@param limit? integer
 ---@return any array array of { key, value, type }, or nil
@@ -4636,6 +4701,7 @@ function Open77.kvp.find(prefix, limit) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`. A missing key answers with the caller's default, or nil, and NO reason -- a reason there would be indistinguishable from a storage failure at the call site.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param key string
 ---@param default? any
 ---@return any stored stored value, default or nil
@@ -4647,6 +4713,7 @@ function Open77.kvp.get(key, default) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param key string
 ---@return any boolean boolean
 ---@return any reason reason on storage failure
@@ -4657,6 +4724,7 @@ function Open77.kvp.has(key) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`. Atomic in the sense that matters: the server Lua runtime is one thread, so a read-modify-write cannot interleave with another resource's. An absent key starts at zero. Integer plus integer stays an integer, so a counter never drifts into float territory. `integer_overflow`, `number_overflow`, `value_not_numeric` and `delta_not_numeric` are named rather than wrapped.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param key string
 ---@param delta? any
 ---@return any new new numeric value, or nil
@@ -4668,6 +4736,7 @@ function Open77.kvp.increment(key, delta) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param prefix? string
 ---@param limit? integer
 ---@return any string string array, or nil
@@ -4679,6 +4748,7 @@ function Open77.kvp.keys(prefix, limit) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`. Quotas are the client store's numbers exactly: 256-byte keys, 64 KiB values, 4096 entries, 1 MiB of payload, same reason tokens. Values are string, integer, number or boolean; integer and number stay apart, so a counter read back from disk is still an integer. A refused write leaves the store exactly as it was. Writes are coalesced onto the tick and flushed again when the resource stops, so an orderly stop, reload or restart loses nothing and a hard kill loses at most one tick. A store that cannot be parsed reports `storage_corrupt` and is never overwritten with a fresh one.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param key string
 ---@param value any
 ---@return any true true on success, otherwise false
@@ -4690,6 +4760,7 @@ function Open77.kvp.set(key, value) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`. The cheap way to claim a lock without a database.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@param key string
 ---@param value any
 ---@return any boolean boolean
@@ -4701,6 +4772,7 @@ function Open77.kvp.setIfAbsent(key, value) end
 --- Server-side; no capability. The store is one JSON file under this resource's own `data/` directory, and no caller-supplied path reaches it, so a resource cannot address another's store -- isolation is structural, which is why this needs no permission where `Open77.io` needs `filesystem.*`.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_operation
 ---@return any table table { entries, bytes, maximumEntries, maximumBytes, maximumKeyBytes, maximumValueBytes, resource }, or nil
 ---@return any reason reason
 function Open77.kvp.stats() end
@@ -4795,7 +4867,7 @@ function Open77.loot.update(id, def) end
 --- Requires players.motion.control. Requires the exact player and motion ID owned by the calling resource. Ends network ownership and requests native cleanup; collision/braking and get-up remain native, so cancellation need not instantly stop velocity or animation.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: invalid_duration, invalid_operation, invalid_player, invalid_request, motion_unavailable, resource_stopping
+--- Reasons: invalid_duration, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, motion_unavailable, resource_stopping
 ---@param playerId integer
 ---@param id string
 ---@return any ok {ok=true,id=string}
@@ -4807,7 +4879,7 @@ function Open77.motion.cancel(playerId, id) end
 --- Requires players.motion.read. Returns {id,player,incarnation,bucket,directionX,directionY,distance,createdAt,expiresAt,phase,reason}, or nil. Times are server-monotonic milliseconds. pending awaits owner native ACK; active is not server-observed rendering. Acknowledged ownership lasts6s, including recovery; no generic teleport or map collision solution is provided.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: invalid_duration, invalid_operation, invalid_player, invalid_request, motion_unavailable, resource_stopping
+--- Reasons: invalid_duration, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, motion_unavailable, resource_stopping
 ---@param playerId integer
 ---@return any motion motion table, or nil
 ---@return any nil nil, reason on rejection
@@ -4818,7 +4890,7 @@ function Open77.motion.current(playerId) end
 --- Requires players.motion.control. options={x,y,distance}; direction nonzero and normalized, distance0..6 m. Requires ready/alive/unmounted exact body and no existing lease; native owner additionally refuses unsuitable states. Returns admission, not damage or physical completion. onPlayerMotionChanged reports pending/active/ended; server pending expires after2s. Active snapshot checks are ACK-rooted, not exact native launch-origin enforcement.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: invalid_duration, invalid_operation, invalid_player, invalid_request, motion_unavailable, resource_stopping
+--- Reasons: invalid_duration, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, motion_unavailable, resource_stopping
 ---@param playerId integer
 ---@param options table
 ---@return any ok {ok=true,id=string}
@@ -4831,6 +4903,7 @@ function Open77.motion.knockdown(playerId, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
+--- Reasons: callback_arguments_not_serializable, callback_payload_too_large, callback_request_limit, callback_too_many_arguments, invalid_callback_name, invalid_callback_timeout, network_unavailable, permission_denied:network.events, resource_stopping
 ---@param playerId integer
 ---@param name any
 ---@param ___? any
@@ -4843,6 +4916,7 @@ function Open77.net.callClient(playerId, name, ___) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
+--- Reasons: callback_arguments_not_serializable, callback_payload_too_large, callback_request_limit, callback_too_many_arguments, invalid_callback_name, invalid_callback_timeout, network_unavailable, permission_denied:network.events, resource_stopping
 ---@param playerId integer
 ---@param name any
 ---@param ___? any
@@ -4879,6 +4953,7 @@ function Open77.net.emitClient(event, playerId, ___) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.73
+--- Reasons: event_argument_limit, invalid_event_name, invalid_player_id, invalid_rate, latent_payload_not_serializable, latent_payload_too_large, latent_stream_limit, network_unavailable, permission_denied:network.events, player_not_found, resource_stopping
 ---@param name string
 ---@param target any
 ---@param bytesPerSecond number
@@ -4892,6 +4967,7 @@ function Open77.net.emitLatent(name, target, bytesPerSecond, ___) end
 --- `{ id, name, target, state, sentBytes, totalBytes, sentFrames, totalFrames, progress (0..1), bytesPerSecond, elapsedMs, reason? }` with `state` one of `sending`, `done`, `failed` (reason `player_left`) or `cancelled`. A finished stream keeps answering for a minute, then `nil, not_found`; another resource's stream is never visible. Ungated read.
 ---
 --- Since: 2.31.13+op77.73
+--- Reasons: not_found
 ---@param id any
 ---@return any table table, or nil
 ---@return any reason reason on failure
@@ -4914,7 +4990,7 @@ function Open77.net.on(event, handler) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
---- Reasons: callback_function_required, invalid_callback_name
+--- Reasons: callback_function_required, callback_registration_limit, invalid_callback_name, permission_denied:network.events, resource_stopping
 ---@param name string
 ---@param handler function
 ---@return any true true, or nil, reason
@@ -4926,14 +5002,14 @@ function Open77.net.register(name, handler) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_callback_name
+--- Reasons: callback_not_found, invalid_callback_name
 ---@param name string
 ---@return any true true, or false, reason
 function Open77.net.unregister(name) end
 
 --- Sends one notification to every player.
 ---
---- `send` with a player id of `-1`. The returned id addresses the whole broadcast, so one `update` or `dismiss` reaches everyone who received it. Anything that reaches clients is refused with `resource_preparing` while the resource's chunk is still loading: call it from `AddEventHandler("onResourceStart", ...)` (or from a command, an event or a later tick), not at the top level of the script.
+--- `send` with a player id of `-1`. The returned id addresses the whole broadcast, so one `update` or `dismiss` reaches everyone who received it. Delivered through `TriggerClientEvent`, so it needs `network.events` and works from the top level of a script as well as from handlers (unlike the `Open77.chat` facades, which publish on the host bus and answer `resource_preparing` until the chunk has loaded). Declare `dependency "open77_notifications"` in the manifest: a server whose load list lacks the package then refuses to start the resource instead of dropping every toast.
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
@@ -4969,7 +5045,7 @@ function Open77.notifications.dismiss(id) end
 
 --- Sends a notification to one player.
 ---
---- Routes to the official `open77_notifications` client package. Ids and mutation rights are isolated per calling server resource, so one resource cannot dismiss another's notification. See [notifications](notifications.md) for every definition field and the queue limits. Anything that reaches clients is refused with `resource_preparing` while the resource's chunk is still loading: call it from `AddEventHandler("onResourceStart", ...)` (or from a command, an event or a later tick), not at the top level of the script.
+--- Routes to the official `open77_notifications` client package. Ids and mutation rights are isolated per calling server resource, so one resource cannot dismiss another's notification. See [notifications](notifications.md) for every definition field and the queue limits. Delivered through `TriggerClientEvent`, so it needs `network.events` and works from the top level of a script as well as from handlers (unlike the `Open77.chat` facades, which publish on the host bus and answer `resource_preparing` until the chunk has loaded). Declare `dependency "open77_notifications"` in the manifest: a server whose load list lacks the package then refuses to start the resource instead of dropping every toast.
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
@@ -5346,7 +5422,7 @@ function Open77.npcs.tasks.wander(id, options) end
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.67
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, npc_task_invalid_duration, npc_task_invalid_workspot, permission_denied:world.npcs, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, npc_task_invalid_duration, npc_task_invalid_workspot, permission_denied:world.npcs, request_too_large, resource_stopping
 ---@param id any
 ---@param reference any
 ---@param options? any
@@ -5359,7 +5435,7 @@ function Open77.npcs.tasks.workspot(id, reference, options) end
 --- Ungated. The same twelve shipped RP workspot profiles `Open77.animations.list()` offers for players -- one catalogue, two callers, never two lists that could disagree. Each entry gives `id`, `label`, `category`, the default `clip`, the vanilla `workspot` resource it plays, and the full clip set. `query` filters on id, label or category.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param query? string
 ---@return any array array of profiles
 function Open77.npcs.tasks.workspots(query) end
@@ -5446,6 +5522,7 @@ function Open77.npcs.getEquipment(id) end
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_json, json_too_large
 ---@param id any
 ---@return any string string, or nil
 function Open77.npcs.getGroup(id) end
@@ -5773,7 +5850,7 @@ function Open77.npcs.voices() end
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_npc_id, invalid_timeout
+--- Reasons: invalid_npc_id, invalid_timeout, npc_not_found, npcs_unavailable, permission_denied:world.npcs
 ---@param id any
 ---@param timeoutMs? number
 ---@return any Promise Promise, or nil
@@ -5809,7 +5886,7 @@ function Open77.perspective.setPolicy(policy, perspective) end
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Custom reason accepts 1–64 ASCII alphanumeric/underscore characters; invalid reasons normalize to cancelled. Delayed callbacks should retain the interaction ID, never cancel whatever action happens to occupy the player later.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: interactions_unavailable, invalid_operation, invalid_options, invalid_request, resource_stopping
+--- Reasons: interactions_unavailable, invalid_json, invalid_operation, invalid_options, invalid_request, json_too_large, resource_stopping
 ---@param interactionId string
 ---@param reason? string
 ---@return any terminal terminal state or nil, reason
@@ -5820,7 +5897,7 @@ function Open77.playerInteractions.cancel(interactionId, reason) end
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Terminal states are removed from the active registry. Read access never grants cancellation of another resource's action.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: interactions_unavailable, invalid_operation, invalid_options, invalid_request, resource_stopping
+--- Reasons: interactions_unavailable, invalid_json, invalid_operation, invalid_options, invalid_request, json_too_large, resource_stopping
 ---@param playerId integer
 ---@return any active active state or nil; nil, reason on rejection
 function Open77.playerInteractions.current(playerId) end
@@ -5830,7 +5907,7 @@ function Open77.playerInteractions.current(playerId) end
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Terminal states are removed from the active registry. Read access never grants cancellation of another resource's action.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: interactions_unavailable, invalid_operation, invalid_options, invalid_request, resource_stopping
+--- Reasons: interactions_unavailable, invalid_json, invalid_operation, invalid_options, invalid_request, json_too_large, resource_stopping
 ---@param interactionId string
 ---@return any active active state or nil; nil, reason on rejection
 function Open77.playerInteractions.get(interactionId) end
@@ -5840,7 +5917,7 @@ function Open77.playerInteractions.get(interactionId) end
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Terminal states are removed from the active registry. Read access never grants cancellation of another resource's action.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: interactions_unavailable, invalid_operation, invalid_options, invalid_request, resource_stopping
+--- Reasons: interactions_unavailable, invalid_json, invalid_operation, invalid_options, invalid_request, json_too_large, resource_stopping
 ---@param playerId integer
 ---@return any boolean boolean; nil, reason on rejection
 function Open77.playerInteractions.isReserved(playerId) end
@@ -5850,7 +5927,7 @@ function Open77.playerInteractions.isReserved(playerId) end
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Terminal states are removed from the active registry. Read access never grants cancellation of another resource's action.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: interactions_unavailable, invalid_operation, invalid_options, invalid_request, resource_stopping
+--- Reasons: interactions_unavailable, invalid_json, invalid_operation, invalid_options, invalid_request, json_too_large, resource_stopping
 ---@return any state state[]; nil, reason on rejection
 function Open77.playerInteractions.list() end
 
@@ -5859,7 +5936,7 @@ function Open77.playerInteractions.list() end
 --- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Kinds: give, heal, carry, escort, custom. Options: durationMs (500–600000, default4000), startDistance (.25–10, default3), breakDistance (startDistance–20, default5), inviteTimeoutMs (1000–60000, default15000), consent (defaulttrue), optional actorAnimation/targetAnimation RP profiles for stationary kinds. Carry/escort reject profile overrides. Both players must be alive, on foot, near and in the same bucket. Acceptance is not proof of native playback; observe lifecycle events.
 ---
 --- Since: 2.31.13+op77.63
---- Reasons: interactions_unavailable, invalid_operation, invalid_options, invalid_request, resource_stopping
+--- Reasons: interactions_unavailable, invalid_json, invalid_operation, invalid_options, invalid_request, json_too_large, resource_stopping
 ---@param actorId integer
 ---@param targetId integer
 ---@param kind string
@@ -5905,7 +5982,7 @@ function Open77.players.clearTasks(playerId) end
 --- No permission. The first entry `Open77.players.nearby` would return, with the same anchor rules and the same options plus `radius`, which it takes in the options table because it has no positional radius. It answers a **bare nil** -- no second value -- when the search worked and nobody matched, and `nil, reason` when it failed: that is what separates an empty street from a bad argument.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_options, invalid_radius
+--- Reasons: invalid_argument, invalid_bucket, invalid_limit, invalid_max_age, invalid_options, invalid_position, invalid_radius, player_not_found, position_unknown, sessions_unavailable
 ---@param anchor any
 ---@param options? any
 ---@return any nearest nearest entry, or nil when nobody matched
@@ -5944,6 +6021,7 @@ function Open77.players.disconnect(playerId, reason) end
 --- No permission. Each argument is a player id (an integer) or a point (a table with numeric `x`, `y`, `z`); an Open77 `vector3` is a point, because the shared vector type is a plain table with real `x`/`y`/`z` fields. Three-dimensional. A player's position comes from their last accepted snapshot whatever its age -- call `Open77.players.get` first if the age matters to the decision you are about to make. `position_unknown` means the player exists but has never reported a transform.
 ---
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_argument, invalid_position, player_not_found, position_unknown, sessions_unavailable
 ---@param a any
 ---@param b any
 ---@return any number number (metres), or nil
@@ -5983,6 +6061,7 @@ function Open77.players.fade(playerId, out, durationMs, options) end
 ---
 --- Permissions: players.screen
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_argument
 ---@param playerId any
 ---@param durationMs? integer
 ---@return any true true, or false
@@ -5995,6 +6074,7 @@ function Open77.players.fadeIn(playerId, durationMs) end
 ---
 --- Permissions: players.screen
 --- Since: 2.31.13+op77.67
+--- Reasons: invalid_argument
 ---@param playerId any
 ---@param durationMs? integer
 ---@param options? any
@@ -6082,7 +6162,7 @@ function Open77.players.getVehicleSeat(playerId) end
 --- Returns `{ level, maxLevel, enabled }`, where `enabled` is the dispatch switch of the bucket the player is in. It is what the SERVER decided and pushed, never a reading of the game: the server has no way to learn the engine's real heat stage. A player the server has never set answers the defaults - level 0, ceiling 5, and their bucket's dispatch setting. Requires `players.wanted.read`, which is separate from `players.wanted` because what a server has decided about a player is state a resource has no business enumerating just because it can call a function.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_bucket, invalid_operation, invalid_options, invalid_player, invalid_request, prevention_unavailable, request_too_large, resource_stopping
+--- Reasons: invalid_bucket, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, prevention_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any table table { level, maxLevel, enabled }, or nil
 ---@return any reason reason: permission_denied:players.wanted.read, invalid_player
@@ -6253,7 +6333,7 @@ function Open77.players.name(playerId) end
 --- No permission. `anchor` is a player id (an integer) or a point (a table with numeric `x`, `y`, `z`) -- never ambiguous, and a `vector3` is a point. An omitted or nil `radius` means no radius limit. Options: `bucket` (an integer narrows to it; `false` means every bucket; the default is the anchor player's own bucket, or every bucket for a point anchor), `includeSelf` (default false, ignored for a point anchor), `limit`, and `maxAgeMs`. The default keeps stale readings, because a player whose snapshots stalled is still somewhere; `maxAgeMs` is how you ask for a threshold. Entries carry `playerId`, `distance`, `bucket`, `fresh`, and `ageMs`/`name`/`position`/`heading`/`speed` where available -- deliberately not the whole of `get`, which would ask three services once per player per call. Sorted nearest first, ties broken by player id so two identical calls answer in the same order.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_options, invalid_radius
+--- Reasons: invalid_argument, invalid_bucket, invalid_limit, invalid_max_age, invalid_options, invalid_position, invalid_radius, player_not_found, position_unknown, sessions_unavailable
 ---@param anchor any
 ---@param radius? number
 ---@param options? any
@@ -6294,7 +6374,7 @@ function Open77.players.positions() end
 --- Requires `players.motion.control`. FiveM's `SetPedToRagdoll`, composed on `Open77.motion.knockdown`: the engine's own knockdown status, a physical fall the observers replicate as a hit reaction. `options.direction` defaults to the body's own facing (from the last accepted transform; a player who never reported one falls north) and accepts a heading in degrees (0 = north) or `{ x, y }`; `options.distance` (0..6 m, default 0) turns the fall into a shove; `options.durationMs` counts from the moment the owning client reports the body down and is **clamped to the native 3000 ms** -- the effective number comes back as `durationMs`. `Open77.motion.cancel(id, result.id)` stands the body up early; `onPlayerMotionChanged` reports `ended` with `reason = "duration_elapsed"` when the clock fires. Refusals are the knockdown's: `motion_busy` (a motion is on the body, or the 1.5 s recovery after one), `body_unavailable` (not alive, on foot and ready -- a player mid-revive or respawn can never be knocked down, which is what keeps this away from the respawn ragdoll release), `invalid_direction`, `invalid_duration`; and `motion_unavailable` on a server without a database -- the motion lease is the cyberware store's, which exists only with `database.enabled`, so a bare development server answers that rather than a fall. The true physics ragdoll stays deliberately unbound; see the freeze page.
 ---
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_argument, invalid_direction, invalid_duration
+--- Reasons: invalid_argument, invalid_direction, invalid_duration, invalid_json, invalid_operation, invalid_player, invalid_player_id, invalid_request, json_too_large, motion_unavailable, player_not_found, resource_stopping, sessions_unavailable
 ---@param playerId any
 ---@param options any
 ---@return any ok { ok = true, id = ..., durationMs = ... }, or nil
@@ -6318,7 +6398,7 @@ function Open77.players.requestLifeResync(playerId) end
 ---
 --- Permissions: players.screenshot
 --- Since: 2.31.13+op77.73
---- Reasons: format_unsupported, invalid_callback_timeout, invalid_field, invalid_header, invalid_max_bytes, invalid_options, invalid_player_id, invalid_quality, invalid_scale, invalid_settle_frames, invalid_upload_option:encoding, invalid_upload_option:field, invalid_upload_option:filename, invalid_url, region_invalid
+--- Reasons: callback_payload_too_large, callback_request_limit, format_unsupported, invalid_callback_timeout, invalid_field, invalid_header, invalid_max_bytes, invalid_options, invalid_player_id, invalid_quality, invalid_scale, invalid_settle_frames, invalid_upload_option:encoding, invalid_upload_option:field, invalid_upload_option:filename, invalid_url, network_unavailable, permission_denied:players.screenshot, player_not_found, region_invalid, resource_stopping
 ---@param playerId integer
 ---@param options table
 ---@return any promise promise, or nil
@@ -6526,7 +6606,7 @@ function Open77.players.setMaxStamina(playerId, maximum) end
 --- **The engine has no per-player wanted level.** `PreventionSystem` holds ONE heat stage, for the one player its client is running: `ChangeHeatStage(stage, reason)`, `GetHeatStage()` and `SetMinMaxResetHeatLevels(min, max, isDefault)` take no target, the state is scalar on a singleton, and every consumer reads one global `UI_WantedBar`. A per-player number works only because every Open77 player has their own game and the server tells each client its own value. The police that follow are LOCAL to that client - not Open77 entities, not replicated - so two wanted players standing together are two private pursuits, each invisible to the other. Do not build a shared chase on this. The value is pushed to the client immediately and re-pushed on a bucket change and on world entry; the server never learns the engine's real heat, because there is no value channel back from REDscript. Requires `players.wanted`. The engine call behind it is `SetMinMaxResetHeatLevels(0, level, false)`; the floor stays 0 because a nonzero minimum would strand a session at a heat it could never clear. Lowering the ceiling below a standing level lowers the level with it and reports that through `onPlayerWantedChanged` - leaving a player above their own ceiling is a state the engine's reset rules would undo at the next opportunity anyway.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_bucket, invalid_operation, invalid_options, invalid_player, invalid_request, prevention_unavailable, request_too_large, resource_stopping
+--- Reasons: invalid_bucket, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, prevention_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param level any
 ---@return any table table { level, maxLevel }, or nil
@@ -6625,7 +6705,7 @@ function Open77.players.setVisible(playerId, visible) end
 --- **The engine has no per-player wanted level.** `PreventionSystem` holds ONE heat stage, for the one player its client is running: `ChangeHeatStage(stage, reason)`, `GetHeatStage()` and `SetMinMaxResetHeatLevels(min, max, isDefault)` take no target, the state is scalar on a singleton, and every consumer reads one global `UI_WantedBar`. A per-player number works only because every Open77 player has their own game and the server tells each client its own value. The police that follow are LOCAL to that client - not Open77 entities, not replicated - so two wanted players standing together are two private pursuits, each invisible to the other. Do not build a shared chase on this. The value is pushed to the client immediately and re-pushed on a bucket change and on world entry; the server never learns the engine's real heat, because there is no value channel back from REDscript. Requires `players.wanted`. `setWanted(id, 0)` is `ClearPlayerWantedLevel`. The player's ceiling is applied here, not on the client: asking for 5 under a ceiling of 2 succeeds and reports `level = 2` beside the `requested` value, so a caller is told about the clamp instead of discovering it. Fires the host event `onPlayerWantedChanged(playerId, level, previous)` when the value actually changes - a decision this server made, never an observation of the game.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_bucket, invalid_operation, invalid_options, invalid_player, invalid_request, prevention_unavailable, request_too_large, resource_stopping
+--- Reasons: invalid_bucket, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, prevention_unavailable, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param level any
 ---@return any table table { level, requested, maxLevel }, or nil
@@ -6710,6 +6790,7 @@ function Open77.players.teleport(playerId, position, options) end
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.45
+--- Reasons: invalid_argument, invalid_player_id, invalid_seat, invalid_vehicle_id, permission_denied:world.vehicles, player_not_found, player_unavailable, vehicle_not_found, vehicles_unavailable, wrong_bucket
 ---@param playerId any
 ---@param vehicleId any
 ---@param seat any
@@ -6893,7 +6974,7 @@ function Open77.props.remove(id) end
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.63
---- Reasons: not_attached, not_found
+--- Reasons: invalid_argument, invalid_attachment, invalid_attachment_bone, invalid_attachment_parent, invalid_attachment_target, invalid_operation, invalid_prop_id, invalid_revision, not_attached, not_found, permission_denied:world.props, resource_stopping, world_unavailable
 ---@param propId integer
 ---@param offset? table
 ---@param rotation? table
@@ -6987,6 +7068,7 @@ function Open77.ready.release(playerId, session, note) end
 --- No permission. Returns `{ known, ready, session, ageMs, holds = { { resource, reason, ageMs, remainingMs } } }`. The `ready` console command prints the same thing, which is the quickest way to find the resource that is not releasing.
 ---
 --- Since: 2.31.13+op77.45
+--- Reasons: invalid_json, json_too_large
 ---@param playerId any
 ---@return any table table
 function Open77.ready.status(playerId) end
@@ -6996,7 +7078,7 @@ function Open77.ready.status(playerId) end
 --- Requires `players.reflex.manage`. The client stops the boost on the next frame and every attached layer and the nameplate marker clear. No activation running answers `no_activation`.
 ---
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_definition, invalid_operation, invalid_player, invalid_request, reflex_unavailable, request_too_large, resource_stopping
+--- Reasons: invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, reflex_unavailable, request_too_large, resource_stopping
 ---@param playerId any
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason
@@ -7007,7 +7089,7 @@ function Open77.reflex.cancel(playerId) end
 --- Requires `players.reflex.read`. Reports `profile = "reflex_overdrive"`, `sharedRealTimeWorld = true`, `slowsBullets = false`, `slowsOtherPlayers = false`, `touchesTimeDilation = false` and `maximumDurationMs = 15000` -- the boundary a server maker can quote to players.
 ---
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_definition, invalid_operation, invalid_player, invalid_request, reflex_unavailable, request_too_large, resource_stopping
+--- Reasons: invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, reflex_unavailable, request_too_large, resource_stopping
 ---@return any capabilities capabilities table
 function Open77.reflex.capabilities() end
 
@@ -7016,7 +7098,7 @@ function Open77.reflex.capabilities() end
 --- Requires `players.reflex.read`. Returns `projection` (`status` is `pending`, `ready` or `removed`, plus the `definition`), `phase`, `charges`, `remainingMs`, `cooldownUntil`, `activation` and `ownedByCaller`, a server-derived boolean for the calling resource that is accurate across projection restarts.
 ---
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_definition, invalid_operation, invalid_player, invalid_request, reflex_unavailable, request_too_large, resource_stopping
+--- Reasons: invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, reflex_unavailable, request_too_large, resource_stopping
 ---@param playerId any
 ---@return any activity activity table, or nil
 function Open77.reflex.current(playerId) end
@@ -7026,7 +7108,7 @@ function Open77.reflex.current(playerId) end
 --- Requires `players.reflex.define`. `profile` is exactly `reflex_overdrive`; `config` picks `tier` (`reflex` or `reflex_heavy`), `inputKey` (the default the client registers as the rebindable `reflex_overdrive` action), `presentation` (`native`, `silent`, `none`), `durationMs` 500-15000 (never longer than `cooldownMs`), `cooldownMs` 1000-600000, `maxCharges` 1-3, `chargeRegenMs`, `staminaCost` 0-300 and `heatCost` 0-100. A definition cannot name a stat: the client owns the two tier plans and their ceilings. Out-of-range values are refused, not clamped. Versions are immutable. No clock is touched anywhere in this feature.
 ---
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_definition, invalid_operation, invalid_player, invalid_request, reflex_unavailable, request_too_large, resource_stopping
+--- Reasons: invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, reflex_unavailable, request_too_large, resource_stopping
 ---@param definition any
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason
@@ -7037,7 +7119,7 @@ function Open77.reflex.define(definition) end
 --- Requires `players.reflex.manage`. Acceptance is entitlement, not readiness: check `current(player).projection.status == "ready"` before presenting it as usable. Needs the bound cyberware character and an alive, ready, unmounted body -- a grant sent before the player is incarnated is refused `body_unavailable`. Only the granting resource may revoke or cancel it. A session capability, not purchased equipment.
 ---
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_definition, invalid_operation, invalid_player, invalid_request, reflex_unavailable, request_too_large, resource_stopping
+--- Reasons: invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, reflex_unavailable, request_too_large, resource_stopping
 ---@param playerId any
 ---@param definition any
 ---@return any ok { ok = true }, or nil
@@ -7049,7 +7131,7 @@ function Open77.reflex.grant(playerId, definition) end
 --- Requires `players.reflex.manage`. Paid implants are untouched; a running boost ends on the release path. Another resource's grant answers `grant_owned_by_another_resource`.
 ---
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_definition, invalid_operation, invalid_player, invalid_request, reflex_unavailable, request_too_large, resource_stopping
+--- Reasons: invalid_definition, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, reflex_unavailable, request_too_large, resource_stopping
 ---@param playerId any
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason
@@ -7069,7 +7151,7 @@ function Open77.resource.generation(resourceName) end
 --- No capability. Entries are `{ name, version, state, generation, memoryBytes }` plus `error` when the resource failed. `state` is the lowercased runtime state: discovered, starting, running, stopping, stopped, failed or blocked.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_resource
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@return any array array of tables, or nil
 ---@return any reason reason
 function Open77.resource.list() end
@@ -7079,7 +7161,7 @@ function Open77.resource.list() end
 --- No capability. With no `key`, returns the whole manifest as `{ name, version, open77Version, autoStart, reloadPolicy, dependencies, permissions, sharedScripts, serverScripts, clientScripts, preloadMods, clientFiles }`. With a key, returns just that field; both the camelCase and the manifest's own snake_case spelling are accepted. `author` and `description` answer `unknown_metadata_key` rather than an empty string: the manifest parser does not read them, so claiming a value would be a claim this server cannot make.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_resource
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param name string
 ---@param key? string
 ---@return any table table or field value, or nil
@@ -7100,7 +7182,7 @@ function Open77.resource.name() end
 ---
 --- Permissions: resources.control
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_resource
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param name string
 ---@return any true true when queued, otherwise false
 ---@return any reason reason
@@ -7112,7 +7194,7 @@ function Open77.resource.restart(name) end
 ---
 --- Permissions: resources.control
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_resource
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param name string
 ---@return any true true when queued, otherwise false
 ---@return any reason reason
@@ -7133,7 +7215,7 @@ function Open77.resource.state(resourceName) end
 ---
 --- Permissions: resources.control
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_resource
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, invalid_resource_name, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param name string
 ---@return any true true when queued, otherwise false
 ---@return any reason reason
@@ -7203,7 +7285,7 @@ function Open77.routingBuckets.setPopulationEnabled(bucket, enabled) end
 ---
 --- Permissions: runtime.restart
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_resource
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@return any scheduled { scheduled = false, secondsRemaining = 0 }, or nil
 ---@return any reason reason
 function Open77.runtime.cancelRestart() end
@@ -7213,7 +7295,7 @@ function Open77.runtime.cancelRestart() end
 --- No capability; it is a read of the operator's own installation. Entries are `{ name, resource, restricted, source }`, `source` being `resource` for a Lua registration and `console` for a built-in verb. The built-ins listed are the resource-lifecycle set the coordinator owns; the ACL, ban, routing-bucket and phantom verbs are **not** listed, because they live in a hand-written dispatcher with no registry to read. The `source` field is what tells a reader this list has two origins.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_resource
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@return any array array of tables, or nil
 ---@return any reason reason
 function Open77.runtime.commands() end
@@ -7224,7 +7306,7 @@ function Open77.runtime.commands() end
 ---
 --- Permissions: runtime.commands
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_command_line, invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_resource
+--- Reasons: invalid_command_line, invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param line string
 ---@return any true true when queued, otherwise false
 ---@return any reason reason
@@ -7245,7 +7327,7 @@ function Open77.runtime.luaVersion() end
 ---
 --- Permissions: runtime.restart
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_resource
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@return any scheduled { scheduled, secondsRemaining, reason? }, or nil
 ---@return any reason reason
 function Open77.runtime.restartStatus() end
@@ -7256,7 +7338,7 @@ function Open77.runtime.restartStatus() end
 ---
 --- Permissions: runtime.restart
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_resource
+--- Reasons: invalid_delay, invalid_operation, invalid_reason, permission_denied:resources.control, permission_denied:runtime.commands, permission_denied:runtime.restart, restart_control_unavailable, runtime_control_unavailable, unknown_metadata_key, unknown_resource
 ---@param seconds integer
 ---@param reason? string
 ---@return any scheduled { scheduled, secondsRemaining, reason? }, or nil
@@ -7282,7 +7364,7 @@ function Open77.sound.broadcast(file, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_options, invalid_radius, invalid_sound_action, invalid_sound_file, invalid_sound_id, invalid_sound_payload, invalid_sound_target, network_unavailable, no_audience, permission_denied:network.events, sound_audience_too_large, sound_payload_not_serializable, sound_payload_too_large
+--- Reasons: invalid_argument, invalid_bucket, invalid_limit, invalid_max_age, invalid_options, invalid_position, invalid_radius, invalid_sound_action, invalid_sound_file, invalid_sound_id, invalid_sound_payload, invalid_sound_target, network_unavailable, no_audience, permission_denied:network.events, player_not_found, position_unknown, sessions_unavailable, sound_audience_too_large, sound_payload_not_serializable, sound_payload_too_large
 ---@param target any
 ---@param file any
 ---@param options? table
@@ -7337,7 +7419,7 @@ function Open77.sound.stop(target, id) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_options, invalid_radius, invalid_sound_action, invalid_sound_payload, invalid_sound_target, network_unavailable, no_audience, permission_denied:network.events, sound_audience_too_large, sound_payload_not_serializable, sound_payload_too_large
+--- Reasons: invalid_argument, invalid_bucket, invalid_limit, invalid_max_age, invalid_options, invalid_position, invalid_radius, invalid_sound_action, invalid_sound_payload, invalid_sound_target, network_unavailable, no_audience, permission_denied:network.events, player_not_found, position_unknown, sessions_unavailable, sound_audience_too_large, sound_payload_not_serializable, sound_payload_too_large
 ---@param target? any
 ---@return any true true, or false
 ---@return any reason reason
@@ -7348,7 +7430,7 @@ function Open77.sound.stopAll(target) end
 --- Requires `state.write`. The client never writes a bag: it submits through `Open77.state.request` and this validator decides. `validator(source, value)` answers `accepted [, normalisedValue]`, and the value the bag stores is the one the validator returned -- clamp or rewrite here. Anything but true refuses. The selector may be a kind string to cover every bag of that kind, or one bag. The validator is retired when the resource stops.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_state_key, invalid_state_selector, validator_required
+--- Reasons: invalid_state_key, invalid_state_op, invalid_state_selector, state_unavailable, unknown_bag, validator_required
 ---@param selector any
 ---@param key string
 ---@param validator function
@@ -7371,7 +7453,7 @@ function Open77.state.clear() end
 --- Requires `state.write`. Later client requests for that key are refused with `not_requestable`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_state_key, invalid_state_selector
+--- Reasons: invalid_state_key, invalid_state_op, invalid_state_selector, state_unavailable, unknown_bag
 ---@param selector any
 ---@param key string
 ---@return any true true, otherwise false
@@ -7395,6 +7477,7 @@ function Open77.state.entity(kind, id) end
 --- No permission. Answers `nil` on a fresh start -- which is the signal to initialise rather than resume -- and `nil, reason` when the stored value cannot be decoded.
 ---
 --- Since: 2.31.13+op77.45
+--- Reasons: invalid_json, json_too_large
 ---@return any value value, or nil
 ---@return any reason reason
 function Open77.state.load() end
@@ -7404,7 +7487,7 @@ function Open77.state.load() end
 --- No permission. Takes the id `Open77.state.onChange` returned.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_subscription
+--- Reasons: invalid_state_key, invalid_state_op, invalid_state_selector, invalid_subscription, state_unavailable, unknown_bag
 ---@param subscription integer
 ---@return any true true, otherwise false
 ---@return any reason reason: invalid_subscription
@@ -7415,7 +7498,7 @@ function Open77.state.offChange(subscription) end
 --- No permission. The selector is a bag handle, a `{ kind = , id = }` table, a bare kind string for every bag of that kind, or nil for every bag; the key is a key name or nil for every key. The handler runs at a tick boundary as `fn(selector, key, value, previous)` and may Wait. Only subscribed resources are touched, and subscriptions are retired when the resource stops.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: handler_required, invalid_state_selector
+--- Reasons: handler_required, invalid_state_key, invalid_state_op, invalid_state_selector, state_unavailable, unknown_bag
 ---@param selector any
 ---@param key any
 ---@param handler function
@@ -7687,7 +7770,7 @@ function Open77.stats.stamina(playerId) end
 --- Requires `players.statuses.apply`. The grade's `kind`, duration and effect come from the definition; canonical eligibility (alive, ready, not protected) is checked the same way an upload's impact is. No upload runs and no damage is dealt: this is the status half of a hack on its own, for a scripted consequence such as a story beat or a penalty.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param playerId integer
 ---@param targetId integer
 ---@param definitionId string
@@ -7701,7 +7784,7 @@ function Open77.statuses.apply(playerId, targetId, definitionId, gradeId) end
 --- Requires `players.hacking.read`. Every status any provider applied -- kind, provider, action id, deadline -- the same answer as `Open77.hacking.statuses`.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param playerId integer
 ---@return any array array of status tables
 ---@return any nil nil, reason on failure
@@ -7712,7 +7795,7 @@ function Open77.statuses.list(playerId) end
 --- Requires `players.statuses.purge`. Only a status this resource applied can be removed; the victim's client is told to end its native presentation.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, operation_id_required, request_too_large, resource_stopping
+--- Reasons: action_owned, definition_owned, hacking_unavailable, invalid_action, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, invalid_target, json_too_large, operation_id_required, request_too_large, resource_stopping
 ---@param actionId string
 ---@return any ok { ok = true }, or nil
 ---@return any reason reason on failure
@@ -7748,7 +7831,7 @@ function Open77.time.utc() end
 --- No permission. Unlike the `declare` proxy, this does not read through: it is a snapshot to pin onto one match, which is the only correct form for a mode running several rounds at once.
 ---
 --- Since: 2.31.13+op77.45
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@return any table table of key to value
 function Open77.tunables.capture() end
 
@@ -7778,7 +7861,7 @@ function Open77.tunables.get(key) end
 --- No permission. Key to value for everything an operator has written that `promote()` has not yet adopted.
 ---
 --- Since: 2.31.13+op77.45
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@return any table table of key to value
 function Open77.tunables.pending() end
 
@@ -7787,7 +7870,7 @@ function Open77.tunables.pending() end
 --- No permission. Call it at the boundary the resource declared -- the start of a round or a match -- so a mid-match write cannot change the rules under the players.
 ---
 --- Since: 2.31.13+op77.45
---- Reasons: animations_unavailable, invalid_options, invalid_player, invalid_query, invalid_request, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@return any array array of promoted keys
 function Open77.tunables.promote() end
 
@@ -7874,6 +7957,7 @@ function Open77.vehicles.ai.joinTraffic(vehicleId, options) end
 --- Requires a function callback. Events: waypointReached, arrived, cancelled, failed, blocked and resumed. The handler receives a decoded state table, not JSON text. Events are routed only to the controller's resource. blocked with reason=no_progress is a stall detector, not proof of an obstacle collision. No events are replayed; query state first.
 ---
 --- Since: 2.31.13+op77.57
+--- Reasons: invalid_json, json_too_large
 ---@param event string
 ---@param handler function
 ---@return any Event Event handler registration
@@ -8150,7 +8234,7 @@ function Open77.vehicles.detachPart(id, part) end
 ---
 --- A public constant table: `frontLeft = 0`, `frontRight = 1`, `backLeft = 2`, `backRight = 3`, `trunk = 4`, `hood = 5`.
 ---
---- Since: not in any published build
+--- Since: 2.31.13+op77.45
 ---@return any table table { frontLeft = 0, frontRight = 1, backLeft = 2, backRight = 3, trunk = 4, hood = 5 }
 function Open77.vehicles.doors() end
 
@@ -8167,10 +8251,10 @@ function Open77.vehicles.explode(id) end
 
 --- Bit values of a vehicle's `flags` field.
 ---
---- A public constant table for the `flags` integer a vehicle snapshot carries: `engineOn = 1`, `locked = 2`, `destroyed = 4`, `exploded = 8`, `invulnerable = 16`, `immortal = 32`, `lightsOn = 64`, `highBeams = 128`, `sirenOn = 256`, plus `paintApplied` (the runtime's own bit). Test a bit with `flags & Open77.vehicles.flags.locked ~= 0`; `create` accepts the same names as booleans in its definition.
+--- A public constant table for the `flags` integer a vehicle snapshot carries: `engineOn = 1`, `locked = 2`, `destroyed = 4`, `exploded = 8`, `invulnerable = 16`, `immortal = 32`, `lightsOn = 64`, `highBeams = 128`, `sirenOn = 256`, `paintApplied = 512` (set by the runtime once a paint job has been applied; not a `create` option). Test a bit with `flags & Open77.vehicles.flags.locked ~= 0`; `create` accepts the other nine names as booleans in its definition.
 ---
---- Since: not in any published build
----@return any table table of bit values
+--- Since: 2.31.13+op77.45
+---@return any table table { engineOn = 1, locked = 2, destroyed = 4, exploded = 8, invulnerable = 16, immortal = 32, lightsOn = 64, highBeams = 128, sirenOn = 256, paintApplied = 512 }
 function Open77.vehicles.flags() end
 
 --- Forces a player out of a network vehicle.
@@ -8344,12 +8428,12 @@ function Open77.vehicles.getPerformance(id) end
 
 --- Reads one player's canonical vehicle-seat assignment.
 ---
---- Returns the server ledger entry with vehicle ID, canonical seat name, numeric flags, and transition/policy booleans. It returns `nil` when the player is not assigned to a vehicle.
+--- Requires `world.vehicles`. Returns the server ledger entry for the player: a table `{ playerId, vehicleId (integer), seat (canonical name such as `seat_front_left`), flags (integer, bits of `Open77.vehicles.occupantFlags`), entering, exiting, forcedEntry, exitLocked, forcedExit (booleans) }`. A single `nil`, with no reason, when the player is not seated, is unknown, or the permission is missing. The same table shape describes each entry of a vehicle snapshot's `occupants` list and the second value of `occupantInSeat`. `vehicleId` is a plain integer; a vehicle id delivered by a host event (`onPlayerLeftVehicle`) is the same number as a string, so `tostring(seat.vehicleId)` compares equal to it.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.45
----@param playerId integer
----@return any seat seat assignment table, or `nil`
+---@param playerId any
+---@return any seat seat assignment table { playerId, vehicleId, seat, flags, entering, exiting, forcedEntry, exitLocked, forcedExit }, or a single nil
 function Open77.vehicles.getPlayerSeat(playerId) end
 
 --- The vehicle's canonical position as a vector3.
@@ -8591,20 +8675,20 @@ function Open77.vehicles.nearby(anchor, radius, options) end
 ---
 --- A public constant table for the `flags` integer of a seat assignment (`getPlayerSeat`, occupants): `entering = 1`, `exiting = 2`, `forcedEntry = 4`, `exitLocked = 8`, `forcedExit = 16`. The same assignment table also carries each of them as a boolean field, which is the easier read.
 ---
---- Since: not in any published build
+--- Since: 2.31.13+op77.45
 ---@return any table table { entering = 1, exiting = 2, forcedEntry = 4, exitLocked = 8, forcedExit = 16 }
 function Open77.vehicles.occupantFlags() end
 
 --- Who is in one seat of a vehicle.
 ---
---- Requires `world.vehicles`. The `GetPedInVehicleSeat` of FiveM. Answers the player id and, as a second value, the full occupant record with its transition flags; a plain `nil` means the seat is free.
+--- Requires `world.vehicles`. The `GetPedInVehicleSeat` of FiveM. Three answers, told apart by the second value: `playerId, record` when someone holds the seat (the record is the seat-assignment table `getPlayerSeat` returns: `playerId`, `vehicleId`, `seat`, `flags`, `entering`, `exiting`, `forcedEntry`, `exitLocked`, `forcedExit`); a single `nil` when the seat is free; `nil, reason` (a string: `invalid_seat`, `vehicle_not_found`) when the call itself failed. So `local who, extra = ...; if who then ... elseif type(extra) == "string" then error ... else free`.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67
 ---@param id any
 ---@param seat any
----@return any playerId playerId and occupant record, or nil
----@return any reason reason: invalid_seat, vehicle_not_found
+---@return any playerId playerId (integer) and the occupant's seat-assignment table; a single nil for a free seat
+---@return any reason reason (string) only when the call failed: invalid_seat, vehicle_not_found
 function Open77.vehicles.occupantInSeat(id, seat) end
 
 --- Opens a door, trunk, or hood.
@@ -8800,8 +8884,8 @@ function Open77.vehicles.resetPaint(id) end
 --- Since: 2.31.13+op77.67
 ---@param id any
 ---@param seat any
----@return any boolean boolean, or nil
----@return any reason reason: invalid_seat, vehicle_not_found
+---@return any true true or false for a known vehicle and seat; nil when the call failed
+---@return any reason reason: invalid_seat, vehicle_not_found (only with nil)
 function Open77.vehicles.seatFree(id, seat) end
 
 --- The canonical spelling of a seat name or index.
@@ -8817,7 +8901,7 @@ function Open77.vehicles.seatName(seat) end
 ---
 --- A public constant table: `driver = -1`, `frontPassenger = 0`, `rearLeft = 1`, `rearRight = 2`. `warpPlayerIntoVehicle`, `taskPlayerEnter` and the seat ledgers accept either these numbers or the canonical seat names as strings (`"driver"`, `"frontPassenger"`, `"rearLeft"`, `"rearRight"`); seat tables the runtime answers (`getPlayerSeat`, occupants) carry the name in `seat`.
 ---
---- Since: not in any published build
+--- Since: 2.31.13+op77.45
 ---@return any table table { driver = -1, frontPassenger = 0, rearLeft = 1, rearRight = 2 }
 function Open77.vehicles.seats() end
 
@@ -9216,6 +9300,7 @@ function Open77.vehicles.setPlayerExitLocked(playerId, locked, vehicleId) end
 --- Same contract as `warpPlayerIntoVehicle`. This name is useful to codebases that reserve `warp` for client presentation, while both server names create the same canonical seat assignment.
 ---
 --- Since: 2.31.13+op77.45
+--- Reasons: invalid_argument, invalid_player_id, invalid_seat, invalid_vehicle_id, permission_denied:world.vehicles, player_not_found, player_unavailable, vehicle_not_found, vehicles_unavailable, wrong_bucket
 ---@param playerId integer
 ---@param vehicleId integer
 ---@param seat any
@@ -9500,7 +9585,7 @@ function Open77.vehicles.warpPlayerIntoVehicle(playerId, vehicleId, seat, option
 ---
 --- A public constant table: `frontLeft = 0`, `frontRight = 1`, `backLeft = 2`, `backRight = 3`.
 ---
---- Since: not in any published build
+--- Since: 2.31.13+op77.45
 ---@return any table table { frontLeft = 0, frontRight = 1, backLeft = 2, backRight = 3 }
 function Open77.vehicles.windows() end
 
@@ -9523,7 +9608,7 @@ function Open77.voice.addPlayer(channelId, playerId, options) end
 ---
 --- Permissions: voice.manage
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_voice_request, permission_denied:voice.manage, voice_unavailable
+--- Reasons: invalid_json, invalid_voice_request, json_too_large, permission_denied:voice.manage, voice_unavailable
 ---@return any array array of channels, or nil
 ---@return any reason reason
 function Open77.voice.channels() end
@@ -9534,7 +9619,7 @@ function Open77.voice.channels() end
 ---
 --- Permissions: voice.manage
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_voice_request, options_required, permission_denied:voice.manage, voice_unavailable
+--- Reasons: invalid_json, invalid_voice_request, json_too_large, options_required, permission_denied:voice.manage, voice_unavailable
 ---@param options table
 ---@return any channel channel, or nil
 ---@return any reason reason: options_required among others
@@ -9546,7 +9631,7 @@ function Open77.voice.createChannel(options) end
 ---
 --- Permissions: voice.manage
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_voice_request, permission_denied:voice.manage, voice_unavailable
+--- Reasons: invalid_json, invalid_voice_request, json_too_large, permission_denied:voice.manage, voice_unavailable
 ---@param channelId string
 ---@return any channel channel, or nil
 ---@return any reason reason
@@ -9558,7 +9643,7 @@ function Open77.voice.getChannel(channelId) end
 ---
 --- Permissions: voice.manage
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_voice_request, permission_denied:voice.manage, voice_unavailable
+--- Reasons: invalid_json, invalid_voice_request, json_too_large, permission_denied:voice.manage, voice_unavailable
 ---@param playerId any
 ---@return any participant participant, or nil
 ---@return any reason reason
@@ -9570,7 +9655,7 @@ function Open77.voice.getParticipant(playerId) end
 ---
 --- Permissions: voice.manage
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_voice_request, permission_denied:voice.manage, voice_unavailable
+--- Reasons: invalid_json, invalid_voice_request, json_too_large, permission_denied:voice.manage, voice_unavailable
 ---@return any array array of participants, or nil
 ---@return any reason reason
 function Open77.voice.participants() end
@@ -9700,7 +9785,7 @@ function Open77.voice.setQuality(quality) end
 ---
 --- Permissions: voice.manage
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_voice_request, permission_denied:voice.manage, voice_unavailable
+--- Reasons: invalid_json, invalid_voice_request, json_too_large, permission_denied:voice.manage, voice_unavailable
 ---@return any status status table, or nil
 ---@return any reason reason
 function Open77.voice.status() end
@@ -9711,7 +9796,7 @@ function Open77.voice.status() end
 ---
 --- Permissions: voice.manage
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_voice_request, patch_must_be_table, permission_denied:voice.manage, voice_unavailable
+--- Reasons: invalid_json, invalid_voice_request, json_too_large, patch_must_be_table, permission_denied:voice.manage, voice_unavailable
 ---@param channelId string
 ---@param patch? table
 ---@return any channel channel, or nil
@@ -9722,7 +9807,9 @@ function Open77.voice.updateChannel(channelId, patch) end
 ---
 --- Asynchronous. The same function under a second name; it accepts both the slot and the record form.
 ---
+--- Permissions: network.events
 --- Since: 2.31.13+op77.45
+--- Reasons: invalid_weapon_options, invalid_weapon_slot, invalid_weapon_target, invalid_weapon_template, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param target any
 ---@param options? table
@@ -9736,7 +9823,7 @@ function Open77.weapons.activate(playerId, target, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_weapon_options, invalid_weapon_slot, invalid_weapon_template, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_weapon_options, invalid_weapon_slot, invalid_weapon_template, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param record string
 ---@param slot any
@@ -9751,7 +9838,7 @@ function Open77.weapons.assign(playerId, record, slot, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
---- Reasons: network_unavailable, permission_denied:network.events
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@return any requestId requestId, or nil
 ---@return any reason reason
@@ -9763,7 +9850,7 @@ function Open77.weapons.clear(playerId) end
 ---
 --- Permissions: player.weapons.read
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_weapon_slot, weapons_unreported
+--- Reasons: invalid_player_id, invalid_weapon_slot, permission_denied, weapons_unavailable, weapons_unreported
 ---@param playerId any
 ---@param slot any
 ---@return any slot { slot, record, tweakDbId, equipped, parts, loadoutAgeMs, source }, or nil
@@ -9776,7 +9863,7 @@ function Open77.weapons.components(playerId, slot) end
 ---
 --- Permissions: player.weapons.read
 --- Since: 2.31.13+op77.73
---- Reasons: gadgets_unreported
+--- Reasons: gadgets_unreported, invalid_player_id, permission_denied, weapons_unavailable, weapons_unreported
 ---@param playerId any
 ---@return any slots { slots, active, reportedAgeMs }, or nil
 ---@return any reason reason
@@ -9800,7 +9887,7 @@ function Open77.weapons.get(playerId) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_gadget_count, invalid_gadget_template, invalid_weapon_options, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_gadget_count, invalid_gadget_template, invalid_weapon_options, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param record any
 ---@param count? any
@@ -9815,7 +9902,7 @@ function Open77.weapons.giveGadget(playerId, record, count, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: network_unavailable, permission_denied:network.events
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@return any request request id, or nil
 ---@return any reason reason
@@ -9827,7 +9914,7 @@ function Open77.weapons.holster(playerId) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_weapon_slot, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_weapon_slot, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param slot any
 ---@return any request request id, or nil
@@ -9840,7 +9927,7 @@ function Open77.weapons.remove(playerId, slot) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_attachment_slot, invalid_weapon_slot, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_attachment_slot, invalid_weapon_slot, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param slot any
 ---@param attachmentSlot any
@@ -9854,7 +9941,7 @@ function Open77.weapons.removeComponent(playerId, slot, attachmentSlot) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_weapon_slot, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_weapon_slot, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param slot any
 ---@return any requestId requestId, or nil
@@ -9867,7 +9954,7 @@ function Open77.weapons.requestComponents(playerId, slot) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.73
---- Reasons: network_unavailable, permission_denied:network.events
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@return any requestId requestId, or nil
 ---@return any reason reason
@@ -9879,7 +9966,7 @@ function Open77.weapons.requestGadgets(playerId) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: network_unavailable, permission_denied:network.events
+--- Reasons: network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@return any request request id, or nil
 ---@return any reason reason
@@ -9891,7 +9978,7 @@ function Open77.weapons.requestSnapshot(playerId) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_weapon_options, invalid_weapon_slot, invalid_weapon_target, invalid_weapon_template, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_weapon_options, invalid_weapon_slot, invalid_weapon_target, invalid_weapon_template, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param target any
 ---@param options? any
@@ -9905,7 +9992,7 @@ function Open77.weapons.setActive(playerId, target, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
---- Reasons: invalid_weapon_ammo, invalid_weapon_slot, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_weapon_ammo, invalid_weapon_slot, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param slot any
 ---@param amounts any
@@ -9919,7 +10006,7 @@ function Open77.weapons.setAmmo(playerId, slot, amounts) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_attachment_slot, invalid_part_template, invalid_weapon_options, invalid_weapon_slot, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_attachment_slot, invalid_part_template, invalid_weapon_options, invalid_weapon_slot, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param slot any
 ---@param record any
@@ -9934,7 +10021,7 @@ function Open77.weapons.setComponent(playerId, slot, record, options) end
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_gadget_count, invalid_gadget_template, network_unavailable, permission_denied:network.events
+--- Reasons: invalid_gadget_count, invalid_gadget_template, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param record? any
 ---@param count? any
@@ -9946,7 +10033,9 @@ function Open77.weapons.takeGadget(playerId, record, count) end
 ---
 --- Asynchronous. The same function under the name the clothing API uses for the same idea.
 ---
+--- Permissions: network.events
 --- Since: 2.31.13+op77.45
+--- Reasons: invalid_weapon_slot, network_unavailable, permission_denied:network.events, reserved_hacking_event
 ---@param playerId any
 ---@param slot any
 ---@return any request request id, or nil
@@ -9958,7 +10047,7 @@ function Open77.weapons.unequip(playerId, slot) end
 --- The server half of `Open77.world`, and the only function in it: the client's `world` table (raycast, groundZ, nearby, nearest, district) needs a physics world and a streamed player, and a dedicated server has neither. **Ownership is the contract.** It removes what the CALLING resource owns and nothing else; entities inside the radius belonging to another resource are counted in `refused` and left standing. Without that rule a gamemode clearing a street would delete the parked cars a roleplay resource spawned and still holds ids for, and that resource would discover it only when its own ids began answering `not_found`. `foreign = true` lifts the rule, and only for VEHICLES, and only for a resource whose manifest carries `world.clearArea.foreign`; without the permission the WHOLE call is refused rather than quietly downgraded, because a silent downgrade would report success on a street that still has somebody else's cars in it. The restriction to vehicles is structural, not a policy choice: NPC and prop removal is owner-checked inside the authority services themselves, and the server's NPC read is owner-scoped, so a foreign NPC is never even a candidate. Options: `npcs`, `vehicles`, `props` (booleans, all default true), `population` (default false), `bucket`, `foreign` (default false), `grace` (metres of outward slack). A `nil` bucket means every bucket, the same reading `Open77.zones.playersIn` takes, since a place is not a player and has no bucket of its own to borrow. `population = true` REQUIRES a bucket and drives `Open77.routingBuckets.setPopulationEnabled`; the suppression that follows is **bucket-wide, not confined to the radius**, because that is the only shape the switch has. There is no radius-scoped vanilla-population control on 2.31. The containment test is `Open77.zones.contains` from the shared zone module, so the radius cap and the geometry rules are the ones every other Open77 zone obeys. A missing `world.npcs`, `world.vehicles` or `world.props` skips that kind and still succeeds: a teardown that failed outright over one of three permissions would leave the other two kinds behind.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: bucket_required_for_population, invalid_bucket, invalid_options, invalid_radius
+--- Reasons: bucket_required_for_population, invalid_bucket, invalid_options, invalid_radius, permission_denied:npcs.foreign
 ---@param position any
 ---@param radius any
 ---@param options? any
@@ -9982,7 +10071,7 @@ function Open77.world.getPopulation(bucket) end
 --- `scale` is 1 and nothing else for a bucket at real time (a timed beat past its deadline included). Otherwise `remainingMs` is what is left of a timed hold (absent for an open-ended one), `easeMs` the ramp clients run, `owner` the resource that set it and `revision` the monotonic counter clients order replays by. Ungated: a resource in the bucket can feel it anyway.
 ---
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_bucket
+--- Reasons: invalid_bucket, timescale_unavailable_on_this_host
 ---@param bucket integer
 ---@return any table table { bucket, scale, remainingMs?, easeMs?, owner?, revision? }, or nil
 ---@return any reason reason (`invalid_bucket`, `timescale_unavailable_on_this_host`)
@@ -9998,7 +10087,7 @@ function Open77.world.getTimeScale(bucket) end
 ---
 --- Permissions: world.query
 --- Since: 2.31.13+op77.73
---- Reasons: await_requires_scheduler_coroutine, invalid_bucket, invalid_callback_timeout, invalid_options, invalid_player_id, invalid_position, invalid_radius, no_ground
+--- Reasons: await_requires_scheduler_coroutine, callback_request_limit, cancelled, invalid_bucket, invalid_callback_timeout, invalid_options, invalid_player_id, invalid_position, invalid_radius, network_unavailable, no_ground, no_observer, pending, permission_denied:world.query, player_not_found, promise_cancelled, rejected, resolved, resource_stopping
 ---@param position any
 ---@param options? any
 ---@return any z z (number), detail { playerId, distance, observerAgeMs, ageMs, cached }
@@ -10028,7 +10117,7 @@ function Open77.world.setPopulation(bucket, options) end
 ---
 --- Permissions: world.prevention
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_bucket, invalid_operation, invalid_options, invalid_player, invalid_request, prevention_unavailable, request_too_large, resource_stopping
+--- Reasons: invalid_bucket, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, prevention_unavailable, request_too_large, resource_stopping
 ---@param bucket any
 ---@param enabled boolean
 ---@return any table table { bucket, enabled }, or nil
@@ -10043,7 +10132,7 @@ function Open77.world.setPreventionEnabled(bucket, enabled) end
 ---
 --- Permissions: world.timescale
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_bucket, invalid_duration, invalid_ease, invalid_options, invalid_scale
+--- Reasons: invalid_bucket, invalid_duration, invalid_ease, invalid_options, invalid_scale, permission_denied:world.timescale, timescale_unavailable_on_this_host
 ---@param bucket integer
 ---@param scale any
 ---@param options? any
@@ -10101,7 +10190,7 @@ function Open77.zones.normalize(definition) end
 --- The authoritative half of zones. The client zone service (open77_zones) is PRESENTATION: it decides whether a prompt draws, it runs on a machine the player owns, and it can say anything. Anything that grants -- a shop selling, a job paying, a door opening, a safe zone suppressing damage -- must re-derive containment here first. The geometry is Open77.zones.contains, the same shared file the client embeds, so a definition means the same thing on both sides. Built on Open77.players.nearby and inheriting its conventions exactly: entries are { playerId, bucket, distance, fresh, ageMs, name, position, heading, speed }, ties break by player id so two calls with the same input answer in the same order, and `distance` is to the zone's ANCHOR, not to its boundary. `bucket` defaults to every bucket -- a zone is a place, not a player, and has no bucket of its own to borrow; pass a number to narrow, or false for every bucket explicitly. `limit` applies after containment, never to the bounding-sphere scan. `grace` is metres of slack, and a validation wants a few: Open77.players.position is a replicated snapshot and an honest player's latest position may not have landed yet, so the check exists to stop a client claiming to be somewhere else entirely, not to arbitrate centimetres. `origin` and `rotation` re-site the whole zone, which is how an entity-attached definition is validated server-side. See the Proximity zones guide.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_limit, invalid_options, invalid_radius
+--- Reasons: invalid_argument, invalid_bucket, invalid_limit, invalid_max_age, invalid_options, invalid_position, invalid_radius, player_not_found, position_unknown, sessions_unavailable
 ---@param definition any
 ---@param options? any
 ---@return any table table (array of nearby-style entries, possibly empty), or nil, reason
