@@ -4,7 +4,7 @@
  * 1. `OPEN77_INDEX_DIR`, an explicit directory (development, CI);
  * 2. the cache under `~/.open77/mcp/index/<build>/`, refreshed from the CDN
  *    (`https://cdn.open2077.net/dev-index/<build>/`) when the manifest's
- *    ETag changed, at most once a day unless forced;
+ *    ETag changed, checked at most once an hour unless forced (`--refresh`);
  * 3. the snapshot embedded in the package (`index/`), which is what a first
  *    run and an offline run answer from.
  *
@@ -25,7 +25,10 @@ import type { IndexManifest } from "./types.js";
 export const CDN_BASE = process.env["OPEN77_CDN_BASE"] ?? "https://cdn.open2077.net";
 export const INDEX_PREFIX = "dev-index";
 export const CACHE_ROOT = process.env["OPEN77_MCP_CACHE"] ?? path.join(os.homedir(), ".open77", "mcp");
-const REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000;
+// One manifest GET per build per hour: a corrected index published mid-day
+// (eval round 3 fixed cards at 19:47) reached nobody for a day at 24 h, the
+// hosted endpoint included, since its ten-minute re-resolve honours this too.
+const REFRESH_INTERVAL_MS = 60 * 60 * 1000;
 const FETCH_TIMEOUT_MS = 8000;
 
 export interface LatestIndex {
