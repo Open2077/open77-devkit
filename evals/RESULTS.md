@@ -8,12 +8,12 @@ the Devkit MCP attached (`samples/`).
 |---|---|---|---|
 | taxi-job | PASS | OK | command and reason path proven (chat: "Place a waypoint on your map first, then type /taxi"); the ride needs a hand-placed vanilla waypoint the harness cannot inject |
 | cuff-escort | PASS | OK | **one unattended two-client run, 07:55–07:58**: cuff held (`serverFrozen=yes movementHeld=yes`, pose `stand__2h_up__03__look_around__01`, 0 m under a 1.5 s forward push after a 5.45 m control walk); escort tether kept B at 1.73 m after the officer walked 14.07 m in 4 s |
-| shop-webui | PASS | OK | loads and starts on the server (3 items); page interaction not driven |
+| shop-webui | PASS | OK | **driven by keyboard, one-client run 08:05**: F6 opened the page, Tab-Tab-Enter pressed the first Buy, the server logged `player 5 bought maxdoc for 250` and the page showed the balance fall from 1000 to 750 E$ (`samples/eval_shop/proof-purchase.png`) |
 | pvp-round | PASS | OK | same run: both players joined one non-default routing bucket (4300) and left it |
-| fivem-port | PASS | OK | loads and starts on the server; menu not driven |
+| fivem-port | PASS | OK | **driven, one-client run 08:10**: `/car hella` delivered a vehicle, `/cars` opened the ported uikit menu listing it at 3 m (`samples/eval_port/proof-menu.png`), Enter picked it and the server placed the player in `seat_front_left` (`char.state vehicle=yes`) |
 
-The run log is `harness/gate-run-2026-09-16.log`; the gate script and its two probes are in
-`harness/`, with the eval server config (`server.eval.jsonc`, `<eval-run-dir>` is where the
+The run logs are `harness/gate-run-2026-09-16.log` and `harness/pages-run-*.log`; the gate
+script and its probes are in `harness/`, with the eval server config (`server.eval.jsonc`, `<eval-run-dir>` is where the
 samples are copied). They call the Open77 base checkout's `scripts/agent-play.ps1`,
 `game-input.ps1`, `debug-bridge.ps1` and `launch-extra-client.ps1`.
 
@@ -39,6 +39,9 @@ samples are copied). They call the Open77 base checkout's `scripts/agent-play.ps
   the client as `life.state serverFrozen=`.
 - **The server's life phase reaches Alive a few seconds after the client does**; a Warden
   teleport asked in that window is refused `player_not_alive`. The gate retries on that reason.
+- **Client-side commands are invisible to the server log.** `/cars` is a client
+  `RegisterCommand`; a send verified against the server's `executed` line reads as lost and
+  the retry's Escape closes the menu it had just opened. Verify those by their effect.
 - **Two-client harness lessons** (all in `harness/`): one 1920x1080 client takes ~6.7 GiB of
   VRAM, so two need 1280x720; a window that just gained focus drops the first keystroke
   (500 ms settle); `chat.say` bypasses the chat composer so client commands need real keys,
@@ -49,5 +52,5 @@ samples are copied). They call the Open77 base checkout's `scripts/agent-play.ps
 
 ## Not proven
 
-- The taxi ride and the shop and menu pages: they need a human hand (a map click, a mouse on
-  a WebUI page) the harness does not have.
+- The taxi ride: the request takes its destination from a vanilla map waypoint, and injected
+  mouse input did not place one. The command and its refusal path are proven.

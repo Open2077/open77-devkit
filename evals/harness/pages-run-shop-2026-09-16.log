@@ -1,0 +1,57 @@
+[  OK  ] dev-local masterless : master local ignoré (bypass ticket/identité en loopback)
+[  OK  ] serveur de dev déjà en cours (PID 8528, 14264, 34628, 34864, 46580, 58316, 64604)
+[  OK  ] aucune instance en cours, celle-ci sera la première
+[  OK  ] mémoire vidéo libre : 9588 Mio (marge exigée 2500 Mio)
+[ .... ] lancement
+[  OK  ] processus 25204 démarré
+[  OK  ] Open77.dll mappé dans 25204
+[  OK  ] pont de debug joignable : Open77.Debug.25204
+
+Instances de Cyberpunk2077 :
+  PID 25204  démarré 08:04:23  Open77.dll mappé
+
+Avec plusieurs instances, le pont exige un PID explicite :
+  .\scripts\debug-bridge.ps1 -ProcessId 25204 -Command 'ping'
+[  OK  ] autoconnexion émise vers 127.0.0.1:11798
+[ .... ] phase=active playerId=5 error=-
+[ .... ] chargement pristine demandé
+[  OK  ] incarnation confirmée par char.state (attached=yes alive=yes)
+[  OK  ] session active playerId=5 ping=0ms
+[  OK  ] monde chargé, position au handoff (pré-spawn) : OK x=381.276 y=-2401.727 z=181.882 yaw=-0.003
+[  OK  ] écran « continuer » franchi : char.state alive=yes
+[  OK  ] player A=5 (pid 25204)
+input pid=25204 keys=f6 hold=120ms
+screenshot pid=25204 method=PrintWindow size=1298x767 file=C:\Games\cyberm\op77-eval-server\evals-shots\shop-open.png
+input pid=25204 keys=tab hold=80ms
+input pid=25204 keys=tab hold=80ms
+input pid=25204 keys=enter hold=80ms
+screenshot pid=25204 method=PrintWindow size=1298x767 file=C:\Games\cyberm\op77-eval-server\evals-shots\shop-after-buy.png
+[  OK  ] shop: 2026-09-16 08:05:02.165 +02:00 [INF] [resource:eval_shop] player	5	bought	maxdoc	for	250
+input pid=25204 keys=f6 hold=120ms
+input pid=25204 keys=t hold=120ms
+input pid=25204 keys=slash+c+a+r+space+h+e+l+l+a+enter hold=80ms
+input pid=25204 keys=esc hold=80ms
+input pid=25204 keys=esc hold=80ms
+input pid=25204 keys=t hold=120ms
+input pid=25204 keys=slash+c+a+r+space+h+e+l+l+a+enter hold=80ms
+input pid=25204 keys=esc hold=80ms
+input pid=25204 keys=esc hold=80ms
+[ FAIL ] chat send lost twice: 'car hella'
+input pid=25204 keys=t hold=120ms
+input pid=25204 keys=slash+c+a+r+s+enter hold=80ms
+input pid=25204 keys=esc hold=80ms
+input pid=25204 keys=esc hold=80ms
+input pid=25204 keys=t hold=120ms
+input pid=25204 keys=slash+c+a+r+s+enter hold=80ms
+input pid=25204 keys=esc hold=80ms
+input pid=25204 keys=esc hold=80ms
+[ FAIL ] chat send lost twice: 'cars'
+screenshot pid=25204 method=PrintWindow size=1298x767 file=C:\Games\cyberm\op77-eval-server\evals-shots\port-menu.png
+input pid=25204 keys=enter hold=80ms
+screenshot pid=25204 method=PrintWindow size=1298x767 file=C:\Games\cyberm\op77-eval-server\evals-shots\port-after-pick.png
+[ FAIL ] port: OK player=yes id=0 engineId=1 attached=yes alive=yes health=100 position=381.06,-2401.73,181.876 yaw=0 speed=0 groundSpeed=0 grounded=yes crouched=no sliding=no vaulting=no air=grounded fall=none landing=none age=0 armed=no weaponId=0 weaponCategory=-1 workspot=no anim=none double=no vehicle=no
+[  OK  ] déconnexion PID 25204 : OK disconnect_requested reason=agent_loop_down
+[  OK  ] jeu arrêté (PID 25204)
+
+shop     PASS
+port     FAIL
