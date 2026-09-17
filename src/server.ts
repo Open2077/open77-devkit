@@ -313,8 +313,9 @@ export function createMcpServer(context: ServerContext): McpServer {
     {
       title: "Game data catalogues",
       description:
-        "Look up spawnable names: vehicles, weapons, items (clothing), npc-templates, props, vfx, sfx, animations, animsets. " +
-        "Query matches the record/path/name; returns the fields the server itself answers Open77.data.* from.",
+        "Look up spawnable names. Arguments: `catalogue` (one of vehicles, weapons, items (clothing), npc-templates, props, vfx, sfx, " +
+        "animations, animsets) and an optional `query`. Query matches the record/path/name; returns the fields the server itself " +
+        "answers Open77.data.* from. Vehicle records a player may spawn end in `_player` (the others are quest/scene vehicles).",
       inputSchema: {
         catalogue: z.string().describe("vehicles | weapons | items | npc-templates | props | vfx | sfx | animations | animsets"),
         query: z.string().optional().describe("Substring or words to match; omit for the catalogue summary"),

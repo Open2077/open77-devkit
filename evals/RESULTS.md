@@ -198,3 +198,37 @@ Not changed: whether a server toast sent at `onPlayerReady` is queued or lost wh
 WebUI is still coming up (the agent waited 3 s by analogy with the identity guide); whether
 `tostring(integer id)` equals the event's string id is asserted in the seat card from the host's
 `ToString()` and not measured with a real vehicle.
+
+## RP round, 2026-09-17 03:50–04:40: five agents write a roleplay server's basics on 0.1.2
+
+Five subagents, `@open2077/mcp@0.1.2` only, one resource each, with a shared contract for the
+cross-resource exports (`rp-round/PROMPT-COMMON.md`): `rp_economy` (wallet, payday, exports),
+`rp_jobs` (five jobs, courier mission with a spawned car, GPS waypoints and paid deliveries),
+`rp_shop` (consumables, weapons through the `open77_weapons` relay, vehicles, resale), `rp_chat`
+(`/me` `/do` `/ooc` `/w` `/dice` `/showid` with proximity audiences), `rp_medic` (paid heal /
+revive gated by the job, `/911`, `/medic`). All five validated OK first pass, compile with the
+server's own Lua (`--lint`), start on the eval server (op77 3ca1ca66, client 76) and answer every
+command from the console; `rp-round/rp_selftest` exercises the exports across VMs (8/8). The
+player-side paths wait for a client (the owner's was up all night). 40–49 MCP calls per agent.
+
+What the round found:
+
+- **Command names collide silently**: `/heal` belongs to `open77_admin` and `/revive` to
+  freeroam; a name registered by two resources is served by the first, with no error. The medic
+  verbs became `/soin` / `/reanimer`. Nothing in the MCP lists the names the platform already
+  owns — `open77_validate` should (from the resources the server dir loads).
+- `open77_events` said `chat:ready` had no documented payload (events.json predated the chat.md
+  row; regenerated, base #28). `Open77.time.monotonic` / `runtime.luaVersion` / `state.clear`
+  carried ~50 unrelated reasons (one-line table members read with the indentation reader;
+  fixed). The server-exports guide contradicted the `TriggerEvent` card (VM-local vs host bus;
+  fixed). Six examples passed a host-event string id to `chat.send` (fixed).
+- `open77_data` never named its `catalogue` argument (two agents lost a call); it does now, and
+  says which vehicle records are player-spawnable.
+- No server card for the `exports` registration global (guide prose only); `players.get().ready`
+  and `players.all()` element type undocumented (integers, measured); the `parameters` shape of
+  chat suggestions was a FiveM guess (now documented); `players.stats.read` /
+  `players.life.read` say "enforced by: client" while gating server natives.
+- `since` moved on thirty client cards when the surface history was rebuilt after a reader
+  change: main had been fast-forwarded onto a branch that merged main, and the `--first-parent`
+  walk no longer resolved release dates to the commits the builds were cut from. Release commits
+  are pinned in the history file now (base #28).
