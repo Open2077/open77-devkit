@@ -3053,7 +3053,7 @@ function Open77.chat.addSuggestion(target, command, help, parameters) end
 
 --- Publishes a list of slash-command suggestions at once.
 ---
---- Facade over `chat:addSuggestions`. `target` is a player id (a number) or `-1` for everyone; the list is an array of { command, help, parameters } tables. Usually sent from a `chat:ready` handler (raised by each player's chat UI once it is up; `source` is that player) and once from `onResourceStart` with `-1`, for the players already connected. Publishes on the host bus, so it answers `resource_preparing` at the top level of a script.
+--- Facade over `chat:addSuggestions`. `target` is a player id (a number) or `-1` for everyone; the list is an array of { command, help, parameters } tables, `parameters` being a list of { name, help } tables (FiveM's shape). Usually sent from a `chat:ready` handler (raised by each player's chat UI once it is up; `source` is that player) and once from `onResourceStart` with `-1`, for the players already connected. Publishes on the host bus, so it answers `resource_preparing` at the top level of a script.
 ---
 --- Since: 2.31.13+op77.67
 --- Reasons: event_argument_limit, event_payload_not_serializable, event_queue_limit, invalid_chat_suggestion, invalid_chat_target, invalid_event_name, reserved_hacking_event, resource_preparing, resource_stopping
@@ -6804,7 +6804,6 @@ function Open77.players.warpIntoVehicle(playerId, vehicleId, seat, options) end
 --- Needs a managed coroutine; outside one it answers nil, await_requires_scheduler_coroutine instead of blocking the server tick. Returns the callee's values on success and nil, reason on rejection, so a caller never has to pcall it.
 ---
 --- Since: 2.31.13+op77.45
---- Reasons: await_requires_scheduler_coroutine
 ---@return any the the resolved values, or nil, reason
 function Open77.Promise:await() end
 
@@ -6813,7 +6812,7 @@ function Open77.Promise:await() end
 --- Not chainable: it returns the id of the task it schedules, not a new promise, so p:next(a):next(b) does not work and sequences belong in a CreateThread with :await(). A rejection is recognised by shape -- the nil, <string reason> pair :await() returns for one -- which is this codebase's failure convention everywhere, so a promise deliberately resolved with a leading nil followed by a string reads as rejected. Answers nil, invalid_promise_handler for a non-function and nil, task_limit_or_stopping when no task slot is available.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_promise_handler, task_limit_or_stopping
+--- Reasons: invalid_promise_handler
 ---@param onResolved? function
 ---@param onRejected? function
 ---@return any task task id, or nil, reason
@@ -6824,7 +6823,7 @@ function Open77.Promise:next(onResolved, onRejected) end
 --- Same shape and same refusals as resolve. A non-string reason becomes promise_rejected, because the reason has to survive as text for the awaiter's nil, reason pair to mean anything.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: promise_already_settled, promise_not_local
+--- Reasons: promise_not_local
 ---@param reason? string
 ---@return any true true, or false, reason
 function Open77.Promise:reject(reason) end
@@ -6834,7 +6833,7 @@ function Open77.Promise:reject(reason) end
 --- Only a promise this resource created can be settled by hand: one returned by Open77.exports.call or Open77.net.callClient answers false, promise_not_local, and settling twice answers false, promise_already_settled. Values are passed through untouched on the server, where the client copies them across a serialization boundary.
 ---
 --- Since: 2.31.13+op77.67
---- Reasons: promise_already_settled, promise_not_local
+--- Reasons: promise_not_local
 ---@param ___? any
 ---@return any true true, or false, reason
 function Open77.Promise:resolve(___) end
@@ -7317,7 +7316,6 @@ function Open77.runtime.executeCommand(line) end
 --- No permission. Returns the interpreter's `_VERSION` string, for a resource that wants to record what it ran on.
 ---
 --- Since: 2.31.13+op77.45
---- Reasons: bucket_required_for_population, initial_damage_failed, invalid_ability, invalid_argument, invalid_attachment, invalid_attachment_target, invalid_bucket, invalid_crowd, invalid_item_record, invalid_key, invalid_limit, invalid_max_age, invalid_model, invalid_options, invalid_position, invalid_radius, invalid_record, invalid_scope, invalid_screen_effect, invalid_slot, invalid_stat_pool, invalid_target, invalid_target_kind, invalid_traffic, invalid_volume, invalid_wardrobe, invalid_weapon_ammo, invalid_weapon_options, invalid_weapon_slot, invalid_weapon_target, invalid_weapon_template, localization_client_only, not_attached, not_found, npc_attitude_invalid, npc_attitude_target_invalid, npc_behavior_invalid, npc_not_driving, npc_record_invalid, npc_task_invalid_duration, npc_task_invalid_point, npc_task_invalid_seat, npc_task_invalid_target, npc_task_invalid_workspot, npc_template_invalid, options_required, patch_must_be_table, position_stale, position_unknown
 ---@return any version version string
 function Open77.runtime.luaVersion() end
 
@@ -7443,7 +7441,6 @@ function Open77.state.allowRequest(selector, key, validator) end
 --- No permission. `save(nil)` under a clearer name: the next VM to start sees nothing and initialises from scratch.
 ---
 --- Since: 2.31.13+op77.45
---- Reasons: bucket_required_for_population, initial_damage_failed, invalid_ability, invalid_argument, invalid_attachment, invalid_attachment_target, invalid_bucket, invalid_crowd, invalid_item_record, invalid_key, invalid_limit, invalid_max_age, invalid_model, invalid_options, invalid_position, invalid_radius, invalid_record, invalid_scope, invalid_screen_effect, invalid_slot, invalid_stat_pool, invalid_target, invalid_target_kind, invalid_traffic, invalid_volume, invalid_wardrobe, invalid_weapon_ammo, invalid_weapon_options, invalid_weapon_slot, invalid_weapon_target, invalid_weapon_template, localization_client_only, not_attached, not_found, npc_attitude_invalid, npc_attitude_target_invalid, npc_behavior_invalid, npc_not_driving, npc_record_invalid, npc_task_invalid_duration, npc_task_invalid_point, npc_task_invalid_seat, npc_task_invalid_target, npc_task_invalid_workspot, npc_template_invalid, options_required, patch_must_be_table, position_stale, position_unknown
 ---@return any true true, or false
 ---@return any reason reason
 function Open77.state.clear() end
@@ -7806,7 +7803,6 @@ function Open77.statuses.remove(actionId) end
 --- No permission. The same unit and meaning as the client `Open77.time.monotonic`. Use it for durations: it never jumps backwards, unlike wall-clock time.
 ---
 --- Since: 2.31.13+op77.45
---- Reasons: bucket_required_for_population, initial_damage_failed, invalid_ability, invalid_argument, invalid_attachment, invalid_attachment_target, invalid_bucket, invalid_crowd, invalid_item_record, invalid_key, invalid_limit, invalid_max_age, invalid_model, invalid_options, invalid_position, invalid_radius, invalid_record, invalid_scope, invalid_screen_effect, invalid_slot, invalid_stat_pool, invalid_target, invalid_target_kind, invalid_traffic, invalid_volume, invalid_wardrobe, invalid_weapon_ammo, invalid_weapon_options, invalid_weapon_slot, invalid_weapon_target, invalid_weapon_template, localization_client_only, not_attached, not_found, npc_attitude_invalid, npc_attitude_target_invalid, npc_behavior_invalid, npc_not_driving, npc_record_invalid, npc_task_invalid_duration, npc_task_invalid_point, npc_task_invalid_seat, npc_task_invalid_target, npc_task_invalid_workspot, npc_template_invalid, options_required, patch_must_be_table, position_stale, position_unknown
 ---@return any seconds seconds (number)
 function Open77.time.monotonic() end
 

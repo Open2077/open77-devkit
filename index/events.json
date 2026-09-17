@@ -7,8 +7,12 @@
     "resource-server",
     "server"
    ],
-   "payload": "(source, name, text)",
+   "payload": "(playerId, playerName, text)",
    "guides": [
+    {
+     "file": "chat.md",
+     "anchor": "the-events-the-chat-raises-for-the-server"
+    },
     {
      "file": "server-api.md",
      "anchor": "the-host-wide-event-bus"
@@ -36,8 +40,12 @@
     "resource-client",
     "resource-server"
    ],
-   "payload": null,
+   "payload": "()",
    "guides": [
+    {
+     "file": "chat.md",
+     "anchor": "the-events-the-chat-raises-for-the-server"
+    },
     {
      "file": "elevators.md",
      "anchor": "reference-resource-and-commands"
@@ -362,12 +370,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 23659
+     "line": 23874
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 23808
+     "line": 24023
     },
     {
      "side": "resource-client",
@@ -589,7 +597,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 23475
+     "line": 23689
     },
     {
      "side": "resource-client",
@@ -844,7 +852,7 @@
     },
     {
      "file": "server-api.md",
-     "anchor": "resource-lifecycle-events"
+     "anchor": "feature-apis-at-a-glance"
     },
     {
      "file": "server-api.md",
@@ -1108,7 +1116,7 @@
     },
     {
      "file": "server-api.md",
-     "anchor": "resource-lifecycle-events"
+     "anchor": "feature-apis-at-a-glance"
     }
    ],
    "sources": [
@@ -1151,7 +1159,7 @@
     },
     {
      "file": "server-api.md",
-     "anchor": "resource-lifecycle-events"
+     "anchor": "feature-apis-at-a-glance"
     }
    ],
    "sources": [
@@ -1694,7 +1702,7 @@
     },
     {
      "file": "server-api.md",
-     "anchor": "resource-lifecycle-events"
+     "anchor": "feature-apis-at-a-glance"
     }
    ],
    "sources": [
@@ -2139,7 +2147,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 20789
+     "line": 20981
     },
     {
      "side": "resource-client",
@@ -2716,6 +2724,10 @@
    "payload": "(playerId, reason)",
    "guides": [
     {
+     "file": "chat.md",
+     "anchor": "server-api-open77chat"
+    },
+    {
      "file": "connection-control.md",
      "anchor": "where-the-gate-sits"
     },
@@ -2825,7 +2837,7 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/freeroam/server/main.lua",
-     "line": 1123
+     "line": 1143
     },
     {
      "side": "resource-server",
@@ -3020,6 +3032,10 @@
    ],
    "payload": "(playerId, vehicleId, seat)",
    "guides": [
+    {
+     "file": "chat.md",
+     "anchor": "server-api-open77chat"
+    },
     {
      "file": "server-api.md",
      "anchor": "lifetime"
@@ -3457,6 +3473,10 @@
    "payload": "(playerId, detail)",
    "guides": [
     {
+     "file": "chat.md",
+     "anchor": "server-api-open77chat"
+    },
+    {
      "file": "connection-control.md",
      "anchor": "where-the-gate-sits"
     },
@@ -3507,7 +3527,7 @@
     {
      "side": "resource-server",
      "file": "resources/gamemodes/freeroam/server/main.lua",
-     "line": 1118
+     "line": 1138
     },
     {
      "side": "resource-server",
@@ -3797,7 +3817,7 @@
     },
     {
      "file": "server-api.md",
-     "anchor": "resource-lifecycle-events"
+     "anchor": "feature-apis-at-a-glance"
     }
    ],
    "sources": [
@@ -3840,7 +3860,7 @@
     },
     {
      "file": "server-api.md",
-     "anchor": "resource-lifecycle-events"
+     "anchor": "feature-apis-at-a-glance"
     }
    ],
    "sources": [
@@ -3915,6 +3935,14 @@
    ],
    "payload": "(resourceName)",
    "guides": [
+    {
+     "file": "chat.md",
+     "anchor": "server-api-open77chat"
+    },
+    {
+     "file": "chat.md",
+     "anchor": "the-events-the-chat-raises-for-the-server"
+    },
     {
      "file": "mods.md",
      "anchor": "worked-example-a-nexus-vehicle-on-the-freeroam-server"
@@ -6103,7 +6131,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19685
+     "line": 19877
     },
     {
      "side": "server",
@@ -6127,7 +6155,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19686
+     "line": 19878
     },
     {
      "side": "server",
@@ -8008,7 +8036,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19005
+     "line": 19188
     },
     {
      "side": "server",
@@ -8087,7 +8115,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19006
+     "line": 19189
     },
     {
      "side": "server",
@@ -8150,7 +8178,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19006
+     "line": 19189
     },
     {
      "side": "server",
@@ -8203,7 +8231,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19005
+     "line": 19188
     },
     {
      "side": "server",
@@ -9173,12 +9201,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15788
+     "line": 15971
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15790
+     "line": 15973
     },
     {
      "side": "resource-client",
@@ -9222,7 +9250,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 20339
+     "line": 20531
     },
     {
      "side": "server",
@@ -11799,12 +11827,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 20045
+     "line": 20237
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 20089
+     "line": 20281
     },
     {
      "side": "server",
@@ -11881,7 +11909,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 75
+     "line": 78
     },
     {
      "side": "server",
@@ -11909,12 +11937,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 92
+     "line": 95
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 24351
+     "line": 24567
     }
    ],
    "documented": true,
@@ -12023,7 +12051,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19036
+     "line": 19219
     },
     {
      "side": "server",
@@ -12265,7 +12293,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 88
+     "line": 91
     },
     {
      "side": "server",
@@ -12312,7 +12340,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18666
+     "line": 18849
     },
     {
      "side": "server",
@@ -12336,7 +12364,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18667
+     "line": 18850
     },
     {
      "side": "server",
@@ -12360,7 +12388,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18654
+     "line": 18837
     },
     {
      "side": "server",
@@ -12384,7 +12412,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18668
+     "line": 18851
     },
     {
      "side": "server",
@@ -12408,7 +12436,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18904
+     "line": 19087
     },
     {
      "side": "server",
@@ -12437,7 +12465,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18665
+     "line": 18848
     },
     {
      "side": "server",
@@ -12569,7 +12597,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 20775
+     "line": 20967
     },
     {
      "side": "resource-client",
@@ -12922,7 +12950,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 87
+     "line": 90
     },
     {
      "side": "server",
@@ -14035,12 +14063,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19957
+     "line": 20149
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19968
+     "line": 20160
     },
     {
      "side": "server",
@@ -14552,12 +14580,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18994
+     "line": 19177
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 24095
+     "line": 24311
     },
     {
      "side": "server",
@@ -14587,7 +14615,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19687
+     "line": 19879
     },
     {
      "side": "server",
@@ -14602,7 +14630,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 80
+     "line": 83
     }
    ]
   },
@@ -14657,12 +14685,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18998
+     "line": 19181
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 24104
+     "line": 24320
     },
     {
      "side": "server",
@@ -14687,12 +14715,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19000
+     "line": 19183
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 24105
+     "line": 24321
     },
     {
      "side": "server",
@@ -14732,7 +14760,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 24096
+     "line": 24312
     }
    ]
   },
@@ -14742,12 +14770,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19003
+     "line": 19186
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 24106
+     "line": 24322
     },
     {
      "side": "server",
@@ -14837,12 +14865,12 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18996
+     "line": 19179
     },
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 24094
+     "line": 24310
     },
     {
      "side": "server",
@@ -14907,7 +14935,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 76
+     "line": 79
     },
     {
      "side": "client",
@@ -14932,7 +14960,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18662
+     "line": 18845
     },
     {
      "side": "server",
@@ -14987,7 +15015,7 @@
     {
      "side": "client",
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 24075
+     "line": 24291
     }
    ]
   },

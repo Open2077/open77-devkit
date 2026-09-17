@@ -1909,6 +1909,17 @@ function Open77.camera.cameras() end
 ---@return any true true, or false, reason
 function Open77.camera.clearOrbit() end
 
+--- Configures the playable third-person camera's framing, anchor, FOV and shoulder.
+---
+--- Client-only; requires `camera.style`. Acquires an exclusive resource-instance style or patches the caller's existing configuration. `style` selects `classic`, `shoulder` or `centered` and resets that preset before applying other fields; without it, fields patch the current configuration (classic on first use). `anchor` is `eyes` or `body` (feet), stable gameplay pivots rather than animated bones. `hip`, `aim` and `explore` accept distance (0.8..8 metres), offset (vector3 or complete x/y/z table: view-right -2..2, view-forward -1..1, world-up -1.5..3 metres), and fov (0 to restore the captured gameplay lens, otherwise 40..110 native component degrees). Other fields: shoulder (`left`/`right`), transition (0..3 seconds, default 0.3), runSpeed (0.5..15 m/s, default 2.5), runFov and sprintFov (0 disabled or 40..110). Aiming overrides sprint, which overrides running. Collision and native-camera safety still win. Unknown fields and invalid/non-finite values are rejected atomically. Does not enable TPP: use `Open77.perspective.setThirdPerson` separately. Stop/reload, coroutine failure and host teardown release the claim. Errors include `permission_denied:camera.style`, `camera_style_unavailable`, `invalid_camera_style_fields`, `invalid_camera_style` and `camera_style_owned`.
+---
+--- Permissions: camera.style
+--- Since: 2.31.13+op77.78
+---@param options table
+---@return any true true on success, otherwise false
+---@return any reason reason on failure
+function Open77.camera.configureThirdPerson(options) end
+
 --- Creates a scripted camera and returns its id.
 ---
 --- Client-only; requires `camera.script`. Nothing is rendered until `activate`. Options: `position` (world vector3, required unless `attachTo`), `attachTo` (entity; `0` is the local player's body), `offset` (vector3 in the parent's frame, X right / Y forward / Z up; also accepted as `position`), `lookAt` (a world vector3 OR an entity, re-solved every frame), `rotation` (quaternion `{x,y,z,w}` or Euler degrees `{pitch,yaw,roll}`, used when there is no `lookAt`), `fov` (5..170 degrees; omit or 0 to leave the engine's field of view alone). 16 cameras per resource, 64 per client. See the Scripted cameras guide.
@@ -2010,6 +2021,16 @@ function Open77.camera.orbit(yawDegrees) end
 ---@return any reason reason
 function Open77.camera.project(position) end
 
+--- Releases this resource's camera style and shake, restoring underlying framing and FOV.
+---
+--- Client-only; requires `camera.style`. Releases the caller's style and shake and blends back to the underlying framing and captured gameplay lens. Does not turn third person off, clear a perspective lock or alter server policy. Safe when no style is configured; another resource's style returns `camera_style_owned` instead of being reset. Other errors: `permission_denied:camera.style`, `camera_style_unavailable`. Stop/reload, coroutine failure and host teardown also release the style automatically.
+---
+--- Permissions: camera.style
+--- Since: 2.31.13+op77.78
+---@return any true true on success, otherwise false
+---@return any reason reason on failure
+function Open77.camera.resetThirdPerson() end
+
 --- Unproject a normalized screen point into a world-space ray.
 ---
 --- Requires world.query. x/y use normalized top-left viewport coordinates in [0,1]. maxDistance defaults to 100 metres and must be finite in [0.1,1000]. Returns origin, unit direction, endpoint position and maxDistance; this is not a collision result. Uses the active camera and checks projection consistency. Returns nil/reason if the camera or projection is unavailable. Identical global alias: Screen2DPointTo3DSpace. See screen-picking.md and context-menu.md. Requires the new screen-picking client, not the earlier .62 release.
@@ -2072,6 +2093,17 @@ function Open77.camera.setTransform(camId, position, rotation) end
 ---@return any true true, or false, reason
 function Open77.camera.shake(camId, preset, amplitude, milliseconds) end
 
+--- Starts or replaces a finite positional shake on the caller's playable TPP style.
+---
+--- Client-only; requires `camera.style` and a style already owned via configureThirdPerson. options: amplitude (vector3 or complete x/y/z table, each 0..0.2 metres, default 0.02/0.01/0.015), frequency (0.1..20 Hz, default 8), duration (0.05..10 seconds, default 0.5). Axes are view-right, view-forward, world-up. Shakes move the pivot before collision resolution; they do not rotate aim, inject roll or change player position. Natural attack/release envelope; a new shake replaces the old one rather than stacking. Wall-clock expiry continues while another camera owns the view. Unknown fields and invalid/non-finite values are refused. Errors: `permission_denied:camera.style`, `camera_style_unavailable`, `invalid_camera_shake`, `camera_style_not_owned`. Cleanup follows the owning style's lifecycle; do not restart it every frame.
+---
+--- Permissions: camera.style
+--- Since: 2.31.13+op77.78
+---@param options table
+---@return any true true on success, otherwise false
+---@return any reason reason on failure
+function Open77.camera.shakeThirdPerson(options) end
+
 --- Stops a scripted camera's shake immediately.
 ---
 --- Requires `camera.script`. Cancels the shake started by `Open77.camera.shake` on that camera and leaves the camera itself where it is -- it is not a deactivate, and a camera with no shake running accepts it without complaint, so a cleanup path may call it unconditionally. Refuses with `permission_denied:camera.script`, `camera_unavailable_on_this_host` when the host exposes no scripted-camera backend, `invalid_camera_id`, or `camera_not_found` for a camera this resource does not own. Shakes are released with the camera, so a resource that stops does not leave the view trembling.
@@ -2083,9 +2115,19 @@ function Open77.camera.shake(camId, preset, amplitude, milliseconds) end
 ---@return any true true, or false, reason
 function Open77.camera.stopShake(camId) end
 
---- Switches the view to third person.
+--- Immediately stops only the calling resource's third-person camera shake.
 ---
---- Turning it off restores the view the game had before the call, rather than some default.
+--- Client-only; requires `camera.style`. Safe when the caller owns no shake and never stops another resource's effect. Keeps the style and selected perspective unchanged. Explicit stop is immediate, unlike the natural expiry envelope. Errors: `permission_denied:camera.style`, `camera_style_unavailable`.
+---
+--- Permissions: camera.style
+--- Since: 2.31.13+op77.78
+---@return any true true on success, otherwise false
+---@return any reason reason on failure
+function Open77.camera.stopThirdPersonShake() end
+
+--- Controls the legacy camera-only third-person path.
+---
+--- Legacy camera-only control, not the playable perspective arbiter. Prefer `Open77.perspective.setThirdPerson(enabled, force)` to switch or lock the playable FPP/TPP view, and `Open77.camera.configureThirdPerson(options)` for shoulder framing, anchors, movement FOV and shake. The legacy call changes the camera without coordinating all body, weapon and input owners. Turning it off restores the view the game had before the call, rather than some default.
 ---
 --- Since: 2.31.0+op77.3
 ---@param enabled boolean
@@ -2094,6 +2136,15 @@ function Open77.camera.stopShake(camId) end
 ---@return any true true on success, otherwise false
 ---@return any reason reason for the refusal
 function Open77.camera.thirdPerson(enabled, distance, height) end
+
+--- Reads the requested third-person camera style and whether it is active or owned.
+---
+--- Client-only read; no permission required. Returns configured, owned (by the calling resource), active, shaking, appliedFov, and the full configuration: style, anchor, shoulder, hip/aim/explore (distance, offset, fov), transition, runSpeed, runFov and sprintFov. style names the base preset, even after custom patches. active is false while FPP, a native vehicle/scripted camera or wardrobe owns the view; a configured style resumes when the playable TPP rig returns. appliedFov is the last rig-written FOV, not necessarily the current camera's lens; use `Open77.camera.view()` for the rendered view. Returns `nil, camera_style_unavailable` when the backend is absent.
+---
+--- Since: 2.31.13+op77.78
+---@return any snapshot snapshot table, or nil on failure
+---@return any reason reason on failure
+function Open77.camera.thirdPersonState() end
 
 --- Ends a follow camera: blends the view back, then destroys it.
 ---
@@ -3544,6 +3595,19 @@ function Open77.hud.menu(preset) end
 ---@return any failure failure reason
 function Open77.hud.notify(text, options) end
 
+--- Hides gameplay HUD and nonfocused resource interfaces with animated letterbox bars.
+---
+--- Client-only; requires `ui.vanilla.hud`. enabled must be a boolean; optional height is a finite fraction of the viewport for EACH black bar, 0.01..0.4 (default 0.12). true holds a resource-instance cinematic claim; false releases only the caller's claim. Multiple resources cooperate and the greatest requested height wins. Masks native HUD including minimap, nonfocused Open77 WebUI pages including watermark/chat history/Freeroam HUD, and native world labels/debug overlays. Focused chat or menus remain accessible when opened, as does the developer console. Rendering is gated without destroying pages or changing their visibility state. Existing HUD hide claims, including the same resource's ordinary claims, survive release. Stop/reload, coroutine failure and host teardown clean up automatically. Does not change camera, pause gameplay, mute audio or affect other players. Distinct from the open77_uikit letterbox-only helper. Errors: `permission_denied:ui.vanilla.hud`, `invalid_cinematic_arguments`, `invalid_cinematic_height`, `cinematic_unavailable_on_this_host`.
+---
+--- Permissions: ui.vanilla.hud
+--- Since: 2.31.13+op77.78
+--- Reasons: cinematic_unavailable_on_this_host, invalid_cinematic_arguments, invalid_cinematic_height, permission_denied:ui.vanilla.hud
+---@param enabled boolean
+---@param height? number
+---@return any true true on success, otherwise false
+---@return any reason reason on failure
+function Open77.hud.setCinematic(enabled, height) end
+
 --- Hides or restores one stock HUD component for this resource.
 ---
 --- Requires `ui.vanilla.hud`. Passing `false` adds this resource's hide claim; passing `true` releases only its own claim. Another resource may still keep the component hidden. Claims are released automatically when the resource stops or reloads. Canonical components are `minimap`, `compass`, `clock`, `health`, `stamina`, `weapon`, `speedometer`, `questTracker`, `phone`, `scanner`, `vanillaNotifications`, `crosshair` and `hubMenu`; the selector `all` claims or releases every one of them at once. Names are case-insensitive. `scanner` also refuses scanner activation, because an invisible scanner would still hold aim snap and the movement restriction.
@@ -4586,6 +4650,15 @@ function Open77.npcs.whenReady(id, timeoutMs) end
 ---@return any reason reason for the refusal
 function Open77.perspective.applyPolicy(policy, perspective) end
 
+--- Releases this resource's temporary FPP/TPP lock without changing player preference.
+---
+--- Client-only; no permission required and no arguments accepted. Idempotent: releases only the calling resource instance's override, never another resource's. Preserves the player's pre-lock preference, camera style and server perspective policy. Native-camera safety and server policy still determine the effective view after release. Stop/reload, coroutine failure and host teardown also release the owner's override automatically. To release a lock AND request a different view, use setThirdPerson(enabled, false) instead. Errors: `invalid_perspective_arguments`, `perspective_unavailable_on_this_host`.
+---
+--- Since: 2.31.13+op77.78
+---@return any true true on success, otherwise false
+---@return any reason reason on failure
+function Open77.perspective.clearThirdPersonOverride() end
+
 --- Returns the perspective actually in force.
 ---
 --- `fpp` or `tps`, read from the committed camera owner rather than from the request -- intention is not evidence, which is the same rule `camera.state` had to learn. An engine-owned view (a vehicle camera, a cutscene) reads `fpp`, because that is what the player sees; `Open77.perspective.state().camera` keeps the distinction.
@@ -4597,7 +4670,7 @@ function Open77.perspective.get() end
 
 --- Asks the perspective arbiter for first or third person.
 ---
---- Records the local player's standing request. It is a REQUEST, not a switch: `Api::PerspectiveArbiter` owns the six ownership values -- camera, body, input, weapon, effects, audio -- and moves them together, and every world state (vehicle, workspot, death, photo mode, an unaccounted-for camera) outranks the player. A server policy outranks them too, and a request the policy refuses is still stored, so that lifting a `forced` pin returns the player to what they wanted rather than dropping them somewhere arbitrary; that refusal is reported as `refused_by_policy`. Accepts `fpp`/`first`/`1` and `tps`/`tpp`/`third`/`3`. Never reach past this to `Open77.camera.thirdPerson`: that moves one of the six owners and leaves five behind, which is the split state the arbiter exists to prevent.
+--- Records the local player's standing request. It is a REQUEST, not a switch: the perspective arbiter coordinates camera, body, input, weapon, effects and audio. Native vehicle/workspot/death/photo-mode safety and server policy take priority; a server-policy refusal is reported as `refused_by_policy` while remembering the request. A temporary resource lock created by setThirdPerson(enabled, true) is different: it refuses an opposing request without changing the pre-lock preference, and does not record a same-view request either. Accepts `fpp`/`first`/`1` and `tps`/`tpp`/`third`/`3`. Use setThirdPerson for a boolean switch or resource-owned lock and configureThirdPerson for camera style. Do not bypass the arbiter with legacy camera.thirdPerson, which changes only the camera owner.
 ---
 --- Since: 2.31.4+op77.11
 ---@param mode string
@@ -4605,9 +4678,21 @@ function Open77.perspective.get() end
 ---@return any reason reason for the refusal
 function Open77.perspective.set(mode) end
 
+--- Requests first/third person, optionally locking that view for this resource.
+---
+--- Client-only. enabled and optional force must be strict booleans; force defaults to false. Ordinary true/false requests TPP/FPP without a permission and leaves F7 available, subject to existing locks and server policy. force=true requires `perspective.policy`: (true,true) locks TPP; (false,true) locks FPP. This exclusive resource-instance lock preserves the player's remembered pre-lock preference, including when F7 is pressed. A rival forced request returns `perspective_owned`. force=false first releases the caller's own previous lock, then requests the selected view; it cannot clear another resource's lock. Native vehicle/cutscene/safety states and server disabled/forced policy win. Conflicting server policy rejects a new lock with `refused_by_policy`; existing locks resume after policy permits them again. Stop/reload, coroutine failure and host teardown release the lock automatically. No per-frame loop is needed. Does not configure camera style or broadcast a network view: use server setPolicy for global policy. Other errors: `invalid_perspective_arguments`, `permission_denied:perspective.policy` (forced calls only), `perspective_unavailable_on_this_host`. Inspect state for the effective view rather than assuming acceptance means the TPP camera currently owns the screen.
+---
+--- Permissions: perspective.policy
+--- Since: 2.31.13+op77.78
+---@param enabled boolean
+---@param force? boolean
+---@return any true true when accepted, otherwise false
+---@return any reason reason on failure
+function Open77.perspective.setThirdPerson(enabled, force) end
+
 --- Reports the whole perspective decision.
 ---
---- Returns `mode`, `requested`, `requestExpressed`, `policy`, `forced`, `allowed`, `engaged`, `available`, `settled`, `transition`, `reason`, `rule`, `tier`, the six owners (`camera`, `body`, `input`, `weapon`, `effects`, `audio`) and `violations`. `allowed` is false under a `disabled` or `forced` policy -- the moment a UI should grey its control out. `violations` counts the ticks on which the arbiter caught itself drawing two bodies or two weapons. A pure read, and unlike the `perspective.state` bridge command it works during a live session.
+--- Client-only read; no permission required. Returns mode, requested, requestExpressed, policy, forced, resourceForced (boolean), resourcePerspective (tps/fpp/none), allowed, engaged, aiming, available, settled, transition, reason, rule, tier, the six owners (camera, body, input, weapon, effects, audio), violations, unsupportedChecks, slideFrames, slideLifted, unsupportedFires and unsupportedSource. resourceForced/resourcePerspective describe a requested local resource lock, not guaranteed ownership of a native vehicle or cutscene camera: inspect mode, camera, reason and settled for the effective view. allowed is false under a disabled/forced server policy or while a resource lock exists; an active resource lock reports reason/rule `resource_forced`. violations counts ticks where the arbiter detected conflicting body/weapon ownership; unsupported fields are diagnostic gate counters. Reads work during a live session and may return nil with `perspective_unavailable_on_this_host` if unsupported.
 ---
 --- Since: 2.31.4+op77.11
 ---@return any table table, or nil
@@ -4616,7 +4701,7 @@ function Open77.perspective.state() end
 
 --- Flips the standing request and returns the new mode.
 ---
---- Flips the REQUEST, not the effective view. Sitting in a vehicle the view is first person whatever the preference says, and flipping the effective value would leave a player pressing the key twice to change anything once they got out. The one exception is a player who has never expressed a preference: there the effective view is inverted, so the first press of a fresh session cannot land on the perspective already in force and appear to do nothing.
+--- Flips the REQUEST, not the effective view. Native vehicle cameras keep their own rules regardless of the standing on-foot preference. For a player who has never expressed a preference, the effective view is inverted so the first press does not appear to do nothing. A temporary resource lock from setThirdPerson(enabled, true) blocks an opposing toggle and preserves the pre-lock preference; server policy and native-camera safety still take priority. Returns the new fpp/tps request on acceptance, or nil and a refusal reason.
 ---
 --- Since: 2.31.4+op77.11
 --- Reasons: perspective_unavailable_on_this_host
@@ -5682,7 +5767,7 @@ function Open77.screen.isFaded() end
 ---
 --- Permissions: screen.capture
 --- Since: 2.31.13+op77.73
---- Reasons: camera_busy, device_unavailable, invalid_capture_option:crop, invalid_capture_option:distance, invalid_capture_option:fov, invalid_entity, invalid_options, not_incarnated, promise_unavailable, target_not_streamed
+--- Reasons: invalid_options
 ---@param target? any
 ---@param options? table
 ---@return any promise promise, or nil, reason
@@ -6250,7 +6335,7 @@ function Open77.travel.teleport(x, y, z, heading) end
 ---
 --- Permissions: player.travel
 --- Since: 2.31.13+op77.67
---- Reasons: invalid_heading, invalid_options, invalid_position, promise_unavailable
+--- Reasons: invalid_position
 ---@param position any
 ---@param heading? number
 ---@param options? any

@@ -56,31 +56,31 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1749
+     "line": 1754
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1772
+     "line": 1777
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1773
+     "line": 1778
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1820
+     "line": 1825
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1821
+     "line": 1826
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1833
+     "line": 1838
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1834
+     "line": 1839
     }
    ]
   },
@@ -158,27 +158,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11507
+     "line": 11670
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11507
+     "line": 11670
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11537
+     "line": 11700
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11537
+     "line": 11700
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11552
+     "line": 11715
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11552
+     "line": 11715
     }
    ]
   },
@@ -197,19 +197,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1955
+     "line": 1960
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1956
+     "line": 1961
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1976
+     "line": 1981
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 1977
+     "line": 1982
     }
    ]
   },
@@ -242,59 +242,108 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2069
+     "line": 2201
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2238
+     "line": 2370
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2342
+     "line": 2474
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2432
+     "line": 2564
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2471
+     "line": 2603
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2498
+     "line": 2630
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2515
+     "line": 2647
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2552
+     "line": 2684
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2575
+     "line": 2707
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2595
+     "line": 2727
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2631
+     "line": 2763
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2673
+     "line": 2805
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2812
+     "line": 2944
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2882
+     "line": 3014
+    }
+   ]
+  },
+  {
+   "name": "camera.style",
+   "runtimes": [
+    "client"
+   ],
+   "summary": "Enforced by the client; gates 4 natives in Open77.camera.",
+   "curated": false,
+   "natives": [
+    "Open77.camera.configureThirdPerson",
+    "Open77.camera.resetThirdPerson",
+    "Open77.camera.shakeThirdPerson",
+    "Open77.camera.stopThirdPersonShake"
+   ],
+   "guides": [],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 2048
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 2048
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 2108
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 2108
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 2118
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 2118
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 2132
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 2132
     }
    ]
   },
@@ -312,11 +361,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7105
+     "line": 7268
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7108
+     "line": 7271
     }
    ]
   },
@@ -441,19 +490,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17950
+     "line": 18133
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17988
+     "line": 18171
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18038
+     "line": 18221
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18055
+     "line": 18238
     }
    ]
   },
@@ -475,7 +524,7 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8491
+     "line": 8654
     }
    ]
   },
@@ -495,11 +544,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8496
+     "line": 8659
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8548
+     "line": 8711
     }
    ]
   },
@@ -665,71 +714,71 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14937
+     "line": 15120
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14994
+     "line": 15177
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15060
+     "line": 15243
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15113
+     "line": 15296
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15155
+     "line": 15338
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15202
+     "line": 15385
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15287
+     "line": 15470
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15336
+     "line": 15519
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15438
+     "line": 15621
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15483
+     "line": 15666
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15523
+     "line": 15706
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15575
+     "line": 15758
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15691
+     "line": 15874
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15715
+     "line": 15898
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15740
+     "line": 15923
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15820
+     "line": 16003
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15855
+     "line": 16038
     }
    ]
   },
@@ -749,11 +798,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15329
+     "line": 15512
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 15365
+     "line": 15548
     }
    ]
   },
@@ -776,11 +825,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17875
+     "line": 18058
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17875
+     "line": 18058
     }
    ]
   },
@@ -803,11 +852,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17841
+     "line": 18024
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17841
+     "line": 18024
     }
    ]
   },
@@ -831,35 +880,35 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6107
+     "line": 6270
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6113
+     "line": 6276
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6130
+     "line": 6293
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6150
+     "line": 6313
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6168
+     "line": 6331
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6182
+     "line": 6345
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6213
+     "line": 6376
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6233
+     "line": 6396
     }
    ]
   },
@@ -948,55 +997,55 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18575
+     "line": 18758
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18578
+     "line": 18761
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18640
+     "line": 18823
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18643
+     "line": 18826
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18957
+     "line": 19140
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 18960
+     "line": 19143
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19042
+     "line": 19225
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19045
+     "line": 19228
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19739
+     "line": 19931
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19742
+     "line": 19934
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19844
+     "line": 20036
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 19845
+     "line": 20037
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 20516
+     "line": 20708
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Callbacks.cs",
@@ -1044,11 +1093,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16363
+     "line": 16546
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16364
+     "line": 16547
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
@@ -1079,7 +1128,7 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16298
+     "line": 16481
     }
    ]
   },
@@ -1088,10 +1137,11 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 1 native in Open77.perspective.",
+   "summary": "Enforced by the client; gates 2 natives in Open77.perspective.",
    "curated": false,
    "natives": [
-    "Open77.perspective.applyPolicy"
+    "Open77.perspective.applyPolicy",
+    "Open77.perspective.setThirdPerson"
    ],
    "guides": [
     "perspective.md"
@@ -1099,11 +1149,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3726
+     "line": 3860
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3734
+     "line": 3872
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 3896
     }
    ]
   },
@@ -1126,19 +1180,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14373
+     "line": 14556
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14374
+     "line": 14557
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14406
+     "line": 14589
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14407
+     "line": 14590
     }
    ]
   },
@@ -1161,19 +1215,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4464
+     "line": 4626
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4484
+     "line": 4646
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4514
+     "line": 4676
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4551
+     "line": 4713
     }
    ]
   },
@@ -1199,43 +1253,43 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5276
+     "line": 5438
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5287
+     "line": 5449
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5301
+     "line": 5463
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5314
+     "line": 5476
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13442
+     "line": 13625
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13457
+     "line": 13640
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13676
+     "line": 13859
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13691
+     "line": 13874
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13702
+     "line": 13885
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14886
+     "line": 15069
     }
    ]
   },
@@ -1256,15 +1310,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12239
+     "line": 12402
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13527
+     "line": 13710
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13718
+     "line": 13901
     }
    ]
   },
@@ -1284,15 +1338,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3996
+     "line": 4158
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4006
+     "line": 4168
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4022
+     "line": 4184
     }
    ]
   },
@@ -1322,75 +1376,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13976
+     "line": 14159
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13977
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 13995
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 13996
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14012
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14013
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14046
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14047
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14062
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14063
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14078
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14079
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14101
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14102
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14149
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14150
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 14177
+     "line": 14160
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
      "line": 14178
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14179
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
@@ -1399,6 +1397,62 @@
     {
      "file": "scripting/src/ResourceHost.cpp",
      "line": 14196
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14229
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14230
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14245
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14246
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14261
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14262
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14284
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14285
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14332
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14333
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14360
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14361
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14378
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 14379
     }
    ]
   },
@@ -1419,27 +1473,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13717
+     "line": 13900
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13718
+     "line": 13901
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14121
+     "line": 14304
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14122
+     "line": 14305
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14760
+     "line": 14943
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14761
+     "line": 14944
     }
    ]
   },
@@ -1457,11 +1511,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14237
+     "line": 14420
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14238
+     "line": 14421
     }
    ]
   },
@@ -1483,27 +1537,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12256
+     "line": 12419
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12523
+     "line": 12686
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12545
+     "line": 12708
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12557
+     "line": 12720
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12570
+     "line": 12733
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12601
+     "line": 12764
     }
    ]
   },
@@ -1530,47 +1584,47 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12251
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 12364
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 12387
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 12399
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
      "line": 12414
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12455
+     "line": 12527
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12467
+     "line": 12550
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12482
+     "line": 12562
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12506
+     "line": 12577
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12587
+     "line": 12618
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12615
+     "line": 12630
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 12645
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 12669
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 12750
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 12778
     }
    ]
   },
@@ -1589,15 +1643,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4382
+     "line": 4544
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4400
+     "line": 4562
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4426
+     "line": 4588
     }
    ]
   },
@@ -1616,19 +1670,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13852
+     "line": 14035
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13853
+     "line": 14036
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13882
+     "line": 14065
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13883
+     "line": 14066
     }
    ]
   },
@@ -1648,27 +1702,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13897
+     "line": 14080
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13898
+     "line": 14081
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13921
+     "line": 14104
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13922
+     "line": 14105
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13943
+     "line": 14126
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13944
+     "line": 14127
     }
    ]
   },
@@ -1688,27 +1742,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14529
+     "line": 14712
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14530
+     "line": 14713
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14553
+     "line": 14736
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14554
+     "line": 14737
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14570
+     "line": 14753
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14571
+     "line": 14754
     }
    ]
   },
@@ -1728,27 +1782,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14627
+     "line": 14810
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14628
+     "line": 14811
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14651
+     "line": 14834
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14652
+     "line": 14835
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14664
+     "line": 14847
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14665
+     "line": 14848
     }
    ]
   },
@@ -1768,27 +1822,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14696
+     "line": 14879
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14697
+     "line": 14880
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14719
+     "line": 14902
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14720
+     "line": 14903
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14732
+     "line": 14915
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14733
+     "line": 14916
     }
    ]
   },
@@ -1804,43 +1858,43 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9155
+     "line": 9318
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9156
+     "line": 9319
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9175
+     "line": 9338
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9176
+     "line": 9339
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9194
+     "line": 9357
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9195
+     "line": 9358
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9242
+     "line": 9405
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9243
+     "line": 9406
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9304
+     "line": 9467
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9305
+     "line": 9468
     }
    ]
   },
@@ -1856,11 +1910,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9137
+     "line": 9300
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9138
+     "line": 9301
     }
    ]
   },
@@ -1888,39 +1942,39 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3767
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 3774
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 3786
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 3811
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 3849
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 3880
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 3917
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
      "line": 3929
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3951
+     "line": 3936
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 3948
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 3973
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 4011
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 4042
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 4079
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 4091
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 4113
     }
    ]
   },
@@ -1948,43 +2002,43 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12649
+     "line": 12812
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12806
+     "line": 12969
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12840
+     "line": 13003
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12891
+     "line": 13054
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12902
+     "line": 13065
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12911
+     "line": 13074
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12974
+     "line": 13137
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13002
+     "line": 13165
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13061
+     "line": 13224
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13088
+     "line": 13251
     }
    ]
   },
@@ -2009,23 +2063,23 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12644
+     "line": 12807
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12793
+     "line": 12956
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 12934
+     "line": 13097
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13025
+     "line": 13188
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13111
+     "line": 13274
     }
    ]
   },
@@ -2185,43 +2239,43 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11601
+     "line": 11764
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11601
+     "line": 11764
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11614
+     "line": 11777
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11614
+     "line": 11777
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11621
+     "line": 11784
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11621
+     "line": 11784
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14588
+     "line": 14771
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14589
+     "line": 14772
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14610
+     "line": 14793
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14611
+     "line": 14794
     }
    ]
   },
@@ -2294,7 +2348,7 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8996
+     "line": 9159
     }
    ]
   },
@@ -2435,11 +2489,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11663
+     "line": 11826
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11664
+     "line": 11827
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.HoloCallEyes.cs",
@@ -2604,11 +2658,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8623
+     "line": 8786
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8997
+     "line": 9160
     }
    ]
   },
@@ -2754,11 +2808,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11586
+     "line": 11749
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11586
+     "line": 11749
     }
    ]
   },
@@ -2988,7 +3042,7 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8995
+     "line": 9158
     }
    ]
   },
@@ -3060,19 +3114,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13755
+     "line": 13938
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14803
+     "line": 14986
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14825
+     "line": 15008
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 14843
+     "line": 15026
     }
    ]
   },
@@ -3114,11 +3168,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 21190
+     "line": 21383
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 21193
+     "line": 21386
     }
    ]
   },
@@ -3181,19 +3235,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17620
+     "line": 17803
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17620
+     "line": 17803
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17643
+     "line": 17826
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17644
+     "line": 17827
     }
    ]
   },
@@ -3220,27 +3274,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17351
+     "line": 17534
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17351
+     "line": 17534
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17384
+     "line": 17567
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17384
+     "line": 17567
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17434
+     "line": 17617
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17434
+     "line": 17617
     }
    ]
   },
@@ -3258,11 +3312,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17703
+     "line": 17886
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 17703
+     "line": 17886
     }
    ]
   },
@@ -3280,11 +3334,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4744
+     "line": 4906
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4747
+     "line": 4909
     }
    ]
   },
@@ -3306,11 +3360,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4691
+     "line": 4853
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4701
+     "line": 4863
     }
    ]
   },
@@ -3335,39 +3389,39 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9872
+     "line": 10035
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9879
+     "line": 10042
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9926
+     "line": 10089
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9942
+     "line": 10105
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9953
+     "line": 10116
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9980
+     "line": 10143
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9996
+     "line": 10159
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10013
+     "line": 10176
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10029
+     "line": 10192
     }
    ]
   },
@@ -3376,7 +3430,7 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 10 natives in Open77.hud.",
+   "summary": "Enforced by the client; gates 11 natives in Open77.hud.",
    "curated": false,
    "natives": [
     "Open77.hud.clearNotify",
@@ -3386,6 +3440,7 @@
     "Open77.hud.log",
     "Open77.hud.menu",
     "Open77.hud.notify",
+    "Open77.hud.setCinematic",
     "Open77.hud.setVisible",
     "Open77.hud.state",
     "Open77.hud.subtitle"
@@ -3396,35 +3451,39 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13142
+     "line": 13305
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13159
+     "line": 13321
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13190
+     "line": 13342
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13227
+     "line": 13373
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13252
+     "line": 13410
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13379
+     "line": 13435
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13399
+     "line": 13562
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13421
+     "line": 13582
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 13604
     }
    ]
   },
@@ -3466,23 +3525,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10043
+     "line": 10206
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10500
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 10517
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 10658
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 10670
+     "line": 10663
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
@@ -3490,31 +3537,43 @@
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10694
+     "line": 10821
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10723
+     "line": 10833
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10739
+     "line": 10843
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10753
+     "line": 10857
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10783
+     "line": 10886
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10804
+     "line": 10902
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10822
+     "line": 10916
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 10946
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 10967
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 10985
     }
    ]
   },
@@ -3532,11 +3591,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8347
+     "line": 8510
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8478
+     "line": 8641
     }
    ]
   },
@@ -3557,11 +3616,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7099
+     "line": 7262
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7952
+     "line": 8115
     }
    ]
   },
@@ -3585,35 +3644,35 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7400
+     "line": 7563
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7448
+     "line": 7611
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7466
+     "line": 7629
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7481
+     "line": 7644
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7503
+     "line": 7666
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7522
+     "line": 7685
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7533
+     "line": 7696
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7551
+     "line": 7714
     }
    ]
   },
@@ -3634,11 +3693,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7340
+     "line": 7503
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7380
+     "line": 7543
     }
    ]
   },
@@ -3689,35 +3748,35 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7094
+     "line": 7257
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7740
+     "line": 7903
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8101
+     "line": 8264
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8254
+     "line": 8417
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8280
+     "line": 8443
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8306
+     "line": 8469
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8399
+     "line": 8562
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 8454
+     "line": 8617
     }
    ]
   },
@@ -3737,11 +3796,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16809
+     "line": 16992
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16816
+     "line": 16999
     }
    ]
   },
@@ -3778,31 +3837,7 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6254
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 6267
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 6342
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 6352
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 6383
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 6402
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 6413
+     "line": 6417
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
@@ -3810,19 +3845,7 @@
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6443
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 6459
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 6484
-    },
-    {
-     "file": "scripting/src/ResourceHost.cpp",
-     "line": 6501
+     "line": 6505
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
@@ -3830,19 +3853,55 @@
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6896
+     "line": 6546
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6910
+     "line": 6565
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6925
+     "line": 6576
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 24079
+     "line": 6593
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 6606
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 6622
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 6647
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 6664
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 6678
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 7059
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 7073
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 7088
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 24295
     }
    ]
   },
@@ -3893,11 +3952,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16962
+     "line": 17145
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16964
+     "line": 17147
     }
    ]
   },
@@ -3913,11 +3972,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16952
+     "line": 17135
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16954
+     "line": 17137
     }
    ]
   },
@@ -3933,15 +3992,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16927
+     "line": 17110
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16957
+     "line": 17140
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16959
+     "line": 17142
     }
    ]
   },
@@ -4008,19 +4067,19 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9738
+     "line": 9901
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9794
+     "line": 9957
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9825
+     "line": 9988
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9842
+     "line": 10005
     }
    ]
   },
@@ -4062,47 +4121,47 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6622
+     "line": 6785
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6678
+     "line": 6841
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6690
+     "line": 6853
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6702
+     "line": 6865
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6715
+     "line": 6878
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6747
+     "line": 6910
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6762
+     "line": 6925
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6782
+     "line": 6945
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6801
+     "line": 6964
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6836
+     "line": 6999
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6861
+     "line": 7024
     }
    ]
   },
@@ -4157,55 +4216,55 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16446
+     "line": 16629
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16500
+     "line": 16683
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16528
+     "line": 16711
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16566
+     "line": 16749
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16597
+     "line": 16780
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16625
+     "line": 16808
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16645
+     "line": 16828
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16670
+     "line": 16853
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16703
+     "line": 16886
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16727
+     "line": 16910
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16753
+     "line": 16936
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16762
+     "line": 16945
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 16770
+     "line": 16953
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.AttachedEffects.cs",
@@ -4327,31 +4386,31 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9347
+     "line": 9510
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9361
+     "line": 9524
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9389
+     "line": 9552
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9409
+     "line": 9572
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9422
+     "line": 9585
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9449
+     "line": 9612
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9462
+     "line": 9625
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Environment.cs",
@@ -4430,27 +4489,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 6993
+     "line": 7156
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7006
+     "line": 7169
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7017
+     "line": 7180
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7050
+     "line": 7213
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7069
+     "line": 7232
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 7080
+     "line": 7243
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
@@ -4482,27 +4541,27 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10838
+     "line": 11001
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10959
+     "line": 11122
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10984
+     "line": 11147
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10999
+     "line": 11162
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11012
+     "line": 11175
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11022
+     "line": 11185
     }
    ]
   },
@@ -4686,23 +4745,23 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9489
+     "line": 9652
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9503
+     "line": 9666
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9517
+     "line": 9680
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9531
+     "line": 9694
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9549
+     "line": 9712
     }
    ]
   },
@@ -4760,55 +4819,55 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11046
+     "line": 11209
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11335
+     "line": 11498
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11354
+     "line": 11517
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11372
+     "line": 11535
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11392
+     "line": 11555
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11679
+     "line": 11842
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11710
+     "line": 11873
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11726
+     "line": 11889
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11736
+     "line": 11899
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11763
+     "line": 11926
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11813
+     "line": 11976
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11832
+     "line": 11995
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11847
+     "line": 12010
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Attachments.cs",
@@ -4873,47 +4932,47 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 2986
+     "line": 3118
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3193
+     "line": 3325
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3212
+     "line": 3344
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3262
+     "line": 3394
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3410
+     "line": 3542
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3454
+     "line": 3586
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3470
+     "line": 3602
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 3488
+     "line": 3620
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4555
+     "line": 4717
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13829
+     "line": 14012
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 13830
+     "line": 14013
     },
     {
      "file": "scripting/src/GeometryBindings.inl",
@@ -4948,15 +5007,15 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9484
+     "line": 9647
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9569
+     "line": 9732
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9593
+     "line": 9756
     }
    ]
   },
@@ -4978,11 +5037,11 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9625
+     "line": 9788
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 9637
+     "line": 9800
     },
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.World6.cs",
@@ -5016,31 +5075,31 @@
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4856
+     "line": 5018
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4938
+     "line": 5100
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4957
+     "line": 5119
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 4973
+     "line": 5135
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5002
+     "line": 5164
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5033
+     "line": 5195
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 5063
+     "line": 5225
     }
    ]
   },
