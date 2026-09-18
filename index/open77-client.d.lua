@@ -403,6 +403,17 @@ function GetInvokingResource() end
 ---@return any integer integer, or nil
 function GetInvokingResourceGeneration() end
 
+--- Read this client's NPC presentation state for a player.
+---
+--- Requires players.model.read. Omit playerId or pass nil for the local player; an explicit ID must be a positive integer. Returns nil without an error for the original character, or a table with player, record, appearance, revision, entity, ready, status and optional failure. The entity handle is local and disposable, never a network player ID. Status is preparing, active, parked, not_streamed or failed. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.read
+--- Since: not in any published build
+---@param playerId? integer
+---@return any table table? state
+---@return any string string? reason
+function GetPlayerModel(playerId) end
+
 --- FiveM-style alias for `Open77.runtime.commands`.
 ---
 --- Client-side. Each entry carries `name`, `resource`, `restricted` and, when the registrar declared them, `help` and `parameters` -- two fields more than FiveM's, because the composer needs them to build a completion.
@@ -546,6 +557,28 @@ function IsPlayerInVehicle(playerId) end
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
 function IsPlayerJumping(playerId) end
+
+--- Check whether the model is ready on this client.
+---
+--- Requires players.model.read. Omitted/nil playerId selects the local player; explicit IDs must be positive integers. False means no active ready model, including the original character; nil, reason indicates failure. This is local projection readiness, not an acknowledgement from every observer. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.read
+--- Since: not in any published build
+---@param playerId? integer
+---@return any boolean boolean? ready
+---@return any string string? reason
+function IsPlayerModelReady(playerId) end
+
+--- Validate a Character record in the client's installed game data.
+---
+--- Requires players.model.read. Does not spawn or animate the model. True confirms an existing Character record, not compatibility of its rig, locomotion, seats or authored appearances. Invalid inputs and absent records return false, reason; permission failures return nil, reason. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.read
+--- Since: not in any published build
+---@param record string
+---@return any boolean boolean? valid
+---@return any string string? reason
+function IsPlayerModelValid(record) end
 
 --- Mounted in a non-driver seat.
 ---
@@ -4114,6 +4147,16 @@ function Open77.loot.setAuthorityEnabled(enabled) end
 ---@return any raison raison du refus
 function Open77.loot.upsert(drop) end
 
+--- Add a resource WebUI tab beside the native Map tab.
+---
+--- Client-only, map.control; after resource preparation. Options: id, label, exactly one of url (declared local web file) or page (owned, hidden WebUI), optional integer order. Returns qualified resource:id and the page. Max five custom tabs. Shell owns visibility/focus/bounds; pages keep state between visits. See native-map.md for events, ready handshake, errors and cleanup.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@param options table
+---@return any id id, page; or nil, reason
+function Open77.map.addTab(options) end
+
 --- Cancels this resource's outstanding native map request.
 ---
 --- Requires map.control. Returns true or false, reason. The requester receives open77:map:pointPicked with status='cancelled' when a picker was active. Resource shutdown also releases its UI ownership without delivering events to its replacement instance.
@@ -4132,6 +4175,25 @@ function Open77.map.cancelPick() end
 ---@return any boolean boolean, or false, reason
 function Open77.map.close() end
 
+--- Focus an owned map on a world position without moving the player.
+---
+--- Requires map.control and ownership acquired through open or pickPoint. Pass finite x/y/z within +/-16000. Returns an asynchronous request ID; commandResult reports application. Rejects closed, busy, unready or foreign-owned maps. See native-map.md.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@param position table
+---@return any requestId requestId, or nil, reason
+function Open77.map.focus(position) end
+
+--- Read the native map shell, appearance and registered tabs.
+---
+--- Client-only, map.read. Returns title, accentColor, activeTab, open, revision and tabs. Available while closed. Map is built in; resource tabs are namespaced. See native-map.md for WebUI lifecycle and ownership.
+---
+--- Permissions: map.read
+--- Since: not in any published build
+---@return any screen screen, or nil, reason
+function Open77.map.getScreen() end
+
 --- Reads the marker highlighted in the vanilla map.
 ---
 --- Requires map.read. Returns a marker table or nil. kind distinguishes waypoint, quest, poi, resource and unknown. Selection is not the same as the player's waypoint; highlighting a marker does not change navigation.
@@ -4140,6 +4202,15 @@ function Open77.map.close() end
 --- Since: 2.31.13+op77.57
 ---@return any value value, or nil, reason
 function Open77.map.getSelectedMarker() end
+
+--- Read the native map camera and readiness snapshot.
+---
+--- Requires map.read. Returns ready, zoomLevel, zoomLevels, zoom and cameraMode, or nil, reason. The native scalar zoom is not a world distance. Wait for ready before controlling an owned map. See native-map.md.
+---
+--- Permissions: map.read
+--- Since: not in any published build
+---@return any view view, or nil, reason
+function Open77.map.getView() end
 
 --- Reads the player's manual vanilla waypoint.
 ---
@@ -4159,7 +4230,7 @@ function Open77.map.getWaypoint() end
 ---@return any value value, or nil, reason
 function Open77.map.isOpen() end
 
---- Opens the vanilla map, optionally focused on a world location.
+--- Opens the standalone native map, optionally focused on a world location.
 ---
 --- Requires map.control. options.position={x,y,z} optionally focuses the map. Returns requestId, or nil, reason. Acceptance is asynchronous; observe open77:map:opened or open77:map:requestFailed. Respects game UI restrictions and exclusive ownership; map_busy means another map session exists.
 ---
@@ -4178,6 +4249,95 @@ function Open77.map.open(options) end
 ---@param options? table
 ---@return any requestId requestId, or nil, reason
 function Open77.map.pickPoint(options) end
+
+--- Recenter an owned native map on the local player.
+---
+--- Requires map.control and an open, ready map owned by this resource. Moves only the map camera. Returns a request ID or nil, reason; observe open77:map:commandResult. User-opened maps cannot be hijacked.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@return any requestId requestId, or nil, reason
+function Open77.map.recenter() end
+
+--- Unregister this resource's map shell tab.
+---
+--- Client-only, map.control. Local or qualified owned ID. Cannot remove Map or a foreign tab. Active removal returns to Map and releases focus. The page remains hidden; explicitly destroy it when no longer needed. Resource-stop cleanup is automatic.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@param id string
+---@return any true true, or nil, reason
+function Open77.map.removeTab(id) end
+
+--- Release this resource's map title and accent overrides.
+---
+--- Client-only, map.control; after resource preparation. Restores preceding resource claims or defaults, without clearing another resource's settings or unregistering any tabs.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@return any true true, or nil, reason
+function Open77.map.resetAppearance() end
+
+--- Select an owned WebUI tab or the native Map on an open shell.
+---
+--- Client-only, map.control. Accepts own local/qualified ID or map. Requires an open shell, rejects point-picker sessions and foreign tabs. Returns queue acceptance; applied next tick. Observe tabEntered/tabLeft (owner), tabChanged (map.read), or JS tabState. Does not implicitly open the map.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@param id string
+---@return any true true, or nil, reason
+function Open77.map.selectTab(id) end
+
+--- Set the native map shell's resource-owned accent color.
+---
+--- Client-only, map.control; after resource preparation. Exact #RRGGBB string. Updates the selected native tab and supplies the color to resource WebUIs through screenChanged/tabState events. Does not recolor the native roads or markers. See native-map.md.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@param color string
+---@return any true true, or nil, reason
+function Open77.map.setAccentColor(color) end
+
+--- Select the native top-down or perspective map camera.
+---
+--- Requires map.control and ownership of an open, ready map. mode must be top_down or perspective. Returns a request ID or nil, reason. Never changes the gameplay camera or teleports the player. See native-map.md for asynchronous result events and cleanup.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@param mode string
+---@return any requestId requestId, or nil, reason
+function Open77.map.setCameraMode(mode) end
+
+--- Rename this resource's native map shell tab.
+---
+--- Client-only, map.control. Local or qualified owned ID; label is 1-40 UTF-8 bytes, without controls or pipe. Updates live without recreating the browser or losing page state. Map and other resources' tabs are immutable to the caller.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@param id string
+---@param label string
+---@return any true true, or nil, reason
+function Open77.map.setTabLabel(id, label) end
+
+--- Customize the upper-left native map shell title.
+---
+--- Client-only, map.control; call after resource preparation. 1-120 UTF-8 bytes, no control characters or pipe. Resource-owned override: latest setter wins, resetAppearance or resource stop restores the preceding claim. See native-map.md.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@param text string
+---@return any true true, or nil, reason
+function Open77.map.setTitle(text) end
+
+--- Select a native discrete zoom level on an owned map.
+---
+--- Requires map.control and ownership of an open, ready map. level is an integer from 0 to getView().zoomLevels-1. Returns request ID or nil, reason. The ID acknowledges queueing, not camera-transition completion; observe commandResult and viewChanged.
+---
+--- Permissions: map.control
+--- Since: not in any published build
+---@param level integer
+---@return any requestId requestId, or nil, reason
+function Open77.map.setZoomLevel(level) end
 
 --- Reads a coherent native map snapshot.
 ---
@@ -5045,6 +5205,17 @@ function Open77.players.getLifeState(playerId) end
 ---@return any life life snapshot, or nil
 function Open77.players.getLocalDeathContext() end
 
+--- Read this client's NPC presentation state for a player.
+---
+--- Requires players.model.read. Omit playerId or pass nil for the local player; an explicit ID must be a positive integer. Returns nil without an error for the original character, or a table with player, record, appearance, revision, entity, ready, status and optional failure. The entity handle is local and disposable, never a network player ID. Status is preparing, active, parked, not_streamed or failed. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.read
+--- Since: not in any published build
+---@param playerId? integer
+---@return any table table? state
+---@return any string string? reason
+function Open77.players.getModel(playerId) end
+
 --- Reads a replicated player's canonical vehicle-seat assignment.
 ---
 --- Alias of `Open77.vehicles.getPlayerSeat`, exposed under the player namespace. Requires `vehicles.read`; omitting `playerId` selects the local player.
@@ -5152,6 +5323,28 @@ function Open77.players.isInVehicle(playerId) end
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
 function Open77.players.isJumping(playerId) end
+
+--- Check whether the model is ready on this client.
+---
+--- Requires players.model.read. Omitted/nil playerId selects the local player; explicit IDs must be positive integers. False means no active ready model, including the original character; nil, reason indicates failure. This is local projection readiness, not an acknowledgement from every observer. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.read
+--- Since: not in any published build
+---@param playerId? integer
+---@return any boolean boolean? ready
+---@return any string string? reason
+function Open77.players.isModelReady(playerId) end
+
+--- Validate a Character record in the client's installed game data.
+---
+--- Requires players.model.read. Does not spawn or animate the model. True confirms an existing Character record, not compatibility of its rig, locomotion, seats or authored appearances. Invalid inputs and absent records return false, reason; permission failures return nil, reason. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.read
+--- Since: not in any published build
+---@param record string
+---@return any boolean boolean? valid
+---@return any string string? reason
+function Open77.players.isModelValid(record) end
 
 --- Mounted in a non-driver seat.
 ---
@@ -5616,7 +5809,7 @@ function Open77.resource.readFile(path) end
 
 --- Reads a file another resource declared, as base64.
 ---
---- Requires `resources.files.read`, which only the bundled audio service holds: every other resource reads its own files with `Open77.resource.readFile`, and a resource holding this one can read any **declared** file of any resource, which is why the grant is visible in the manifest. Only files listed in the named resource's `files` entry are reachable -- scripts, the manifest itself and anything merely present on disk are not, so a resource author publishes deliberately rather than by accident. The updated client accepts up to 3 MiB of raw file data (older clients: 1 MiB). The 2 MiB WebUI JSON message cap is unchanged: the Base64 result of a larger file may not fit in one `page:send`. See [runtime quotas and client availability](/docs/resource-runtime#sandbox-and-quotas). Base64 is used because arbitrary binary data is not valid UTF-8. Refusals: `permission_denied:resources.files.read`, `invalid_resource_path`, `resource_not_found`, `file_not_declared`, `file_too_large`.
+--- Requires `resources.files.read`, reserved for the bundled audio service. Reads only files declared in the target resource's `files` list; scripts, manifests and undeclared disk files are inaccessible. Other resources use `Open77.resource.readFile` for their own files. Returns Base64 for binary-safe transport, up to 3 MiB raw data. Base64 expansion can exceed the separate 2 MiB WebUI JSON message cap; see [runtime quotas](/docs/resource-runtime#sandbox-and-quotas). Errors: `permission_denied:resources.files.read`, `invalid_resource_path`, `resource_not_found`, `file_not_declared`, `file_too_large`.
 ---
 --- Permissions: resources.files.read
 --- Since: 2.31.13+op77.67
@@ -7246,7 +7439,7 @@ function Open77.weapons.gadgets() end
 
 --- Grants a counted stack of grenades (or any quick-slot gadget) and puts it on the throw hotkey.
 ---
---- Requires `player.weapons.edit`. Native-parity E4. The record must be a `Gadget_Record` -- every 2.31 grenade is one (`Items.GrenadeFragRegular`, `Items.GrenadeEMPRegular`, `Items.Preset_Grenade_Smoke_Default`, ...; the `category = grenade` rows of `docs/generated/weapons-2.31.csv`); a weapon answers `template_is_not_gadget`. `count` is 1..999 units added to the stack. Unless `options.equip` is false, the stack is placed in quick slot 1 (`GameplayEquipRequest`) and assigned to `EHotkey.RB` (`HotkeyAssignmentRequest`) -- the path the privileged grenade fixture measured on 2026-09-05 -- and the completion is accepted only when both took. The completion carries `result.gadget = { slot, record, tweakDbId, quantity, active }` after one `open77:weapons:gadget` row. Refused by name: `invalid_gadget_template`, `template_is_not_gadget`, `invalid_gadget_count` now; `unsupported_gadget_area`, `item_creation_failed`, `equip_rejected`, `hotkey_rejected` from the bridge. See [Weapon Lua API](weapons-api.md#gadgets-grenades-in-the-quick-slots).
+--- Requires `player.weapons.edit`. The record must be a `Gadget_Record` -- every 2.31 grenade is one (`Items.GrenadeFragRegular`, `Items.GrenadeEMPRegular`, `Items.Preset_Grenade_Smoke_Default`, ...; the `category = grenade` rows of `docs/generated/weapons-2.31.csv`); a weapon answers `template_is_not_gadget`. `count` is 1..999 units added to the stack. Unless `options.equip` is false, the stack is placed in quick slot 1 (`GameplayEquipRequest`) and assigned to `EHotkey.RB` (`HotkeyAssignmentRequest`) and the completion is accepted only when both took. The completion carries `result.gadget = { slot, record, tweakDbId, quantity, active }` after one `open77:weapons:gadget` row. Refused by name: `invalid_gadget_template`, `template_is_not_gadget`, `invalid_gadget_count` now; `unsupported_gadget_area`, `item_creation_failed`, `equip_rejected`, `hotkey_rejected` from the bridge. See [Weapon Lua API](weapons-api.md#gadgets-grenades-in-the-quick-slots).
 ---
 --- Permissions: player.weapons.edit
 --- Since: 2.31.13+op77.73
@@ -7383,9 +7576,9 @@ function Open77.weapons.unequip(slot) end
 
 --- Creates a web surface.
 ---
---- **Creation is asynchronous.** A `show()` issued right after `create` loses the race against the `visible` flag the request carried, and the surface then never paints at all. So a surface meant to stay up is created with `visible = true`, and the page shows or hides its own content.
+--- Creates a WebUI asynchronously. For an initially visible surface, pass `visible = true`; calling `show()` immediately can race with creation. The page can then manage its own content visibility.
 ---
---- Valid layers: `hud`, `menu`, `modal` (requires `webui.modal`), `system` (requires `webui.system`), `debug` (requires `webui.debug`). The updated client also accepts HTTP(S) `entry` URLs without `web_files`; bundled entries still require declared files. External scripts, media, requests and embeds are allowed, while CORS and TLS remain enforced. Only the top-level configured entry origin receives the Lua bridge. See [remote WebUI and client availability](/docs/resource-runtime#remote-pages-external-content-and-hot-reload); older CDN clients may not support remote pages.
+--- Layers: `hud`, `menu`, `modal` (`webui.modal`), `system` (`webui.system`), `debug` (`webui.debug`). An HTTP(S) `entry` does not require `web_files`; bundled entries must be declared. External scripts, media, requests and embeds follow browser CORS and TLS rules. Only the configured top-level entry origin receives the Lua bridge. See [remote WebUI](/docs/resource-runtime#remote-pages-external-content-and-hot-reload) for runtime requirements.
 ---
 --- Since: 2.31.0+op77.3
 --- Reasons: invalid_webui_draw_bounds, invalid_webui_options
@@ -7396,7 +7589,7 @@ function Open77.webui.create(options) end
 
 --- The surface declared by `web_ui_page` in the manifest.
 ---
---- Returns the auto-created WebUI page declared by `ui_page` (alias `web_ui_page`) in the current manifest. The updated client accepts a declared local file or an HTTP(S) entry; see [remote WebUI and client availability](/docs/resource-runtime#remote-pages-external-content-and-hot-reload). It returns `nil, reason` when the resource has no live default page; the handle is generation-owned and becomes stale after destroy or reload.
+--- Returns the auto-created page declared by `ui_page` (alias `web_ui_page`) in the current manifest, or `nil, reason` if none is live. The entry can be a declared local file or an HTTP(S) URL. Handles belong to the resource generation and become stale after destroy or reload. See [remote WebUI](/docs/resource-runtime#remote-pages-external-content-and-hot-reload).
 ---
 --- Since: 2.31.0+op77.3
 ---@return any surface surface, or nil
@@ -7712,6 +7905,16 @@ function WebUI.Page:reply(requestId, payload, ok) end
 ---@param payload? table
 ---@return any boolean boolean
 function WebUI.Page:send(event, payload) end
+
+--- Consume selected navigation keys while preserving gameplay input.
+---
+--- Call page:setConsumedKeys(keys) before page:setFocus(true,false,true). Client-local, per-surface policy: selected keys still reach the browser but not Cyberpunk Raw Input or Open77 pause/scoreboard shortcuts. Accepts a dense array of at most 32 case-insensitive names: escape/esc, enter, tab, backspace, space, up/down/left/right (arrow aliases accepted), home, end, pageup, pagedown, insert and delete. Invalid input leaves the existing list unchanged; {} clears it for future presses. Active only while this visible, presentation-enabled page owns keyboard focus. Repeats and releases remain consumed if the keydown handler hides/destroys the page or changes focus. No arbitrary gameplay keys or controller-menu interception. No extra permission; keep-input still requires webui.keep_input. Check method availability before using this mode. See webui-input.md for the complete lifecycle and error contract.
+---
+--- Since: not in any published build
+---@param keys any
+---@return any boolean boolean
+---@return any string string? reason
+function WebUI.Page:setConsumedKeys(keys) end
 
 --- Gives the surface focus, cursor and keyboard separately.
 ---

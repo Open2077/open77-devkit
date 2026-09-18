@@ -841,6 +841,18 @@ function GetPlayerLifeState(playerId) end
 ---@return any reason reason
 function GetPlayerLocale(playerId) end
 
+--- Read the authoritative model selection and owner's readiness.
+---
+--- Requires players.model.read and a connected positive integer player ID. Returns nil without an error for the original model, or a table with player, record, appearance, revision, ready, resetOnDeath and optional remainingMs. Ready is the subject's presentation acknowledgement, not proof that every observer has streamed the body. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.read
+--- Since: not in any published build
+--- Reasons: invalid_player, permission_denied:players.model.read, player_models_unavailable, player_unavailable
+---@param playerId integer
+---@return any table table? state
+---@return any string string? reason
+function GetPlayerModel(playerId) end
+
 --- Low-level alias of `Open77.players.name`.
 ---
 --- The low-level form of `Open77.players.name` (bound to the same native). The two are the same function under two names; `Open77.players.name` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
@@ -1173,6 +1185,18 @@ function IsPlayerFrozen(playerId) end
 ---@param playerId any
 function IsPlayerGhosted(playerId) end
 
+--- Read the model owner's native presentation acknowledgement.
+---
+--- Requires players.model.read and a connected positive integer player ID. Returns false for the original character or a model still preparing; nil, reason is an error. Observe onPlayerModelReady(player, revision) for asynchronous readiness and match the requested revision. This does not certify observer rendering or every animation. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.read
+--- Since: not in any published build
+--- Reasons: invalid_player, permission_denied:players.model.read, player_models_unavailable, player_unavailable
+---@param playerId integer
+---@return any boolean boolean? ready
+---@return any string string? reason
+function IsPlayerModelReady(playerId) end
+
 --- Whether the canonical life state says this player is rendered.
 ---
 --- Whether the canonical life state says this player is rendered. Answered from the server bit, never probed from a client.
@@ -1500,6 +1524,18 @@ function RemoveVehicle(id) end
 --- Since: 2.31.13+op77.45
 ---@param playerId integer
 function RequestPlayerLifeResync(playerId) end
+
+--- Release this resource's model override and restore the original character.
+---
+--- Requires players.model.control and a connected positive integer player ID. Returns true when already original. Refuses model_owned_by_other_resource if another resource generation owns the override. Broadcasts restoration in the player's bucket and emits onPlayerModelChanged with a nil record and reason reset. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.control
+--- Since: not in any published build
+--- Reasons: invalid_player, permission_denied:players.model.control, player_models_unavailable, resource_stopping
+---@param playerId integer
+---@return any boolean boolean
+---@return any string string? reason
+function ResetPlayerModel(playerId) end
 
 --- Drops a custom paint job and returns the vehicle to its record's own colours.
 ---
@@ -1864,6 +1900,20 @@ function SetPlayerMaxHealth(playerId, maximum) end
 ---@param playerId any
 ---@param maximum any
 function SetPlayerMaxStamina(playerId, maximum) end
+
+--- Select a server-owned NPC body for a connected player.
+---
+--- Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0–86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.control
+--- Since: not in any published build
+--- Reasons: invalid_argument, invalid_options, permission_denied:players.model.control, player_models_unavailable, resource_stopping
+---@param playerId integer
+---@param record string
+---@param options? table
+---@return any boolean boolean accepted
+---@return any integer integer revision or string reason
+function SetPlayerModel(playerId, record, options) end
 
 --- Set health regeneration rate.
 ---
@@ -2791,7 +2841,7 @@ function Open77.animations.play(playerId, profileId, options) end
 
 --- Play a profile at a world pose: the placed form of play (TaskStartScenarioAtPosition).
 ---
---- Requires players.animations.control -- the same capability as play, because a placement is an animation with a pose, not a second power. The body is first moved to position with the given yaw (degrees about Z, the props convention) through the platform's own placement channel -- no fade, the same gate and settle watch a Warden move gets -- and once it stands there the workspot device is spawned under it and the posture plays: that is what sits a player on a chair that has no device of its own, leans them on a wall, or lies them on a bed. (The engine does not pull a body onto a device two metres away; measured 2026-09-16, so the server carries it.) The three portable postures are the chair, lean and lie profiles; any catalogue profile accepts a pose. The anchor must be within 5 m of the player's current position or the call is refused with anchor_too_far: past that a placement would be a teleport reachable without players.teleport, and Open77.players.teleport is the call that owns journeys. position is { x, y, z } or a three-element array; yaw is optional and defaults to 0. options are those of play (clip, durationMs, loop). Returns the accepted playback state with an anchor field; the playbackId is the handle stopAt takes. Resources see the accepted state at once; clients hear about the posture only when the body has arrived, and its clock starts then. The move watchdog is measured against the anchor and armed 5 s after acceptance; a body that never reaches its anchor in that window ends with anchor_unreached rather than moved. Acceptance is server authority, not proof -- observe onPlayerAnimationChanged. Refusals add invalid_anchor, anchor_too_far and anchor_move_refused (the body is not ready, not alive, or in a vehicle) to those of play. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
+--- Requires `players.animations.control`. Moves a player to an anchor, waits for placement, then starts a profile such as `chair`, `lean` or `lie`. Any catalogue profile accepts a pose. `position` is `{x, y, z}` or a three-element array; `yaw` is degrees about Z and defaults to 0. Options match `play`: `clip`, `durationMs`, `loop`. Anchors must be within 5 m; use `Open77.players.teleport` for longer moves. Returns accepted playback state with `anchor`; use `playbackId` with `stopAt`. The caller receives acceptance before clients receive the posture; playback timing starts on arrival. A 5-second anchor watchdog ends an unsuccessful placement with `anchor_unreached`. Observe `onPlayerAnimationChanged`; admission is not proof of rendered animation. Additional errors: `invalid_anchor`, `anchor_too_far`, `anchor_move_refused` (unready, dead or in a vehicle). Provided by the server runtime, without a resource-export dependency.
 ---
 --- Since: 2.31.13+op77.73
 --- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
@@ -4779,7 +4829,7 @@ function Open77.kvp.stats() end
 
 --- Writes a resource-prefixed debug line to the server log.
 ---
---- No permission. Writes to the resource-prefixed server logger at the `DBG` level, which a production log filter usually drops -- the place for per-tick chatter. `Citizen.Trace` is this function. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file. Until wave 6 (2026-09-16) all four levels printed at `INF`; since then the log line carries `DBG`.
+--- No permission. Writes to the resource-prefixed server logger at the `DBG` level, which a production log filter usually drops -- the place for per-tick chatter. `Citizen.Trace` is this function. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file.
 ---
 --- Since: 2.31.13+op77.45
 ---@param ___ any
@@ -4787,7 +4837,7 @@ function Open77.log.debug(___) end
 
 --- Writes a resource-prefixed error line to the server log.
 ---
---- No permission. Writes to the resource-prefixed server logger at the `ERR` level. It does not raise, abort the handler or mark the resource unhealthy: it is a log line, not an exception. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file. Until wave 6 (2026-09-16) all four levels printed at `INF`; since then the log line carries `ERR`.
+--- No permission. Writes to the resource-prefixed server logger at the `ERR` level. It does not raise, abort the handler or mark the resource unhealthy: it is a log line, not an exception. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file.
 ---
 --- Since: 2.31.13+op77.45
 ---@param ___ any
@@ -4795,7 +4845,7 @@ function Open77.log.error(___) end
 
 --- Writes a resource-prefixed informational line to the server log.
 ---
---- No permission. Writes to the resource-prefixed server logger at the `INF` level, the same one `print` writes at. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file. Until wave 6 (2026-09-16) all four levels printed at `INF`; since then the log line carries `INF`.
+--- No permission. Writes to the resource-prefixed server logger at the `INF` level, the same one `print` writes at. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file.
 ---
 --- Since: 2.31.13+op77.45
 ---@param ___ any
@@ -4803,7 +4853,7 @@ function Open77.log.info(___) end
 
 --- Writes a resource-prefixed warning line to the server log.
 ---
---- No permission. Writes to the resource-prefixed server logger at the `WRN` level, so an operator filtering a resource's warnings from its chatter sees only these. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file. Until wave 6 (2026-09-16) all four levels printed at `INF`; since then the log line carries `WRN`.
+--- No permission. Writes to the resource-prefixed server logger at the `WRN` level, so an operator filtering a resource's warnings from its chatter sees only these. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file.
 ---
 --- Since: 2.31.13+op77.45
 ---@param ___ any
@@ -6137,6 +6187,18 @@ function Open77.players.getHoloCallEyes(playerId) end
 ---@return any life life snapshot, or nil
 function Open77.players.getLifeState(playerId) end
 
+--- Read the authoritative model selection and owner's readiness.
+---
+--- Requires players.model.read and a connected positive integer player ID. Returns nil without an error for the original model, or a table with player, record, appearance, revision, ready, resetOnDeath and optional remainingMs. Ready is the subject's presentation acknowledgement, not proof that every observer has streamed the body. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.read
+--- Since: not in any published build
+--- Reasons: invalid_player, permission_denied:players.model.read, player_models_unavailable, player_unavailable
+---@param playerId integer
+---@return any table table? state
+---@return any string string? reason
+function Open77.players.getModel(playerId) end
+
 --- A player's combined health and stamina snapshot.
 ---
 --- Requires `players.stats.read`. `GetPlayerStats` is the same function, and `Open77.stats.get` is the preferred spelling for new resources.
@@ -6259,6 +6321,17 @@ function Open77.players.isFrozen(playerId) end
 ---@param playerId any
 ---@return any boolean boolean, or nil
 function Open77.players.isGhosted(playerId) end
+
+--- Read the model owner's native presentation acknowledgement.
+---
+--- Requires players.model.read and a connected positive integer player ID. Returns false for the original character or a model still preparing; nil, reason is an error. Observe onPlayerModelReady(player, revision) for asynchronous readiness and match the requested revision. This does not certify observer rendering or every animation. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.read
+--- Since: not in any published build
+---@param playerId integer
+---@return any boolean boolean? ready
+---@return any string string? reason
+function Open77.players.isModelReady(playerId) end
 
 --- Whether a player's body is rendered by other clients.
 ---
@@ -6404,6 +6477,18 @@ function Open77.players.requestLifeResync(playerId) end
 ---@return any promise promise, or nil
 ---@return any reason reason
 function Open77.players.requestScreenshot(playerId, options) end
+
+--- Release this resource's model override and restore the original character.
+---
+--- Requires players.model.control and a connected positive integer player ID. Returns true when already original. Refuses model_owned_by_other_resource if another resource generation owns the override. Broadcasts restoration in the player's bucket and emits onPlayerModelChanged with a nil record and reason reset. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.control
+--- Since: not in any published build
+--- Reasons: invalid_player, permission_denied:players.model.control, player_models_unavailable, resource_stopping
+---@param playerId integer
+---@return any boolean boolean
+---@return any string string? reason
+function Open77.players.resetModel(playerId) end
 
 --- Brings a DEAD player back to life at a chosen point.
 ---
@@ -6612,6 +6697,20 @@ function Open77.players.setMaxStamina(playerId, maximum) end
 ---@return any table table { level, maxLevel }, or nil
 ---@return any reason reason: permission_denied:players.wanted, invalid_player, invalid_wanted_level, player_unavailable
 function Open77.players.setMaxWanted(playerId, level) end
+
+--- Select a server-owned NPC body for a connected player.
+---
+--- Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0–86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+---
+--- Permissions: players.model.control
+--- Since: not in any published build
+--- Reasons: invalid_argument, permission_denied:players.model.control, player_models_unavailable, resource_stopping
+---@param playerId integer
+---@param record string
+---@param options? table
+---@return any boolean boolean accepted
+---@return any integer integer revision or string reason
+function Open77.players.setModel(playerId, record, options) end
 
 --- Sets a player's health regeneration rate.
 ---
@@ -9879,7 +9978,7 @@ function Open77.weapons.get(playerId) end
 
 --- Grants a player a counted stack of grenades (or any quick-slot gadget), equipped and on the throw hotkey.
 ---
---- Native-parity E4, over the weapon relay. `record` must be a `Gadget_Record` -- every 2.31 grenade (`Items.GrenadeFragRegular`, `Items.GrenadeEMPRegular`, `Items.Preset_Grenade_Smoke_Default`, ...; the `category = grenade` rows of `docs/generated/weapons-2.31.csv`). `count` is 1..999 units. Unless `options.equip` is false the owner places the stack in quick slot 1 and on the RB hotkey, the path the privileged grenade fixture measured on 2026-09-05, and accepts only when both took. The completion carries `result.gadget = { slot, record, tweakDbId, quantity, active }`; the owner's gadget report follows, so `Open77.weapons.gadgets(playerId)` then answers from the cache. Refusals by name: `invalid_player`, `invalid_gadget_template`, `invalid_gadget_count`, `invalid_weapon_options` now; `template_is_not_gadget`, `unsupported_gadget_area`, `item_creation_failed`, `equip_rejected`, `hotkey_rejected`, `request_timeout` on the completion. Like `assign`, this is a presentation grant: commit ownership in your own ledger first. See [Weapon Lua API](weapons-api.md#gadgets-grenades-in-the-quick-slots).
+--- Uses the weapon relay. `record` must be a `Gadget_Record` -- every 2.31 grenade (`Items.GrenadeFragRegular`, `Items.GrenadeEMPRegular`, `Items.Preset_Grenade_Smoke_Default`, ...; the `category = grenade` rows of `docs/generated/weapons-2.31.csv`). `count` is 1..999 units. Unless `options.equip` is false the owner places the stack in quick slot 1 and on the RB hotkey, and accepts only when both took. The completion carries `result.gadget = { slot, record, tweakDbId, quantity, active }`; the owner's gadget report follows, so `Open77.weapons.gadgets(playerId)` then answers from the cache. Refusals by name: `invalid_player`, `invalid_gadget_template`, `invalid_gadget_count`, `invalid_weapon_options` now; `template_is_not_gadget`, `unsupported_gadget_area`, `item_creation_failed`, `equip_rejected`, `hotkey_rejected`, `request_timeout` on the completion. Like `assign`, this is a presentation grant: commit ownership in your own ledger first. See [Weapon Lua API](weapons-api.md#gadgets-grenades-in-the-quick-slots).
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.73

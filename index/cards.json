@@ -12919,7 +12919,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- ESC cancels the pending \"choose a destination\" picker\nRegisterKeyMapping(\"taxi_cancel\", \"Cancel destination\", \"BACKSPACE\", function()\n    Open77.map.cancelPick()\nend)",
   "inferred": false,
-  "source_line": 22914,
+  "source_line": 23612,
   "permissions": [
    "map.control"
   ],
@@ -12944,7 +12944,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Close the map this resource opened once the destination is chosen\nAddEventHandler(\"open77:map:pointPicked\", function(result)\n    if result.status == \"selected\" then Open77.map.close() end\nend)",
   "inferred": false,
-  "source_line": 22912,
+  "source_line": 23610,
   "permissions": [
    "map.control"
   ],
@@ -12969,7 +12969,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Read what the player highlighted on the map\nlocal marker = Open77.map.getSelectedMarker()\nif marker then print(marker.kind, marker.position.x, marker.position.y) end",
   "inferred": false,
-  "source_line": 22908,
+  "source_line": 23593,
   "permissions": [
    "map.read"
   ],
@@ -12994,7 +12994,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Send the player's manual waypoint to the server as the taxi destination\nlocal waypoint = Open77.map.getWaypoint()\nif waypoint then TriggerServerEvent(\"taxi:order\", waypoint.position) end",
   "inferred": false,
-  "source_line": 22907,
+  "source_line": 23592,
   "permissions": [
    "map.read"
   ],
@@ -13019,7 +13019,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Pause the HUD timer while the map is open\nSetTick(function()\n    if not Open77.map.isOpen() then timer = timer + 1 end\nend)",
   "inferred": false,
-  "source_line": 22909,
+  "source_line": 23594,
   "permissions": [
    "map.read"
   ],
@@ -13033,7 +13033,7 @@
   "namespace": "Open77.map",
   "name": "open",
   "handler": "LuaMapOpen",
-  "summary": "Opens the vanilla map, optionally focused on a world location.",
+  "summary": "Opens the standalone native map, optionally focused on a world location.",
   "description": "Requires map.control. options.position={x,y,z} optionally focuses the map. Returns requestId, or nil, reason. Acceptance is asynchronous; observe open77:map:opened or open77:map:requestFailed. Respects game UI restrictions and exclusive ownership; map_busy means another map session exists.",
   "params": [
    {
@@ -13051,7 +13051,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Open the map focused on the meeting point\nOpen77.map.open({ position = { x = -1442.2, y = 127.4, z = 18.0 } })",
   "inferred": false,
-  "source_line": 22911,
+  "source_line": 23609,
   "permissions": [
    "map.control"
   ],
@@ -13083,7 +13083,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Let the player pick a taxi destination on the map, one minute to decide\nlocal requestId = Open77.map.pickPoint({ timeoutMilliseconds = 60000 })\nAddEventHandler(\"open77:map:pointPicked\", function(result)\n    if result.requestId ~= requestId then return end\n    if result.status == \"selected\" then TriggerServerEvent(\"taxi:order\", result.position) end\nend)",
   "inferred": false,
-  "source_line": 22913,
+  "source_line": 23611,
   "permissions": [
    "map.control"
   ],
@@ -13108,7 +13108,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Read the whole map state once at startup, before subscribing to events\nlocal map = Open77.map.state()\nif map and map.waypoint then print(\"waypoint already set at\", map.waypoint.position.x) end",
   "inferred": false,
-  "source_line": 22910,
+  "source_line": 23595,
   "permissions": [
    "map.read"
   ],
@@ -17393,7 +17393,7 @@
   "name": "readPackedFile",
   "handler": "LuaReadPackedFile",
   "summary": "Reads a file another resource declared, as base64.",
-  "description": "Requires `resources.files.read`, which only the bundled audio service holds: every other resource reads its own files with `Open77.resource.readFile`, and a resource holding this one can read any **declared** file of any resource, which is why the grant is visible in the manifest. Only files listed in the named resource's `files` entry are reachable -- scripts, the manifest itself and anything merely present on disk are not, so a resource author publishes deliberately rather than by accident. The updated client accepts up to 3 MiB of raw file data (older clients: 1 MiB). The 2 MiB WebUI JSON message cap is unchanged: the Base64 result of a larger file may not fit in one `page:send`. See [runtime quotas and client availability](/docs/resource-runtime#sandbox-and-quotas). Base64 is used because arbitrary binary data is not valid UTF-8. Refusals: `permission_denied:resources.files.read`, `invalid_resource_path`, `resource_not_found`, `file_not_declared`, `file_too_large`.",
+  "description": "Requires `resources.files.read`, reserved for the bundled audio service. Reads only files declared in the target resource's `files` list; scripts, manifests and undeclared disk files are inaccessible. Other resources use `Open77.resource.readFile` for their own files. Returns Base64 for binary-safe transport, up to 3 MiB raw data. Base64 expansion can exceed the separate 2 MiB WebUI JSON message cap; see [runtime quotas](/docs/resource-runtime#sandbox-and-quotas). Errors: `permission_denied:resources.files.read`, `invalid_resource_path`, `resource_not_found`, `file_not_declared`, `file_too_large`.",
   "params": [
    {
     "name": "resource",
@@ -22507,7 +22507,7 @@
   "name": "giveGadget",
   "handler": "LuaWeaponGiveGadget",
   "summary": "Grants a counted stack of grenades (or any quick-slot gadget) and puts it on the throw hotkey.",
-  "description": "Requires `player.weapons.edit`. Native-parity E4. The record must be a `Gadget_Record` -- every 2.31 grenade is one (`Items.GrenadeFragRegular`, `Items.GrenadeEMPRegular`, `Items.Preset_Grenade_Smoke_Default`, ...; the `category = grenade` rows of `docs/generated/weapons-2.31.csv`); a weapon answers `template_is_not_gadget`. `count` is 1..999 units added to the stack. Unless `options.equip` is false, the stack is placed in quick slot 1 (`GameplayEquipRequest`) and assigned to `EHotkey.RB` (`HotkeyAssignmentRequest`) -- the path the privileged grenade fixture measured on 2026-09-05 -- and the completion is accepted only when both took. The completion carries `result.gadget = { slot, record, tweakDbId, quantity, active }` after one `open77:weapons:gadget` row. Refused by name: `invalid_gadget_template`, `template_is_not_gadget`, `invalid_gadget_count` now; `unsupported_gadget_area`, `item_creation_failed`, `equip_rejected`, `hotkey_rejected` from the bridge. See [Weapon Lua API](weapons-api.md#gadgets-grenades-in-the-quick-slots).",
+  "description": "Requires `player.weapons.edit`. The record must be a `Gadget_Record` -- every 2.31 grenade is one (`Items.GrenadeFragRegular`, `Items.GrenadeEMPRegular`, `Items.Preset_Grenade_Smoke_Default`, ...; the `category = grenade` rows of `docs/generated/weapons-2.31.csv`); a weapon answers `template_is_not_gadget`. `count` is 1..999 units added to the stack. Unless `options.equip` is false, the stack is placed in quick slot 1 (`GameplayEquipRequest`) and assigned to `EHotkey.RB` (`HotkeyAssignmentRequest`) and the completion is accepted only when both took. The completion carries `result.gadget = { slot, record, tweakDbId, quantity, active }` after one `open77:weapons:gadget` row. Refused by name: `invalid_gadget_template`, `template_is_not_gadget`, `invalid_gadget_count` now; `unsupported_gadget_area`, `item_creation_failed`, `equip_rejected`, `hotkey_rejected` from the bridge. See [Weapon Lua API](weapons-api.md#gadgets-grenades-in-the-quick-slots).",
   "params": [
    {
     "name": "record",
@@ -22942,7 +22942,7 @@
   "name": "create",
   "handler": "LuaWebUiCreate",
   "summary": "Creates a web surface.",
-  "description": "**Creation is asynchronous.** A `show()` issued right after `create` loses the race against the `visible` flag the request carried, and the surface then never paints at all. So a surface meant to stay up is created with `visible = true`, and the page shows or hides its own content.\n\nValid layers: `hud`, `menu`, `modal` (requires `webui.modal`), `system` (requires `webui.system`), `debug` (requires `webui.debug`). The updated client also accepts HTTP(S) `entry` URLs without `web_files`; bundled entries still require declared files. External scripts, media, requests and embeds are allowed, while CORS and TLS remain enforced. Only the top-level configured entry origin receives the Lua bridge. See [remote WebUI and client availability](/docs/resource-runtime#remote-pages-external-content-and-hot-reload); older CDN clients may not support remote pages.",
+  "description": "Creates a WebUI asynchronously. For an initially visible surface, pass `visible = true`; calling `show()` immediately can race with creation. The page can then manage its own content visibility.\n\nLayers: `hud`, `menu`, `modal` (`webui.modal`), `system` (`webui.system`), `debug` (`webui.debug`). An HTTP(S) `entry` does not require `web_files`; bundled entries must be declared. External scripts, media, requests and embeds follow browser CORS and TLS rules. Only the configured top-level entry origin receives the Lua bridge. See [remote WebUI](/docs/resource-runtime#remote-pages-external-content-and-hot-reload) for runtime requirements.",
   "params": [
    {
     "name": "options",
@@ -22976,7 +22976,7 @@
   "name": "default",
   "handler": "LuaWebUiDefault",
   "summary": "The surface declared by `web_ui_page` in the manifest.",
-  "description": "Returns the auto-created WebUI page declared by `ui_page` (alias `web_ui_page`) in the current manifest. The updated client accepts a declared local file or an HTTP(S) entry; see [remote WebUI and client availability](/docs/resource-runtime#remote-pages-external-content-and-hot-reload). It returns `nil, reason` when the resource has no live default page; the handle is generation-owned and becomes stale after destroy or reload.",
+  "description": "Returns the auto-created page declared by `ui_page` (alias `web_ui_page`) in the current manifest, or `nil, reason` if none is live. The entry can be a declared local file or an HTTP(S) URL. Handles belong to the resource generation and become stale after destroy or reload. See [remote WebUI](/docs/resource-runtime#remote-pages-external-content-and-hot-reload).",
   "params": [],
   "returns": [
    "surface, or nil"
@@ -34165,7 +34165,7 @@
   "name": "playAt",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Play a profile at a world pose: the placed form of play (TaskStartScenarioAtPosition).",
-  "description": "Requires players.animations.control -- the same capability as play, because a placement is an animation with a pose, not a second power. The body is first moved to position with the given yaw (degrees about Z, the props convention) through the platform's own placement channel -- no fade, the same gate and settle watch a Warden move gets -- and once it stands there the workspot device is spawned under it and the posture plays: that is what sits a player on a chair that has no device of its own, leans them on a wall, or lies them on a bed. (The engine does not pull a body onto a device two metres away; measured 2026-09-16, so the server carries it.) The three portable postures are the chair, lean and lie profiles; any catalogue profile accepts a pose. The anchor must be within 5 m of the player's current position or the call is refused with anchor_too_far: past that a placement would be a teleport reachable without players.teleport, and Open77.players.teleport is the call that owns journeys. position is { x, y, z } or a three-element array; yaw is optional and defaults to 0. options are those of play (clip, durationMs, loop). Returns the accepted playback state with an anchor field; the playbackId is the handle stopAt takes. Resources see the accepted state at once; clients hear about the posture only when the body has arrived, and its clock starts then. The move watchdog is measured against the anchor and armed 5 s after acceptance; a body that never reaches its anchor in that window ends with anchor_unreached rather than moved. Acceptance is server authority, not proof -- observe onPlayerAnimationChanged. Refusals add invalid_anchor, anchor_too_far and anchor_move_refused (the body is not ready, not alive, or in a vehicle) to those of play. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.",
+  "description": "Requires `players.animations.control`. Moves a player to an anchor, waits for placement, then starts a profile such as `chair`, `lean` or `lie`. Any catalogue profile accepts a pose. `position` is `{x, y, z}` or a three-element array; `yaw` is degrees about Z and defaults to 0. Options match `play`: `clip`, `durationMs`, `loop`. Anchors must be within 5 m; use `Open77.players.teleport` for longer moves. Returns accepted playback state with `anchor`; use `playbackId` with `stopAt`. The caller receives acceptance before clients receive the posture; playback timing starts on arrival. A 5-second anchor watchdog ends an unsuccessful placement with `anchor_unreached`. Observe `onPlayerAnimationChanged`; admission is not proof of rendered animation. Additional errors: `invalid_anchor`, `anchor_too_far`, `anchor_move_refused` (unready, dead or in a vehicle). Provided by the server runtime, without a resource-export dependency.",
   "params": [
    {
     "name": "playerId",
@@ -41100,7 +41100,7 @@
   "name": "debug",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Writes a resource-prefixed debug line to the server log.",
-  "description": "No permission. Writes to the resource-prefixed server logger at the `DBG` level, which a production log filter usually drops -- the place for per-tick chatter. `Citizen.Trace` is this function. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file. Until wave 6 (2026-09-16) all four levels printed at `INF`; since then the log line carries `DBG`.",
+  "description": "No permission. Writes to the resource-prefixed server logger at the `DBG` level, which a production log filter usually drops -- the place for per-tick chatter. `Citizen.Trace` is this function. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file.",
   "params": [
    {
     "name": "...",
@@ -41128,7 +41128,7 @@
   "name": "error",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Writes a resource-prefixed error line to the server log.",
-  "description": "No permission. Writes to the resource-prefixed server logger at the `ERR` level. It does not raise, abort the handler or mark the resource unhealthy: it is a log line, not an exception. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file. Until wave 6 (2026-09-16) all four levels printed at `INF`; since then the log line carries `ERR`.",
+  "description": "No permission. Writes to the resource-prefixed server logger at the `ERR` level. It does not raise, abort the handler or mark the resource unhealthy: it is a log line, not an exception. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file.",
   "params": [
    {
     "name": "...",
@@ -41156,7 +41156,7 @@
   "name": "info",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Writes a resource-prefixed informational line to the server log.",
-  "description": "No permission. Writes to the resource-prefixed server logger at the `INF` level, the same one `print` writes at. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file. Until wave 6 (2026-09-16) all four levels printed at `INF`; since then the log line carries `INF`.",
+  "description": "No permission. Writes to the resource-prefixed server logger at the `INF` level, the same one `print` writes at. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file.",
   "params": [
    {
     "name": "...",
@@ -41184,7 +41184,7 @@
   "name": "warn",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Writes a resource-prefixed warning line to the server log.",
-  "description": "No permission. Writes to the resource-prefixed server logger at the `WRN` level, so an operator filtering a resource's warnings from its chatter sees only these. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file. Until wave 6 (2026-09-16) all four levels printed at `INF`; since then the log line carries `WRN`.",
+  "description": "No permission. Writes to the resource-prefixed server logger at the `WRN` level, so an operator filtering a resource's warnings from its chatter sees only these. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file.",
   "params": [
    {
     "name": "...",
@@ -58086,7 +58086,7 @@
   "name": "giveGadget",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Grants a player a counted stack of grenades (or any quick-slot gadget), equipped and on the throw hotkey.",
-  "description": "Native-parity E4, over the weapon relay. `record` must be a `Gadget_Record` -- every 2.31 grenade (`Items.GrenadeFragRegular`, `Items.GrenadeEMPRegular`, `Items.Preset_Grenade_Smoke_Default`, ...; the `category = grenade` rows of `docs/generated/weapons-2.31.csv`). `count` is 1..999 units. Unless `options.equip` is false the owner places the stack in quick slot 1 and on the RB hotkey, the path the privileged grenade fixture measured on 2026-09-05, and accepts only when both took. The completion carries `result.gadget = { slot, record, tweakDbId, quantity, active }`; the owner's gadget report follows, so `Open77.weapons.gadgets(playerId)` then answers from the cache. Refusals by name: `invalid_player`, `invalid_gadget_template`, `invalid_gadget_count`, `invalid_weapon_options` now; `template_is_not_gadget`, `unsupported_gadget_area`, `item_creation_failed`, `equip_rejected`, `hotkey_rejected`, `request_timeout` on the completion. Like `assign`, this is a presentation grant: commit ownership in your own ledger first. See [Weapon Lua API](weapons-api.md#gadgets-grenades-in-the-quick-slots).",
+  "description": "Uses the weapon relay. `record` must be a `Gadget_Record` -- every 2.31 grenade (`Items.GrenadeFragRegular`, `Items.GrenadeEMPRegular`, `Items.Preset_Grenade_Smoke_Default`, ...; the `category = grenade` rows of `docs/generated/weapons-2.31.csv`). `count` is 1..999 units. Unless `options.equip` is false the owner places the stack in quick slot 1 and on the RB hotkey, and accepts only when both took. The completion carries `result.gadget = { slot, record, tweakDbId, quantity, active }`; the owner's gadget report follows, so `Open77.weapons.gadgets(playerId)` then answers from the cache. Refusals by name: `invalid_player`, `invalid_gadget_template`, `invalid_gadget_count`, `invalid_weapon_options` now; `template_is_not_gadget`, `unsupported_gadget_area`, `item_creation_failed`, `equip_rejected`, `hotkey_rejected`, `request_timeout` on the completion. Like `assign`, this is a presentation grant: commit ownership in your own ledger first. See [Weapon Lua API](weapons-api.md#gadgets-grenades-in-the-quick-slots).",
   "params": [
    {
     "name": "playerId",
@@ -59262,5 +59262,952 @@
   "constant": false,
   "qualified": "promise.new",
   "route_id": "server:promise.new"
+ },
+ {
+  "namespace": "WebUI.Page",
+  "name": "setConsumedKeys",
+  "handler": "LuaWebPageConsumedKeys",
+  "summary": "Consume selected navigation keys while preserving gameplay input.",
+  "description": "Call page:setConsumedKeys(keys) before page:setFocus(true,false,true). Client-local, per-surface policy: selected keys still reach the browser but not Cyberpunk Raw Input or Open77 pause/scoreboard shortcuts. Accepts a dense array of at most 32 case-insensitive names: escape/esc, enter, tab, backspace, space, up/down/left/right (arrow aliases accepted), home, end, pageup, pagedown, insert and delete. Invalid input leaves the existing list unchanged; {} clears it for future presses. Active only while this visible, presentation-enabled page owns keyboard focus. Repeats and releases remain consumed if the keydown handler hides/destroys the page or changes focus. No arbitrary gameplay keys or controller-menu interception. No extra permission; keep-input still requires webui.keep_input. Check method availability before using this mode. See webui-input.md for the complete lifecycle and error contract.",
+  "params": [
+   {
+    "name": "keys",
+    "type": "string[]",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean",
+   "string? reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Manifest: permissions { 'webui.keep_input' }\nassert(page:setConsumedKeys({'escape'}))\nassert(page:setFocus(true, false, true))\n-- Close the menu:\npage:setFocus(false, false)\npage:hide()",
+  "inferred": false,
+  "source_line": 22543,
+  "permissions": [],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "WebUI.Page.setConsumedKeys",
+  "route_id": "WebUI.Page.setConsumedKeys"
+ },
+ {
+  "namespace": "_G",
+  "name": "GetPlayerModel",
+  "handler": "LuaPlayerModel",
+  "summary": "Read this client's NPC presentation state for a player.",
+  "description": "Requires players.model.read. Omit playerId or pass nil for the local player; an explicit ID must be a positive integer. Returns nil without an error for the original character, or a table with player, record, appearance, revision, entity, ready, status and optional failure. The entity handle is local and disposable, never a network player ID. Status is preparing, active, parked, not_streamed or failed. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "table? state",
+   "string? reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local model, reason = Open77.players.getModel()\nif model then print(model.record, model.ready, model.status) end",
+  "inferred": false,
+  "source_line": 23272,
+  "permissions": [
+   "players.model.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "GetPlayerModel",
+  "route_id": "GetPlayerModel"
+ },
+ {
+  "namespace": "_G",
+  "name": "IsPlayerModelReady",
+  "handler": "LuaPlayerModel",
+  "summary": "Check whether the model is ready on this client.",
+  "description": "Requires players.model.read. Omitted/nil playerId selects the local player; explicit IDs must be positive integers. False means no active ready model, including the original character; nil, reason indicates failure. This is local projection readiness, not an acknowledgement from every observer. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean? ready",
+   "string? reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local ready, reason = Open77.players.isModelReady()\nif ready then print('Local presentation ready') end",
+  "inferred": false,
+  "source_line": 23274,
+  "permissions": [
+   "players.model.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "IsPlayerModelReady",
+  "route_id": "IsPlayerModelReady"
+ },
+ {
+  "namespace": "_G",
+  "name": "IsPlayerModelValid",
+  "handler": "LuaPlayerModelValid",
+  "summary": "Validate a Character record in the client's installed game data.",
+  "description": "Requires players.model.read. Does not spawn or animate the model. True confirms an existing Character record, not compatibility of its rig, locomotion, seats or authored appearances. Invalid inputs and absent records return false, reason; permission failures return nil, reason. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "record",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean? valid",
+   "string? reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local ok, reason = Open77.players.isModelValid('Character.Rogue')\nif not ok then print(reason) end",
+  "inferred": false,
+  "source_line": 23276,
+  "permissions": [
+   "players.model.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "IsPlayerModelValid",
+  "route_id": "IsPlayerModelValid"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "getModel",
+  "handler": "LuaPlayerModel",
+  "summary": "Read this client's NPC presentation state for a player.",
+  "description": "Requires players.model.read. Omit playerId or pass nil for the local player; an explicit ID must be a positive integer. Returns nil without an error for the original character, or a table with player, record, appearance, revision, entity, ready, status and optional failure. The entity handle is local and disposable, never a network player ID. Status is preparing, active, parked, not_streamed or failed. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "table? state",
+   "string? reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local model, reason = Open77.players.getModel()\nif model then print(model.record, model.ready, model.status) end",
+  "inferred": false,
+  "source_line": 23272,
+  "permissions": [
+   "players.model.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.players.getModel",
+  "route_id": "Open77.players.getModel"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "isModelReady",
+  "handler": "LuaPlayerModel",
+  "summary": "Check whether the model is ready on this client.",
+  "description": "Requires players.model.read. Omitted/nil playerId selects the local player; explicit IDs must be positive integers. False means no active ready model, including the original character; nil, reason indicates failure. This is local projection readiness, not an acknowledgement from every observer. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean? ready",
+   "string? reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local ready, reason = Open77.players.isModelReady()\nif ready then print('Local presentation ready') end",
+  "inferred": false,
+  "source_line": 23274,
+  "permissions": [
+   "players.model.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.players.isModelReady",
+  "route_id": "Open77.players.isModelReady"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "isModelValid",
+  "handler": "LuaPlayerModelValid",
+  "summary": "Validate a Character record in the client's installed game data.",
+  "description": "Requires players.model.read. Does not spawn or animate the model. True confirms an existing Character record, not compatibility of its rig, locomotion, seats or authored appearances. Invalid inputs and absent records return false, reason; permission failures return nil, reason. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "record",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean? valid",
+   "string? reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local ok, reason = Open77.players.isModelValid('Character.Rogue')\nif not ok then print(reason) end",
+  "inferred": false,
+  "source_line": 23276,
+  "permissions": [
+   "players.model.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.players.isModelValid",
+  "route_id": "Open77.players.isModelValid"
+ },
+ {
+  "namespace": "_G",
+  "name": "GetPlayerModel",
+  "handler": "GetPlayerModel",
+  "summary": "Read the authoritative model selection and owner's readiness.",
+  "description": "Requires players.model.read and a connected positive integer player ID. Returns nil without an error for the original model, or a table with player, record, appearance, revision, ready, resetOnDeath and optional remainingMs. Ready is the subject's presentation acknowledgement, not proof that every observer has streamed the body. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "table? state",
+   "string? reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local state, reason = GetPlayerModel(playerId)\nif state then print(state.record, state.revision, state.ready) end",
+  "inferred": false,
+  "source_line": 919,
+  "permissions": [
+   "players.model.read"
+  ],
+  "reasons": [
+   "invalid_player",
+   "permission_denied:players.model.read",
+   "player_models_unavailable",
+   "player_unavailable"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "GetPlayerModel",
+  "route_id": "server:GetPlayerModel"
+ },
+ {
+  "namespace": "_G",
+  "name": "IsPlayerModelReady",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Read the model owner's native presentation acknowledgement.",
+  "description": "Requires players.model.read and a connected positive integer player ID. Returns false for the original character or a model still preparing; nil, reason is an error. Observe onPlayerModelReady(player, revision) for asynchronous readiness and match the requested revision. This does not certify observer rendering or every animation. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean? ready",
+   "string? reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "if IsPlayerModelReady(playerId) then print('Owner model ready') end",
+  "inferred": false,
+  "source_line": 7623,
+  "permissions": [
+   "players.model.read"
+  ],
+  "reasons": [
+   "invalid_player",
+   "permission_denied:players.model.read",
+   "player_models_unavailable",
+   "player_unavailable"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "IsPlayerModelReady",
+  "route_id": "server:IsPlayerModelReady"
+ },
+ {
+  "namespace": "_G",
+  "name": "ResetPlayerModel",
+  "handler": "ResetPlayerModel",
+  "summary": "Release this resource's model override and restore the original character.",
+  "description": "Requires players.model.control and a connected positive integer player ID. Returns true when already original. Refuses model_owned_by_other_resource if another resource generation owns the override. Broadcasts restoration in the player's bucket and emits onPlayerModelChanged with a nil record and reason reset. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean",
+   "string? reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, reason = ResetPlayerModel(playerId)\nif not ok then print(reason) end",
+  "inferred": false,
+  "source_line": 920,
+  "permissions": [
+   "players.model.control"
+  ],
+  "reasons": [
+   "invalid_player",
+   "permission_denied:players.model.control",
+   "player_models_unavailable",
+   "resource_stopping"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "ResetPlayerModel",
+  "route_id": "server:ResetPlayerModel"
+ },
+ {
+  "namespace": "_G",
+  "name": "SetPlayerModel",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Select a server-owned NPC body for a connected player.",
+  "description": "Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0–86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "record",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "options",
+    "type": "table",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean accepted",
+   "integer revision or string reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, revision = SetPlayerModel(playerId, 'Character.Rogue', { durationMs = 60000, resetOnDeath = true })",
+  "inferred": false,
+  "source_line": 7610,
+  "permissions": [
+   "players.model.control"
+  ],
+  "reasons": [
+   "invalid_argument",
+   "invalid_options",
+   "permission_denied:players.model.control",
+   "player_models_unavailable",
+   "resource_stopping"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "SetPlayerModel",
+  "route_id": "server:SetPlayerModel"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "getModel",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Read the authoritative model selection and owner's readiness.",
+  "description": "Requires players.model.read and a connected positive integer player ID. Returns nil without an error for the original model, or a table with player, record, appearance, revision, ready, resetOnDeath and optional remainingMs. Ready is the subject's presentation acknowledgement, not proof that every observer has streamed the body. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "table? state",
+   "string? reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local state, reason = GetPlayerModel(playerId)\nif state then print(state.record, state.revision, state.ready) end",
+  "inferred": false,
+  "source_line": 8437,
+  "permissions": [
+   "players.model.read"
+  ],
+  "reasons": [
+   "invalid_player",
+   "permission_denied:players.model.read",
+   "player_models_unavailable",
+   "player_unavailable"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.players.getModel",
+  "route_id": "server:Open77.players.getModel"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "isModelReady",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Read the model owner's native presentation acknowledgement.",
+  "description": "Requires players.model.read and a connected positive integer player ID. Returns false for the original character or a model still preparing; nil, reason is an error. Observe onPlayerModelReady(player, revision) for asynchronous readiness and match the requested revision. This does not certify observer rendering or every animation. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean? ready",
+   "string? reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "if IsPlayerModelReady(playerId) then print('Owner model ready') end",
+  "inferred": false,
+  "source_line": 8439,
+  "permissions": [
+   "players.model.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.players.isModelReady",
+  "route_id": "server:Open77.players.isModelReady"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "resetModel",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Release this resource's model override and restore the original character.",
+  "description": "Requires players.model.control and a connected positive integer player ID. Returns true when already original. Refuses model_owned_by_other_resource if another resource generation owns the override. Broadcasts restoration in the player's bucket and emits onPlayerModelChanged with a nil record and reason reset. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean",
+   "string? reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, reason = ResetPlayerModel(playerId)\nif not ok then print(reason) end",
+  "inferred": false,
+  "source_line": 8438,
+  "permissions": [
+   "players.model.control"
+  ],
+  "reasons": [
+   "invalid_player",
+   "permission_denied:players.model.control",
+   "player_models_unavailable",
+   "resource_stopping"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.players.resetModel",
+  "route_id": "server:Open77.players.resetModel"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "setModel",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Select a server-owned NPC body for a connected player.",
+  "description": "Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0–86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "record",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "options",
+    "type": "table",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean accepted",
+   "integer revision or string reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, revision = SetPlayerModel(playerId, 'Character.Rogue', { durationMs = 60000, resetOnDeath = true })",
+  "inferred": false,
+  "source_line": 8436,
+  "permissions": [
+   "players.model.control"
+  ],
+  "reasons": [
+   "invalid_argument",
+   "permission_denied:players.model.control",
+   "player_models_unavailable",
+   "resource_stopping"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.players.setModel",
+  "route_id": "server:Open77.players.setModel"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "addTab",
+  "handler": "LuaMapAddTab",
+  "summary": "Add a resource WebUI tab beside the native Map tab.",
+  "description": "Client-only, map.control; after resource preparation. Options: id, label, exactly one of url (declared local web file) or page (owned, hidden WebUI), optional integer order. Returns qualified resource:id and the page. Max five custom tabs. Shell owns visibility/focus/bounds; pages keep state between visits. See native-map.md for events, ready handshake, errors and cleanup.",
+  "params": [
+   {
+    "name": "options",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "id, page; or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "AddEventHandler('onClientResourceStart', function()\n    local id, page = Open77.map.addTab({id='jobs', label='Jobs', url='web/jobs.html', order=10})\n    if not id then print(page) end\nend)",
+  "inferred": false,
+  "source_line": 23601,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.addTab",
+  "route_id": "Open77.map.addTab"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "focus",
+  "handler": "LuaMapFocus",
+  "summary": "Focus an owned map on a world position without moving the player.",
+  "description": "Requires map.control and ownership acquired through open or pickPoint. Pass finite x/y/z within +/-16000. Returns an asynchronous request ID; commandResult reports application. Rejects closed, busy, unready or foreign-owned maps. See native-map.md.",
+  "params": [
+   {
+    "name": "position",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- After opening this resource's map and observing ready=true:\nlocal request, reason = Open77.map.focus({x=600, y=-2200, z=180})",
+  "inferred": false,
+  "source_line": 23605,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.focus",
+  "route_id": "Open77.map.focus"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "getScreen",
+  "handler": "LuaMapGetScreen",
+  "summary": "Read the native map shell, appearance and registered tabs.",
+  "description": "Client-only, map.read. Returns title, accentColor, activeTab, open, revision and tabs. Available while closed. Map is built in; resource tabs are namespaced. See native-map.md for WebUI lifecycle and ownership.",
+  "params": [],
+  "returns": [
+   "screen, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local screen = Open77.map.getScreen()\nif screen then print(screen.title, screen.activeTab) end",
+  "inferred": false,
+  "source_line": 23597,
+  "permissions": [
+   "map.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.getScreen",
+  "route_id": "Open77.map.getScreen"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "getView",
+  "handler": "LuaMapGetView",
+  "summary": "Read the native map camera and readiness snapshot.",
+  "description": "Requires map.read. Returns ready, zoomLevel, zoomLevels, zoom and cameraMode, or nil, reason. The native scalar zoom is not a world distance. Wait for ready before controlling an owned map. See native-map.md.",
+  "params": [],
+  "returns": [
+   "view, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local view, reason = Open77.map.getView()\nif view and view.ready then print(view.cameraMode, view.zoomLevel) end",
+  "inferred": false,
+  "source_line": 23596,
+  "permissions": [
+   "map.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.getView",
+  "route_id": "Open77.map.getView"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "recenter",
+  "handler": "LuaMapRecenter",
+  "summary": "Recenter an owned native map on the local player.",
+  "description": "Requires map.control and an open, ready map owned by this resource. Moves only the map camera. Returns a request ID or nil, reason; observe open77:map:commandResult. User-opened maps cannot be hijacked.",
+  "params": [],
+  "returns": [
+   "requestId, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local request, reason = Open77.map.recenter()\nif not request then print(reason) end",
+  "inferred": false,
+  "source_line": 23606,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.recenter",
+  "route_id": "Open77.map.recenter"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "removeTab",
+  "handler": "LuaMapRemoveTab",
+  "summary": "Unregister this resource's map shell tab.",
+  "description": "Client-only, map.control. Local or qualified owned ID. Cannot remove Map or a foreign tab. Active removal returns to Map and releases focus. The page remains hidden; explicitly destroy it when no longer needed. Resource-stop cleanup is automatic.",
+  "params": [
+   {
+    "name": "id",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local ok, reason = Open77.map.removeTab('jobs')",
+  "inferred": false,
+  "source_line": 23602,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.removeTab",
+  "route_id": "Open77.map.removeTab"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "resetAppearance",
+  "handler": "LuaMapResetAppearance",
+  "summary": "Release this resource's map title and accent overrides.",
+  "description": "Client-only, map.control; after resource preparation. Restores preceding resource claims or defaults, without clearing another resource's settings or unregistering any tabs.",
+  "params": [],
+  "returns": [
+   "true, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local ok, reason = Open77.map.resetAppearance()",
+  "inferred": false,
+  "source_line": 23600,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.resetAppearance",
+  "route_id": "Open77.map.resetAppearance"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "selectTab",
+  "handler": "LuaMapSelectTab",
+  "summary": "Select an owned WebUI tab or the native Map on an open shell.",
+  "description": "Client-only, map.control. Accepts own local/qualified ID or map. Requires an open shell, rejects point-picker sessions and foreign tabs. Returns queue acceptance; applied next tick. Observe tabEntered/tabLeft (owner), tabChanged (map.read), or JS tabState. Does not implicitly open the map.",
+  "params": [
+   {
+    "name": "id",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local ok, reason = Open77.map.selectTab('map')",
+  "inferred": false,
+  "source_line": 23603,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.selectTab",
+  "route_id": "Open77.map.selectTab"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "setAccentColor",
+  "handler": "LuaMapSetAccent",
+  "summary": "Set the native map shell's resource-owned accent color.",
+  "description": "Client-only, map.control; after resource preparation. Exact #RRGGBB string. Updates the selected native tab and supplies the color to resource WebUIs through screenChanged/tabState events. Does not recolor the native roads or markers. See native-map.md.",
+  "params": [
+   {
+    "name": "color",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "AddEventHandler('onClientResourceStart', function()\n    Open77.map.setAccentColor('#FFB347')\nend)",
+  "inferred": false,
+  "source_line": 23599,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.setAccentColor",
+  "route_id": "Open77.map.setAccentColor"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "setCameraMode",
+  "handler": "LuaMapSetCameraMode",
+  "summary": "Select the native top-down or perspective map camera.",
+  "description": "Requires map.control and ownership of an open, ready map. mode must be top_down or perspective. Returns a request ID or nil, reason. Never changes the gameplay camera or teleports the player. See native-map.md for asynchronous result events and cleanup.",
+  "params": [
+   {
+    "name": "mode",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local request, reason = Open77.map.setCameraMode(\"perspective\")",
+  "inferred": false,
+  "source_line": 23608,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.setCameraMode",
+  "route_id": "Open77.map.setCameraMode"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "setTabLabel",
+  "handler": "LuaMapSetTabLabel",
+  "summary": "Rename this resource's native map shell tab.",
+  "description": "Client-only, map.control. Local or qualified owned ID; label is 1-40 UTF-8 bytes, without controls or pipe. Updates live without recreating the browser or losing page state. Map and other resources' tabs are immutable to the caller.",
+  "params": [
+   {
+    "name": "id",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "label",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local ok, reason = Open77.map.setTabLabel('jobs', 'Contracts')",
+  "inferred": false,
+  "source_line": 23604,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.setTabLabel",
+  "route_id": "Open77.map.setTabLabel"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "setTitle",
+  "handler": "LuaMapSetTitle",
+  "summary": "Customize the upper-left native map shell title.",
+  "description": "Client-only, map.control; call after resource preparation. 1-120 UTF-8 bytes, no control characters or pipe. Resource-owned override: latest setter wins, resetAppearance or resource stop restores the preceding claim. See native-map.md.",
+  "params": [
+   {
+    "name": "text",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "AddEventHandler('onClientResourceStart', function()\n    Open77.map.setTitle('NIGHT CITY ROLEPLAY')\nend)",
+  "inferred": false,
+  "source_line": 23598,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.setTitle",
+  "route_id": "Open77.map.setTitle"
+ },
+ {
+  "namespace": "Open77.map",
+  "name": "setZoomLevel",
+  "handler": "LuaMapSetZoomLevel",
+  "summary": "Select a native discrete zoom level on an owned map.",
+  "description": "Requires map.control and ownership of an open, ready map. level is an integer from 0 to getView().zoomLevels-1. Returns request ID or nil, reason. The ID acknowledges queueing, not camera-transition completion; observe commandResult and viewChanged.",
+  "params": [
+   {
+    "name": "level",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local view = Open77.map.getView()\nif view and view.ready and view.zoomLevels > 2 then Open77.map.setZoomLevel(2) end",
+  "inferred": false,
+  "source_line": 23607,
+  "permissions": [
+   "map.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.map.setZoomLevel",
+  "route_id": "Open77.map.setZoomLevel"
  }
 ]
