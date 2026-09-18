@@ -1,4 +1,4 @@
--- rp_admin — server: the admin panel (/rpadmin), its restricted slash equivalents, admin mode,
+-- rp_admin - server: the admin panel (/rpadmin), its restricted slash equivalents, admin mode,
 -- player reports (/report), the ticket queue (/tickets) and the action journal.
 --
 -- Server-authoritative: every check, every decision and every message comes from here. The
@@ -43,7 +43,9 @@ local function toId(value)
 end
 
 local function isOnline(playerId)
-    return playerId ~= nil and playerId ~= 0 and Open77.players.name(playerId) ~= nil
+    -- Open77.players.name throws (and kills the VM) for 0, negative or fractional ids.
+    local id = toId(playerId)
+    return id ~= nil and Open77.players.name(id) ~= nil
 end
 
 -- Strips control characters and clips to maxBytes.
@@ -106,6 +108,7 @@ end
 
 local function displayName(playerId)
     if playerId == 0 then return "console" end
+    if not toId(playerId) then return "#" .. tostring(playerId) end
     local ok, name = callExport("rp_identity", "fullName", playerId)
     if ok and type(name) == "string" and #name > 0 then return name end
     return Open77.players.name(playerId) or ("#" .. tostring(playerId))
@@ -322,9 +325,13 @@ local function createTicket(reporterId, text)
         created_at = now(),
     }
     if store == "sql" then
-        local id = Open77.database.insert.await(
-            "INSERT INTO rp_admin_tickets (identifier, reporter_name, `text`, status, created_at) VALUES (?, ?, ?, 'open', ?)",
-            { row.identifier, row.reporter_name, row.text, row.created_at })
+        -- .await raises when the bridge refuses: a failed insert must answer the reporter, not kill the handler.
+        local okInsert, id = pcall(function()
+            return Open77.database.insert.await(
+                "INSERT INTO rp_admin_tickets (identifier, reporter_name, `text`, status, created_at) VALUES (?, ?, ?, 'open', ?)",
+                { row.identifier, row.reporter_name, row.text, row.created_at })
+        end)
+        if not okInsert then return nil, "insert_failed" end
         id = tonumber(type(id) == "table" and (id.insertId or id.id) or id)
         if not id then return nil, "insert_failed" end
         row.id = id
@@ -421,10 +428,13 @@ local function deliverPendingAnswers(playerId)
     local identifier = Open77.players.identifier(playerId)
     if not identifier then return end
     if store == "sql" then
-        local rows = Open77.database.query.await(
-            "SELECT id, answer FROM rp_admin_tickets WHERE identifier = ? AND status = 'closed' AND notified = 0 ORDER BY id",
-            { identifier })
-        if not rows or #rows == 0 then return end
+        -- .await raises on a bridge failure; a player joining must never trip on it.
+        local okQuery, rows = pcall(function()
+            return Open77.database.query.await(
+                "SELECT id, answer FROM rp_admin_tickets WHERE identifier = ? AND status = 'closed' AND notified = 0 ORDER BY id",
+                { identifier })
+        end)
+        if not okQuery or not rows or #rows == 0 then return end
         for _, row in ipairs(rows) do
             say(playerId, ("While you were away, report #%d was closed: %s"):format(row.id, row.answer))
             Wait(0)

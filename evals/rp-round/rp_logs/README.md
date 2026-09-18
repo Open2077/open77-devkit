@@ -175,13 +175,13 @@ prefer the Warden panel on a shared screen.
   ships nothing to clients.
 - `server/main.lua` — the resource.
 
-## Test in 2 minutes (freeroam spawn `381.36, -2401.79, 181.99`)
+## Test in 2 minutes (freeroam spawn Kabuki Market `-1191.30, 2006.88, 7.82 (Kabuki Market Centre, Watson)`)
 
 You need `command.logs` in the ACL (or run the `logs` lines from the server console, which
 always may). One player is enough for everything except the arrest.
 
 1. Connect. In chat, `/logs` → a `player:join` row for you and `rp_logs:start`.
-2. Deposit at the ATM ring on the plaza: `/bank deposit 100` (rp_bank; use its deposit
+2. Deposit at the ATM ring 3 m east of Kabuki Market Centre (`atm_kabuki`): `/bank deposit 100` (rp_bank; use its deposit
    sub-command if the syntax differs) → `rp_bank:changed` (+ `rp_economy:changed` for the
    cash side). Check with `/logs bank`.
 3. Duty: an admin gives you a job (`/setjob <yourId> ncpd 1`, rp_jobs) → `rp_jobs:changed`;
@@ -200,8 +200,8 @@ always may). One player is enough for everything except the arrest.
    `/embarquer <id>` by an on-duty officer on a cuffed player (two players) → `rp_ncpd:arrest`
    → Discord. There is no console `TriggerEvent`, so `rp_ncpd:alert` cannot be raised from
    the console: `/logs test` is the one-player path to the webhook.
-8. Zones: walk 50 m off the plaza (`spawn_plaza`, radius 45) and back → nothing stored, but
-   `/logs stats` shows `spawn_plaza 1/1`.
+8. Zones: walk 70 m off the market (`kabuki_market`, radius 70 — past the South Gate alley at
+   `-1218, 1950`) and back → nothing stored, but `/logs stats` shows `kabuki_market 1/1`.
 9. `/logs 10`, `/logs stats`, `/logs admin 5`.
 
 ## Limits and assumptions

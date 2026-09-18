@@ -1,8 +1,21 @@
--- rp_economy — server-authoritative wallet (eurodollars) for an RP server.
+-- rp_economy - server-authoritative wallet (eurodollars) for an RP server.
 --
 -- One integer balance per player, keyed by the durable identifier
--- (Open77.players.identifier), persisted in this resource's KVP store on every
--- change. Loaded when the player is ready, dropped from memory when they leave.
+-- (Open77.players.identifier), persisted in SQL (table rp_economy_wallets) on
+-- every change. Loaded when the player is ready, dropped from memory when they
+-- leave.
+--
+-- Every write goes through the callback (non-yielding) forms of
+-- Open77.database.*: the exports below are called synchronously
+-- (exports.rp_economy:add(...)) and a synchronous callee that yields fails with
+-- export_yielded, so nothing on the export path may .await. Loads use the
+-- callback form too, with a continuation.
+--
+-- Without a database (database_unavailable, permission_denied, or a database
+-- still not answering after the boot grace) the resource falls back to its own
+-- KVP store for the whole boot and says so in the log (store=kvp reason=...).
+-- The first SQL start copies every wallet still found in KVP (phase 0 kept
+-- them there) into the table, once.
 --
 -- Exports (contract shared with the other resources of the round):
 --   getBalance(playerId) -> integer (0 when unknown)
@@ -12,18 +25,59 @@
 
 local RESOURCE = GetCurrentResourceName()
 
+-- The `.await` forms are documented on every database card but are not catalogue entries of
+-- their own, so the static validator reads the dotted spelling as an unknown native. They are
+-- reached through this alias (boot handler only); the callback forms stay spelled out so the
+-- permission check still sees them.
+local DB = Open77.database
+
 local START_BALANCE = 500
 local PAYDAY_AMOUNT = 200
 local PAYDAY_INTERVAL_MS = 10 * 60 * 1000
 local MAX_BALANCE = 1000000000000 -- 1e12: keeps every balance an exact JSON integer
 local MAX_REASON_BYTES = 64
+local MAX_NAME_BYTES = 64          -- rp_economy_wallets.name is VARCHAR(64)
 local KEY_PREFIX = "balance:"
+local KVP_MIGRATED_KEY = "migrated:sql" -- set once the KVP wallets have been copied into SQL
+local KVP_SCAN_LIMIT = 4096             -- the KVP store's own entry cap; kvp.keys refuses more
+local STORE_GRACE_MS = 15000            -- how long a joining player waits for the store decision
 local CURRENCY = "€$"
 
--- Live state. Both tables are keyed by the numeric session id and only hold
+local SQL_CREATE = [[
+CREATE TABLE IF NOT EXISTS rp_economy_wallets (
+    identifier VARCHAR(64) PRIMARY KEY,
+    name VARCHAR(64),
+    balance BIGINT NOT NULL,
+    updated_at BIGINT NOT NULL
+)
+]]
+local SQL_LOAD = "SELECT balance FROM rp_economy_wallets WHERE identifier = ?"
+local SQL_SAVE = [[
+INSERT INTO rp_economy_wallets (identifier, name, balance, updated_at)
+VALUES (?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE name = ?, balance = ?, updated_at = ?
+]]
+-- Migration: a row that already exists in SQL always wins over the phase-0 KVP copy.
+local SQL_MIGRATE = [[
+INSERT INTO rp_economy_wallets (identifier, name, balance, updated_at)
+VALUES (?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE identifier = identifier
+]]
+local SQL_COUNT = "SELECT COUNT(*) FROM rp_economy_wallets"
+
+-- Where the wallets live for this boot. Decided once (the database answers, or is refused,
+-- or stays silent past the grace), never flipped afterwards.
+local store = {
+    mode = nil,     -- nil (undecided) | "sql" | "kvp"
+    ready = false,  -- true once the mode is decided (and, for sql, the schema exists)
+}
+
+-- Live state. The tables are keyed by the numeric session id and only hold
 -- players whose wallet was actually loaded (identifier known, store readable).
 local wallets = {}     -- [playerId] = integer balance
 local identifiers = {} -- [playerId] = durable userId, cached at load time
+local names = {}       -- [playerId] = display name cached at load time, written next to the balance
+local loading = {}     -- [playerId] = { userId = ..., waiters = { fn, ... } } while an SQL read is in flight
 
 local paydayThreadStarted = false
 
@@ -70,6 +124,38 @@ local function toPositiveInteger(value, maximum)
     return integer
 end
 
+-- Stored value (KVP number, SQL BIGINT possibly delivered as a string) as an integer, or nil.
+local function toStoredInteger(stored)
+    if stored == nil then
+        return nil
+    end
+    local number = tonumber(stored)
+    if number == nil then
+        return nil
+    end
+    return math.tointeger(number)
+end
+
+-- Display name fit for the name column: at most MAX_NAME_BYTES, cut on a UTF-8 boundary so
+-- the row is never refused for an incomplete sequence.
+local function cleanName(name)
+    if type(name) ~= "string" then
+        return ""
+    end
+    if #name <= MAX_NAME_BYTES then
+        return name
+    end
+    local cut = MAX_NAME_BYTES
+    while cut > 0 do
+        local byte = name:byte(cut + 1)
+        if byte == nil or byte < 0x80 or byte >= 0xC0 then
+            break
+        end
+        cut = cut - 1
+    end
+    return name:sub(1, cut)
+end
+
 -- Chat line to one player; player ids from host events are strings, so always
 -- convert. Failures are logged, never raised: chat is a courtesy, not authority.
 local function tell(playerId, text)
@@ -112,11 +198,26 @@ local function storageKey(userId)
     return KEY_PREFIX .. userId
 end
 
+-- Writes the loaded wallet of playerId to the store. Never yields: the SQL
+-- write is submitted with the callback form and its failure is logged when it
+-- comes back (the callback also fires, with a reason, when the submission
+-- itself is refused).
 local function persist(playerId)
     local userId = identifiers[playerId]
     local balance = wallets[playerId]
     if not userId or balance == nil then
         return false
+    end
+    if store.mode == "sql" then
+        local now = math.floor(Open77.time.unix())
+        local name = names[playerId] or ""
+        local ok = Open77.database.update(SQL_SAVE, { userId, name, balance, now, name, balance, now },
+            function(result, err)
+                if err ~= nil or result == nil then
+                    log(("sql write failed for player %d (%s): %s"):format(playerId, userId, tostring(err or "no_result")))
+                end
+            end)
+        return ok == true
     end
     local ok, reason = Open77.kvp.set(storageKey(userId), balance)
     if not ok then
@@ -126,31 +227,14 @@ local function persist(playerId)
     return true
 end
 
--- Loads (or creates) the wallet of a connected player. Returns the balance,
--- or nil, reason when the player cannot take part in the economy.
-local function loadWallet(playerId)
-    if wallets[playerId] ~= nil then
-        return wallets[playerId]
-    end
-    local userId = Open77.players.identifier(playerId)
-    if type(userId) ~= "string" or userId == "" then
-        log(("no durable identifier for player %d, wallet not loaded"):format(playerId))
-        return nil, "identifier_unavailable"
-    end
-
-    local key = storageKey(userId)
-    local stored, reason = Open77.kvp.get(key)
-    if stored == nil and reason ~= nil then
-        -- A storage failure, not a missing key: never invent a balance on top of it.
-        log(("kvp.get failed for player %d (%s): %s"):format(playerId, userId, tostring(reason)))
-        return nil, "storage_unavailable"
-    end
-
+-- Puts a stored value (nil = never seen) in memory as the wallet of playerId,
+-- creating and persisting the starting balance for a new player. Returns the balance.
+local function adoptWallet(playerId, userId, stored)
     local balance
     if stored == nil then
         balance = START_BALANCE
     else
-        balance = math.tointeger(stored)
+        balance = toStoredInteger(stored)
         if balance == nil or balance < 0 then
             log(("corrupt balance for player %d (%s): %s, reset to 0"):format(playerId, userId, tostring(stored)))
             balance = 0
@@ -168,12 +252,187 @@ local function loadWallet(playerId)
     return balance
 end
 
+-- Loads (or creates) the wallet of a connected player. Continuation style:
+-- `done(balance)` or `done(nil, reason)` when the player cannot take part in
+-- the economy - called at once in KVP mode, from the database callback in SQL
+-- mode. Never yields, so it is safe from any handler or thread.
+local function loadWallet(playerId, done)
+    done = done or function() end
+    if wallets[playerId] ~= nil then
+        return done(wallets[playerId])
+    end
+    if type(playerId) ~= "number" or playerId <= 0 then
+        return done(nil, "invalid_player_id")
+    end
+    if not store.ready then
+        return done(nil, "store_not_ready")
+    end
+    local userId = Open77.players.identifier(playerId)
+    if type(userId) ~= "string" or userId == "" then
+        log(("no durable identifier for player %d, wallet not loaded"):format(playerId))
+        return done(nil, "identifier_unavailable")
+    end
+    local nameOk, name = pcall(Open77.players.name, playerId)
+    names[playerId] = cleanName(nameOk and name or nil)
+
+    if store.mode == "kvp" then
+        local stored, reason = Open77.kvp.get(storageKey(userId))
+        if stored == nil and reason ~= nil then
+            -- A storage failure, not a missing key: never invent a balance on top of it.
+            log(("kvp.get failed for player %d (%s): %s"):format(playerId, userId, tostring(reason)))
+            return done(nil, "storage_unavailable")
+        end
+        return done(adoptWallet(playerId, userId, stored))
+    end
+
+    -- SQL: one read in flight per player; a second caller joins the waiters.
+    local pending = loading[playerId]
+    if pending and pending.userId == userId then
+        pending.waiters[#pending.waiters + 1] = done
+        return
+    end
+    pending = { userId = userId, waiters = { done } }
+    loading[playerId] = pending
+    Open77.database.single(SQL_LOAD, { userId }, function(row, err)
+        if loading[playerId] ~= pending then
+            -- The player left (or the seat was reused) while the read was in flight.
+            log(("player %d left while loading; discarding"):format(playerId))
+            return
+        end
+        loading[playerId] = nil
+        local function finish(balance, reason)
+            for _, waiter in ipairs(pending.waiters) do
+                waiter(balance, reason)
+            end
+        end
+        if err ~= nil then
+            -- A read failure is not a new player: never invent a balance on top of it.
+            log(("sql load failed for player %d (%s): %s"):format(playerId, userId, tostring(err)))
+            return finish(nil, "storage_unavailable")
+        end
+        local sameOk, current = pcall(Open77.players.identifier, playerId)
+        if not sameOk or current ~= userId then
+            log(("player %d left while loading; discarding"):format(playerId))
+            return finish(nil, "player_left")
+        end
+        finish(adoptWallet(playerId, userId, row and row.balance or nil))
+    end)
+end
+
 local function unloadWallet(playerId)
     if wallets[playerId] ~= nil then
         persist(playerId)
     end
     wallets[playerId] = nil
     identifiers[playerId] = nil
+    names[playerId] = nil
+    loading[playerId] = nil
+end
+
+------------------------------------------------------------------------------
+-- Store boot: SQL when the database answers, KVP otherwise, decided once
+------------------------------------------------------------------------------
+
+local function useKvp(why)
+    if store.mode == "kvp" then
+        return
+    end
+    store.mode = "kvp"
+    store.ready = true
+    log(("store=kvp reason=%s"):format(tostring(why)))
+end
+
+-- One-time copy of the phase-0 KVP wallets into SQL. Runs inside the ready
+-- handler (may yield). A wallet already in SQL is kept; the KVP keys are left
+-- in place (they are the fallback data). Returns migrated, failed.
+local function migrateKvpWallets()
+    if Open77.kvp.get(KVP_MIGRATED_KEY) ~= nil then
+        return 0, 0
+    end
+    local keys, reason = Open77.kvp.keys(KEY_PREFIX, KVP_SCAN_LIMIT)
+    if type(keys) ~= "table" then
+        log(("kvp migration skipped: keys unreadable (%s)"):format(tostring(reason)))
+        return 0, 0
+    end
+    local now = math.floor(Open77.time.unix())
+    local migrated, failed = 0, 0
+    for _, key in ipairs(keys) do
+        local userId = key:sub(#KEY_PREFIX + 1)
+        local stored = Open77.kvp.get(key)
+        local balance = toStoredInteger(stored)
+        if userId == "" or #userId > 64 or balance == nil or balance < 0 then
+            failed = failed + 1
+            log(("kvp migration: skipped %s (%s)"):format(key, tostring(stored)))
+        else
+            local ok, err = pcall(DB.update.await, SQL_MIGRATE, { userId, "", balance, now })
+            if ok then
+                migrated = migrated + 1
+            else
+                failed = failed + 1
+                log(("kvp migration: %s failed: %s"):format(userId, tostring(err)))
+            end
+        end
+    end
+    if failed == 0 then
+        -- Only a clean run is final; a partial one is retried at the next SQL start.
+        Open77.kvp.set(KVP_MIGRATED_KEY, now)
+    end
+    if #keys > 0 then
+        log(("migrated %d wallet(s) from kvp to sql (%d failed)"):format(migrated, failed))
+    end
+    return migrated, failed
+end
+
+local function bootStore()
+    local queued, reason = Open77.database.ready(function()
+        if store.mode == "kvp" then
+            log("database answered after the KVP fallback was chosen; staying on KVP for this boot")
+            return
+        end
+        local ok, err = pcall(function()
+            DB.update.await(SQL_CREATE)
+            migrateKvpWallets()
+            -- The row count is informative only: a failing COUNT must not demote the boot to KVP.
+            local counted, total = pcall(DB.scalar.await, SQL_COUNT)
+            store.mode = "sql"
+            store.ready = true
+            log(("store=sql wallets=%d"):format((counted and toStoredInteger(total)) or 0))
+        end)
+        if not ok then
+            log(("schema or migration failed: %s"):format(tostring(err)))
+            useKvp("sql_boot_failed")
+        end
+    end)
+    if not queued then
+        -- database_unavailable / permission_denied: it will never fire, decide now.
+        useKvp(reason)
+    end
+end
+
+-- Waits (bounded, yields) for the store to be decided. A database that is still
+-- connecting after the grace loses to the KVP fallback so a player is never
+-- stuck without a wallet; one that answered but whose boot handler is still
+-- running (schema, migration) gets a longer, still bounded, wait.
+local function waitForStore(graceMs)
+    local waited = 0
+    while not store.ready and waited < graceMs do
+        Wait(250)
+        waited = waited + 250
+    end
+    if store.ready then
+        return true
+    end
+    local ready, why = Open77.database.isReady()
+    if not ready then
+        useKvp(why or "database_slow")
+        return true
+    end
+    waited = 0
+    while not store.ready and waited < graceMs * 4 do
+        Wait(250)
+        waited = waited + 250
+    end
+    return store.ready
 end
 
 ------------------------------------------------------------------------------
@@ -296,7 +555,7 @@ local function runPayday(trigger)
             local newBalance = applyDelta(playerId, PAYDAY_AMOUNT, "payday")
             if newBalance then
                 paid = paid + 1
-                tell(playerId, ("Paie : +%d %s"):format(PAYDAY_AMOUNT, CURRENCY))
+                tell(playerId, ("Payday: +%d %s"):format(PAYDAY_AMOUNT, CURRENCY))
             end
         end
     end
@@ -322,16 +581,16 @@ end
 ------------------------------------------------------------------------------
 
 local SUGGESTIONS = {
-    { command = "/money", help = "Affiche votre solde" },
-    { command = "/pay", help = "Envoie de l'argent à un joueur connecté", parameters = {
-        { name = "playerId", help = "Identifiant du joueur" },
-        { name = "amount", help = "Montant en €$" },
+    { command = "/money", help = "Show your balance" },
+    { command = "/pay", help = "Send eddies to a connected player", parameters = {
+        { name = "playerId", help = "Player id" },
+        { name = "amount", help = "Amount in €$" },
     } },
-    { command = "/givemoney", help = "[Admin] Crédite un joueur", parameters = {
-        { name = "playerId", help = "Identifiant du joueur" },
-        { name = "amount", help = "Montant en €$" },
+    { command = "/givemoney", help = "[Admin] Credit a player", parameters = {
+        { name = "playerId", help = "Player id" },
+        { name = "amount", help = "Amount in €$" },
     } },
-    { command = "/payday", help = "[Admin] Déclenche une paie immédiate" },
+    { command = "/payday", help = "[Admin] Trigger an immediate payday" },
 }
 
 local function publishSuggestions(target)
@@ -349,17 +608,25 @@ AddEventHandler("onResourceStart", function(name)
     if name ~= RESOURCE then
         return
     end
-    -- Players already in the world had their onPlayerReady before this
-    -- generation existed (hot reload): load them now.
-    for _, rawId in ipairs(Open77.players.all() or {}) do
-        local playerId = asNumber(rawId)
-        if playerId and isPlayerReady(playerId) then
-            loadWallet(playerId)
-        end
-    end
+    bootStore()
     publishSuggestions(-1)
     startPaydayThread()
     log("started")
+    -- Players already in the world had their onPlayerReady before this
+    -- generation existed (hot reload): load them once the store is decided.
+    -- Own thread: the wait yields.
+    CreateThread(function()
+        if not waitForStore(STORE_GRACE_MS) then
+            log("store undecided after the grace period: players already in the world load on /money")
+            return
+        end
+        for _, rawId in ipairs(Open77.players.all() or {}) do
+            local playerId = asNumber(rawId)
+            if playerId and playerId > 0 and isPlayerReady(playerId) then
+                loadWallet(playerId)
+            end
+        end
+    end)
 end)
 
 AddEventHandler("onResourceStop", function(name)
@@ -374,15 +641,26 @@ end)
 
 AddEventHandler("onPlayerReady", function(rawPlayerId)
     local playerId = asNumber(rawPlayerId)
-    if not playerId then
+    if not playerId or playerId <= 0 then
         return
     end
-    local balance, reason = loadWallet(playerId)
-    if not balance then
-        tell(playerId, ("Portefeuille indisponible (%s) : préviens un admin."):format(tostring(reason)))
+    if not waitForStore(STORE_GRACE_MS) then
+        tell(playerId, "Wallet unavailable (store_not_ready): tell an admin.")
         return
     end
-    tell(playerId, ("Solde : %s"):format(formatMoney(balance)))
+    -- The wait yielded: the player may have left meanwhile.
+    if not isPlayerReady(playerId) then
+        return
+    end
+    loadWallet(playerId, function(balance, reason)
+        if not balance then
+            if reason ~= "player_left" then
+                tell(playerId, ("Wallet unavailable (%s): tell an admin."):format(tostring(reason)))
+            end
+            return
+        end
+        tell(playerId, ("Balance: %s"):format(formatMoney(balance)))
+    end)
 end)
 
 AddEventHandler("onPlayerDisconnected", function(rawPlayerId)
@@ -403,16 +681,16 @@ end)
 -- Commands
 ------------------------------------------------------------------------------
 
--- Parses "<playerId> <amount>" from a command; answers French errors to `reply`.
+-- Parses "<playerId> <amount>" from a command; answers player-facing errors to `reply`.
 local function parseTargetAndAmount(args, reply, usage)
     local target = toPositiveInteger(asNumber(args[1]), 2147483647)
     local amount = toPositiveInteger(asNumber(args[2]), MAX_BALANCE)
     if not target or not amount then
-        reply("Usage : " .. usage)
+        reply("Usage: " .. usage)
         return nil
     end
     if wallets[target] == nil or not isPlayerReady(target) then
-        reply("Joueur introuvable ou pas encore en jeu.")
+        reply("Player not found or not in the world yet.")
         return nil
     end
     return target, amount
@@ -420,90 +698,97 @@ end
 
 RegisterCommand("money", function(source, args, raw)
     if source == 0 then
-        print("[" .. RESOURCE .. "] /money : à utiliser depuis le jeu, pas depuis la console.")
+        print("[" .. RESOURCE .. "] /money: use it from the game, not from the console.")
         return
     end
-    local balance = wallets[source]
-    if balance == nil then
-        balance = loadWallet(source)
+    local function show(balance)
+        tell(source, ("Balance: %s"):format(formatMoney(balance)))
+        notify(source, {
+            type = "info",
+            title = "Wallet",
+            message = ("Balance: %s"):format(formatMoney(balance)),
+            icon = "E$",
+            durationMs = 5000,
+        })
     end
-    if balance == nil then
-        tell(source, "Portefeuille indisponible : préviens un admin.")
+    if wallets[source] ~= nil then
+        show(wallets[source])
         return
     end
-    tell(source, ("Solde : %s"):format(formatMoney(balance)))
-    notify(source, {
-        type = "info",
-        title = "Portefeuille",
-        message = ("Solde : %s"):format(formatMoney(balance)),
-        icon = "E$",
-        durationMs = 5000,
-    })
+    loadWallet(source, function(balance, reason)
+        if balance == nil then
+            if reason ~= "player_left" then
+                tell(source, "Wallet unavailable: tell an admin.")
+            end
+            return
+        end
+        show(balance)
+    end)
 end, false)
 
 RegisterCommand("pay", function(source, args, raw)
     if source == 0 then
-        print("[" .. RESOURCE .. "] /pay : à utiliser depuis le jeu, pas depuis la console.")
+        print("[" .. RESOURCE .. "] /pay: use it from the game, not from the console.")
         return
     end
     local reply = function(text) tell(source, text) end
     if wallets[source] == nil then
-        reply("Portefeuille indisponible : préviens un admin.")
+        reply("Wallet unavailable: tell an admin.")
         return
     end
-    local target, amount = parseTargetAndAmount(args, reply, "/pay <playerId> <montant>")
+    local target, amount = parseTargetAndAmount(args, reply, "/pay <playerId> <amount>")
     if not target then
         return
     end
     if target == source then
-        reply("Tu ne peux pas te payer toi-même.")
+        reply("You can't pay yourself, choom.")
         return
     end
     if wallets[source] < amount then
-        reply(("Fonds insuffisants : il te manque %s."):format(formatMoney(amount - wallets[source])))
+        reply(("Insufficient funds: you're %s short."):format(formatMoney(amount - wallets[source])))
         return
     end
 
     local senderBalance, removeReason = applyDelta(source, -amount, "pay:to:" .. target)
     if not senderBalance then
-        reply(("Paiement refusé (%s)."):format(tostring(removeReason)))
+        reply(("Payment refused (%s)."):format(tostring(removeReason)))
         return
     end
     local targetBalance, addReason = applyDelta(target, amount, "pay:from:" .. source)
     if not targetBalance then
         -- Refund: the target could not receive (balance cap, vanished between checks).
         applyDelta(source, amount, "pay:refund:" .. target)
-        reply(("Paiement refusé (%s), montant remboursé."):format(tostring(addReason)))
+        reply(("Payment refused (%s), amount refunded."):format(tostring(addReason)))
         return
     end
 
     local senderName = Open77.players.name(source) or ("#" .. source)
     local targetName = Open77.players.name(target) or ("#" .. target)
-    reply(("Tu as envoyé %s à %s. Solde : %s"):format(formatMoney(amount), targetName, formatMoney(senderBalance)))
-    tell(target, ("%s t'a envoyé %s. Solde : %s"):format(senderName, formatMoney(amount), formatMoney(targetBalance)))
+    reply(("You sent %s to %s. Balance: %s"):format(formatMoney(amount), targetName, formatMoney(senderBalance)))
+    tell(target, ("%s sent you %s. Balance: %s"):format(senderName, formatMoney(amount), formatMoney(targetBalance)))
 end, false)
 
 -- Restricted: ACL command.givemoney; the server console is always allowed.
 RegisterCommand("givemoney", function(source, args, raw)
     local reply
     if source == 0 then
-        reply = function(text) print("[" .. RESOURCE .. "] givemoney : " .. text) end
+        reply = function(text) print("[" .. RESOURCE .. "] givemoney: " .. text) end
     else
         reply = function(text) tell(source, text) end
     end
-    local target, amount = parseTargetAndAmount(args, reply, "/givemoney <playerId> <montant>")
+    local target, amount = parseTargetAndAmount(args, reply, "/givemoney <playerId> <amount>")
     if not target then
         return
     end
     local newBalance, reason = applyDelta(target, amount, "givemoney:by:" .. source)
     if not newBalance then
-        reply(("Crédit refusé (%s)."):format(tostring(reason)))
+        reply(("Credit refused (%s)."):format(tostring(reason)))
         return
     end
-    tell(target, ("Un administrateur t'a crédité de %s. Solde : %s"):format(formatMoney(amount), formatMoney(newBalance)))
+    tell(target, ("An admin credited you %s. Balance: %s"):format(formatMoney(amount), formatMoney(newBalance)))
     if source ~= 0 then
         local targetName = Open77.players.name(target) or ("#" .. target)
-        reply(("%s crédité de %s (solde : %s)."):format(targetName, formatMoney(amount), formatMoney(newBalance)))
+        reply(("%s credited %s (balance: %s)."):format(targetName, formatMoney(amount), formatMoney(newBalance)))
     end
 end, true)
 
@@ -511,8 +796,8 @@ end, true)
 RegisterCommand("payday", function(source, args, raw)
     local paid = runPayday(source == 0 and "console" or ("player:" .. source))
     if source ~= 0 then
-        tell(source, ("Paie déclenchée : %d joueur(s) payé(s)."):format(paid))
+        tell(source, ("Payday triggered: %d player(s) paid."):format(paid))
     else
-        print("[" .. RESOURCE .. "] payday : " .. paid .. " joueur(s) payé(s).")
+        print("[" .. RESOURCE .. "] payday: " .. paid .. " player(s) paid.")
     end
 end, true)

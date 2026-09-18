@@ -13,15 +13,16 @@ definePurge` plus `Open77.cyberware.define`, exactly as the hacking guide prescr
 
 ## What the player sees
 
-1. **The chair.** A purple ring, a map pin and an `E` prompt **Ripperdoc chair** (`open77_worldui`,
-   `promptDistance = 3.0`) at `400.0, -2386.0, 182.0`, inside the `rp_zones` **black market**
-   (`blackmarket`, centre `400, -2390, 182`, radius 10) — about 24 m north-east of the freeroam spawn
-   `381.36, -2401.79, 181.99`. Press **E**: the server checks you stand within 3.5 m and plays the
-   RP `lie` posture on you **at the chair** (`Open77.animations.playAt(player, "lie", position, yaw)`,
-   permission `players.animations.control` — the server native that places a posture at a pose;
-   its portable `lie` workspot is the invisible bed under you). You are now "on the chair".
-   Press **E** again (or walk more than 0.5 m) to get up. The owner moves the chair and the zone to
-   a real clinic by editing `RpRipperConfig.chair` / `clinicZone`.
+1. **The chair.** A purple ring, a map pin and an `E` prompt **Vik's chair** (`open77_worldui`,
+   `promptDistance = 4.0`, ring radius 4) at `-1548.0, 1230.0, 11.6` — **Viktor Vektor's real
+   chair room**, under the Misty's Esoterica alley in Little China (Watson), inside the `rp_zones`
+   **`viktor_clinic`** zone (centre `-1548, 1230, 11.5`, radius 12). Press **E**: the server checks
+   you stand within 4.5 m and plays the RP `lie` posture on you **at the chair**
+   (`Open77.animations.playAt(player, "lie", position, yaw)`, permission
+   `players.animations.control` — the server native that places a posture at a pose; its portable
+   `lie` workspot is the invisible bed under you). You are now "on the chair". Press **E** again
+   (or walk more than 0.5 m) to get up. The clinic already has its chair, so no prop is spawned.
+   The owner moves the chair and the zone by editing `RpRipperConfig.chair` / `clinicZone`.
 2. **The ripper operates.** On duty (`/service`), within 4 m, inside the clinic zone: hold **ALT**,
    click the patient, pick **Operate** (`open77_contextmenu`) — or type `/operer <playerId>`. A UI-kit
    **context menu** lists the catalogue: one row per grade with **price**, **grade**, **stock** (a
@@ -46,7 +47,7 @@ definePurge` plus `Open77.cyberware.define`, exactly as the hacking guide prescr
    in **cash**: `rp_bank` has no society-to-account move). **100 % of the fee goes to the `ripper`
    society**; the ripper is paid by the `rp_jobs` payroll.
 6. **Cyberpsychosis.** After an install, when the patient carries **more than**
-   `cyberpsychosisThreshold` implants (4 on the eval config, so the fifth implant), the server plays
+   `cyberpsychosisThreshold` implants (4 on the shipped config, so the fifth implant), the server plays
    the `drugged` full-screen overlay on that patient for 60 s — `Open77.effects.screen(patient,
    "drugged", { strength = 0.5, duration = 60 })`, the server-targeted, non-replicated screen effect
    of the effects guide, permission `players.screenfx` — plus a red toast and a chat warning. Set
@@ -55,6 +56,17 @@ definePurge` plus `Open77.cyberware.define`, exactly as the hacking guide prescr
 Every refusal is explained in chat, in English: not a ripper, off duty, patient not on the chair,
 too far (with the distance), outside the clinic, no box, patient cannot afford it, record not
 ready, provider offline, and every platform reason (`animation_busy`, `player_reserved`, …).
+
+## Where it is
+
+| What | Position | Notes |
+|---|---|---|
+| Vik's chair (ring + pin + E prompt) | `-1548.0, 1230.0, 11.6`, yaw -89.5 | `RpRipperConfig.chair`; AMM point +0.1 m |
+| Clinic entrance (inside) | `-1545.0, 1233.0, 11.6` | where rp_bank's ATM stands |
+| `viktor_clinic` zone (rp_zones) | centre `-1548, 1230, 11.5`, r 12 | the ripper must stand inside it to operate |
+
+From the Kabuki Market spawn (`-1191.3, 2006.9, 7.8`) the clinic is about **860 m south-west**
+as the crow flies: down through Little China, into the alley by Misty's, down the stairs.
 
 ## Commands
 
@@ -123,9 +135,9 @@ says `[rp_ripperdoc] store=kvp reason=...`. The implant record itself is the pla
 | Key | Default | Meaning |
 |---|---|---|
 | `job` / `society` | `ripper` / `ripper` | The `rp_jobs` job that may operate; the `rp_bank` society that receives every fee. |
-| `clinicZone` | `blackmarket` | `rp_zones` zone the ripper must stand in (`nil` = anywhere; ignored when `rp_zones` is not running). |
-| `chair.position` / `yaw` | `400, -2386, 182` / `90` | Where the patient lies; `z` is the ground under the chair (`/pos` on the spot if the ring is invisible). |
-| `chair.promptDistance` / `reach` | `3.0` / `3.5` | The E prompt range; the server's own re-check. |
+| `clinicZone` | `viktor_clinic` | `rp_zones` zone the ripper must stand in (`nil` = anywhere; ignored when `rp_zones` is not running). |
+| `chair.position` / `yaw` | `-1548, 1230, 11.6` / `-89.5` | Vik's chair; `z` is the floor under the chair (`/pos` on the spot if the ring is invisible). |
+| `chair.promptDistance` / `reach` / `radius` | `4.0` / `4.5` / `4.0` | The E prompt range; the server's own re-check; the ring covers the whole chair. |
 | `operateDistance` | `4.0` | The ripper must be within this distance of the patient. |
 | `quoteTimeoutMs` | `30000` | Time to accept or decline the quote. |
 | `removalPriceFactor` | `0.5` | A removal costs half the install price of the installed grade. |
@@ -136,7 +148,7 @@ says `[rp_ripperdoc] store=kvp reason=...`. The implant record itself is the pla
 | `catalogue` | 5 entries, 7 grades | Per entry: slot, profile, definition id, box item, grades (`label`, `price`, `durationMs` + the platform grade fields; `hacking` block for the three hacking implants). |
 | `items` | 5 boxes | `implant_box_arms`, `_legs`, `_deck`, `_ice`, `_purge`: 2.0 kg, not usable, **illegal unless the holder is a `ripper`** (`permit = "ripper"`), registered in `rp_inventory` through `exports.rp_inventory:define` on start and whenever `rp_inventory` restarts. |
 
-Prices at the eval config: Gorilla Arms 1 500 (Street) / 3 200 €$ (Industrial), Reinforced
+Prices at the shipped config: Gorilla Arms 1 500 (Street) / 3 200 €$ (Industrial), Reinforced
 Tendons 1 200 / 2 500 €$, Cyberdeck 2 000 €$, Self-ICE 1 800 €$, Active Purge 1 600 €$; a removal is
 half the installed grade's price.
 
@@ -163,7 +175,7 @@ and are re-defined when `open77_hacking` or `open77_cyberware` (re)starts.
 [rp_ripperdoc] catalogue arms defined (arms/gorilla_arms, 2 grade(s))
 [rp_ripperdoc] catalogue deck NOT defined: hacking_unavailable
 [rp_ripperdoc] boxed implants registered in rp_inventory: 5 registered, 0 rejected
-[rp_ripperdoc] started: 5 implants in the catalogue, chair at 400.0 -2386.0 182.0 (zone blackmarket), threshold 4 implants
+[rp_ripperdoc] started: 5 implants in the catalogue, chair at -1548.0 1230.0 11.6 (zone viktor_clinic), threshold 4 implants
 [rp_ripperdoc] store=sql table=rp_ripperdoc_operations
 [rp_ripperdoc] op <id> offered: install arms, 1500 eddies, player 1 -> player 2
 [rp_ripperdoc] op <id> done: install arms on player 2 by player 1, 1500 eddies via account
@@ -174,8 +186,9 @@ and are re-defined when `open77_hacking` or `open77_cyberware` (re)starts.
 
 ## Test in 2 minutes
 
-Two clients at the freeroam spawn, ids `1` (the ripper) and `2` (the patient); `rp_jobs`,
-`rp_inventory`, `rp_bank`, `rp_economy` and `rp_zones` running. On start the log shows the
+Two clients inside Viktor's clinic (walk from Kabuki Market, ~860 m south-west, or console
+`tp <id> -1545 1233 11.6` onto the clinic entrance), ids `1` (the ripper) and `2` (the patient);
+`rp_jobs`, `rp_inventory`, `rp_bank`, `rp_economy` and `rp_zones` running. On start the log shows the
 `catalogue ... defined` lines (the three hacking ones say `NOT defined: hacking_unavailable` when
 `open77_hacking` is not loaded — arms and legs are enough for this walkthrough).
 
@@ -186,12 +199,13 @@ Two clients at the freeroam spawn, ids `1` (the ripper) and `2` (the patient); `
    50 000 €$.`, `Last 24 h: 0 operation(s).`
 3. Player 1: `/ripper restock arms 1` → `Restocked 1 x Implant box: Gorilla Arms for 900 €$ (paid by
    the ripper society).` (`/inv` shows the box.) `/ripper` now lists `Gorilla Arms x1`.
-4. Player 2 walks 24 m north-east to the purple ring by the black market (map pin **Ripperdoc
-   chair**), looks at it, presses **E** → they lie down on the spot; chat `You lie down on the
-   ripperdoc chair. 1 ripper(s) on duty can operate. Press E again to get up.` Player 1 reads
+4. Player 2 walks to the purple ring around Vik's chair (map pin **Vik's chair**), looks at it,
+   presses **E** → they lie down on the chair; chat `You lie down on the ripperdoc chair. 1
+   ripper(s) on duty can operate. Press E again to get up.` Player 1 reads
    `<name> is lying on the chair. ALT+click them > Operate, or /operer 2.`
-5. Player 1 stands 6 m away: `/operer 2` → `Get within 4 m of the patient (6.0 m).` Walks next to
-   the chair, holds **ALT**, clicks player 2, picks **Operate** → the menu `Ripperdoc - <name>`:
+5. Player 1 stands 6 m away, at the clinic entrance: `/operer 2` → `Get within 4 m of the patient
+   (6.0 m).` (From the alley outside the `viktor_clinic` zone: `Operate inside the clinic
+   (viktor_clinic zone).`) Walks next to the chair, holds **ALT**, clicks player 2, picks **Operate** → the menu `Ripperdoc - <name>`:
    `Gorilla Arms - Street` (1 500 €$, stock `yours x1`, 15 s), `Gorilla Arms - Industrial` greyed
    (no box), `Reinforced Tendons - ...` greyed, the hacking rows greyed or `Provider offline`.
    Pick **Gorilla Arms - Street** → player 1 `Quote sent to <name>: install Gorilla Arms [Street]
@@ -223,8 +237,8 @@ Two clients at the freeroam spawn, ids `1` (the ripper) and `2` (the patient); `
 
 ### What a single player can check
 
-- The **chair prompt**: walk to the ring, press **E** → you lie down at the chair; `E` again → you
-  get up. Walk away while lying → `You left the ripperdoc chair.`
+- The **chair prompt**: walk to the ring in Vik's chair room, press **E** → you lie down on the
+  chair; `E` again → you get up. Walk away while lying → `You left the ripperdoc chair.`
 - `/implants` → your record from the platform (`Implants: 0 installed ...`, five slot lines), or
   `Your implant record is not ready (...)` while `open77_appearance` is still binding you.
 - **The quote refusal when no ripper is on duty**: `/ripper` (as a citizen) → `Rippers on duty:

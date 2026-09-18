@@ -135,7 +135,8 @@ the whole boot.
 ## Log (grep-able)
 
 ```text
-[rp_jobs] started: 12 jobs, payroll every 10 min, agency at 396.0 -2388.0 182.0
+[rp_jobs] job board prop 123456 at -1172.3 2088.3 11.9
+[rp_jobs] started: 12 jobs, payroll every 10 min, agency at -1173.1 2087.4 11.9
 [rp_jobs] store=sql table=rp_jobs_employees
 [rp_jobs] player 3 loaded job=ncpd grade=3 (sql)
 [rp_jobs] player 3 job=ncpd grade=3 (setjob by console)
@@ -148,16 +149,21 @@ the whole boot.
 
 ## The agency POI
 
-`RpJobsConfig.Agency.position = { x = 396.0, y = -2388.0, z = 181.99 }`, about 20 m from the
-freeroam spawn (`381.36, -2401.79, 181.99`): a ring, a map pin and an `E` prompt
-(`open77_worldui`, `promptDistance = 3.0`, `style = "interaction"`). `z` is the spawn's own
-height — if the ring is not visible, stand on the spot, `/pos`, and paste the ground height. The
-prompt fires `rp_jobs:agency`; the server checks the distance again (`Agency.reach`) before
-opening the menu, so the client cannot open it from anywhere.
+`RpJobsConfig.Agency.position = { x = -1173.12, y = 2087.44, z = 11.94 }` — **The Gallery**, the
+elevated walkway at the north end of Kabuki Market, 83 m north-east of the freeroam spawn
+(Kabuki Market Centre `-1191.30, 2006.88, 7.82`; walk north past The Arch and up the steps):
+a ring, a map pin and an `E` prompt (`open77_worldui`, `promptDistance = 3.0`,
+`style = "interaction"`), plus a **job-board terminal** the server spawns 1.2 m behind the ring
+(`Open77.props.create`, the curated prop alias `electronics.monitor.device` — see
+`prop.catalog` —, removed on stop; a refusal only logs). `z` is the walked height — if the ring is not visible, stand on the spot,
+`/pos`, and paste the ground height. The Gallery is outside the `kabuki_market` safe zone (70 m)
+and inside the `kabuki` district. The prompt fires `rp_jobs:agency`; the server checks the
+distance again (`Agency.reach`) before opening the menu, so the client cannot open it from
+anywhere.
 
 ## Manifest
 
-Permissions: `network.events`, `database.access`, `ui.nameplates`. Dependencies:
+Permissions: `network.events`, `database.access`, `ui.nameplates`, `world.props`. Dependencies:
 `open77_uikit` (the agency menu, server twin `context`), `open77_worldui` (the POI),
 `open77_contextmenu` (the hire action) — all three ship a client half. `rp_bank`, `rp_economy`
 and `rp_identity` are server-only and reached through `pcall`: without `rp_bank` payroll and
@@ -166,7 +172,7 @@ employee told; without `rp_identity` account names are used.
 
 ## Test in 2 minutes
 
-Two clients at the freeroam spawn, ids `1` and `2`; `rp_bank`, `rp_economy` and (optionally)
+Two clients at the freeroam spawn (Kabuki Market Centre), ids `1` and `2`; `rp_bank`, `rp_economy` and (optionally)
 `rp_identity` running. Log on start: `[rp_jobs] started: 12 jobs, ...` then `[rp_jobs]
 store=sql table=rp_jobs_employees`.
 
@@ -186,8 +192,10 @@ store=sql table=rp_jobs_employees`.
    boss, player 1 reads `You handed the NCPD boss seat to ... You are now senior.`
    Player 2: `/virer 1` → player 1 reads `... fired you from NCPD. Hand in your badge, choom.`
    and `/service` now answers `No job, no shift. /agence to find one.`
-7. Player 1 walks to the ring by the spawn (map pin `Employment agency`), looks at it, presses
-   **E** (or types `/agence` within 12 m): the menu lists Delamain, Mechanic, Nomad, Scrapper,
+7. Player 1 walks 83 m north to The Gallery (map pin `Employment agency — Kabuki Gallery`, a
+   terminal behind the ring), looks at the ring, presses **E** (or types `/agence` within 12 m):
+   from the spawn `/agence` answers `The employment agency is 83 m away (the ring and map pin on
+   the Kabuki Gallery walkway). Walk over.` The menu lists Delamain, Mechanic, Nomad, Scrapper,
    Bartender, Security guard with their pay. Pick **Delamain** → `Signed: you now work for
    Delamain as recruit.` `/agence` again: Delamain is greyed out, **Resign from Delamain** is
    offered.

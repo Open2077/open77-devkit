@@ -150,8 +150,9 @@ end
 
 -- A living, connected target other than the netrunner, within `range` metres.
 local function resolveTarget(player, rawTarget, range)
-    local target = tonumber(rawTarget)
-    if not target or target <= 0 or target % 1 ~= 0 then
+    -- A positive integer only: Open77.players.* raise on anything else (1e300 passes `% 1 == 0`).
+    local target = math.tointeger(tonumber(rawTarget))
+    if not target or target <= 0 then
         warn(player, "Give a player id: /players lists them.")
         return nil
     end

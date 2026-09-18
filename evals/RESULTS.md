@@ -392,3 +392,56 @@ What the round found (platform):
   units and `GetResourceState` values unstated; `TriggerClientEvent` card truncated.
 - Client E prompts need the card within `distance` of the *player* (not the ring) and the world
   positions must be measured: `groundz` found the cliff under two housing doors and the fence.
+
+## RP review + Night City move, 2026-09-18 12:30–17:30: every resource reviewed, the server leaves the plateau
+
+The owner's verdict on the delivered round — "why no real props, no real map location, it looks like AI
+slop" — drove a second pass over all 39 resources. Six reviewers (one per disjoint group, MCP + the
+runtime sources) fixed ~30 defects; the worst were crashes the plateau never triggered: exports that
+called `Open77.players.name/identifier` with a console id 0 or a float (`rp_identity:fullName`, the
+most-called export on the server, `rp_ncpd` jail release — the served-sentence loop retired itself —
+`rp_crime /dealer`, `rp_ambiance` siren, `rp_housing`, `rp_whitelist:ban`, `rp_ferrailleur`,
+`rp_netrunner`, `rp_bar`, `rp_ripperdoc`, `rp_vigile`), host lifecycle events delivering ids as
+STRINGS (`rp_logs`' death filter never read the life snapshot), un-guarded `.await`s killing command
+threads on a DB hiccup, the global `source` read after a UI-kit `await` (mechanic paint/invoice ran as
+nobody), the nomad truck TTL that `vehicles.create` silently ignores, the lost-vehicle sweep, the
+whitelist boot that hung on a connecting bridge, `/radio off` not persisted, MDT fines reading
+`paid_at IS NULL` on a `NOT NULL DEFAULT 0` column. `selftest` now covers every phase: 33/33 live.
+
+Then the move: a measured table of Night City landmarks (the AMM mod's 121 named locations plus the
+cordon gamemode's walked Kabuki points) replaced every plateau position. Hub = Kabuki Market (the
+freeroam spawn), the Afterlife (bar counter, Rogue's booth for the fixer, the back room for the
+netrunner), Viktor's clinic (ripperdoc chair and the Trauma respawn — "you wake up at Vik's"), the
+Afterlife street (garage lot, mechanic workshop with gas pump and tyre blockers, AV pad, NCPD outpost),
+five real flats (V's in Megabuilding H10, Judy's, Northside, Japantown, the Glen) whose real doors are
+discovered and claimed through `open77_doors`, Westbrook Motors, the NCPD building, Lizzie's, the
+Rancho Coronado junkyard, the Aldecaldos camp. Every POI carries real props; `/inv` became a WebUI
+panel; `rp_economy` wallets moved to SQL. All verified in game by the bot at each place.
+
+What the pass found (platform):
+
+- **`Open77.world.nearby` is unproven on 2.31** (`part_layout_not_proven`, every call, no crosshair
+  target helps): the probe compared raw part qwords against the object/component under the crosshair,
+  but a `TargetPartInfo` is `{u8 index, TargetEntry*, record*}` — the stable pointer is a table entry
+  that holds the id and a weak handle, the moving one a per-frame record (witness: `[4]-[1]=0xC0=3×0x40`,
+  `[5]-[2]=0x90=3×0x30`, `[2]` moved by exactly `0x18650` between probes). Decoded from the binary and
+  fixed in base PR #37 (offline; needs a client build). Until it lands, `open77_interactions`
+  `class`/`model` targets are dead on 2.31 — no "prompt on every real ATM"; the RP resources stand
+  their rings and props at measured coordinates instead.
+- **Zone circles cap at 2 000 m** (`open77_zones.lua MAX_RADIUS`, `invalid_radius` at start, the
+  card says nothing): the Badlands became a polygon.
+- **A raw depot `.mesh` prop renders as a white slab** (materials missing on the host path); the 184
+  curated aliases of `prop.catalog` (116 solid) render correctly — the catalogue should say so.
+- **The prompt card cannot render an em-dash** (`—` → `?`); labels use `-`.
+- **`<resource>/kvp.json` is the resource's KVP store**: a deploy that replaces the directory wipes
+  it (wallets gone). Deploys overlay now; KVP is a fallback only.
+- **Client-side prompt geometry**: the prompt distance is 3D to the card anchor 1 m above the ring;
+  two rings within ~3 m fight (the latched one wins until out of range); an AMM "interior" point is
+  a doorstep, so rings derived by a fixed offset land in walls — derive them from the claimed door.
+- Consumers that copy zone geometry (rp_vigile) drift when rp_zones changes: a `bounds` export
+  would remove the copy.
+
+Open after this pass: the Northside flat's "Front door" exit card stays at "3.0 m" and never fires
+for the bot although the ring is 1.2 m away (the H10 door, the stash and every other prompt work);
+the dealer's UI-kit confirmation timed out once (`export_timeout`) and worked on retry; two-player
+paths, driving legs, unmeasured prop yaws.

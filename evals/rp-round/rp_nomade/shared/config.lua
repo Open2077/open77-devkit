@@ -1,44 +1,72 @@
 -- rp_nomade configuration. Loaded on both runtimes (shared_script): the client reads the
 -- positions to draw rings and prompts, the server checks every distance against the same numbers.
--- Every position is in world metres. The eval server spawns everyone at 381.36, -2401.79, 181.99.
+-- Every position is in world metres, a real Night City / Badlands place (AMM and walked points,
+-- 2026-09-18). The freeroam spawn is Kabuki Market Centre (-1191.3, 2006.9, 7.8).
 RpNomadeConfig = {}
 
--- The nomad camp (rp_zones `nomad_camp`: centre 420, -2378, z 182, radius 9).
+-- The nomad camp: the Aldecaldos camp in the north-eastern Badlands, around V's nomad tent
+-- (AMM 1792.9, 2248.9, 180.2, yaw 58.6) -- the `nomad_camp` zone of rp_zones (same centre,
+-- radius 120). Rings use the AMM ground + 0.1; the camp is not flat, so if a ring is invisible
+-- in game, stand on the spot, `/pos`, and paste the ground height.
 RpNomadeConfig.Camp = {
     zone = "nomad_camp",                                   -- rp_zones name used for the truck return
-    position = { x = 420.0, y = -2378.0, z = 182.0 },      -- camp centre, what /camp reports
+    position = { x = 1792.9, y = 2248.9, z = 180.2 },      -- camp centre (V's tent), what /camp reports
     -- The contracts board: a ring, a map pin and an E prompt (open77_worldui).
     board = {
-        position = { x = 420.0, y = -2381.5, z = 182.0 },
+        position = { x = 1790.0, y = 2252.0, z = 180.3 },
         radius = 1.0,
         promptDistance = 3.0,
         reach = 5.0,                                       -- server-side distance check when the prompt fires
-        label = "Contracts board",
+        label = "Aldecaldos contracts board",
         description = "Convoys and crate runs for the clan.",
     },
-    -- Where the rented truck appears.
-    truckSpawn = { x = 427.0, y = -2381.0, z = 182.3, yaw = 180.0 },
-    -- Loading points: one crate per point, in order. Templates never ask for more crates than points.
+    -- The truck bay: where the rented truck appears, 12 m south-east of the board. The yaw is
+    -- the tent's own heading (AMM 58.6); the road's heading was not measured -- `/pos` in the
+    -- truck facing the road and paste the yaw here.
+    truckSpawn = { x = 1800.0, y = 2240.0, z = 180.2, yaw = 58.6 },
+    -- Loading points: one crate per point, in order, 4-6 m north of the board. Templates never
+    -- ask for more crates than points.
     loadingPoints = {
-        { x = 416.0, y = -2374.5, z = 182.0 },
-        { x = 418.0, y = -2373.5, z = 182.0 },
-        { x = 420.0, y = -2373.5, z = 182.0 },
-        { x = 422.0, y = -2374.5, z = 182.0 },
+        { x = 1786.0, y = 2256.0, z = 180.3 },
+        { x = 1788.0, y = 2258.0, z = 180.3 },
+        { x = 1790.0, y = 2258.5, z = 180.3 },
+        { x = 1792.0, y = 2257.0, z = 180.3 },
+    },
+    -- Decoration spawned by the server at start (Open77.props.create, permission `world.props`)
+    -- and removed at stop: two cargo crates 1.2 m off the board ring. Raw depot `.mesh` paths
+    -- from the props catalogue; a refused prop is logged, never fatal.
+    props = {
+        { model = "crate.cargo",
+          position = { x = 1788.2, y = 2253.6, z = 180.2 }, yaw = 58.6 },
+        { model = "crate.cargo",
+          position = { x = 1791.8, y = 2253.8, z = 180.2 }, yaw = 40.0 },
     },
 }
 
 -- Delivery destinations, keyed by rp_zones name. The server asks rp_zones:isIn(driver, name);
--- the ring is drawn at `position` and the distance fallback (rp_zones missing) uses `radius`.
+-- the ring is drawn at `position` (radius `radius`, capped at 50 m by the client) and the
+-- distance fallback (rp_zones missing) uses `radius`. A destination rp_zones does not know
+-- carries `zone = false`: it is then a planar-distance check against `radius` only.
 RpNomadeConfig.Destinations = {
-    blackmarket = {
-        label = "Black market warehouse",
-        position = { x = 400.0, y = -2390.0, z = 182.0 },
-        radius = 10.0,
+    junkyard = {
+        label = "Rancho Coronado junkyard",
+        position = { x = 1374.9, y = -1674.9, z = 49.4 },
+        radius = 30.0,
     },
-    scrapyard = {
-        label = "Scrapyard",
-        position = { x = 462.0, y = -2352.0, z = 178.0 },
-        radius = 12.0,
+    afterlife_street = {
+        label = "Watson, the Afterlife street",
+        -- The street outside the Afterlife ramp (probed, crosswalk); Kabuki's lanes are
+        -- pedestrian, no truck fits there (checked in game 18 Sept). Not an rp_zones zone:
+        -- planar check like the Drive-In.
+        position = { x = -1408.0, y = 960.0, z = 23.5 },
+        radius = 25.0,
+        zone = false,
+    },
+    drive_in = {
+        label = "Badlands Drive-In Theater",
+        position = { x = -81.2, y = 1963.3, z = 100.8 },
+        radius = 40.0,
+        zone = false,                                          -- no rp_zones zone: distance only
     },
 }
 
@@ -47,23 +75,23 @@ RpNomadeConfig.Templates = {
     {
         id = "scav_parts",
         label = "Scav parts run",
-        description = "Three crates of stripped parts for the black market. No questions.",
+        description = "Three crates of stripped parts for the Rancho Coronado junkyard. No questions.",
         crates = 3,
-        destination = "blackmarket",
+        destination = "junkyard",
     },
     {
         id = "chooh2_barrels",
         label = "CHOOH2 barrels",
-        description = "Two crates of fuel cans. Do not smoke on the way.",
+        description = "Two crates of fuel cans for the garage on the Afterlife street, Watson. Do not smoke on the way.",
         crates = 2,
-        destination = "blackmarket",
+        destination = "afterlife_street",
     },
     {
         id = "militech_salvage",
         label = "Militech salvage",
-        description = "Four crates nobody should ask about. Heavy, and the Wraiths know.",
+        description = "Four crates nobody should ask about, dropped at the old Drive-In. Heavy, and the Wraiths know.",
         crates = 4,
-        destination = "blackmarket",
+        destination = "drive_in",
     },
 }
 
@@ -115,11 +143,15 @@ RpNomadeConfig.Carry = {
 }
 
 -- The ambush: the FIRST time a loaded truck is inside this circle (and at least minTravel metres
--- from where it was rented, the eval circle overlaps the camp), hostile NPCs spawn around it.
+-- from where it was rented), hostile NPCs spawn around it. The circle sits on the road between
+-- the camp and the junkyard, ~1600, 600: the check is planar (z is not used), and the exact
+-- road point was not measured -- at replay time, drive the road and use `groundz <playerId>
+-- 1600 600` (rp_taxitest console) or `/pos` on the road to refine the centre. The radius is
+-- wide enough to catch the road wherever it passes near that point.
 RpNomadeConfig.Ambush = {
     enabled = true,
-    center = { x = 410.0, y = -2384.0, z = 182.0 },
-    radius = 20.0,
+    center = { x = 1600.0, y = 600.0, z = 100.0 },
+    radius = 60.0,
     minTravel = 10.0,
     count = 3,
     spawnDistance = 15.0,

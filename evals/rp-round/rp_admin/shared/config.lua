@@ -30,8 +30,9 @@ RpAdminConfig = {
     -- Teleport to / Bring: side offset in metres, so two bodies never resolve inside each other.
     TeleportOffset = 1.5,
 
-    -- The freeroam spawn, where the README's test takes place (world metres).
-    Spawn = { x = 381.36, y = -2401.79, z = 181.99 },
+    -- The freeroam spawn, where the README's test takes place (world metres):
+    -- Kabuki Market Centre, Watson (walked point).
+    Spawn = { x = -1191.30, y = 2006.88, z = 7.82 },
 
     -- Persistence: how long to wait for the database before falling back to Open77.kvp.
     DatabaseWaitMs = 15000,

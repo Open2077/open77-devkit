@@ -29,10 +29,10 @@ local DRIVER_RECORD      = "Character.NightlifeMaleDriver"
 -- What the driver says, as the game's own voice-over barks (Open77.npcs.speak: a name
 -- the record's voiceset lacks is silent, so each bark is doubled by a chat line).
 local DRIVER_LINES       = {
-    boarded = { voice = "greeting", text = "Bonsoir. Attachez-vous, on y va." },
-    blocked = { voice = "vehicle_bump", text = "Tss... y a du monde. Deux secondes." },
-    resumed = { voice = "hurry_up", text = "C'est bon, on repart." },
-    arrived = { voice = "greeting", text = "Terminus. Bonne soiree, et merci pour Delamain." },
+    boarded = { voice = "greeting", text = "Evening, choom. Buckle up, we're rolling." },
+    blocked = { voice = "vehicle_bump", text = "Tss... traffic. Gimme two seconds." },
+    resumed = { voice = "hurry_up", text = "Alright, we're moving again." },
+    arrived = { voice = "greeting", text = "End of the line. Have a good night, and thanks for riding Delamain." },
 }
 local TAXI_SEAT          = "frontPassenger"   -- driver seat is reserved by the AI controller
 local SPAWN_OFFSET_M     = 6.0                -- metres from the player, as in the create() card
@@ -83,7 +83,7 @@ local function driverSays(ride, playerId, key)
         end
     end
     Open77.chat.send(playerId, {
-        author = "Chauffeur",
+        author = "Driver",
         text   = line.text,
         color  = { 200, 200, 200 },
     })
@@ -125,6 +125,7 @@ end
 -- 300 m of the point, then the passenger from wherever they stand (their ray only sees the
 -- sectors streamed around their body, so a far destination often answers no_ground).
 -- Never a default height from the platform; the fallback is ours and is logged as such.
+local MAP_Z = nil
 local function resolveRoadZ(playerId, x, y, fallbackZ)
     if not native("world", "groundZ") then
         return fallbackZ, "fallback", "groundZ_unavailable_on_this_build"
@@ -137,6 +138,14 @@ local function resolveRoadZ(playerId, x, y, fallbackZ)
     z, detail = Open77.world.groundZ({ x = x, y = y }, { playerId = playerId })
     if z then
         return z, "passenger", ("player=%s distance=%.0f"):format(tostring(detail and detail.playerId), (detail and detail.distance) or 0)
+    end
+    -- Nobody can see the ground there. The map waypoint carries its own z, which
+    -- is the terrain under the cursor when the player placed it on the map
+    -- (measured: 41.2 for a road whose real z was ~41; 0.6 / 5.9 appear when the
+    -- map had no terrain sample). The departure z can be 140 m off; prefer the
+    -- map's when it looks like a real height.
+    if MAP_Z and MAP_Z > 8.0 then
+        return MAP_Z, "map", firstReason .. "/" .. tostring(detail)
     end
     return fallbackZ, "fallback", firstReason .. "/" .. tostring(detail)
 end
@@ -228,8 +237,9 @@ local function pollRide(playerId, vehicleId)
                 and native("world", "groundZ") then
                 local car = Open77.vehicles.get(vehicleId)
                 local dest = ride.destination
-                if car and car.x and car.y then
-                    local dx, dy = car.x - dest.x, car.y - dest.y
+                -- vehicles.get answers { position = { x, y, z } }, not top-level x/y.
+                if car and car.position and car.position.x and car.position.y then
+                    local dx, dy = car.position.x - dest.x, car.position.y - dest.y
                     if dx * dx + dy * dy <= REFINE_RADIUS_M * REFINE_RADIUS_M then
                         ride.refined = true
                         local z, detail = Open77.world.groundZ({ x = dest.x, y = dest.y }, { playerId = playerId })
@@ -259,9 +269,9 @@ RegisterNetEvent("eval_taxi:request", function(request)
     if type(request) ~= "table" then return end
 
     if request.reason == "no_waypoint" then
-        return say(playerId, "Placez d'abord un waypoint sur votre carte, puis tapez /taxi.")
+        return say(playerId, "Place a waypoint on your map first, then type /taxi.")
     elseif request.reason then
-        return say(playerId, "Votre carte n'est pas prete (" .. tostring(request.reason) .. "). Reessayez.")
+        return say(playerId, "Your map is not ready (" .. tostring(request.reason) .. "). Try again.")
     end
 
     local destination = request.position
@@ -269,25 +279,25 @@ RegisterNetEvent("eval_taxi:request", function(request)
         or not isBoundedNumber(destination.x)
         or not isBoundedNumber(destination.y)
         or not isBoundedNumber(destination.z) then
-        return say(playerId, "Cette destination n'est pas valide.")
+        return say(playerId, "That destination is not valid.")
     end
 
     if rides[playerId] then
-        return say(playerId, "Vous avez deja un taxi. Terminez cette course d'abord (/taxi cancel).")
+        return say(playerId, "You already have a taxi. Finish that ride first (/taxi cancel).")
     end
 
     -- Never seat a player who is not alive.
     if Open77.players.isDead(playerId) then
-        return say(playerId, "Delamain ne transporte pas les cadavres.")
+        return say(playerId, "Delamain does not carry corpses.")
     end
 
     if Open77.vehicles.getPlayerSeat(playerId) then
-        return say(playerId, "Sortez d'abord de votre vehicule actuel.")
+        return say(playerId, "Get out of your current vehicle first.")
     end
 
     local me, readReason = Open77.players.get(playerId)
     if not me or not me.position then
-        return say(playerId, "Impossible de vous localiser (" .. tostring(readReason or "no_position") .. ").")
+        return say(playerId, "Can't locate you (" .. tostring(readReason or "no_position") .. ").")
     end
 
     local vehicleId, createReason = Open77.vehicles.create({
@@ -298,7 +308,7 @@ RegisterNetEvent("eval_taxi:request", function(request)
         ttlMs    = TAXI_TTL_MS,
     })
     if not vehicleId then
-        return say(playerId, "Aucun taxi disponible : " .. tostring(createReason))
+        return say(playerId, "No taxi available: " .. tostring(createReason))
     end
 
     -- Register the ride now so a disconnect during the waits below still cleans up.
@@ -317,7 +327,7 @@ RegisterNetEvent("eval_taxi:request", function(request)
     ridesByVehicle[tostring(vehicleId)] = playerId
     print(("[eval_taxi] ride vehicle=%s player=%d created bucket=%s at %.1f,%.1f,%.1f"):format(
         tostring(vehicleId), playerId, tostring(me.bucket), me.position.x + SPAWN_OFFSET_M, me.position.y, me.position.z))
-    say(playerId, "Votre Delamain arrive, le chauffeur s'installe...")
+    say(playerId, "Your Delamain is on its way, the driver is getting in...")
 
     -- Visible driver: an NPC of this resource, in the vehicle's bucket, no tasks.
     local npcId, npcReason = Open77.npcs.create({
@@ -326,9 +336,10 @@ RegisterNetEvent("eval_taxi:request", function(request)
         yaw                   = me.heading,
         bucket                = me.bucket,
         behavior              = { combatEnabled = false, voiceEnabled = true },
-        -- CreateNpc wants the numeric policy (Open77.npcs.damage.invulnerable = 2); the
-        -- create card shows the string form, which the runtime refuses (measured 2026-09-18).
-        damagePolicy          = (Open77.npcs.damage and Open77.npcs.damage.invulnerable) or 2,
+        -- CreateNpc wants the numeric policy (invulnerable = 2); the create card shows the
+        -- string form, which the runtime refuses (measured 2026-09-18), and the enum table
+        -- Open77.npcs.damage is not in the op77.76 catalogue (validator error), so the literal.
+        damagePolicy          = 2,
         despawnWhenUnobserved = false,
         persistent            = false,
     })
@@ -379,11 +390,11 @@ RegisterNetEvent("eval_taxi:request", function(request)
     if not aiState then
         aiState, aiReason = Open77.vehicles.ai.attachDriver(vehicleId)
         if aiState then
-            say(playerId, "Pas de chauffeur disponible : ce taxi roulera en mode autonome.")
+            say(playerId, "No driver available: this cab will run in autonomous mode.")
         end
     end
     if not aiState then
-        say(playerId, "Le taxi n'a pas de chauffeur : " .. tostring(aiReason))
+        say(playerId, "The taxi has no driver: " .. tostring(aiReason))
         return finishRide(playerId, false, "attach_refused:" .. tostring(aiReason))
     end
     logAi(vehicleId, aiState, "attachDriver")
@@ -394,10 +405,10 @@ RegisterNetEvent("eval_taxi:request", function(request)
         exitLocked = false,
     })
     if not seated then
-        say(playerId, "Impossible de monter dans le taxi : " .. tostring(seatReason))
+        say(playerId, "Can't get into the taxi: " .. tostring(seatReason))
         return finishRide(playerId, false, "seat_refused:" .. tostring(seatReason))
     end
-    say(playerId, "Montez a bord...")
+    say(playerId, "Hop in...")
 
     -- Wait for the passenger mount to be confirmed by the client (bounded).
     local seatConfirmed = false
@@ -444,6 +455,8 @@ RegisterNetEvent("eval_taxi:request", function(request)
     end
 
     -- Put the destination on the road (the map's z is not the road's).
+    MAP_Z = destination.z
+    ride.mapZ = destination.z
     local z, zSource, zDetail = resolveRoadZ(playerId, destination.x, destination.y, me.position.z)
     if rides[playerId] ~= ride or ride.ending then return end
     ride.destination.z = z
@@ -467,18 +480,18 @@ RegisterNetEvent("eval_taxi:request", function(request)
         print(("[eval_taxi] ride vehicle=%s player=%d odometer after %d ms: %.1f m"):format(
             tostring(vehicleId), playerId, NO_ROUTE_MS, moved))
         if moved < 3.0 then
-            say(playerId, "Le chauffeur ne trouve pas de route vers ce point : posez le waypoint sur une rue proche (moins de 300 m) et refaites /taxi.")
+            say(playerId, "The driver can't find a route to that point: put the waypoint on a nearby street (under 300 m) and run /taxi again.")
             finishRide(playerId, true, "no_route")
         end
     end)
 
     local task, driveReason = issueDrive(playerId, ride, "initial")
     if not task then
-        say(playerId, "Le taxi ne peut pas rejoindre cette destination : " .. tostring(driveReason))
+        say(playerId, "The taxi can't reach that destination: " .. tostring(driveReason))
         return finishRide(playerId, true, "drive_refused:" .. tostring(driveReason))
     end
     ride.phase = "riding"
-    say(playerId, "Installez-vous, direction votre waypoint.")
+    say(playerId, "Sit back, heading to your waypoint.")
     driverSays(ride, playerId, "boarded")
     pollRide(playerId, vehicleId)
 end)
@@ -486,9 +499,9 @@ end)
 RegisterNetEvent("eval_taxi:cancel", function()
     local playerId = source
     if not rides[playerId] then
-        return say(playerId, "Vous n'avez pas de taxi en cours.")
+        return say(playerId, "You have no taxi ride in progress.")
     end
-    say(playerId, "Course annulee.")
+    say(playerId, "Ride cancelled.")
     finishRide(playerId, true, "cancel")
 end)
 
@@ -498,7 +511,7 @@ Open77.vehicles.ai.on("arrived", function(state)
     if not ride then return end
     logAi(state.vehicleId, state, "arrived")
     driverSays(ride, playerId, "arrived")
-    say(playerId, "Vous etes arrive. Merci d'avoir choisi Delamain.")
+    say(playerId, "You have arrived. Thank you for choosing Delamain.")
     finishRide(playerId, true, "arrived")
 end)
 
@@ -511,9 +524,10 @@ Open77.vehicles.ai.on("failed", function(state)
         or reason:find("driver", 1, true) or reason:find("bucket", 1, true)
     if ride.retries < MAX_RETRIES and not terminal then
         ride.retries = ride.retries + 1
-        say(playerId, "Itineraire perdu (" .. reason .. "), le chauffeur retente.")
+        say(playerId, "Route lost (" .. reason .. "), the driver is trying again.")
         CreateThread(function()
             local dest = ride.destination
+            MAP_Z = ride.mapZ
             local z, zSource, zDetail = resolveRoadZ(playerId, dest.x, dest.y, dest.z)
             if rides[playerId] ~= ride or ride.ending then return end
             dest.z = z
@@ -522,13 +536,13 @@ Open77.vehicles.ai.on("failed", function(state)
                 tostring(ride.vehicleId), playerId, ride.retries, MAX_RETRIES, z, zSource, tostring(zDetail)))
             local task, why = issueDrive(playerId, ride, "retry")
             if not task then
-                say(playerId, "Le taxi ne peut pas reprendre la course : " .. tostring(why))
+                say(playerId, "The taxi can't resume the ride: " .. tostring(why))
                 finishRide(playerId, true, "retry_refused:" .. tostring(why))
             end
         end)
         return
     end
-    say(playerId, "Course interrompue (" .. reason .. ").")
+    say(playerId, "Ride interrupted (" .. reason .. ").")
     finishRide(playerId, true, "failed:" .. reason)
 end)
 
@@ -542,7 +556,7 @@ Open77.vehicles.ai.on("cancelled", function(state)
             tostring(ride.vehicleId), playerId, tostring(state.taskId)))
         return
     end
-    say(playerId, "La course a ete annulee.")
+    say(playerId, "The ride has been cancelled.")
     finishRide(playerId, true, "cancelled")
 end)
 
@@ -566,22 +580,23 @@ Open77.vehicles.ai.on("blocked", function(state)
         if ride.stallSince == nil then return end   -- resumed meanwhile
         ride.stallRetries = (ride.stallRetries or 0) + 1
         if ride.stallRetries > MAX_STALL_RETRIES then
-            say(playerId, "Le chauffeur ne trouve pas de route vers ce point. Posez un waypoint sur une rue et refaites /taxi.")
+            say(playerId, "The driver can't find a route to that point. Put a waypoint on a street and run /taxi again.")
             finishRide(playerId, true, "stalled")
             return
         end
         local dest = ride.destination
-        local z, zSource, zDetail = resolveRoadZ(playerId, dest.x, dest.y, dest.z)
+        MAP_Z = ride.mapZ
+            local z, zSource, zDetail = resolveRoadZ(playerId, dest.x, dest.y, dest.z)
         if rides[playerId] ~= ride or ride.ending then return end
         dest.z = z
         ride.zSource = zSource
         ride.aggressive = true
         print(("[eval_taxi] ride vehicle=%s player=%d stall retry %d/%d road_z=%.1f z_source=%s (%s)"):format(
             tostring(ride.vehicleId), playerId, ride.stallRetries, MAX_STALL_RETRIES, z, zSource, tostring(zDetail)))
-        say(playerId, "Le chauffeur cherche un autre passage...")
+        say(playerId, "The driver is looking for another way through...")
         local task, why = issueDrive(playerId, ride, "stall")
         if not task then
-            say(playerId, "Le taxi ne peut pas reprendre la course : " .. tostring(why))
+            say(playerId, "The taxi can't resume the ride: " .. tostring(why))
             finishRide(playerId, true, "stall_refused:" .. tostring(why))
         end
     end)
@@ -634,7 +649,7 @@ AddEventHandler("onVehicleRemoved", function(id, reason)
     if not ride or ride.ending then return end
     print(("[eval_taxi] ride vehicle=%s player=%d vehicle removed reason=%s"):format(
         tostring(id), playerId, tostring(reason)))
-    say(playerId, "Votre taxi a disparu (" .. tostring(reason) .. ").")
+    say(playerId, "Your taxi is gone (" .. tostring(reason) .. ").")
     finishRide(playerId, false, "vehicle_removed:" .. tostring(reason))
 end)
 
@@ -646,7 +661,7 @@ AddEventHandler("onPlayerLeftVehicle", function(playerId, vehicleId)
     if not ride or ride.ending or ride.phase ~= "riding" then return end
     if tostring(ride.vehicleId) ~= tostring(vehicleId) then return end
     print(("[eval_taxi] ride vehicle=%s player=%d passenger left the taxi"):format(tostring(vehicleId), pid))
-    say(pid, "Vous avez quitte le taxi : course annulee.")
+    say(pid, "You left the taxi: ride cancelled.")
     finishRide(pid, false, "passenger_left")
 end)
 

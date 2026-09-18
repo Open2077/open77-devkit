@@ -3,14 +3,35 @@
 Config = {
     -- The rp_zones zone the precinct lives in (informative: the cell and entrance below are
     -- absolute positions inside it, the server never asks rp_zones where to teleport).
+    -- The real NCPD building, city centre: the conference room is the AMM point
+    -- -1761.5, -1010.8, 94.3 (yaw 90.7), the rp_zones `ncpd_hq` centre (radius 30).
     zone = "ncpd_hq",
 
-    -- Holding cell, inside `ncpd_hq` (rp_zones centre 440, -2366, 181, radius 12).
+    -- Holding cell: 6 m east of the conference room point.
     -- If a prisoner lands in the ground, stand on the spot, /pos, and paste the height.
-    cell = { x = 436.0, y = -2362.0, z = 181.5, heading = 180.0, radius = 6.0 },
+    cell = { x = -1755.5, y = -1010.8, z = 94.3, heading = 270.0, radius = 6.0 },
 
-    -- Where a released prisoner is put, still inside the zone (10 m from the centre).
-    entrance = { x = 430.0, y = -2369.0, z = 182.0, heading = 90.0 },
+    -- Where a released prisoner is put: the desk, 4 m north of the conference room point.
+    entrance = { x = -1761.5, y = -1006.8, z = 94.3, heading = 90.7 },
+
+    -- The Kabuki-side patrol outpost: a ring and a floating label on the real street outside
+    -- the Afterlife ramp (probed crosswalk -1408.0, 960.0, 23.5; ring z + 0.1). Radio / status
+    -- point for patrols only: nothing to press, no teleport. `props` are spawned by the server
+    -- (Open77.props.create, removed on stop; a refusal only logs) - raw depot meshes.
+    outpost = {
+        x = -1416.0, y = 957.0, z = 23.6, radius = 3.0,
+        label = "NCPD - Afterlife street outpost",
+        description = "Patrol radio and status point. Badges only.",
+        color = "#408CFF",
+        maxDistance = 120.0,
+        labelDistance = 40.0,
+        props = {
+            { model = "sign.rect.keep_out",
+              x = -1409.4, y = 960.8, z = 23.5, yaw = 90.0 },
+            { model = "barrier.road",
+              x = -1406.6, y = 961.2, z = 23.5, yaw = 0.0 },
+        },
+    },
 
     -- Officer-to-suspect distance for cuff / search / seize / fine / jail (metres).
     -- open77_rp_basics applies its own 3 m rule on top for cuff and escort.

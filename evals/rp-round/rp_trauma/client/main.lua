@@ -63,7 +63,7 @@ local function holdText()
     if left > 0 then
         return ("DOWN - Trauma Team notified - /respawn opens in %d s"):format(left)
     end
-    return "DOWN - /respawn wakes you up at the hospital, or wait for Trauma Team"
+    return "DOWN - /respawn wakes you up at Vik's clinic, or wait for Trauma Team"
 end
 
 local function applyHold(seconds)

@@ -1,21 +1,33 @@
 -- rp_fixer configuration. Shared by the server (rules, pay, NPCs) and the client
 -- (office position, prompt copy). Nothing here is a secret.
 --
--- Every position is on the measured flat band around the freeroam spawn
--- (381.36, -2401.79, 181.99): x 340..460, y -2401..-2355, z 178..182. The points are
--- the rp_zones centres, so a tester walks the same rings they already know. Move them
--- to real Night City places by editing this table only.
+-- Every position is a real Night City place (world metres, measured 2026-09-18 with
+-- AMM / walked by a bot): the office is Rogue's meeting room at The Afterlife, the gig
+-- points are Kabuki Market, Lizzie's Bar, the Megabuilding H10 floor and the Rancho
+-- Coronado junkyard. Move them by editing this table only.
 
 Config = {}
 
--- The eval config lets anyone open the board. Set it to false and the board only
+-- The shipped config lets anyone open the board. Set it to false and the board only
 -- answers while a fixer is clocked in (rp_jobs `listOnDuty("fixer")`), or to the
 -- on-duty fixer themselves.
 Config.openBoardWithoutFixer = true
 
--- The fixer's office: the `blackmarket` zone centre. The board ring + E prompt sit here;
--- retrieval and extraction gigs end here.
-Config.office = { x = 400.0, y = -2390.0, z = 182.0 }
+-- The fixer's office: Rogue's meeting room at the back of The Afterlife (inside the
+-- `afterlife` zone of rp_zones, centre -1453, 1017, 16.5, radius 25). The board ring + E
+-- prompt sit here; retrieval and extraction gigs end here. z = measured floor + 0.1.
+Config.office = { x = -1436.8, y = 977.0, z = 17.0 }
+
+-- Decoration spawned by the server at start (Open77.props.create, permission `world.props`)
+-- and removed at stop: the board's data terminal at the booth, 1.3 m off the ring. Raw depot
+-- `.mesh` paths from the props catalogue; a refused prop is logged, never fatal.
+Config.props = {
+    {
+        model = "electronics.monitor.device",
+        position = { x = -1435.6, y = 978.0, z = 16.9 },
+        yaw = 83.0,             -- the meeting room's heading (AMM)
+    },
+}
 
 -- How far from the office `/gigs` and the E prompt still open the board (metres, 3D).
 -- 0 = anywhere.
@@ -30,13 +42,16 @@ Config.interactReach = 4.5
 -- (planar) of the destination.
 Config.arrivalDistance = 5.0
 
--- Gig points, reused from rp_zones (name -> centre).
+-- Gig points (name -> position). Walked points are used exactly; AMM points carry +0.1 m.
+-- Guarded points (retrieval / extraction) must stand OUTSIDE the `kabuki_market` safe zone
+-- (Market Centre, r 70): inside it the guards shoot without doing damage.
 Config.points = {
-    office     = Config.office,
-    scrapyard  = { x = 462.0, y = -2352.0, z = 178.0 },
-    nomad_camp = { x = 420.0, y = -2378.0, z = 182.0 },
-    hospital   = { x = 400.0, y = -2366.0, z = 182.0 },
-    ncpd_hq    = { x = 440.0, y = -2366.0, z = 181.0 },
+    office           = Config.office,
+    kabuki_market    = { x = -1191.30, y = 2006.88, z = 7.82 },   -- Kabuki Market Centre (walked)
+    kabuki_noodle_row = { x = -1178.66, y = 2028.45, z = 7.95 },  -- Kabuki, Noodle Row (walked)
+    lizzies          = { x = -1188.9, y = 1566.2, z = 23.0 },    -- Lizzie's Bar, inside (AMM)
+    h10              = { x = -1391.9, y = 1271.7, z = 123.2 },   -- V's apartment floor, Megabuilding H10 (AMM)
+    junkyard         = { x = 1374.9, y = -1674.9, z = 49.4 },    -- Rancho Coronado junkyard (AMM)
 }
 
 -- Reputation tiers, ascending. A template's `minTier` names one of them.
@@ -107,45 +122,45 @@ Config.escort = {
 Config.templates = {
     delivery_meds = {
         kind = "delivery", title = "Meds run",
-        description = "A crate of MaxDoc left the hospital without paperwork. Take it to the scrapyard before Trauma Team notices.",
-        from = "hospital", to = "scrapyard", item = "gig_package",
-        pay = 600, timeLimitSec = 600, minTier = "street", auto = true,
+        description = "A crate of MaxDoc fell off a Noodle Row delivery at Kabuki Market. Take it to the Rancho Coronado junkyard before Trauma Team notices.",
+        from = "kabuki_noodle_row", to = "junkyard", item = "gig_package",
+        pay = 600, timeLimitSec = 1200, minTier = "street", auto = true,
     },
     escort_witness = {
         kind = "escort", title = "Witness walk",
-        description = "A nomad saw something at the camp she should not have. Walk her to the hospital, quietly.",
-        from = "nomad_camp", to = "hospital", npcName = "Kess",
-        pay = 800, timeLimitSec = 720, minTier = "street", auto = true,
+        description = "A Mox saw something at Lizzie's she should not have. Walk her up to Kabuki Market, quietly.",
+        from = "lizzies", to = "kabuki_market", npcName = "Kess",
+        pay = 800, timeLimitSec = 900, minTier = "street", auto = true,
     },
     retrieval_shard = {
         kind = "retrieval", title = "Junkyard shard",
-        description = "Two Maelstrom goons are sitting on an encrypted shard at the scrapyard. Bring it back here. How you get it is your business.",
-        at = "scrapyard", item = "gig_datashard",
-        pay = 1000, timeLimitSec = 720, minTier = "street", auto = true,
+        description = "Two Maelstrom goons are sitting on an encrypted shard at the Rancho Coronado junkyard. Bring it back to the Afterlife. How you get it is your business.",
+        at = "junkyard", item = "gig_datashard",
+        pay = 1000, timeLimitSec = 1500, minTier = "street", auto = true,
     },
     extraction_techie = {
         kind = "extraction", title = "Techie extraction",
-        description = "A techie is being held at the nomad camp by Maelstrom. Get him out and bring him to the office.",
-        at = "nomad_camp", npcName = "Rho the techie",
-        pay = 1500, timeLimitSec = 900, minTier = "street", auto = true,
+        description = "Maelstrom walked into Lizzie's with a techie who owes them. Get him out and bring him to the Afterlife.",
+        at = "lizzies", npcName = "Rho the techie",
+        pay = 1500, timeLimitSec = 1200, minTier = "street", auto = true,
     },
     delivery_hot = {
         kind = "delivery", title = "Hot package",
-        description = "Something walked out of the NCPD evidence room. It needs to be at the scrapyard in six minutes, no questions.",
-        from = "ncpd_hq", to = "scrapyard", item = "gig_package",
-        pay = 1200, timeLimitSec = 360, minTier = "known", auto = true,
+        description = "Something walked out of an apartment on V's floor of Megabuilding H10. It needs to be at Lizzie's in ten minutes, no questions.",
+        from = "h10", to = "lizzies", item = "gig_package",
+        pay = 1200, timeLimitSec = 600, minTier = "known", auto = true,
     },
     extraction_vip = {
         kind = "extraction", title = "VIP extraction",
-        description = "A corpo defector is stashed at the precinct with a Maelstrom escort that was paid twice. Bring her to the office alive.",
-        at = "ncpd_hq", npcName = "the defector",
-        pay = 3000, timeLimitSec = 900, minTier = "trusted", auto = true,
+        description = "A corpo defector is stashed at the Rancho Coronado junkyard with a Maelstrom escort that was paid twice. Bring her to the Afterlife alive.",
+        at = "junkyard", npcName = "the defector",
+        pay = 3000, timeLimitSec = 1800, minTier = "trusted", auto = true,
     },
 }
 
 -- Copy used by both sides.
 Config.text = {
     boardLabel = "Fixer's board",
-    boardDescription = "Gigs, eddies, reputation. Press E.",
-    officeBlip = "Fixer's office",
+    boardDescription = "Rogue's booth at the Afterlife. Gigs, eddies, reputation. Press E.",
+    officeBlip = "The Afterlife - fixer's booth",
 }

@@ -11,7 +11,8 @@ auto_start true
 -- database.access : Open77.database.* (rp_fixer_gigs, rp_fixer_reputation)
 -- world.npcs      : Open77.npcs.create / remove / get / setAttitude / setGroup / tasks.* (guards, escorts, targets)
 -- ui.vanilla.map  : Open77.blips.create / remove / setWaypoint / clearWaypoint (client objective pin + GPS)
-permissions { "network.events", "database.access", "world.npcs", "ui.vanilla.map" }
+-- world.props     : Open77.props.create / remove (the board's data terminal at the booth)
+permissions { "network.events", "database.access", "world.npcs", "ui.vanilla.map", "world.props" }
 
 -- Both ship a client half, so a manifest delivered to clients may depend on them.
 --   open77_uikit   : the board (server twin `context`) and the accept dialog (server twin `alert`)

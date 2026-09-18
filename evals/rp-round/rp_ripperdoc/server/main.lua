@@ -926,9 +926,10 @@ end
 RegisterNetEvent("rp_ripperdoc:operate", function(target)
     local ripper = source
     if type(ripper) ~= "number" or ripper <= 0 then return end
-    local patient = tonumber(target)
-    if not patient then say(ripper, "No patient selected.") return end
-    startOperate(ripper, math.floor(patient))
+    -- A positive integer only: Open77.players.* raise on anything else (math.floor keeps a float).
+    local patient = math.tointeger(tonumber(target))
+    if not patient or patient < 1 then say(ripper, "No patient selected.") return end
+    startOperate(ripper, patient)
 end)
 
 ---------------------------------------------------------------------------
@@ -1084,12 +1085,15 @@ local function ripperOverview(pid)
     local since = math.floor(Open77.time.unix()) - 86400
     local rows = {}
     if store == "sql" then
-        rows = Open77.database.query.await(
+        -- `.await` raises on a failed read; /ripper must still answer with the rest of the board.
+        local okRows, fetched = pcall(Open77.database.query.await,
             "SELECT patient_name, implant, grade, action, price, `at` FROM rp_ripperdoc_operations WHERE ripper = ? AND `at` >= ? ORDER BY `at` DESC LIMIT 5",
-            { identifier, since }) or {}
-        local total = Open77.database.scalar.await(
+            { identifier, since })
+        local okTotal, total = pcall(Open77.database.scalar.await,
             "SELECT COUNT(*) FROM rp_ripperdoc_operations WHERE ripper = ? AND `at` >= ?", { identifier, since })
-        lines[#lines + 1] = ("Last 24 h: %s operation(s)."):format(tostring(total or #rows))
+        if not okRows then log("operations log read failed: " .. tostring(fetched)) end
+        rows = (okRows and type(fetched) == "table") and fetched or {}
+        lines[#lines + 1] = ("Last 24 h: %s operation(s)."):format(tostring((okTotal and total) or #rows))
     else
         local total = 0
         for _, row in ipairs(memoryLog) do
@@ -1136,9 +1140,9 @@ end, false)
 
 RegisterCommand("operer", function(source, args)
     if source == 0 then print(TAG .. " run it from the game") return end
-    local patient = tonumber(args[1])
-    if not patient then say(source, "Usage: /operer <playerId> - the patient must lie on the chair.") return end
-    startOperate(source, math.floor(patient))
+    local patient = math.tointeger(tonumber(args[1]))
+    if not patient or patient < 1 then say(source, "Usage: /operer <playerId> - the patient must lie on the chair.") return end
+    startOperate(source, patient)
 end, false)
 
 ---------------------------------------------------------------------------

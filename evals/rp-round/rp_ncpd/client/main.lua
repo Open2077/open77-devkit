@@ -6,10 +6,58 @@ local onDuty = false
 local jailed = false
 local JAIL_BLOCKS = { "WeaponWheel", "Attack" }   -- EnterVehicle is not blockable on 2.31; the server ejects instead
 
-local function menu(method, ...)
-    local promise, dispatchError = Open77.exports.call("open77_contextmenu", method, ...)
+local function callAwait(resource, method, ...)
+    local promise, dispatchError = Open77.exports.call(resource, method, ...)
     if not promise then return nil, dispatchError end
     return promise:await()
+end
+
+local function menu(method, ...)
+    return callAwait("open77_contextmenu", method, ...)
+end
+
+-- The Kabuki-side patrol outpost (Config.outpost): a ground ring (open77_worldui, no label =
+-- no prompt) and a floating label (open77_uikit drawText3D). Presentation only: a radio /
+-- status point for patrols, nothing to press.
+local outpostRing = nil
+local outpostLabel = nil
+
+local function createOutpost()
+    local o = Config.outpost
+    if not o then return end
+    if not outpostRing then
+        local result, reason = callAwait("open77_worldui", "create", {
+            id = "rp_ncpd_outpost",
+            position = { x = o.x, y = o.y, z = o.z },
+            radius = o.radius or 3.0,
+            shape = "ring",
+            style = "objective",
+            color = o.color,
+            maxDistance = o.maxDistance or 120.0,
+            groundOffset = 0.06,
+        })
+        if result and result.ok then
+            outpostRing = result.handle
+        else
+            print("[rp_ncpd] outpost ring not created: " .. tostring(reason or (result and result.error) or "unknown"))
+        end
+    end
+    if not outpostLabel then
+        local handle, reason = callAwait("open77_uikit", "drawText3D", {
+            position = { x = o.x, y = o.y, z = o.z + 1.6 },
+            text = "NCPD",
+            sublabel = o.label,
+            color = "#F2F6F8",
+            accent = o.color,
+            maxDistance = o.labelDistance or 40.0,
+            showDistance = false,
+        })
+        if handle then
+            outpostLabel = handle
+        else
+            print("[rp_ncpd] outpost label not drawn: " .. tostring(reason))
+        end
+    end
 end
 
 local function request(action, ctx)
@@ -110,9 +158,17 @@ AddEventHandler("onClientResourceStart", function(name)
         CreateThread(registerActions)
     end
     if name == GetCurrentResourceName() then
+        CreateThread(createOutpost)
         -- ask the server for the duty flag and whether a sentence is standing (a client reload
         -- drops the input claims while the server still holds the prisoner)
         TriggerServerEvent("rp_ncpd:clientReady")
+    elseif name == "open77_worldui" then
+        -- the POI service restarted underneath us: its registry is empty again
+        outpostRing = nil
+        CreateThread(createOutpost)
+    elseif name == "open77_uikit" then
+        outpostLabel = nil
+        CreateThread(createOutpost)
     end
 end)
 

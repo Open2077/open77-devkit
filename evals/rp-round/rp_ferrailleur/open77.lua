@@ -9,11 +9,13 @@ auto_start true
 -- database.access             : Open77.database.* (rp_ferrailleur_tools)
 -- world.npcs                  : Open77.npcs.create / remove (the scrap dealer)
 -- players.animations.control  : Open77.animations.play / stop (the `examine` kneel while searching a wreck)
+-- world.props                 : Open77.props.create / remove (the yard's decoration)
 permissions {
     "network.events",
     "database.access",
     "world.npcs",
     "players.animations.control",
+    "world.props",
 }
 
 -- All three ship a client half, so a manifest delivered to clients may depend on them.

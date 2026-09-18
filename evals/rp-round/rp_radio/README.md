@@ -62,11 +62,13 @@ move) but receive nothing, `/radio dire` is refused and the radio key toasts "no
 `rp_zones:left` puts them back on the channel (**Signal is back. 95.5 crackles to life.**).
 Tuning while already inside the zone tunes without signal.
 
-**On the eval server the whole spawn plaza is inside the `badlands` zone (radius 900 m)**,
-so a cut that follows the zone would silence every radio at the spawn. The cut is
-therefore **off by default** (`Config.badlandsCut = false`). Set it to `true` (or
-`rp_config` key `rp_radio.badlandsCut`) on a real map where the Badlands are the Badlands;
-`Config.cutZone` names the zone.
+**The spawn is in Watson** (Kabuki Market Centre `-1191.30, 2006.88, 7.82`, inside the
+`kabuki_market` safe zone) and the `badlands` zone of rp_zones is the polygon east of x 900
+(the Aldecaldos camp, the junkyard, the oil fields), so `badlandsCut` only matters east of
+x 900 — nobody at the spawn is ever cut. The cut still ships **off by default**
+(`Config.badlandsCut = false`); set it to `true` (or the `rp_config` key
+`rp_radio.badlandsCut`) to silence radios past the city limits. `Config.cutZone` names the
+zone.
 
 ## Jam (`rp_netrunner:jammed`)
 
@@ -157,7 +159,7 @@ While the database is not ready the dial is kept in the resource's `Open77.kvp` 
 - Membership is `canSpeak = true, canListen = true` for everyone on the band; there is no
   listen-only tuning.
 
-## Test in 2 minutes (one player, freeroam spawn `381.36, -2401.79, 181.99`)
+## Test in 2 minutes (one player, freeroam spawn Kabuki Market `-1191.30, 2006.88, 7.82 (Kabuki Market Centre, Watson)`)
 
 1. Connect. Note your id (`/id`). Give yourself the handheld: `/giveitem <id> radio 1`
    (rp_inventory). Console log: `[rp_radio] voice ready (quality standard)` and
@@ -183,6 +185,8 @@ While the database is not ready the dial is kept in the resource's `Open77.kvp` 
     -> every tuned player reads a grey `[RADIO 95.5] kzzzt--- ...` line every 15 s,
     `/radio` says `JAMMED`, `/radio dire hello` arrives garbled; after 60 s
     `[RADIO 95.5] ---kzzt... carrier is back. Band is clear.`
-13. Badlands cut (real map only): set `Config.badlandsCut = true`, reload; walking past
-    the zone edge prints `No signal out here...` and drops you from the channel, walking
-    back `Signal is back...`. On the eval plaza this stays off (see above).
+13. Badlands cut: set `Config.badlandsCut = true`, reload; drive east past x 900 (the
+    junkyard at `1375, -1675` or the Aldecaldos camp at `1793, 2249`): crossing the zone edge
+    prints `No signal out here...` and drops you from the channel, driving back west
+    `Signal is back...`. Nothing changes at the Kabuki spawn, which is far outside the zone
+    (see above).

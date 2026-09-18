@@ -16,6 +16,7 @@ map waypoint — which the server re-validates.
 | Command | Who | Effect |
 |---|---|---|
 | `/delamain` | anyone | Calls a driver. Every on-duty Delamain driver (except you) reads `Ride #N: <you> is calling a cab 240 m from you. /accepter N`, gets a toast and a `Delamain call #N` pin at your position. You read `Delamain dispatch: looking for a driver... (ride #N, 2 drivers paged)`. Your **map waypoint** (right-click on the map before calling) becomes the destination; without one the driver asks. With nobody on duty: `No Delamain driver on duty. Type /taxi for the automated cab (short trips only).` |
+| `/delamain <preset>` | anyone | Same call with a configured drop-off instead of the waypoint: `afterlife` (Afterlife street), `afterlife_lot`, `dealer` (Westbrook dealership), `lizzies`. You read `Destination: <label>.`; an unknown word prints the usage with the preset ids. |
 | `/delamain annuler` | either side | Client: drops the call (refused while rolling — get out of the cab instead). Driver: hands the call back to the board; the other drivers are paged again, you are not. |
 | `/accepter <rideId>` | on-duty driver | Takes the call. The client reads your RP name and distance; your GPS is set to the client and follows them while you drive over; the other drivers' pins go away. Without an id, takes the oldest waiting call. |
 | `/course` | either side | Status: waiting / driver on the way (name, distance) / rolling (metres so far, fare so far). A driver also reads their record: rides driven and **average rating**. |
@@ -140,30 +141,49 @@ banked; without `rp_identity` account names are used). Toasts need `open77_notif
 (chat carries every line anyway). `eval_taxi` has no export: the fallback is the `/taxi` line.
 
 No fixed world position: everything is where the players are. `shared/config.lua` holds the
-tariff, the timeouts, the pin sprite and the chat colour.
+tariff, the timeouts, the pin sprite, the chat colour and the drop-off presets.
+
+## Where things are (presets)
+
+`Config.Presets` — real street points a cab can stop at (`/delamain <id>`); the fare table is
+unchanged:
+
+| id | Place | Position |
+|---|---|---|
+| `afterlife` | Afterlife street, outside the club's ramp (Little China, Watson) | `-1408.0, 960.0, 23.5` |
+| `afterlife_lot` | The Afterlife lot, South Approach | `-1440.0, 1035.0, 22.7` |
+| `dealer` | Westbrook vehicle dealership | `-1442.2, 127.4, 18.0` |
+| `lizzies` | Lizzie's Bar (Kabuki) | `-1188.9, 1566.2, 22.9` |
+
+From the Kabuki Market spawn (`-1191.3, 2006.9, 7.8`): Lizzie's ≈ 440 m, the Afterlife street
+≈ 1.1 km, the dealership ≈ 1.9 km as the crow flies. The `lizzies` point is the AMM interior
+point of the bar: the cab stops in the street outside and the meter settles when the
+passenger gets out.
 
 ## Test in 2 minutes
 
-Two clients at the freeroam spawn (`381.36, -2401.79, 181.99`), ids `1` (driver) and `2`
-(client); `rp_jobs` v2, `rp_economy`, `rp_bank` running. Log on start: `[rp_delamain] started:
+Two clients at the Kabuki Market spawn (`-1191.3, 2006.9, 7.8`; the market lanes are
+pedestrian — walk out to the South Gate street, `-1218, 1950`, for the car), ids `1` (driver)
+and `2` (client); `rp_jobs` v2, `rp_economy`, `rp_bank` running. Log on start: `[rp_delamain] started:
 ...` then `[rp_delamain] store=sql table=rp_delamain_rides`.
 
 1. **Client 2**: `/delamain` → `No Delamain driver on duty. Type /taxi for the automated cab
    (short trips only).`
 2. **Console**: `setjob 1 delamain 0`. **Driver 1**: `/service` → clocked in at Delamain.
    `/car` (any car) to have a server-spawned cab, and step out of it for now.
-3. **Client 2**: open the map, right-click a point ~300 m down the road (a waypoint), close the
-   map, `/delamain` → `Delamain dispatch: looking for a driver... (ride #1, 1 driver paged)`,
-   then `Destination taken from your map waypoint (300 m away).` **Driver 1** reads `Ride #1:
-   <name> is calling a cab 12 m from you, destination 300 m away. /accepter 1 to take it.`, a
-   toast, and a `Delamain call #1` pin on the minimap. Log: `ride 1 called by player 2`.
+3. **Client 2**: `/delamain lizzies` → `Delamain dispatch: looking for a driver... (ride #1, 1
+   driver paged)`, then `Destination: Lizzie's Bar (Kabuki).` (Or open the map, right-click a
+   point, close it and `/delamain`: `Destination taken from your map waypoint (300 m away).`)
+   **Driver 1** reads `Ride #1: <name> is calling a cab 12 m from you, destination 441 m away.
+   /accepter 1 to take it.`, a toast, and a `Delamain call #1` pin on the minimap. Log: `ride 1
+   called by player 2`.
 4. **Driver 1**: `/accepter 1` → `You took ride #1. GPS set to <name> (12 m). Destination pinned
    300 m from the pickup. ...`; the GPS route points at client 2, the pin is gone. **Client 2**
    reads `Driver <RP name> took your call, 12 m away.` `/course` on either side shows the phase.
 5. **Driver 1** gets in the driver seat; **client 2** gets in as passenger → both read `Meter
    running: 50 €$ base + 15 €$ per 100 m.`; the driver's GPS now points at the destination. Log:
    `ride 1 riding vehicle=<id>`.
-6. Drive at least 100 m (around the plaza road is enough), stop, **client 2** gets out → within
+6. Drive the 440 m south to Lizzie's (anything past 100 m counts), stop, **client 2** gets out → within
    a second both read the settlement: client `Ride #1 over: 640 m, 146 €$ paid. Cash left: ...
    Rate <name> with /note <1-5>.`; driver `Ride #1 done: 640 m, fare 146 €$, your cut 116 €$
    (Delamain keeps 30 €$). Cash: ...`. `/money` on both confirms; `/societe` on the driver shows

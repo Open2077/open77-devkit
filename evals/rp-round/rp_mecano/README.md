@@ -18,7 +18,7 @@ traffic has no canonical id and every command answers `No server vehicle within 
 | `/remorquer` | From the **driver's seat** of your truck: hooks the nearest **empty** server vehicle within **8 m**. Every **2 s** the towed car is moved **6 m behind** the truck (`Open77.vehicles.setTransform`, same heading) — there is no attach/tow native on op77.76, see below. `/remorquer` again releases. The tow also ends when you leave the wheel, clock out, disconnect, when the car is removed, or when somebody climbs into it. |
 | `/peindre <colour> [second]` | Paints the nearest vehicle within **6 m** (or the one you sit in). Colours: `black white grey silver chrome red crimson orange yellow gold green lime teal cyan blue navy purple pink magenta brown sand arasaka militech samurai` or `#RRGGBB`. The **driver** (else the first passenger) receives an invoice of **250 €$** through the invoice flow; the paint goes on and the **`paint_can`** is consumed **when they pay**. No one aboard, or the mechanic at the wheel: painted at once, on the house. |
 | `/facture <playerId> <amount> [reason]` | Hands an invoice to a player within **10 m**. The customer gets the platform **accept / decline prompt** (`open77_player_interactions`, kind `custom`) — or, when the prompt cannot be used (customer in a vehicle, too far, already reserved), a **chat consent**: `/facture ok` pays, `/facture non` refuses, 60 s to answer. On accept the cash is taken with `rp_economy:remove`: **70 %** to the mechanic, **30 %** to the `mecano` society (`rp_bank:societyAdd`). Short on cash → refused, both told. Cap **50 000 €$**. `/facture` alone shows the invoice waiting for you. |
-| `/fourriere` | Inside the **`mecano_shop`** zone (`rp_zones`): removes the nearest server vehicle within **8 m** with **nobody seated**, credits **100 €$** to the society and logs the record, the plate (state-bag key `plate`, `none` when the car has none) and the position in `rp_mecano_impound`. `/fourriere registre` prints the last five entries. |
+| `/fourriere` | Inside the **`junkyard`** zone (`rp_zones`, the Rancho Coronado junkyard): removes the nearest server vehicle within **8 m** with **nobody seated**, credits **100 €$** to the society and logs the record, the plate (state-bag key `plate`, `none` when the car has none) and the position in `rp_mecano_impound`. `/fourriere registre` prints the last five entries. |
 | `/plein` | Refuels the vehicle you sit in or the nearest within **4 m** through `exports.open77_fuel:refuel` (to the brim by default, `Config.fuel.litresPerCan` for a fixed amount) and consumes one **`chooh2`** can. Without `open77_fuel` the can stays and the player is told. |
 
 Every refusal is one chat line: not a mechanic, off duty, no toolkit / parts / can, nothing in
@@ -30,6 +30,28 @@ answers `run it from the game`.
 duty state, and checks again on every request): on a player **Hand an invoice (garage)** (a UI-kit
 form: amount + reason, then the same consent flow); on a vehicle **Repair**, **Paint job**
 (colour picker), **Hook / release tow**, **Refuel**, **Impound**.
+
+## Where things are
+
+| What | Position | Notes |
+|---|---|---|
+| Workshop ring — **Afterlife street garage** | `-1396.0, 966.0, 23.5`, r 3 | the real street outside The Afterlife's ramp (Little China, Watson): probed, crosswalk, a car fits. `Config.workshop` |
+| CHOOH2 pump ring | `-1390.0, 972.0, 23.5`, r 1.5 | 6 m along the same street. `Config.pump` |
+| Garage sign prop | `-1392.4, 966.0, 26.0`, yaw 90 | `sign.street`, pavement side |
+| Tyre blockers (2) | `-1393.2, 963.0` and `-1393.2, 969.0`, z 23.5 | `barrier.tire_blocker` (twice), pavement side |
+| Gas pump prop | `-1392.0, 973.0, 23.5`, yaw 90 | `industrial.gas_pump`, by the pump ring |
+| Impound / tow yard | `junkyard` zone, centre `1370, -1680, 49.3`, r 90 | Rancho Coronado junkyard, ~4.5 km from Kabuki |
+| Spawn (`Config.spawn`) | `-1191.3, 2006.9, 7.82` | Kabuki Market Centre |
+
+The two rings are bare markers (`open77_worldui`, nothing to press): every command works
+wherever the car is, the rings say where the garage lives. From the Kabuki Market spawn the
+workshop is about **1.1 km south** as the crow flies; the Kabuki market lanes themselves are
+pedestrian, drive out by the South Gate street (`-1218, 1950`).
+
+**Props.** At start the server spawns `Config.props` through `Open77.props.create` (permission
+`world.props`, curated prop aliases (see `prop.catalog`) — a raw `.mesh` path renders as a white
+slab) and removes them at stop. A refused prop is logged (`prop N (...) not spawned: <reason>`);
+the garage works without it.
 
 ## Items
 
@@ -115,15 +137,17 @@ Everything is in `Config`: reaches, the 15 s / 2 components of a repair, the tow
 distance, the colour table and the 250 €$ paint price, the invoice cap / timeout / 70 % share,
 the impound zone name / fee, the refuel amount. Positions:
 
-- `Config.spawn` — the freeroam spawn `381.36, -2401.79, 181.99`.
-- `Config.impound.zone = "mecano_shop"` — the `rp_zones` garage: centre **341, -2401, 180.3**,
-  radius 10 m, **40 m west of the spawn on the plaza road**, reachable on foot and by car (the
-  owner moves it by editing `rp_zones/shared/config.lua`; this resource only knows the name).
-  `Config.impound.fallbackCenter / fallbackRadius` copy that circle for a server without
-  `rp_zones`.
+- `Config.spawn` — the freeroam spawn, Kabuki Market Centre `-1191.3, 2006.9, 7.82`.
+- `Config.workshop` / `Config.pump` — the two street rings above; `Config.props` — the four
+  props.
+- `Config.impound.zone = "junkyard"` — the `rp_zones` Rancho Coronado junkyard: centre
+  **1374.9, -1674.9, 49.3**, radius 90 m (the owner moves it by editing
+  `rp_zones/shared/config.lua`; this resource only knows the name).
+  `Config.impound.fallbackCenter / fallbackRadius` (`1370, -1680`, 90 m) copy that circle for a
+  server without `rp_zones`.
 - **`Config.impoundAnywhereForTesting`** (default `false`): when `true`, `/fourriere` also works
-  within **6 m** (`testingReach`) of the spawn plaza `381.36, -2401.79` or the employment agency
-  `396, -2388` (`testingSpots`), so a tester never has to drive to the garage.
+  within **6 m** (`testingReach`) of the Kabuki Market Centre or the workshop ring
+  (`testingSpots`), so a tester never has to drive to the junkyard.
 
 ## Towing without an attach native
 
@@ -143,15 +167,17 @@ physics: the towed car has no wheels on the ground between ticks.
 
 Permissions `world.vehicles` (every vehicle read and write), `database.access`,
 `network.events` (net events, toasts), `players.interactions.control` / `.read` (the consent
-flow, as the player-interactions guide requires). Dependencies — all ship a client half —
-`open77_uikit`, `open77_contextmenu`, `open77_player_interactions`, `open77_notifications`,
-`rp_jobs`, `rp_inventory`. `rp_economy`, `rp_bank`, `rp_identity` (names) are server-only and
+flow, as the player-interactions guide requires), `world.props` (the street props).
+Dependencies — all ship a client half — `open77_uikit`, `open77_worldui` (the two rings),
+`open77_contextmenu`, `open77_player_interactions`, `open77_notifications`, `rp_jobs`,
+`rp_inventory`. `rp_economy`, `rp_bank`, `rp_identity` (names) are server-only and
 reached through `pcall`; `rp_zones` and `open77_fuel` are optional (fallbacks above).
 
 ## Log (grep-able)
 
 ```text
-[rp_mecano] started: job=mecano society=mecano repair=15000 ms / 2 components, tow every 2000 ms at 6 m, paint 250, impound zone=mecano_shop fee=100 testing=false
+[rp_mecano] props spawned: 4
+[rp_mecano] started: job=mecano society=mecano repair=15000 ms / 2 components, tow every 2000 ms at 6 m, paint 250, impound zone=junkyard fee=100 testing=false
 [rp_mecano] store=sql tables=rp_mecano_impound,rp_mecano_invoices
 [rp_mecano] items registered: toolkit,paint_can (rejected: 0)
 [rp_mecano] player 1 repaired vehicle 12 (Vehicle.v_standard2_archer_hella_player, scope=full, 2.3 m)
@@ -166,18 +192,21 @@ reached through `pcall`; `rp_zones` and `open77_fuel` are optional (fallbacks ab
 
 ## Test in 2 minutes
 
-Two clients at the freeroam spawn `381.36, -2401.79, 181.99`: **1** = mechanic, **2** =
-customer. `rp_jobs`, `rp_inventory`, `rp_economy`, `rp_bank`, `rp_zones`, `open77_uikit`,
+Two clients on the Afterlife street (`-1396, 966, 23.5`, the workshop ring — drive there from
+the Kabuki Market spawn, ~1.1 km south, or console `tp <id> -1396 966 23.6`): **1** = mechanic,
+**2** = customer. `rp_jobs`, `rp_inventory`, `rp_economy`, `rp_bank`, `rp_zones`, `open77_uikit`,
 `open77_contextmenu`, `open77_player_interactions`, `open77_notifications` running (and
 `open77_fuel` for step 8). Start log: `[rp_mecano] started: ...`, `store=sql ...`,
-`items registered: toolkit,paint_can`.
+`items registered: toolkit,paint_can`, `props spawned: 4`. At the street: the workshop ring
+with the garage sign and two tyre blockers on the pavement side, the pump ring 6 m along the
+street with its gas pump.
 
 1. **Console:** `setjob 1 mecano 1` · `giveitem 1 toolkit 1` · `giveitem 1 component 4` ·
    `giveitem 1 paint_can 2` · `giveitem 1 chooh2 1`. Player 2 keeps the default 500 €$ cash.
 2. Player 1: `/reparer` → `Clock in first: /service.` Then `/service` → clocked in.
    Player 2: `/reparer` → `You are no mechanic, choom. ...`
-3. Player 2 spawns a server vehicle (`/car`) next to the spawn and bumps it into the concrete a
-   few times so the body takes damage. Player 1, 10 m away: `/reparer` → `No server vehicle
+3. Player 2 spawns a server vehicle (`/car`) on the workshop ring and bumps it into the
+   concrete a few times so the body takes damage. Player 1, 10 m away: `/reparer` → `No server vehicle
    within reach...`; within 4 m: `/reparer` → bottom progress bar **Fixing the <car>** for 15 s
    (press X: `Repair cancelled.`, nothing spent); let it finish → `<car> repaired (full). 2
    components used.` `/inv` shows 2 components left. `/reparer` again → `... mint condition.`
@@ -197,17 +226,18 @@ customer. `rp_jobs`, `rp_inventory`, `rp_economy`, `rp_bank`, `rp_zones`, `open7
    same flow. ALT+click the car → the five **Garage** entries (player 2 sees none).
 7. Player 1 spawns a second vehicle (the "truck"), sits at the wheel within 8 m of player 2's
    empty car: `/remorquer` → `<car> hooked (x m). It follows 6 m behind your truck; /remorquer
-   again to release.` Drive around the plaza: the car re-appears 6 m behind every 2 s (log
+   again to release.` Drive down the street: the car re-appears 6 m behind every 2 s (log
    `tow: yaw sign flipped` once if the starting guess was wrong). `/remorquer` → `Tow released.`
    Step out during a tow → `You left the wheel: tow released.`
 8. Player 1 in a car: `/plein` → `<car> refuelled: N L in the tank. One CHOOH2 can used.`
    (without `open77_fuel`: `No fuel system on this server ...`, can kept).
-9. Player 1 drives an empty car 40 m west to the garage ring at **341, -2401** (`/zone` →
-   `mecano_shop`), steps out, `/fourriere` → `<car> impounded (plate none, x m). Garage
-   +100 €$ (society 175 €$).` — the car is gone; `/fourriere registre` lists it; the row is in
-   `rp_mecano_impound`. From the spawn: `/fourriere` → `The impound lot is the garage (zone
-   mecano_shop, around 341, -2401)...` unless `Config.impoundAnywhereForTesting = true`, which
-   allows it within 6 m of the spawn or the agency.
+9. Player 1 drives an empty car to the Rancho Coronado junkyard (`1374.9, -1674.9`, east
+   then south into the Badlands edge; `/zone` → `junkyard`), steps out, `/fourriere` → `<car>
+   impounded (plate none, x m). Garage +100 €$ (society 175 €$).` — the car is gone;
+   `/fourriere registre` lists it; the row is in `rp_mecano_impound`. From the street:
+   `/fourriere` → `The impound lot is the Rancho Coronado junkyard (zone junkyard, around 1370,
+   -1680)...` unless `Config.impoundAnywhereForTesting = true`, which allows it within 6 m of
+   the Kabuki Market Centre or the workshop ring.
 10. From another resource: `print(exports.rp_mecano:repair(vehicleId, 1))` → `true`;
     `print(exports.rp_mecano:bill(1, 2, 30, "test"))` → a bill id, then the prompt on player 2
     and `rp_mecano:bill(billId, 1, 2, 30, "paid")` on the bus.

@@ -235,13 +235,16 @@ RegisterCommand("taxitest", function(source, args)
             Wait(60000)
             stopCar(); if npc then Open77.npcs.remove(npc); npc = nil end
         elseif mode == "mapz" then
+            local x, y, z = tonumber(args[3]), tonumber(args[4]), tonumber(args[5])
+            if not (x and y and z) then log("usage: taxitest mapz <playerId> <x> <y> <z>"); return end
             local me = spawnNear(playerId, true)
             if not me then return end
-            drive(playerId, { x = tonumber(args[3]), y = tonumber(args[4]), z = tonumber(args[5]) }, "mapz")
+            drive(playerId, { x = x, y = y, z = z }, "mapz")
         elseif mode == "far" then
+            local tx, ty = tonumber(args[3]), tonumber(args[4])
+            if not (tx and ty) then log("usage: taxitest far <playerId> <x> <y>"); return end
             local me = spawnNear(playerId, true)
             if not me then return end
-            local tx, ty = tonumber(args[3]), tonumber(args[4])
             local z, how = groundAt(playerId, tx, ty, me.position.z)
             log("far target z=%.1f (%s)", z, how)
             drive(playerId, { x = tx, y = ty, z = z }, "far")
@@ -257,10 +260,11 @@ RegisterCommand("taxitest", function(source, args)
             log("joinTraffic -> %s %s", tostring(task and task.status or task), tostring(reason))
             if task then watch(45) end
         elseif mode == "legs" or mode == "legsride" then
+            local tx, ty = tonumber(args[3]), tonumber(args[4])
+            if not (tx and ty) then log("usage: taxitest %s <playerId> <x> <y>", mode); return end
             local me = spawnNear(playerId, true)
             if not me then return end
             if mode == "legsride" then boardAnimated(playerId) end
-            local tx, ty = tonumber(args[3]), tonumber(args[4])
             local legLen = 200
             for leg = 1, 12 do
                 local v = Open77.vehicles.get(car)

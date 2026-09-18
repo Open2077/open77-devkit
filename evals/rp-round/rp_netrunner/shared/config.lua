@@ -1,5 +1,6 @@
 -- rp_netrunner: shared configuration (server and client read the same table).
--- Every position is world metres; the eval server spawns at 381.36, -2401.79, 181.99.
+-- Every position is world metres; the freeroam spawn is Kabuki Market Centre
+-- -1191.30, 2006.88, 7.82 (Watson) and the access point sits in the Afterlife's back room.
 Config = {}
 
 -- The job (rp_jobs v2) and the duty requirement every contract checks.
@@ -89,22 +90,23 @@ Config.jam = {
 -- Breach: the access point (a prop + a ring + an E prompt), the bar, the door search and
 -- the data bounty paid when no networked door is within doorRadius.
 Config.accessPoint = {
-    -- Centre of the rp_zones `blackmarket` zone (400, -2390, z 182), 22 m north-east of the spawn.
-    -- If the ring is invisible, stand on the spot, /pos, and paste the ground height here.
-    position = { x = 400.0, y = -2390.0, z = 182.0 },
-    label = "Access point",
+    -- The Afterlife's safe area (the back room, AMM -1419.9, 989.4, 16.5; ring z + 0.1), inside
+    -- the rp_zones `afterlife` zone, 1.0 km south-west of the spawn. If the ring is invisible,
+    -- stand on the spot, /pos, and paste the ground height here.
+    position = { x = -1419.9, y = 989.4, z = 16.6 },
+    label = "Access point - Afterlife back room",
     description = "Jack in and breach the local subnet.",
     radius = 1.2,
     promptDistance = 3.0,
     reach = 4.0,               -- the server re-checks the netrunner stands this close
     prop = {
-        -- Curated alias of the props catalogue (electronics family, "server"); when the
-        -- alias is unknown on this build the raw depot mesh below is tried, then the
+        -- The breach terminal: a data terminal from the props catalogue (raw depot mesh);
+        -- when the mesh is refused on this build the curated alias below is tried, then the
         -- ring alone marks the spot. Set model = false to spawn nothing.
         model = "electronics.server",
-        fallbackModel = "base\\environment\\decoration\\electronics\\hardware\\server_neomilitarism\\server_militarism_a.mesh",
+        fallbackModel = "electronics.server",
         yaw = 180.0,
-        offset = { x = 0.0, y = 1.2, z = 0.0 }, -- the terminal stands just behind the ring
+        offset = { x = 0.0, y = 1.2, z = -0.1 }, -- the terminal stands just behind the ring, on the floor
     },
 }
 

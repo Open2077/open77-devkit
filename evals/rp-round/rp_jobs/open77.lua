@@ -7,7 +7,8 @@ auto_start true
 -- network.events  : RegisterNetEvent / TriggerClientEvent (server), RegisterNetEvent / TriggerServerEvent (client)
 -- database.access : Open77.database.* (rp_jobs_employees)
 -- ui.nameplates   : Open77.nameplates.set / remove / clear (client): the on-duty tag over a colleague's body
-permissions { "network.events", "database.access", "ui.nameplates" }
+-- world.props     : Open77.props.create / remove (server): the job-board terminal behind the agency ring
+permissions { "network.events", "database.access", "ui.nameplates", "world.props" }
 
 -- All three ship a client half, so a manifest delivered to clients may depend on them.
 --   open77_uikit       : the agency menu (server twin `context`)

@@ -58,7 +58,16 @@ end)
 
 -- The styling fee is paid: open the platform wardrobe on this client.
 RegisterNetEvent("rp_shops:wardrobe", function()
-    local ok, reason = Open77.runtime.executeCommand("wardrobe")
+    -- Open77.runtime.executeCommand only has a server card on op77.76: on the client the
+    -- table may be absent, and an unguarded index would raise in this handler.
+    local called, ok, reason = pcall(function()
+        local runtime = Open77.runtime
+        if type(runtime) ~= "table" or type(runtime.executeCommand) ~= "function" then
+            return false, "unknown_command"
+        end
+        return runtime.executeCommand("wardrobe")
+    end)
+    if not called then ok, reason = false, ok end
     if not ok then
         -- `unknown_command` = the wardrobe is not a client command on this build; the
         -- server already told the player to type /wardrobe themselves.

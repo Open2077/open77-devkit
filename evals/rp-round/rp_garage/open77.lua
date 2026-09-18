@@ -9,6 +9,7 @@ auto_start true
 -- world.vehicles  : Open77.vehicles.create / remove / get / getProperties / setProperties / nearby /
 --                   getPlayerSeat / setLocked / isLocked / setLockedForPlayer / triggerHorn (server)
 -- database.access : Open77.database.* (rp_garage_vehicles, rp_garage_keys)
+-- world.props     : Open77.props.create / remove (the garage sign, the dealership neon; removed on stop)
 -- network.events  : RegisterNetEvent / Open77.notifications.send (server), RegisterNetEvent /
 --                   TriggerServerEvent (client)
 -- (state bag)     : Open77.state.entity("vehicle", id):set("plate", ...) -- the state-bags guide and
@@ -16,7 +17,7 @@ auto_start true
 --                   permission the op77.76 runtime enforces (open77_permissions / open77_validate
 --                   refuse it), so it is not declared; the write is guarded at runtime and the plate
 --                   always stays in SQL and in the exports (see writePlate in server/main.lua).
-permissions { "state.write", "world.vehicles", "database.access", "network.events" }  -- state.write: the plate state-bag key (measured: permission_denied without it)
+permissions { "state.write", "world.vehicles", "database.access", "network.events", "world.props" }  -- state.write: the plate state-bag key (measured: permission_denied without it); world.props: the garage sign and the showroom neon (Open77.props.create / remove)
 
 -- Every declared dependency ships a client half, so a manifest delivered to clients may
 -- depend on it:

@@ -74,6 +74,49 @@ AddEventHandler("onResourceStart", function(name)
 
         Wait(200)
         check("economy.changed was not raised by refused calls", #changed == 0, #changed .. " event(s)")
+
+        -- phases 3-5: read-only exports, no player and no side effect. These resources are not
+        -- dependencies (some are optional on a given server), so give them a moment to start.
+        local later = { "rp_config", "rp_logs", "rp_whitelist", "rp_admin", "rp_garage", "rp_housing",
+            "rp_gangs", "rp_crime", "rp_phone", "rp_radio", "rp_shops" }
+        for _ = 1, 40 do
+            local pending = false
+            for _, name in ipairs(later) do
+                local state = GetResourceState(name)
+                if state == "starting" then pending = true end
+            end
+            if not pending then break end
+            Wait(250)
+        end
+        v, r = call("rp_config", "get", "rp_config.chatListMax")
+        check("config.get answers a number for a catalogue key", type(v) == "number", tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_config", "get", "rp_selftest.no_such_key", 42)
+        check("config.get answers the default for an unknown key", v == 42, tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_logs", "query", { limit = 1 })
+        check("logs.query answers a table", type(v) == "table", tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_whitelist", "isAllowed", "selftest:nobody")
+        check("whitelist.isAllowed answers a boolean for an unknown identifier", type(v) == "boolean", tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_whitelist", "isAllowed", 42)
+        check("whitelist.isAllowed refuses a non-string identifier", v == false and type(r) == "string", tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_admin", "isAdmin", 999999)
+        check("admin.isAdmin answers false for an unknown player", v == false, tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_admin", "isAdmin", "abc")
+        check("admin.isAdmin survives a bad id", v == false, tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_garage", "vehiclesOf", 999999)
+        check("garage.vehiclesOf answers an empty table for an unknown player", type(v) == "table" and #v == 0, tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_housing", "homeOf", 999999)
+        check("housing.homeOf answers nil for an unknown player", v == nil and r == nil, tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_gangs", "gangOf", 999999)
+        check("gangs.gangOf answers nil for an unknown player", v == nil and r == nil, tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_crime", "wantedVehicles")
+        check("crime.wantedVehicles answers a table", type(v) == "table", tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_phone", "numberOf", 999999)
+        check("phone.numberOf answers nil for an unknown player", v == nil and r == nil, tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_radio", "channelOf", 999999)
+        check("radio.channelOf answers nil for an unknown player", v == nil and r == nil, tostring(v) .. " " .. tostring(r))
+        v, r = call("rp_shops", "stock", "selftest_no_such_shop")
+        check("shops.stock refuses an unknown shop", v == nil and r == "unknown_shop", tostring(v) .. " " .. tostring(r))
+
         print(("[rp_selftest] done: %d passed, %d failed"):format(passed, failed))
     end)
 end)

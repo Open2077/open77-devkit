@@ -8,6 +8,7 @@ local RESOURCE = GetCurrentResourceName()
 local onDuty = false          -- the server says whether this client is a barman on duty
 local counterHandle = nil     -- open77_worldui handle of the counter POI
 local counterBusy = false     -- a create/remove round trip is in flight
+local counterDirty = false    -- the duty flag changed while a round trip was in flight
 
 local function call(resource, name, ...)
     local promise, reason = Open77.exports.call(resource, name, ...)
@@ -54,15 +55,19 @@ end
 
 -- Keep the POI in step with the duty flag; one round trip at a time.
 local function syncCounter()
-    if counterBusy then return end
+    -- A change that lands mid-flight is not dropped: the worker re-checks once the round trip ends.
+    if counterBusy then counterDirty = true; return end
     counterBusy = true
     CreateThread(function()
-        local wanted = onDuty or RpBarConfig.showCounterToCustomers == true
-        if wanted and not counterHandle then
-            createCounter()
-        elseif not wanted and counterHandle then
-            removeCounter()
-        end
+        repeat
+            counterDirty = false
+            local wanted = onDuty or RpBarConfig.showCounterToCustomers == true
+            if wanted and not counterHandle then
+                createCounter()
+            elseif not wanted and counterHandle then
+                removeCounter()
+            end
+        until not counterDirty
         counterBusy = false
     end)
 end

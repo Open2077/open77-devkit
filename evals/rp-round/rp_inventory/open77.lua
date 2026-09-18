@@ -24,3 +24,7 @@ permissions {
 shared_script "shared/items.lua"
 client_script "client/main.lua"
 server_script "server/main.lua"
+
+-- The /inv panel: a WebUI page created by client/main.lua (no permission needed,
+-- as rp_mdt / rp_phone prove); the server pushes its state, the page sends intents.
+web_files { "web/**" }

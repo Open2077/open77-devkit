@@ -402,9 +402,11 @@ local function todaySales()
     if store ~= "sql" then return nil end
     local now = math.floor(Open77.time.unix())
     local dayStart = now - (now % 86400)
-    local row = Open77.database.single.await(
+    -- `.await` raises on a failed read; the till view then falls back to the session counters.
+    local ok, row = pcall(Open77.database.single.await,
         "SELECT COUNT(*) AS n, COALESCE(SUM(price), 0) AS total FROM rp_bar_sales WHERE at >= ?",
         { dayStart })
+    if not ok then log("today's sales read failed: %s", tostring(row)); return nil end
     if type(row) ~= "table" then return nil end
     return tonumber(row.n) or 0, tonumber(row.total) or 0
 end
@@ -981,9 +983,10 @@ end)
 -- ALT+click > Serve a drink: the barman picks which drink from a menu.
 RegisterNetEvent("rp_bar:serve", function(targetId)
     local barman = source
-    targetId = tonumber(targetId)
+    -- Only a positive integer may reach Open77.players.* (a float like 1e300 passes `% 1 == 0`).
+    targetId = math.tointeger(tonumber(targetId))
     if not requireBarman(barman) then return end
-    if not targetId or targetId < 1 or targetId % 1 ~= 0 then chat(barman, "No customer selected."); return end
+    if not targetId or targetId < 1 then chat(barman, "No customer selected."); return end
     if targetId == barman then chat(barman, "You cannot serve yourself, choom. Pour one and /use it."); return end
     if not isConnected(targetId) then chat(barman, "That customer is gone."); return end
     if saleOfBarman[barman] then chat(barman, "Finish the drink you are already serving."); return end
@@ -1013,8 +1016,8 @@ end)
 RegisterCommand("servir", function(source, args)
     if source == 0 then print("servir: run this from the game, not the console"); return end
     if not requireBarman(source) then return end
-    local target = tonumber(args[1])
-    if not target or target < 1 or target % 1 ~= 0 or not args[2] then
+    local target = math.tointeger(tonumber(args[1]))
+    if not target or target < 1 or not args[2] then
         chat(source, "Usage: /servir <playerId> <drink> - drinks: " .. table.concat(drinkList(), ", "))
         return
     end
@@ -1194,10 +1197,37 @@ end)
 -- Lifecycle
 -- ---------------------------------------------------------------------------
 
+-- Decoration: the props of RpBarConfig.props, created at start and removed at stop.
+-- A refused prop only logs: the counter works without it.
+local propIds = {}
+
+local function spawnProps()
+    for i, def in ipairs(C.props or {}) do
+        local id, reason = Open77.props.create({
+            model = def.model,
+            position = { x = def.position.x, y = def.position.y, z = def.position.z },
+            yaw = def.yaw or 0.0,
+            bucket = 0,
+        })
+        if id then
+            propIds[#propIds + 1] = id
+        else
+            log("prop %d (%s) not spawned: %s", i, tostring(def.model), tostring(reason))
+        end
+    end
+    if #propIds > 0 then log("props spawned: %d", #propIds) end
+end
+
+local function removeProps()
+    for _, id in ipairs(propIds) do Open77.props.remove(id) end
+    propIds = {}
+end
+
 AddEventHandler("onResourceStart", function(name)
     if name == RESOURCE then
         defineItems("start")
         setupStore()
+        spawnProps()
         Open77.chat.addSuggestions(-1, SUGGESTIONS)
         for _, playerId in ipairs(Open77.players.all()) do pushDuty(playerId) end
         log("started: counter at %.1f %.1f %.1f (reach %s m), %d drinks, %d ingredients, society '%s', ambience %s",
@@ -1225,5 +1255,6 @@ AddEventHandler("onResourceStop", function(name)
     for playerId in pairs(hearing) do
         if isConnected(playerId) then Open77.sound.stop(playerId, C.ambience.id) end
     end
+    removeProps()
     log("stopped: %d sale(s) this session for %s", sessionSales, tostring(sessionRevenue))
 end)

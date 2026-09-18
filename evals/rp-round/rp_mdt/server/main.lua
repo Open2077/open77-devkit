@@ -419,7 +419,8 @@ local function buildCard(mode, identifier)
 
         -- Unpaid fines: no export gives them, read-only SQL on rp_ncpd_fines.
         local fines, reason = dbRows(
-            "SELECT amount, remaining, reason, officer_name, created_at FROM rp_ncpd_fines WHERE identifier = ? AND paid_at IS NULL ORDER BY id DESC LIMIT 20",
+            -- rp_ncpd_fines.paid_at is BIGINT NOT NULL DEFAULT 0 (0 = unpaid), never NULL.
+            "SELECT amount, remaining, reason, officer_name, created_at FROM rp_ncpd_fines WHERE identifier = ? AND (paid_at IS NULL OR paid_at = 0) AND remaining > 0 ORDER BY id DESC LIMIT 20",
             { identifier })
         card.fines, card.finesTotal = {}, 0
         if fines then

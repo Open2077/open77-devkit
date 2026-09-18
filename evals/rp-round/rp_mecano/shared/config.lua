@@ -5,8 +5,40 @@ Config = {
     job = "mecano",
     society = "mecano",
 
-    -- The freeroam spawn of the eval server: everything a tester needs is within 80 m.
-    spawn = { x = 381.36, y = -2401.79, z = 181.99 },
+    -- The freeroam spawn: Kabuki Market Centre (Watson), walked point.
+    spawn = { x = -1191.30, y = 2006.88, z = 7.82 },
+
+    -- The workshop: the real street outside The Afterlife's ramp (Little China, Watson),
+    -- probed 2026-09-18, has a crosswalk, a car fits. A bare ring (open77_worldui,
+    -- nothing to press: every command works wherever the car is) and the props below.
+    workshop = {
+        position = { x = -1396.0, y = 966.0, z = 23.5 },
+        radius = 3.0,
+        label = "Afterlife street garage",
+    },
+
+    -- The CHOOH2 pump: 6 m along the same street. Ring only; /plein works
+    -- anywhere with a can, the pump is where a mechanic would park to do it.
+    pump = {
+        position = { x = -1390.0, y = 972.0, z = 23.5 },
+        radius = 1.5,
+        label = "CHOOH2 pump",
+    },
+
+    -- Decoration spawned by the server at start (Open77.props.create, permission
+    -- `world.props`) and removed at stop: the garage sign and two tyre blockers on the
+    -- pavement side of the workshop ring (x -1394..-1392), the pump itself by the pump ring.
+    -- Raw depot `.mesh` paths from the props catalogue; a refused prop is logged, never fatal.
+    props = {
+        { model = "sign.street",
+          position = { x = -1392.4, y = 966.0, z = 26.0 }, yaw = 90.0 },
+        { model = "barrier.tire_blocker",
+          position = { x = -1393.2, y = 963.0, z = 23.5 }, yaw = 0.0 },
+        { model = "barrier.tire_blocker",
+          position = { x = -1393.2, y = 969.0, z = 23.5 }, yaw = 0.0 },
+        { model = "industrial.gas_pump",
+          position = { x = -1392.0, y = 973.0, z = 23.5 }, yaw = 90.0 },
+    },
 
     -- /reparer
     repair = {
@@ -51,20 +83,20 @@ Config = {
         mechanicShare = 0.7,    -- 70 % to the mechanic, the rest to the society
     },
 
-    -- /fourriere
+    -- /fourriere: the impound / tow yard is the Rancho Coronado junkyard (Badlands edge).
     impound = {
-        zone = "mecano_shop",   -- rp_zones name; the owner moves the zone in rp_zones/shared/config.lua
+        zone = "junkyard",      -- rp_zones name; the owner moves the zone in rp_zones/shared/config.lua
         reach = 8.0,            -- metres to the vehicle to impound
         fee = 100,              -- eddies credited to the society per impound
-        -- Used only when rp_zones is not running: the shipped mecano_shop circle.
-        fallbackCenter = { x = 341.0, y = -2401.0, z = 180.3 },
-        fallbackRadius = 10.0,
+        -- Used only when rp_zones is not running: the junkyard circle (AMM point, zone r 90).
+        fallbackCenter = { x = 1370.0, y = -1680.0, z = 49.3 },
+        fallbackRadius = 90.0,
         -- Config.impoundAnywhereForTesting: /fourriere also works within `testingReach`
-        -- metres of one of these spots (the spawn plaza and the employment agency).
+        -- metres of one of these spots (the Kabuki Market spawn and the workshop).
         testingReach = 6.0,
         testingSpots = {
-            { label = "spawn plaza", x = 381.36, y = -2401.79, z = 181.99 },
-            { label = "employment agency", x = 396.0, y = -2388.0, z = 181.99 },
+            { label = "Kabuki Market Centre", x = -1191.30, y = 2006.88, z = 7.82 },
+            { label = "Afterlife street garage", x = -1396.0, y = 966.0, z = 23.5 },
         },
     },
     impoundAnywhereForTesting = false,

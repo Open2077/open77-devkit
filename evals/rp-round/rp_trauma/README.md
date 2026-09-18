@@ -166,16 +166,19 @@ the whole boot.
 | `actionRange` / `commandRange` | 3 m / 5 m | |
 | `downHealthFraction` / `reviveHealthFraction` | 0.05 / 0.5 | |
 | `medicCooldownSeconds` / `downReminderSeconds` | 10 s / 30 s | |
-| `hospital.zone` / `hospital.respawn` | `hospital` / `400, -2366, 182` (heading 180) | a real hospital |
-| `av.record` | `Vehicle.av_trauma` | |
+| `hospital.zone` / `hospital.respawn` | `viktor_clinic` / `-1546, 1231, 11.6` (heading 180) | |
+| `av.record` / `av.pad` | `Vehicle.av_trauma` / `-1408, 960, 23.5` r 15 (the Afterlife street) | |
 | `blip.sprite` / `blip.contractSprite` | `SOSsignalVariant` / `important` | |
 
-**The hospital.** `rp_zones` ships the `hospital` zone as a placeholder circle (radius 12 m)
-centred at `400, -2366, 182`, 41 m north-north-east of the freeroam spawn
-`381.36, -2401.79, 181.99`, on measured flat ground; `Config.hospital.respawn` is that centre.
-The owner will move the zone (`rp_zones/shared/config.lua`) **and** this point to a real Night
-City hospital — keep the respawn point inside the zone so `/trauma av` and the walk-back both
-make sense.
+**"The hospital" is Vik's.** In the lore you wake up at Viktor Vektor's, so `/respawn` puts the
+body in **Vik's clinic** (Little China, Watson): the rp_zones `viktor_clinic` zone (radius 12 m,
+centre `-1548, 1230, 11.6`, the AMM chair room), 855 m south-west of the freeroam spawn (Kabuki
+Market Centre `-1191.30, 2006.88, 7.82`); `Config.hospital.respawn` is 2 m off the chair. The
+config keys keep the `hospital` name (rp_config overrides `rp_trauma.hospital.*`); the
+player-facing lines say Vik's. **The AV pad** is not the clinic (an interior cannot take an AV)
+but the real street outside the Afterlife ramp — `Config.av.pad` `-1408, 960, 23.5`, probed
+crosswalk, 15 m radius, 73 m from the Afterlife's bar floor: `/trauma av` needs the medic
+standing on it.
 
 **The AV.** `Vehicle.av_trauma` is the "AV Trauma" record of the 2.31 catalogue (class `av`,
 4 seats; `open77_data vehicles "av_trauma"`). No AV record has a `_player` variant and the
@@ -186,15 +189,15 @@ proven one: if `Open77.vehicles.create` refuses it (the medic reads `AV request 
 ## Log (grep-able)
 
 ```text
-[rp_trauma] started: down=60 s, hospital bill=500, fees heal=100 revive=300, contract=1000 €$/30 min, hospital at 400, -2366, 182, av=Vehicle.av_trauma
+[rp_trauma] started: down=60 s, hospital bill=500, fees heal=100 revive=300, contract=1000 €$/30 min, hospital at -1546, 1231, 12, av=Vehicle.av_trauma
 [rp_trauma] store=sql tables=rp_trauma_contracts,rp_trauma_bills
-[rp_trauma] player 3 down at 381, -2402, 182, 1 medic(s) notified, 60 s
-[rp_trauma] player 3 held down at 381, -2402, 182, 55 s left
+[rp_trauma] player 3 down at -1191, 2007, 8, 1 medic(s) notified, 60 s
+[rp_trauma] player 3 held down at -1191, 2007, 8, 55 s left
 [rp_trauma] player 4 revived player 3 fee=300 dead=false
 [rp_trauma] player 3 hospital respawn: account=500 cash=0 debt=0
 [rp_trauma] player 3 owes 200 (hospital), total debt 200
 [rp_trauma] player 3 contract signed until 1789000000 account=4000
-[rp_trauma] player 4 spawned AV 12 (Vehicle.av_trauma) at 404, -2360, 183 seat=true
+[rp_trauma] player 4 spawned AV 12 (Vehicle.av_trauma) at -1408, 968, 25 seat=true
 ```
 
 ## Test in 2 minutes (one player, freeroam spawn)
@@ -203,28 +206,32 @@ Load `open77_uikit`, `open77_contextmenu`, `open77_notifications`, `rp_economy`,
 `rp_jobs`, `rp_zones`, `rp_identity` and `rp_trauma` (and **not** `rp_medic`). Log on start:
 `[rp_trauma] started: down=60 s ...` then `store=sql ...`.
 
-1. Connect (id `1`), stand at the spawn `381.36, -2401.79, 181.99`. `/trauma` → `Trauma Team:
-   you are on your feet; no contract (/contrat); unpaid bills 0 €$.`
+1. Connect (id `1`), stand at the spawn, Kabuki Market Centre `-1191.30, 2006.88, 7.82`.
+   `/trauma` → `Trauma Team: you are on your feet; no contract (/contrat); unpaid bills 0 €$.`
 2. `/suicide` (freeroam test command). Chat: `You are down. Trauma Team has been notified.
-   /respawn opens in 60 s (hospital bill 500 €$).` + red toast. The freeroam respawn runs, then
+   /respawn opens in 60 s (Vik's bill 500 €$).` + red toast. The freeroam respawn runs, then
    the screen fades and you are back **at the death spot**, frozen, at 5 % health, with the
    bottom hint `DOWN - Trauma Team notified - /respawn opens in N s`. W/A/S/D, jump and fire do
    nothing; the chat still opens. Log: `player 1 down at ...` then `player 1 held down at ...`.
 3. `/respawn` right away → `Hold on, choom: /respawn opens in N s.` (eval config:
    `countdownWithoutMedics = true`; in production, with nobody on duty, it would be accepted at
-   once). Wait 60 s: chat `/respawn is open: the hospital takes you for 500 €$...`, the hint
+   once). Wait 60 s: chat `/respawn is open: Vik's clinic takes you for 500 €$...`, the hint
    changes, a toast confirms.
-4. `/respawn` → fade, you stand at the hospital ring (`400, -2366`), full health, chat
-   `Trauma Team dropped you at the hospital. Bill: 500 €$ from your account.` (or `... in cash`,
-   or `... 200 €$ still owed (/trauma payer)` when broke). `/solde` shows the debit; `/trauma
-   factures` lists a debt if any; `/trauma payer` settles it once you have money.
+4. `/respawn` → fade, you stand in Vik's clinic next to the chair (`-1546, 1231`, 855 m from
+   the market; toast **Vik's Clinic** from rp_zones), full health, chat `Trauma Team dropped
+   you at Vik's clinic. Bill: 500 €$ from your account.` (or `... in cash`, or `... 200 €$ still
+   owed (/trauma payer)` when broke). `/solde` shows the debit; `/trauma factures` lists a debt
+   if any; `/trauma payer` settles it once you have money. The `ATM — Vik's Clinic` ring is
+   3 m away at the door.
 5. `/contrat` → menu; **Subscribe** → `Trauma Team contract signed: 1000 €$ charged...`
-   (fund the account first: `/bank` at the spawn ATM or console `givemoney 1 2000` then
+   (fund the account first: `/bank` at the clinic ATM or console `givemoney 1 2000` then
    deposit). `/contrat` again shows **My contract** / **Cancel my contract**.
 6. Console: `setjob 1 trauma 3`, then in game `/service` → you are an on-duty medic. `/trauma`
-   now adds `Dispatch: nobody is down.` Walk 41 m north-north-east into the hospital ring,
-   `/trauma av` → the AV appears in front of you and you are in its seat; `/trauma av off`.
-   Outside the ring the command answers `The AV pad is at the hospital (zone hospital)...`.
+   now adds `Dispatch: nobody is down.` Drive to the street outside the Afterlife ramp
+   (`-1408, 960`, the NCPD outpost ring of rp_ncpd marks the same crosswalk), `/trauma av` →
+   the AV appears in front of you and you are in its seat; `/trauma av off`. Anywhere else the
+   command answers `The AV pad is on the Afterlife street (-1408, 960), N m from you: stand on
+   it first.`
 7. `/soin 1` → `You can't treat yourself, choom.`; `/soin 99` → `Player 99 not found`.
 8. **Two players** (second client id `2`, no job): player 2 `/suicide` → player 1 (on duty)
    reads `<name> (id 2) is down at ..., 12 m away. ALT+click the body: Revive.`, gets a toast

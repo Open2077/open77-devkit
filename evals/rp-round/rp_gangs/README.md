@@ -15,13 +15,13 @@ is re-validated by the server (membership, distance, bucket, target state, coold
 
 | id | label | colour | home territory |
 |---|---|---|---|
-| `maelstrom` | Maelstrom | red | `scrapyard` |
-| `tygerclaws` | Tyger Claws | pink | `afterlife` |
-| `valentinos` | Valentinos | gold | `blackmarket` |
-| `sixthstreet` | 6th Street | blue | `nomad_camp` |
-| `animals` | Animals | purple | `afterlife` |
-| `voodooboys` | Voodoo Boys | green | `blackmarket` |
-| `scavs` | Scavs | grey | `scrapyard` |
+| `maelstrom` | Maelstrom | red | `junkyard` |
+| `tygerclaws` | Tyger Claws | pink | `kabuki_market` |
+| `valentinos` | Valentinos | gold | `afterlife` |
+| `sixthstreet` | 6th Street | blue | `afterlife` |
+| `animals` | Animals | purple | `lizzies` |
+| `voodooboys` | Voodoo Boys | green | `lizzies` |
+| `scavs` | Scavs | grey | `junkyard` |
 
 Ranks: `0` member, `1` lieutenant, `2` boss. Everything is `shared/config.lua`
 (`RpGangsConfig`): gangs, territories and buyer positions, prices, cooldowns, war length.
@@ -30,12 +30,19 @@ Commands accept a gang or a territory by id, label or unambiguous prefix (`mael`
 
 ## Territories
 
-Territories are `rp_zones` zones (the eval config): `blackmarket` (400, -2390, 182 r10),
-`afterlife` (360, -2390, 182 r10), `nomad_camp` (420, -2378, 182 r9), `scrapyard` (462,
--2352, 178 r12). All within 95 m of the freeroam spawn `381.36, -2401.79, 181.99`. The buyer
-NPC of each stands a few metres off the zone centre: black market `397, -2393, 182`, Afterlife
-`358, -2392, 182`, nomad camp `418, -2380, 182`, scrapyard `460, -2355, 178` (if one lands in
-the ground, stand on the spot, `/pos`, paste the height into `Config.territories[].buyer`).
+Territories are `rp_zones` zones, real Night City places (measured 2026-09-18). The freeroam
+spawn is Kabuki Market Centre `-1191.30, 2006.88, 7.82`. No territory has a default holder.
+
+| Territory | Zone centre | Buyer NPC (+ crate prop) | From spawn |
+|---|---|---|---|
+| `kabuki_market` — Kabuki Market | -1191.30, 2006.88, 7.82 (r 70) | Far Corner `-1149.22, 2054.84, 7.76` (walked), crate 1.3 m east | 64 m north-east, inside the market |
+| `lizzies` — Lizzie's Bar | -1188.9, 1566.2, 22.9 (r 18) | inside, `-1185, 1568, 23`, crate 1.3 m east | 440 m south |
+| `junkyard` — Junkyard | 1374.9, -1674.9, 49.3 (r 90) | `1370, -1670, 49.4`, crate 1.3 m north-west | 4.5 km south-east (Rancho Coronado, Badlands) |
+| `afterlife` — The Afterlife | -1453, 1017, 16.5 (r 50) | **no buyer** (no street market in the Afterlife: the zone is only fought over) | 1.0 km south-west |
+
+The crate beside each buyer is `Open77.props.create` (the curated prop alias `crate.cargo`, see
+`prop.catalog`; `Config.buyerProp`), removed with the buyers on stop; a refusal only logs. If a buyer lands in
+the ground, stand on the spot, `/pos`, paste the height into `Config.territories[].buyer`.
 
 **Influence** (`rp_gangs_influence`, per zone and gang):
 
@@ -52,8 +59,9 @@ it. A holder change is announced to everyone. Every `tributeIntervalMs` (10 min)
 member of the holder gets `tributePerZone` (50 €$) cash **per held zone**
 (`rp_economy:add`, reason `gang:tribute:<zone>`).
 
-Note: `blackmarket` and `afterlife` sit inside the `spawn_plaza` safe zone of `rp_zones`,
-so nobody takes damage there — wars are decided by presence, not by kills.
+Note: `kabuki_market` **is** the safe zone of `rp_zones`, so nobody takes damage there — a war
+over the market is decided by presence, not by kills. Lizzie's, the junkyard and the Afterlife
+are not safe zones.
 
 ## Commands
 
@@ -103,9 +111,9 @@ Nothing here collides with a platform or delivered command (`gang`, `territoire`
 exports.rp_gangs:gangOf(playerId)                        -- "maelstrom" | nil
 exports.rp_gangs:isBoss(playerId)                        -- boolean
 exports.rp_gangs:rankOf(playerId)                        -- { level = 1, label = "lieutenant" } | nil   (extra)
-exports.rp_gangs:influence("blackmarket")                -- { maelstrom = 12, scavs = 3 } | nil, "unknown_zone"
-exports.rp_gangs:holderOf("blackmarket")                 -- "maelstrom" | nil                          (extra)
-exports.rp_gangs:addInfluence("blackmarket", "maelstrom", 1, "deal")  -- newPoints | nil, reason
+exports.rp_gangs:influence("kabuki_market")              -- { maelstrom = 12, scavs = 3 } | nil, "unknown_zone"
+exports.rp_gangs:holderOf("kabuki_market")               -- "maelstrom" | nil                          (extra)
+exports.rp_gangs:addInfluence("kabuki_market", "maelstrom", 1, "deal")  -- newPoints | nil, reason
 ```
 
 `addInfluence` reasons: `unknown_zone` (not a territory), `unknown_gang`, `invalid_points`
@@ -176,24 +184,25 @@ Wars, cooldowns and the buyer NPCs are in memory only: a resource stop ends ever
 [rp_gangs] started: 7 gangs, 4 territories, tribute 50 eddies per zone every 10 min, war 5 min, deal 80 eddies
 [rp_gangs] items registered in rp_inventory: 1 (rejected: 0)
 [rp_gangs] store=sql tables=rp_gangs_members,rp_gangs_influence
-[rp_gangs] territories: blackmarket=none afterlife=none nomad_camp=none scrapyard=none
-[rp_gangs] buyer spawned zone=blackmarket npc=... at 397.0 -2393.0 182.0
+[rp_gangs] territories: kabuki_market=none lizzies=none junkyard=none afterlife=none
+[rp_gangs] buyer spawned zone=kabuki_market npc=... at -1149.2 2054.8 7.8
 [rp_gangs] buyer prompt declared (Street deal)
 [rp_gangs] player 1 gang=maelstrom rank=2 (founded)
-[rp_gangs] deal player=1 zone=blackmarket gang=maelstrom +80 cash=580 via=command
-[rp_gangs] influence blackmarket maelstrom +1 -> 1 (deal by player 1)
-[rp_gangs] zone blackmarket holder=maelstrom (was nil)
-[rp_gangs] tribute player=1 gang=maelstrom zone=blackmarket +50 cash=630
+[rp_gangs] deal player=1 zone=kabuki_market gang=maelstrom +80 cash=580 via=command
+[rp_gangs] influence kabuki_market maelstrom +1 -> 1 (deal by player 1)
+[rp_gangs] zone kabuki_market holder=maelstrom (was nil)
+[rp_gangs] tribute player=1 gang=maelstrom zone=kabuki_market +50 cash=630
 [rp_gangs] robbery robber=1 victim=2 cash=150 items=1
-[rp_gangs] war start zone=scrapyard attacker=maelstrom defender=scavs by=1 minutes=5
-[rp_gangs] war end zone=scrapyard attacker=maelstrom defender=scavs score=6-4 winner=maelstrom (time)
+[rp_gangs] war start zone=junkyard attacker=maelstrom defender=scavs by=1 minutes=5
+[rp_gangs] war end zone=junkyard attacker=maelstrom defender=scavs score=6-4 winner=maelstrom (time)
 ```
 
 ## Manifest
 
-Permissions: `network.events`, `database.access`, `world.npcs`, `players.animations.read`
-(the hands-up read; the devkit card lists no permission check for `Open77.animations.current`,
-the guide says it needs this one — declared to be safe), `ui.nameplates` (client).
+Permissions: `network.events`, `database.access`, `world.npcs`, `world.props` (the crate beside
+each buyer), `players.animations.read` (the hands-up read; the devkit card lists no permission
+check for `Open77.animations.current`, the guide says it needs this one — declared to be safe),
+`ui.nameplates` (client).
 Dependencies: `open77_contextmenu`, `open77_interactions`, `open77_notifications` (all three
 ship a client half). `rp_zones`, `rp_jobs`, `rp_inventory`, `rp_economy`, `rp_ncpd`,
 `rp_housing`, `rp_identity`, `rp_fixer` and `open77_rp_basics` are server-only and reached
@@ -201,10 +210,11 @@ through `pcall`: each degrades to a chat line or a log line when missing.
 
 ## Test in 2 minutes (one player)
 
-At the freeroam spawn `381.36, -2401.79, 181.99`, id `1`, jobless; `rp_zones`,
-`rp_inventory`, `rp_economy` running (`rp_jobs`, `rp_identity`, `rp_ncpd`, `rp_fixer`,
-`open77_rp_basics` optional). Log on start: `started: 7 gangs, 4 territories ...`,
-`store=sql ...`, four `buyer spawned` lines and `buyer prompt declared`.
+At the freeroam spawn, Kabuki Market Centre `-1191.30, 2006.88, 7.82`, id `1`, jobless;
+`rp_zones`, `rp_inventory`, `rp_economy` running (`rp_jobs`, `rp_identity`, `rp_ncpd`,
+`rp_fixer`, `open77_rp_basics` optional). Log on start: `started: 7 gangs, 4 territories ...`,
+`store=sql ...`, three `buyer spawned` lines (the Afterlife has no buyer) and `buyer prompt
+declared`.
 
 1. `/gang` → `You run with nobody. /gang creer <gang> to found one...` and the seven gangs
    with `0` members.
@@ -215,21 +225,22 @@ At the freeroam spawn `381.36, -2401.79, 181.99`, id `1`, jobless; `rp_zones`,
    none. Tribute 50 €$ per zone every 10 min.`
 4. `/territoire` → four lines, every one `held by nobody ... no influence yet`.
 5. Console: `giveitem 1 drug_pack 2` → `Drug pack x2` in the pockets (`/inv`, flagged illegal).
-6. Walk 22 m north-east to the black market ring (400, -2390): a Maelstrom-looking NPC stands
-   at 397, -2393 with a **Street deal** marker. Look at him within 2.5 m and press **E** (or
-   type `/gang vendre` within 4 m) → `Deal done in Black Market: +80 €$ cash (...). Maelstrom
-   influence +1.`, a toast, and everyone reads `Maelstrom now runs Black Market.` Press **E**
-   again → `The buyer is counting eddies. Come back in 59 s.` Wait a minute, sell the second
-   pack → influence 2. A third press → `Nothing to sell. Bring a drug pack.`
-7. `/territoire` → `Black Market (blackmarket): held by Maelstrom. Top: Maelstrom 2`.
-   `/gang` → `Territories held: Black Market.`
-8. `/guerre blackmarket` → `You already hold Black Market. Nothing to take.`
-   `/guerre scrapyard` → `Nobody holds Scrapyard: deal there and take it with influence.`
-9. Walk 40 m to the Afterlife ring (360, -2390) and `/gang vendre` without a pack → `Nothing
-   to sell.`; walk out of every territory → `No street market here. Find a territory
-   (/territoire).`
+6. Walk 64 m north-east across the market to Far Corner (-1149, 2055): a Maelstrom-looking
+   NPC stands there beside a cargo crate with a **Street deal** marker. Look at him within
+   2.5 m and press **E** (or type `/gang vendre` within 4 m) → `Deal done in Kabuki Market:
+   +80 €$ cash (...). Maelstrom influence +1.`, a toast, and everyone reads `Maelstrom now
+   runs Kabuki Market.` Press **E** again → `The buyer is counting eddies. Come back in 59 s.`
+   Wait a minute, sell the second pack → influence 2. A third press → `Nothing to sell. Bring
+   a drug pack.`
+7. `/territoire` → `Kabuki Market (kabuki_market): held by Maelstrom. Top: Maelstrom 2`.
+   `/gang` → `Territories held: Kabuki Market.`
+8. `/guerre kabuki_market` → `You already hold Kabuki Market. Nothing to take.`
+   `/guerre junkyard` → `Nobody holds Junkyard: deal there and take it with influence.`
+9. Drive 1.0 km south-west into the Afterlife (-1453, 1017) and `/gang vendre` → `No buyer
+   around here right now.` (no street market there); walk out of every territory →
+   `No street market here. Find a territory (/territoire).`
 10. Wait for the tribute tick (10 min, or lower `tributeIntervalMs` in `shared/config.lua`)
-    → `Tribute from Black Market: +50 €$ (cash ...)`, log `tribute player=1 ...`.
+    → `Tribute from Kabuki Market: +50 €$ (cash ...)`, log `tribute player=1 ...`.
 11. Reconnect → `Welcome back to the Maelstrom, boss.`; `/territoire` still shows the two
     points (SQL).
 
@@ -241,6 +252,6 @@ officer with the kit; console `giveitem 2 synthcoke 2`; player 1 holds **ALT**, 
 2, **Rob** (or `/gang depouiller 2`) → `You robbed <name>: 150 €$, Synthcoke x2.`, the victim
 is told, on-duty officers read `[NCPD DISPATCH] ROBBERY: ...`. Without hands up → `They are
 neither cuffed nor surrendering.` For a war: console `setgang 2 scavs 2`, player 2 sells a
-pack at the scrapyard (Scavs hold it), player 1 `/guerre scrapyard` → both crews are told,
-every 30 s the score line, after 5 min `WAR OVER: the Maelstrom take Scrapyard (10 - 0). +10
-influence.` when only player 1 stood in the zone.
+pack at the junkyard (Scavs hold it; 4.5 km south-east, the buyer at 1370, -1670), player 1
+`/guerre junkyard` → both crews are told, every 30 s the score line, after 5 min `WAR OVER:
+the Maelstrom take Junkyard (10 - 0). +10 influence.` when only player 1 stood in the zone.

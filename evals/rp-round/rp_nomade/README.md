@@ -7,8 +7,8 @@ ambush and the pay.
 
 The run, as one player sees it:
 
-1. **Contracts board** — a ring, a map pin and an `E` prompt at the nomad camp (`open77_worldui`,
-   `promptDistance = 3.0`). It opens a UI-kit context menu of contract templates
+1. **Contracts board** — a ring, a map pin and an `E` prompt at the Aldecaldos camp
+   (`open77_worldui`, `promptDistance = 3.0`). It opens a UI-kit context menu of contract templates
    (`shared/config.lua`): crates 2–4, destination zone, pay per crate, time limit.
 2. **Accept** — the truck deposit (**100 €$ cash**) is taken, a **Thorton Mackinaw**
    (`Vehicle.v_standard3_thorton_mackinaw_player`, a player-spawnable `_player` record) is spawned
@@ -21,7 +21,8 @@ The run, as one player sees it:
 5. **Drive** — a ring marks the destination. The **first** time the loaded truck crosses the
    ambush circle on the road, **3 hostile NPCs** spawn 15 m away and attack the driver; they are
    removed after 3 minutes or when the contract ends.
-6. **Unload** — inside the destination zone (`rp_zones:isIn`), `E` on the truck: **Unload**. A
+6. **Unload** — inside the destination zone (`rp_zones:isIn`; a planar-distance check for a
+   destination rp_zones does not know, `zone = false`), `E` on the truck: **Unload**. A
    6 s progress bar per crate (cancellable). Then the pay: **150 €$ per crate** in cash, a
    **25 % convoy bonus** (split between the nomads on duty within 30 m of the truck, driver
    included, when there are two or more), and **15 %** of the gross credited to the `nomade`
@@ -146,7 +147,8 @@ ends them.
 | `Camp.board` | board position, ring radius, `promptDistance`, server `reach`, copy |
 | `Camp.truckSpawn` | where the truck appears (x, y, z, yaw) |
 | `Camp.loadingPoints` | one crate per point, in order (4 shipped: templates up to 4 crates) |
-| `Destinations[name]` | label, ring position, fallback radius — keyed by rp_zones name |
+| `Camp.props` | decoration spawned by the server at start and removed at stop (`world.props`) |
+| `Destinations[name]` | label, ring position, radius — keyed by rp_zones name; `zone = false` for a place rp_zones does not know (distance check only) |
 | `Templates` | id, label, description, crates, destination |
 | `Contract` | pay per crate, convoy bonus / radius / minimum, society share, time limit, unload seconds, history rows |
 | `Truck` | records tried in order, deposit, reach, safety TTL |
@@ -156,36 +158,47 @@ ends them.
 | `Items` | `nomad_crate` (25 kg) declared in `rp_inventory` through `define` |
 | `Ui` | tick, colour, chat prefix |
 
-## Eval map (everything within 80 m of the freeroam spawn `381.36, -2401.79, 181.99`)
+## Where things are
 
-| Point | Coordinates | From spawn |
+Real places (world metres; AMM points carry +0.1 m for the rings, walked points are exact). The
+camp is the **Aldecaldos camp** in the north-eastern Badlands, around V's nomad tent.
+
+| Point | Coordinates | Notes |
 |---|---|---|
-| Nomad camp centre (`nomad_camp`, r 9) | 420, -2378, 182 | 46 m north-east |
-| Contracts board | 420, -2381.5, 182 | 44 m north-east |
-| Truck spot | 427, -2381, 182.3 (yaw 180) | 50 m north-east |
-| Loading points | 416/418/420/422, -2374, 182 | 45 m north-east |
-| Ambush circle | 410, -2384, r 20 m | midway camp ↔ warehouse |
-| Destination: black market warehouse (`blackmarket`, r 10) | 400, -2390, 182 | 22 m north-east |
+| Camp centre (`nomad_camp`, r 120) | 1792.9, 2248.9, 180.2 | V's tent (AMM); what `/camp` reports |
+| Contracts board | 1790.0, 2252.0, 180.3 | ring r 1, E prompt **Aldecaldos contracts board** |
+| Cargo crate props (2) | 1788.2, 2253.6 and 1791.8, 2253.8 | `Camp.props`, 1.2 m off the board ring |
+| Truck bay | 1800.0, 2240.0, 180.2 (yaw 58.6) | 12 m south-east of the board; yaw = the tent's heading, the road's was not measured (`/pos` in the truck facing the road) |
+| Loading points | 1786/1788/1790/1792, 2256..2258.5, 180.3 | 4–6 m north of the board |
+| Ambush circle | 1600, 600, r 60 m | on the road between the camp and the junkyard; planar check, refine the centre with `groundz <playerId> 1600 600` at replay time |
+| Destination: Rancho Coronado junkyard (`junkyard`, r 30 ring / zone r 90) | 1374.9, -1674.9, 49.4 | ~4.0 km south of the camp |
+| Destination: Watson, the Afterlife street (`afterlife_street`, r 25 planar ring) | -1408.0, 960.0, 23.5 | the street outside the Afterlife ramp; ~3.4 km south-west of the camp |
+| Destination: Badlands Drive-In Theater (`drive_in`, r 40, `zone = false`) | -81.2, 1963.3, 100.8 | no rp_zones zone: distance check only; ~1.9 km west of the camp |
 
-Camp → warehouse is about 23 m as the crow flies; the truck has to leave the camp and cross the
-ambush circle (it starts inside it, hence `Ambush.minTravel = 10 m` from the truck spot).
-**Every `z` is the plaza's height (182):** if a ring is not visible, stand on the spot, `/pos`,
-and paste the ground height into the config. Note that the whole eval area sits inside the
-`spawn_plaza` **safe zone** of `rp_zones`: the ambushers spawn, shout and shoot, but the safe-zone
-damage arbiter cancels their hits — move `Ambush.center` (or the safe zone) on a real map.
+Distances are as the crow flies; the runs are real drives. The camp lies in the `badlands`
+zone (no NCPD coverage) and outside every safe zone, so the ambushers' hits land. **Every `z`
+is the AMM ground + 0.1:** the camp and the junkyard are not flat — if a ring is not visible,
+stand on the spot, `/pos`, and paste the ground height into the config.
+
+**Props.** At start the server spawns `Camp.props` through `Open77.props.create` (permission
+`world.props`, curated prop aliases (see `prop.catalog`) — a raw `.mesh` path renders as a white
+slab) and removes them at stop: two cargo crates (`crate.cargo`) by the board. A refused prop is logged (`camp prop N (...) not
+spawned: <reason>`); the board works without it. The contract crates are separate props at the
+loading points.
 
 ## Log (grep-able)
 
 ```text
-[rp_nomade] started: 3 templates, camp at 420.0 -2378.0 182.0, board at 420.0 -2381.5, ambush on at 410.0 -2384.0 r=20, carry=attach
+[rp_nomade] camp props spawned: 2
+[rp_nomade] started: 3 templates, camp at 1792.9 2248.9 180.2, board at 1790.0 2252.0, ambush on at 1600.0 600.0 r=60, carry=attach
 [rp_nomade] store=sql table=rp_nomade_contracts
 [rp_nomade] rp_inventory items defined: registered=1 rejected=0
-[rp_nomade] player 3 accepted contract 'scav_parts' crates=3 dest=blackmarket truck=17 record=Vehicle.v_standard3_thorton_mackinaw_player deposit=100
+[rp_nomade] player 3 accepted contract 'scav_parts' crates=3 dest=junkyard truck=17 record=Vehicle.v_standard3_thorton_mackinaw_player deposit=100
 [rp_nomade] player 3 picked up crate 1/3 (attached:RightHand)
 [rp_nomade] player 3 loaded crate 1/3
 [rp_nomade] player 3 loaded crate 2/3
 [rp_nomade] player 3 loaded crate 3/3
-[rp_nomade] player 3 ambushed at 415.2 -2383.1: 3/3 npcs record=Character.cpz_maelstrom_grunt1_ranged1_lexington_wa
+[rp_nomade] player 3 ambushed at 1612.4 587.9: 3/3 npcs record=Character.cpz_maelstrom_grunt1_ranged1_lexington_wa
 [rp_nomade] player 3 delivered crate 1/3
 [rp_nomade] player 3 delivered crate 2/3
 [rp_nomade] player 3 delivered crate 3/3
@@ -219,46 +232,54 @@ names are used; without `rp_inventory` the `nomad_crate` item is simply not decl
 a dependency, so a server without it still starts this resource; the hold then times out and
 the crate is carried as a hidden prop).
 
-## Test in 2 minutes (one player, eval config)
+## Test in 2 minutes (one player)
 
 Prerequisites: `rp_jobs`, `rp_zones`, `rp_economy`, `rp_bank`, `rp_inventory` running; you are
-player `1` at the freeroam spawn with the default 500 €$ cash. Log on start:
-`[rp_nomade] started: 3 templates, ...` then `store=sql table=rp_nomade_contracts`.
+player `1` at the Aldecaldos camp (drive out from Kabuki, or console `tp 1 1790 2252 180.3`
+onto the board) with the default 500 €$ cash. Log on start: `[rp_nomade] camp props spawned:
+2`, `started: 3 templates, ...` then `store=sql table=rp_nomade_contracts`. The run itself is a
+real Badlands drive: allow the 20 minutes.
 
 1. **Console:** `setjob 1 nomade 3` (boss, so `/convois` works too). In game: `/service` →
    clocked in at Nomad.
-2. `/camp` → `Nomad camp: 420, -2378 (z 182), 46 m north-east of you...`. Walk north-east to the
-   camp ring; the small ring with the `Contracts board` pin is on its south side. Look at it,
-   press **E**. Before clocking in, the same prompt answers `Clock in first (/service)...`;
-   10 m away it answers `Get closer to the contracts board (10 m).`
-3. Pick **Scav parts run** (3 crates → Black market warehouse, 450 €$, 20 min). Chat:
-   `Contract signed: Scav parts run. 3 crates to the Black market warehouse, 150 €$ per crate, 20
-   minutes. Deposit 100 €$ taken for the truck.` `/money` → 400 €$. A Mackinaw stands at the
-   truck spot (7 m east), three crates with rings at the loading bay (north side), a ring on the
-   map at the black market. Log: `player 1 accepted contract 'scav_parts' crates=3 ...`.
+2. `/camp` → `Nomad camp: 1793, 2249 (z 180), 5 m south-east of you...`. The small ring with
+   the `Aldecaldos contracts board` pin sits between two cargo crates, 4 m north-west of V's
+   tent. Look at it, press **E**. Before clocking in, the same prompt answers `Clock in first
+   (/service)...`; 10 m away it answers `Get closer to the contracts board (10 m).`
+3. Pick **Scav parts run** (3 crates → Rancho Coronado junkyard, 450 €$, 20 min). Chat:
+   `Contract signed: Scav parts run. 3 crates to the Rancho Coronado junkyard, 150 €$ per crate,
+   20 minutes. Deposit 100 €$ taken for the truck.` `/money` → 400 €$. A Mackinaw stands at the
+   truck bay (12 m south-east), three crates with rings at the loading points (north of the
+   board), a ring on the map at the junkyard. Log: `player 1 accepted contract 'scav_parts'
+   crates=3 dest=junkyard ...`.
 4. `/convoi` → `Crates: 0/3 loaded, 0/3 delivered.`, `Time left: 20 min`, `Convoy: none...`.
 5. Walk to crate 1, look at it, **E** → `Crate 1/3 on your shoulder...`; the crate rides your
    right hand, its ring is gone. **E** on another crate → `Your hands are full, choom.`
 6. Walk to the truck (within 4 m), look at it: **Load the crate** — **E** → `Crate 1/3 loaded. 2
    to go.` Log `player 1 loaded crate 1/3`. Repeat for crates 2 and 3 → `All 3 crates loaded.
-   Drive to the Black market warehouse...`.
-7. Get in the truck and drive west-south-west towards the black market ring (23 m). About 10 m
-   out of the truck spot the log shows `player 1 ambushed at ...` and chat `Wraiths on the road!`:
-   three gangers spawn 15 m ahead and open fire (no damage here: the plaza is a safe zone).
-8. Stop inside the black market ring (toast `Black market` from rp_zones, chat `You made it.
-   Park, get out and press E on the truck to unload.`). Get out, look at the truck: **Unload** —
-   **E**. Three 6 s bars (`Unloading crate 1/3` ...; **X** cancels and keeps the rest in the
-   truck). Then: `Delivered 3 crates: +450 €$ cash. Wallet: 850 €$.`, toast `Delivery paid`,
-   `Run complete. Bring the truck back...`. Log `player 1 delivered 3 crates pay=450 bonus=0
+   Drive to the Rancho Coronado junkyard...`.
+7. Get in the truck and drive south on the Badlands road towards the junkyard (~4 km). Where
+   the road passes the ambush circle (around `1600, 600`) the log shows `player 1 ambushed at
+   ...` and chat `Wraiths on the road!`: three gangers spawn 15 m ahead and open fire — it hurts,
+   the Badlands are no safe zone. (If the road never comes within 60 m of the point, refine
+   `Ambush.center` from `/pos` on the road.)
+8. Stop inside the junkyard ring (toast `Junkyard` from rp_zones, chat `You made it. Park, get
+   out and press E on the truck to unload.`). Get out, look at the truck: **Unload** — **E**.
+   Three 6 s bars (`Unloading crate 1/3` ...; **X** cancels and keeps the rest in the truck).
+   Then: `Delivered 3 crates: +450 €$ cash. Wallet: 850 €$.`, toast `Delivery paid`, `Run
+   complete. Bring the truck back...`. Log `player 1 delivered 3 crates pay=450 bonus=0
    convoy=1 society=+68`, then `ambush cleared`. `/societe` (rp_bank, job nomade) → 68 €$.
-9. `/convois` → `Last 1 convoys (sql):` and `#1 <name>: scav_parts -> blackmarket, 3/3 crates, 450
-   €$ +0 €$ bonus, society +68 €$, convoy 1, delivered in 2 min, 2 min ago.`
-10. Drive back into the camp ring, get out, look at the truck: **Return the truck** — **E** →
+9. `/convois` → `Last 1 convoys (sql):` and `#1 <name>: scav_parts -> junkyard, 3/3 crates, 450
+   €$ +0 €$ bonus, society +68 €$, convoy 1, delivered in 9 min, 9 min ago.`
+10. Drive back into the camp zone (120 m around V's tent), get out, look at the truck: **Return
+    the truck** — **E** →
     `Truck returned. Deposit 100 €$ refunded. Wallet: 950 €$.` The truck vanishes. `/convoi` →
     `No contract running...`. Outside the camp ring the prompt is not offered (a forged intent is
     answered `Bring the truck inside the camp ring to return it.`).
 11. Take a second contract, pick up a crate, `/convoi annuler` → `Contract ... dropped...`; crate,
-    rings and truck are gone, `/money` is 100 €$ lighter (deposit kept).
+    rings and truck are gone, `/money` is 100 €$ lighter (deposit kept). **Militech salvage**
+    goes to the Drive-In Theater, which has no rp_zones zone: the `Unload` prompt appears from
+    the 1 s tick once the truck is within 40 m of the screen (no `Drive-In` toast).
 12. **Convoy (optional, two clients):** second player `setjob 2 nomade 0`, `/service`, stands
     within 30 m of the truck at unload time → driver `+450 €$` and both `Convoy bonus: +56 €$ (2
     nomads rode together).` (25 % of 450 = 113, split in two); log `... bonus=113 convoy=2`.

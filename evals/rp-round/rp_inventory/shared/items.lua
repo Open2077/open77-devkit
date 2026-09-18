@@ -1,5 +1,8 @@
 -- rp_inventory: item definitions and tunables, loaded on both runtimes.
--- id -> { label, weight (kg), usable, illegal, effect }
+-- id -> { label, weight (kg), usable, illegal, effect, category }
+--
+-- `category` only picks the glyph the /inv panel draws on the tile (heal, food,
+-- drink, fuel, smoke, drug, tech, tool, material, cargo, misc); it changes no rule.
 --
 -- `record` / `visual` are optional TweakDB overrides for the ground drop's item
 -- card and 3D entity. The devkit documents Items.money + Items.MoneyShard as the
@@ -17,32 +20,32 @@ RpInventoryConfig = {
 }
 
 RpInventoryItems = {
-    water       = { label = "Bottle of water",     weight = 0.5,  usable = true,  illegal = false,
+    water       = { label = "Bottle of water",     weight = 0.5,  usable = true,  illegal = false, category = "drink",
                     effect = { kind = "drink" } },
-    burrito     = { label = "Burrito",             weight = 0.4,  usable = true,  illegal = false,
+    burrito     = { label = "Burrito",             weight = 0.4,  usable = true,  illegal = false, category = "food",
                     effect = { kind = "food" } },
-    nicola      = { label = "NiCola",              weight = 0.4,  usable = true,  illegal = false,
+    nicola      = { label = "NiCola",              weight = 0.4,  usable = true,  illegal = false, category = "drink",
                     effect = { kind = "drink" } },
-    chooh2      = { label = "CHOOH2 fuel can",     weight = 5.0,  usable = true,  illegal = false,
+    chooh2      = { label = "CHOOH2 fuel can",     weight = 5.0,  usable = true,  illegal = false, category = "fuel",
                     effect = { kind = "fuel", litres = 20 } },
-    bandage     = { label = "Bandage",             weight = 0.2,  usable = true,  illegal = false,
+    bandage     = { label = "Bandage",             weight = 0.2,  usable = true,  illegal = false, category = "heal",
                     effect = { kind = "heal", amount = 25 } },
-    maxdoc      = { label = "MaxDoc Mk.1",         weight = 0.3,  usable = true,  illegal = false,
+    maxdoc      = { label = "MaxDoc Mk.1",         weight = 0.3,  usable = true,  illegal = false, category = "heal",
                     effect = { kind = "heal", amount = 60 } },
-    bounceback  = { label = "Bounce Back Mk.1",    weight = 0.3,  usable = true,  illegal = false,
+    bounceback  = { label = "Bounce Back Mk.1",    weight = 0.3,  usable = true,  illegal = false, category = "heal",
                     effect = { kind = "heal", amount = 40, stamina = true } },
-    phone       = { label = "Holophone",           weight = 0.3,  usable = false, illegal = false },
-    radio       = { label = "Radio",               weight = 0.8,  usable = false, illegal = false },
-    lockpick    = { label = "Lockpick",            weight = 0.1,  usable = false, illegal = false },
-    scrap       = { label = "Scrap",               weight = 1.0,  usable = false, illegal = false },
-    component   = { label = "Component",           weight = 0.5,  usable = false, illegal = false },
-    chip        = { label = "Data chip",           weight = 0.05, usable = false, illegal = false },
-    cigarettes  = { label = "Pack of cigarettes",  weight = 0.1,  usable = true,  illegal = false,
+    phone       = { label = "Holophone",           weight = 0.3,  usable = false, illegal = false, category = "tech" },
+    radio       = { label = "Radio",               weight = 0.8,  usable = false, illegal = false, category = "tech" },
+    lockpick    = { label = "Lockpick",            weight = 0.1,  usable = false, illegal = false, category = "tool" },
+    scrap       = { label = "Scrap",               weight = 1.0,  usable = false, illegal = false, category = "material" },
+    component   = { label = "Component",           weight = 0.5,  usable = false, illegal = false, category = "material" },
+    chip        = { label = "Data chip",           weight = 0.05, usable = false, illegal = false, category = "tech" },
+    cigarettes  = { label = "Pack of cigarettes",  weight = 0.1,  usable = true,  illegal = false, category = "smoke",
                     effect = { kind = "smoke" } },
-    synthcoke   = { label = "Synthcoke",           weight = 0.1,  usable = true,  illegal = true,
+    synthcoke   = { label = "Synthcoke",           weight = 0.1,  usable = true,  illegal = true, category = "drug",
                     effect = { kind = "stamina" } },
     -- Illegal unless the holder has the permit job (rp_jobs `medecin` stands in for a ripperdoc licence).
-    implant_box = { label = "Implant box",         weight = 2.0,  usable = false, illegal = true,
+    implant_box = { label = "Implant box",         weight = 2.0,  usable = false, illegal = true, category = "tech",
                     permit = "medecin" },
-    crate       = { label = "Cargo crate",         weight = 25.0, usable = false, illegal = false },
+    crate       = { label = "Cargo crate",         weight = 25.0, usable = false, illegal = false, category = "cargo" },
 }

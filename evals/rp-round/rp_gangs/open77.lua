@@ -24,6 +24,7 @@ permissions {
     "network.events",           -- RegisterNetEvent / TriggerClientEvent / Open77.notifications.send (server), RegisterNetEvent / TriggerServerEvent (client)
     "database.access",          -- Open77.database.* (rp_gangs_members, rp_gangs_influence)
     "world.npcs",               -- Open77.npcs.create / remove / get / tasks.hold (the buyer NPC per territory)
+    "world.props",              -- Open77.props.create / remove (the crate beside every buyer)
     "players.animations.read",  -- Open77.animations.current (hands-up check before a robbery)
     "ui.nameplates",            -- Open77.nameplates.set / remove / clear (client): the [GANG] tag over a member's body
 }

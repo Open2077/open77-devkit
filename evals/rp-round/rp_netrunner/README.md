@@ -32,10 +32,11 @@ are checked on the server for every command and every ALT+click request.
    (`rp_netrunner.deck`, slot `operating_system`, profile `cyberdeck`) on the on-duty netrunner —
    free by default (`Config.deck.price`). The two hack commands do it for you when the wrong
    grade is loaded and ask you to run the command again once the implant is committed.
-5. Positions live in `shared/config.lua`: the access point sits at the centre of the rp_zones
-   `blackmarket` zone (`400, -2390, 182`), 22 m north-east of the freeroam spawn
-   (`381.36, -2401.79, 181.99`). **If the ring is invisible**, stand on the spot, `/pos`, and paste
-   the ground height into `Config.accessPoint.position.z`.
+5. Positions live in `shared/config.lua`: the access point sits in **the Afterlife's back room**
+   (the safe area, `-1419.9, 989.4, 16.6`; inside the rp_zones `afterlife` zone), 1.0 km
+   south-west of the freeroam spawn (Kabuki Market Centre `-1191.30, 2006.88, 7.82`), with a
+   data-terminal prop 1.2 m behind the ring. **If the ring is invisible**, stand on the spot,
+   `/pos`, and paste the ground height into `Config.accessPoint.position.z`.
 
 ## Commands (all need job `netrunner` + on duty, except `/netrun` alone)
 
@@ -145,20 +146,20 @@ then `setLocked(id, bucket, false)` + `setOpen(id, bucket, true)`; when the serv
 `not_owner` the resource claims the door (`register`) and releases it 30 s later (`remove`), and
 if it still refuses, the client queues the player's own `requestOpen(id, true)` and reports
 `open77:doors:requestResult`. So a door must have been **discovered by a client standing near it**
-(or registered by another resource) before a breach can find it. **On the eval config there is no
-door within 15 m of the access point** (the black market is an open plaza) and `open77_doors` may
-not even be loaded: the log says `no door within 15 m` (or `door service unavailable (<reason>)`),
-and the data bounty is paid instead — that is the expected outcome there.
+(or registered by another resource) before a breach can find it. The access point is in the
+Afterlife's back room, so whether a door is found depends on what the clients have **discovered**
+around it (the bar's own doors are within reach only once someone has walked past them) and on
+`open77_doors` being loaded: otherwise the log says `no door within 15 m` (or `door service
+unavailable (<reason>)`), and the data bounty is paid instead — that is the expected outcome then.
 
 ## Honest limits
 
 - **Line of sight is the kit's** shared-evidence model (both clients trace the segment); the
   resource only checks distance. A blocked upload is reported, the quickhack stays burned.
-- The access-point terminal is `Open77.props.create` with the alias `electronics.server` (the
-  props guide lists a "server" in the `electronics.*` family but not the alias strings, which live
-  in the admin panel's catalogue); an `unknown_alias` falls back to the depot mesh
-  `server_militarism_a.mesh`, and a second refusal leaves the ring alone to mark the spot (logged).
-  Set `Config.accessPoint.prop.model = false` to spawn nothing.
+- The access-point terminal is `Open77.props.create` with the curated prop alias
+  `electronics.server` (see `prop.catalog`; a raw `.mesh` path renders as a white slab); an
+  `invalid_model` falls back to `Config.accessPoint.prop.fallbackModel` (the same alias), and a
+  second refusal leaves the ring alone to mark the spot (logged). Set `Config.accessPoint.prop.model = false` to spawn nothing.
 - The jammer does not touch rp_ncpd's dispatch **voice** channel: voice channels are owned by the
   resource that created them (`Open77.voice.*` is resource-scoped) — `rp_netrunner:jammed` is the
   hook for rp_ncpd to mute it.
@@ -170,14 +171,14 @@ and the data bounty is paid instead — that is the expected outcome there.
 ## Log (grep-able)
 
 ```text
-[rp_netrunner] started: job netrunner, cooldown 30 s, trace chance 50%, access point 400.0 -2390.0 182.0
+[rp_netrunner] started: job netrunner, cooldown 30 s, trace chance 50%, access point -1419.9 989.4 16.6
 [rp_netrunner] store=sql table=rp_netrunner_log
 [rp_netrunner] deck rp_netrunner.deck v1 defined: short_circuit, overheat
 [rp_netrunner] quickhacks registered=4 rejected=0
-[rp_netrunner] access-point terminal prop 123456 at 400.0 -2388.8 182.0
+[rp_netrunner] access-point terminal prop 123456 at -1419.9 990.6 16.5
 [rp_netrunner] player 1 deck grade=short_circuit installed
 [rp_netrunner] player 1 ping target=<identifier>
-[rp_netrunner] trace player 1 ping at 385, -2398
+[rp_netrunner] trace player 1 ping at -1191, 2007
 [rp_netrunner] player 1 short_circuit target=<identifier>
 [rp_netrunner] jam started by player 1 for 60000 ms
 [rp_netrunner] jam ended
@@ -196,7 +197,7 @@ client half. `rp_jobs`, `rp_inventory`, `rp_ncpd`, `rp_economy`, `rp_bank`, `rp_
 
 ## Test in 2 minutes
 
-One client at the freeroam spawn `381.36, -2401.79, 181.99`, id `1`; `rp_jobs`, `rp_inventory`,
+One client at the freeroam spawn (Kabuki Market Centre `-1191.30, 2006.88, 7.82`), id `1`; `rp_jobs`, `rp_inventory`,
 `rp_economy`, `rp_bank`, `rp_ncpd` running. Log on start: `[rp_netrunner] started: ...`,
 `store=sql table=rp_netrunner_log`, `deck rp_netrunner.deck v1 defined: short_circuit, overheat`,
 `quickhacks registered=4 rejected=0`.
@@ -206,17 +207,18 @@ One client at the freeroam spawn `381.36, -2401.79, 181.99`, id `1`; `rp_jobs`, 
 1. `/netrun` → `NETRUN - not a netrunner.`, then the implant line, `Pockets: ... x0`, `Cooldowns:
    all clear`, `Contracts done: 0 (store: sql)`.
 2. Console: `setjob 1 netrunner 3`, `giveitem 1 qh_jammer 1`, `giveitem 1 chip 1`. Player 1:
-   `/service` (rp_jobs). `/breach` from the spawn → `No access point here (22 m). The nearest one
-   is at 400, -2390.`
-3. Walk 22 m north-east to the black-market ring (map pin `Access point`, a server rack behind
-   the ring when the prop alias resolves). Look at the ring, press **E** (or `/breach` within
-   4 m) → `Jacking in... hold still (X aborts).`, a 10 s **Breaching...** bar at the bottom, you
-   cannot walk. Press **X** → `Breach aborted. The ICE never saw you.`; the chip is still in
-   `/inv`. Again, let it finish → `No networked door on this subnet. You siphon the node's data
-   instead: +200 eddies (data bounty).` `/money` went up by 200, `/societe` for a netrunner shows
-   `+100`, the chip is gone, and one time in two `TRACE WARNING: NCPD ICE logged your signature.`
-   (log `trace player 1 breach at 400, -2390`). `/breach` again → `Breach is cooling down: 29 s
-   left.`
+   `/service` (rp_jobs). `/breach` from the spawn → `No access point here (1047 m). The nearest
+   one is at -1420, 989.`
+3. Drive 1.0 km south-west to the Afterlife, down the ramp, through the bar to the back room
+   (map pin `Access point — Afterlife back room`, a server prop behind the ring when the alias
+   resolves). Look at the ring, press **E** (or `/breach` within 4 m) → `Jacking in... hold
+   still (X aborts).`, a 10 s **Breaching...** bar at the bottom, you cannot walk. Press **X** →
+   `Breach aborted. The ICE never saw you.`; the chip is still in `/inv`. Again, let it finish →
+   either a bar door within 15 m is unlocked and opened (when a client has discovered one), or
+   `No networked door on this subnet. You siphon the node's data instead: +200 eddies (data
+   bounty).` `/money` went up by 200, `/societe` for a netrunner shows `+100`, the chip is gone,
+   and one time in two `TRACE WARNING: NCPD ICE logged your signature.` (log `trace player 1
+   breach at -1420, 989`). `/breach` again → `Breach is cooling down: 29 s left.`
 4. `/brouiller` → `Jammer live: NCPD radio is static for 60 s.` (`qh_jammer` gone). With an
    on-duty officer connected they read a grey `[NCPD RADIO] kzzzt--- ...all units...` line every
    15 s; `exports.rp_netrunner:isJamming()` from another resource is `true`; the log shows

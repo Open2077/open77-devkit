@@ -1,4 +1,4 @@
--- rp_admin — client half. It renders exactly one thing: the [ADMIN] nameplate over an admin
+-- rp_admin - client half. It renders exactly one thing: the [ADMIN] nameplate over an admin
 -- who switched admin mode on. Every decision is the server's; this file only draws what the
 -- server relays (rp_admin:tag / rp_admin:roster) and asks for the roster when it starts.
 

@@ -25,11 +25,18 @@ officer, blocks the weapon wheel of a prisoner and draws alert pins. Holds are t
    manifest permissions: the resource then grants the three rights when an officer clocks in and
    revokes them when they clock out (the devkit validator 0.1.x rejects that scoped permission as
    unknown although the ACL guide documents it, which is why it ships off).
-3. Positions live in `shared/config.lua`: the cell `436, -2362, 181.5` and the entrance
-   `430, -2369, 182` are inside the `ncpd_hq` zone of `rp_zones` (centre `440, -2366, 181`,
-   radius 12, 69 m north-east of the freeroam spawn `381.36, -2401.79, 181.99` along the road).
-   **If a prisoner lands in the ground**, stand on the spot, `/pos`, and paste the height into
-   `Config.cell.z` / `Config.entrance.z`.
+3. Positions live in `shared/config.lua`. The precinct is the **real NCPD building** in the
+   city centre: the conference room (AMM `-1761.5, -1010.8, 94.3`) is the `ncpd_hq` zone centre
+   of `rp_zones` (radius 30); the cell is 6 m east of it (`-1755.5, -1010.8, 94.3`), the desk —
+   where a released prisoner is put (`Config.entrance`) — 4 m north (`-1761.5, -1006.8, 94.3`).
+   It is 3.1 km south of the freeroam spawn (Kabuki Market Centre `-1191.30, 2006.88, 7.82`):
+   cops drive. A **Kabuki-side patrol outpost** (`Config.outpost`) marks the real street outside
+   the Afterlife ramp (`-1408, 960, 23.6`, probed crosswalk, 1.1 km south-west of the market):
+   a ring + floating label on every client and, from the server, a keep-out sign
+   (`sign.rect.keep_out`) and a road barrier (`barrier.road`) — curated prop aliases, see
+   `prop.catalog` — (`Open77.props.create`, removed on stop) — a radio/status point for patrols, nothing
+   to press. **If a prisoner lands in the ground**, stand on the spot, `/pos`, and paste the
+   height into `Config.cell.z` / `Config.entrance.z`.
 4. Job: `setjob <id> ncpd 3` from the console, then `/service` in game.
 
 ## Commands (all need job `ncpd` + on duty, except `/amende payer`)
@@ -81,7 +88,7 @@ declare `dependency "rp_ncpd"` (this manifest is delivered to clients).
 
 ```lua
 -- raised by OTHER resources (rp_shop, rp_bank, rp_trauma...); consumed here:
-TriggerEvent("rp_ncpd:alert", "robbery", { x = 400, y = -2390, z = 182 }, "Black market hit", byPlayerId)
+TriggerEvent("rp_ncpd:alert", "robbery", { x = -1201.1, y = 2035.6, z = 5.6 }, "Lower Walkway dealer hit", byPlayerId)
 --> chat line `[NCPD DISPATCH] ROBBERY: ... (distance)` + toast to every on-duty officer, and a
 --> temporary map pin (60 s) on their maps (client relay: the blip API is client-only on this build)
 
@@ -126,7 +133,7 @@ player): `Open77.kvp` (`rec:<id>`, `fines:<id>`, `sentence:<id>`, `warrants`) an
 ## Log (grep-able)
 
 ```
-[rp_ncpd] started: cell 436.0 -2362.0 181.5, entrance 430.0 -2369.0 182.0, jail 1-120 min, fines 1-100000 eddies
+[rp_ncpd] started: cell -1755.5 -1010.8 94.3, entrance -1761.5 -1006.8 94.3, jail 1-120 min, fines 1-100000 eddies
 [rp_ncpd] store=sql tables=rp_ncpd_records,rp_ncpd_warrants,rp_ncpd_fines,rp_ncpd_sentences
 [rp_ncpd] voice channel 3 created (NCPD dispatch)
 [rp_ncpd] player 1 cuffed player 2
@@ -141,7 +148,7 @@ player): `Open77.kvp` (`rec:<id>`, `fines:<id>`, `sentence:<id>`, `warrants`) an
 
 ## Test in 2 minutes
 
-Two clients at the freeroam spawn `381.36, -2401.79, 181.99`, ids `1` (officer) and `2`
+Two clients at the freeroam spawn (Kabuki Market Centre `-1191.30, 2006.88, 7.82`), ids `1` (officer) and `2`
 (citizen); `rp_jobs`, `rp_inventory`, `rp_bank`, `rp_economy`, `open77_rp_basics` running, the
 officer's account holding `rp.cuff` / `rp.escort` / `rp.search` (Setup, step 2).
 
@@ -166,14 +173,19 @@ officer's account holding `rp.cuff` / `rp.escort` / `rp.search` (Setup, step 2).
 7. Player 1: `/car` (freeroam) next to player 2, then **Put in / take out of vehicle** (or
    `/embarquer 2`) → player 2 is on the back seat, door locked (`ExitVehicle` does nothing);
    `/embarquer 2` again → they are out.
-8. **Jail** → `5` (or `/prison 2 5`) → player 2 is teleported to the cell (69 m north-east, the
-   NCPD ring of rp_zones), reads `... booked you: 5 minutes ...`, cannot open the weapon wheel,
+8. **Jail** → `5` (or `/prison 2 5`) → player 2 is teleported to the cell in the NCPD building
+   (3.1 km south, inside the `ncpd_hq` zone of rp_zones: toast **NCPD Headquarters**), reads
+   `... booked you: 5 minutes ...`, cannot open the weapon wheel,
    gets a toast every minute. Walk out of the cell → `Nice try. Back in the cell.` Disconnect and
    reconnect player 2 → `Back in the NCPD cell: 3 min 40 s left` and back in the cell. `/liberer 2`
-   (or wait) → teleport to the entrance, `Time served.` / `Released early by officer ...`.
+   (or wait) → teleport to the desk (`Config.entrance`, 4 m north of the conference room),
+   `Time served.` / `Released early by officer ...`.
 9. `/casier 2` → the arrest, the seizure, the fines and the warrants with dates and `officer
    <RP name>`. Reconnect player 2: `/casier 2` still lists everything (SQL).
-10. From another resource: `TriggerEvent("rp_ncpd:alert", "robbery", { x = 400, y = -2390, z = 182 },
-    "Black market hit", 2)` → player 1 reads `[NCPD DISPATCH] ROBBERY: Black market hit - <name>
-    (22 m)`, a toast, and a `danger` pin at the black market on the map for a minute.
+10. From another resource: `TriggerEvent("rp_ncpd:alert", "robbery", { x = -1201.1, y = 2035.6, z = 5.6 },
+    "Lower Walkway dealer hit", 2)` → player 1 reads `[NCPD DISPATCH] ROBBERY: Lower Walkway
+    dealer hit - <name> (30 m)`, a toast, and a `danger` pin under the market on the map for a
+    minute. Drive to the Afterlife street (`-1408, 960`): a blue ring, the floating
+    `NCPD — Afterlife street outpost` label, a keep-out sign and a road barrier mark the patrol
+    point (nothing to press there).
     `/ncpd all units, code 3` → every officer reads `[NCPD RADIO] <name>: all units, code 3`.

@@ -34,6 +34,14 @@ local function now()
     return math.floor(Open77.time.unix())
 end
 
+-- A player id from a command argument or a client payload: a positive integer, or nil.
+-- Open77.players.* raise on 0, a negative or a non-integer id, so nothing else reaches them.
+local function toId(value)
+    local id = math.tointeger(tonumber(value))
+    if not id or id < 1 then return nil end
+    return id
+end
+
 local function fmtMoney(n)
     n = math.floor(n or 0)
     local s = tostring(n)
@@ -221,16 +229,24 @@ local function useSql()
     if store.mode then return end
     store.mode = "sql"
     CreateThread(function()
-        Open77.database.update.await(SCHEMA)
-        local maxId = Open77.database.scalar.await("SELECT MAX(id) FROM rp_vigile_contracts")
-        store.nextId = (tonumber(maxId) or 0) + 1
-        -- Contracts left open or active by a previous boot are over; a bodyguard
-        -- escrow that was never spent goes back to the client when they return.
-        local t = now()
-        Open77.database.update.await(
-            "UPDATE rp_vigile_contracts SET refund_due = refund_due + GREATEST(fee - paid_minutes * rate, 0) WHERE state <> 'done' AND kind = 'person' AND fee > 0")
-        Open77.database.update.await(
-            "UPDATE rp_vigile_contracts SET state = 'done', end_reason = 'server_restart', ended_at = ? WHERE state <> 'done'", { t })
+        -- `.await` raises on failure; without the pcall the desk would stay "booting" forever.
+        local ok, err = pcall(function()
+            Open77.database.update.await(SCHEMA)
+            local maxId = Open77.database.scalar.await("SELECT MAX(id) FROM rp_vigile_contracts")
+            store.nextId = (tonumber(maxId) or 0) + 1
+            -- Contracts left open or active by a previous boot are over; a bodyguard
+            -- escrow that was never spent goes back to the client when they return.
+            local t = now()
+            Open77.database.update.await(
+                "UPDATE rp_vigile_contracts SET refund_due = refund_due + GREATEST(fee - paid_minutes * rate, 0) WHERE state <> 'done' AND kind = 'person' AND fee > 0")
+            Open77.database.update.await(
+                "UPDATE rp_vigile_contracts SET state = 'done', end_reason = 'server_restart', ended_at = ? WHERE state <> 'done'", { t })
+        end)
+        if not ok then
+            store.mode = nil
+            useKvp("sql_init_failed:" .. tostring(err))
+            return
+        end
         store.ready = true
         log("store=sql table=rp_vigile_contracts next_id=%d", store.nextId)
     end)
@@ -1002,7 +1018,7 @@ local function cmdGarde(source, args)
     end
     if sub == "aide" or sub == "help" then return sayLines(source, HELP) end
     if sub == "engager" then
-        local guardId, minutes = tonumber(args[2]), tonumber(args[3])
+        local guardId, minutes = toId(args[2]), tonumber(args[3])
         if not guardId or not minutes or minutes % 1 ~= 0 then return say(source, "Usage: /garde engager <guardId> <minutes>") end
         if guardId == source then return say(source, "You cannot hire yourself.") end
         if minutes < C.minMinutes or minutes > C.maxMinutes then
@@ -1044,14 +1060,14 @@ local function cmdGarde(source, args)
         return sayLines(source, journalLines(zone))
     end
     if sub == "escorter" then
-        local targetId = tonumber(args[2])
+        local targetId = toId(args[2])
         if not targetId then return say(source, "Usage: /garde escorter <playerId>") end
-        return escortOut(source, math.floor(targetId))
+        return escortOut(source, targetId)
     end
     if sub == "relacher" then
-        local targetId = tonumber(args[2])
+        local targetId = toId(args[2])
         if not targetId then return say(source, "Usage: /garde relacher <playerId>") end
-        return releaseByGuard(source, math.floor(targetId))
+        return releaseByGuard(source, targetId)
     end
     return sayLines(source, HELP)
 end
@@ -1063,9 +1079,9 @@ end, false)
 
 RegisterCommand("expulser", function(source, args)
     if source == 0 then return print("rp_vigile: /expulser runs from the game, not the console") end
-    local targetId = tonumber(args[1])
+    local targetId = toId(args[1])
     if not targetId then return say(source, "Usage: /expulser <playerId>") end
-    expel(source, math.floor(targetId))
+    expel(source, targetId)
 end, false)
 
 local SUGGESTIONS = {
@@ -1081,16 +1097,16 @@ local SUGGESTIONS = {
 
 RegisterNetEvent("rp_vigile:escort", function(targetId)
     local guardId = source
-    targetId = tonumber(targetId)
+    targetId = toId(targetId)
     if type(guardId) ~= "number" or guardId < 1 or not targetId then return end
-    escortOut(guardId, math.floor(targetId))
+    escortOut(guardId, targetId)
 end)
 
 RegisterNetEvent("rp_vigile:release", function(targetId)
     local guardId = source
-    targetId = tonumber(targetId)
+    targetId = toId(targetId)
     if type(guardId) ~= "number" or guardId < 1 or not targetId then return end
-    releaseByGuard(guardId, math.floor(targetId))
+    releaseByGuard(guardId, targetId)
 end)
 
 RegisterNetEvent("rp_vigile:clientReady", function()
@@ -1210,17 +1226,16 @@ exports("postContract", function(kind, target, minutes, byPlayerId)
     minutes = tonumber(minutes)
     if not minutes or minutes % 1 ~= 0 or minutes < C.minMinutes or minutes > C.maxMinutes then return nil, "invalid_minutes" end
     minutes = math.floor(minutes)
-    byPlayerId = tonumber(byPlayerId)
-    if byPlayerId and byPlayerId < 1 then byPlayerId = nil end
+    byPlayerId = toId(byPlayerId)
     if kind == "zone" then
         if type(target) ~= "string" or target == "" then return nil, "invalid_zone" end
         local c, why = postZoneContract(target, minutes, byPlayerId)
         if not c then return nil, why end
         return c.id
     elseif kind == "person" then
-        local protectedId = tonumber(target)
-        if not protectedId or protectedId < 1 then return nil, "invalid_player_id" end
-        local c, why = postPersonContract(byPlayerId, math.floor(protectedId), minutes, nil)
+        local protectedId = toId(target)
+        if not protectedId then return nil, "invalid_player_id" end
+        local c, why = postPersonContract(byPlayerId, protectedId, minutes, nil)
         if not c then return nil, why end
         return c.id
     end

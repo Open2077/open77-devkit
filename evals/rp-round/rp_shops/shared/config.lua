@@ -2,13 +2,18 @@
 -- Shared by the server (authority: prices, stock, payment, delivery) and the
 -- client (presentation only: one ring + E prompt per vendor).
 --
--- Every position sits on the measured flat band around the freeroam spawn
--- (381.36, -2401.79, 181.99): x 340..460, y -2355..-2401, z = 182. Move a shop by
--- editing its `position`; `yaw` is the vendor's facing (0 = +y, counter-clockwise),
--- roughly towards the spawn. z is the spawn's own height: if a vendor stands in
--- the ground, `/pos` on the spot and paste the real height.
+-- The five shops are real stalls of Kabuki Market (Watson), the hub of the RP
+-- server: every `position` is a walked market spot (2026-09-18), z exact. The
+-- ring + E prompt stands on `position`; the vendor NPC stands 1.2 m behind it
+-- (`vendorPosition`) facing it (`yaw`, 0 = +y, counter-clockwise, towards the
+-- market centre), and one real prop (`prop`) dresses the stall 0.8 m off the
+-- ring, next to the vendor. Move a shop by editing its `position`, then shift
+-- `vendorPosition` and `prop.position` by the same amount.
 
 RpShopsConfig = {
+    -- Kabuki Market Centre: the freeroam spawn and the point the start log names.
+    hub = { x = -1191.30, y = 2006.88, z = 7.82 },
+
     -- Reach of a vendor, in metres (planar). The E prompt is pressable within
     -- `promptDistance`; the server re-checks every request against `reach`, a
     -- little wider to tolerate a lagging position snapshot.
@@ -65,7 +70,10 @@ RpShopsConfig = {
 --   id        ^[a-z0-9_]+$, unique; also the world POI id and the /acheter target
 --   label     shown on the prompt, the menu title and /boutiques
 --   kind      "items" (rp_inventory goods) | "weapons" | "clothes" | "blackmarket"
---   position  vendor position (x, y, z); yaw = facing
+--   position  the ring + E prompt (x, y, z), a walked Kabuki Market spot
+--   vendorPosition  where the vendor NPC stands (1.2 m behind the ring); yaw = facing
+--   prop      one real stall prop spawned by the server (Open77.props.create, removed
+--             on stop): `models` are depot meshes tried in order, first success wins
 --   society   optional lower-case job name: 70 % of sales go to that society and
 --             the shop keeps a finite stock in rp_shops_stock
 --   catalogue list of { id, label, price[, slot][, record][, restockTo] }
@@ -74,13 +82,22 @@ RpShopsConfig = {
 --   restockTo default stock level per item for a society shop (restock fills to it)
 --   welcome   the vendor's line in chat when the shop opens
 --   closedLine (blackmarket) the line by day
+--   zone      optional rp_zones zone the customer must stand in (the black market)
 RpShopsConfig.shops = {
     {
         id = "supermarket",
-        label = "Badlands Market",
+        label = "Kabuki Market - Noodle Row",
         kind = "items",
-        position = { x = 370.0, y = -2385.0, z = 181.99 },
-        yaw = 214.0,
+        position = { x = -1178.66, y = 2028.45, z = 7.95 },       -- Noodle Row (walked)
+        vendorPosition = { x = -1178.05, y = 2029.49, z = 7.95 },
+        yaw = 149.6,
+        prop = {
+            models = {
+                "market.shelf.chinese",
+                "light.lantern.chinese",
+            },
+            position = { x = -1179.43, y = 2030.30, z = 7.95 }, yaw = 149.6,
+        },
         vendor = { name = "Rosa" },
         welcome = "Rosa: Water, burritos, NiCola. Real food's extra, choom.",
         catalogue = {
@@ -93,10 +110,18 @@ RpShopsConfig.shops = {
     },
     {
         id = "pharmacy",
-        label = "Med-Point Pharmacy",
+        label = "Med-Point - The Stalls",
         kind = "items",
-        position = { x = 396.0, y = -2372.0, z = 181.99 },
-        yaw = 154.0,
+        position = { x = -1223.91, y = 1989.45, z = 7.98 },       -- The Stalls (walked)
+        vendorPosition = { x = -1224.97, y = 1988.88, z = 7.98 },
+        yaw = 298.1,
+        prop = {
+            models = {
+                "electronics.vending_machine.small",
+                "electronics.vending_machine",
+            },
+            position = { x = -1224.22, y = 1987.47, z = 7.98 }, yaw = 298.1,
+        },
         vendor = { name = "Dr. Osei" },
         welcome = "Dr. Osei: No Trauma Team card? Then you pay retail.",
         -- Player-run: Trauma Team owns it. 70 % of every sale lands on the
@@ -113,10 +138,18 @@ RpShopsConfig.shops = {
     },
     {
         id = "gunshop",
-        label = "2nd Amendment Outpost",
+        label = "2nd Amendment - East Row",
         kind = "weapons",
-        position = { x = 410.0, y = -2386.0, z = 181.99 },
-        yaw = 119.0,
+        position = { x = -1160.50, y = 2019.06, z = 7.76 },       -- East Row (walked)
+        vendorPosition = { x = -1159.38, y = 2019.50, z = 7.76 },
+        yaw = 111.6,
+        prop = {
+            models = {
+                "military.weapon_rack",
+                "military.case",
+            },
+            position = { x = -1159.97, y = 2020.99, z = 7.76 }, yaw = 111.6,
+        },
         vendor = { name = "Wilson" },
         welcome = "Wilson: Licence first, iron second. NCPD reads my ledger.",
         catalogue = {
@@ -127,10 +160,18 @@ RpShopsConfig.shops = {
     },
     {
         id = "clothes",
-        label = "Jinguji Threads",
+        label = "Jinguji Threads - Vendor Lane",
         kind = "clothes",
-        position = { x = 352.0, y = -2398.0, z = 181.99 },
-        yaw = 263.0,
+        position = { x = -1212.26, y = 1978.53, z = 7.98 },       -- Vendor Lane (walked)
+        vendorPosition = { x = -1212.97, y = 1977.57, z = 7.98 },
+        yaw = 323.5,
+        prop = {
+            models = {
+                "market.stand.small",
+                "light.spotlight",
+            },
+            position = { x = -1211.68, y = 1976.62, z = 7.98 }, yaw = 323.5,
+        },
         vendor = { name = "Kimiko" },
         welcome = "Kimiko: A styling session, then the racks are yours.",
         catalogue = {
@@ -139,14 +180,22 @@ RpShopsConfig.shops = {
     },
     {
         id = "blackmarket",
-        label = "Back-alley Dealer",
+        label = "Lower Walkway Dealer",
         kind = "blackmarket",
-        position = { x = 402.0, y = -2393.0, z = 181.99 },
-        yaw = 113.0,
+        position = { x = -1201.07, y = 2035.60, z = 5.60 },       -- Lower Walkway, under the market (walked)
+        vendorPosition = { x = -1201.46, y = 2036.74, z = 5.60 },
+        yaw = 198.8,
+        prop = {
+            models = {
+                "crate.cargo",
+                "electronics.monitor.device",
+            },
+            position = { x = -1202.97, y = 2036.22, z = 5.60 }, yaw = 198.8,
+        },
         vendor = { name = "Dex" },
         welcome = "Dex: Keep your voice down. Eddies first, questions never.",
         closedLine = "Dex: Not in daylight, choom. Come back after 22:00, when the NCPD drones go blind.",
-        zone = "blackmarket",
+        zone = "kabuki_market",      -- rp_zones: the dealer only trades under the market
         catalogue = {
             { id = "synthcoke", label = "Synthcoke",        price = 150 },
             { id = "lockpick",  label = "Lockpick",         price = 80 },

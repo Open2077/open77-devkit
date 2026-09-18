@@ -7,6 +7,9 @@ local TAG = "[rp_housing]"
 
 local state = { mine = false, owned = {}, keys = {}, inside = false } -- last server snapshot
 local blips = {}          -- [homeId | "agency"] = blip id
+local doorHandles = {}    -- [homeId] = worldui handle of the door ring (moved by the auto door)
+local exitHandles = {}    -- [homeId] = worldui handle of the "Front door" ring (moved by the auto door)
+local stashHandles = {}   -- [homeId] = worldui handle of the stash ring (moved by the auto door)
 local poisCreated = false
 local actionRegistered = false
 
@@ -43,6 +46,75 @@ local function createPoi(definition)
     return result.handle
 end
 
+local function doorDefinition(home)
+    return {
+        id = "door:" .. home.id,
+        position = pos(home.entrance),
+        radius = 1.0,
+        style = "interaction",
+        label = Config.text.door,
+        description = home.label .. " - " .. Config.text.doorDescription,
+        key = "E",
+        icon = "H",
+        marker = "door",
+        promptDistance = Config.promptDistance,
+        event = "rp_housing:poi:door:" .. home.id,
+    }
+end
+
+local function stashDefinition(home)
+    return {
+        id = "stash:" .. home.id,
+        position = pos(home.stash),
+        radius = 0.6,
+        style = "objective",
+        maxDistance = 40.0,
+        label = Config.text.stash,
+        description = Config.text.stashDescription,
+        key = "E",
+        icon = "S",
+        promptDistance = Config.promptDistance,
+        event = "rp_housing:poi:stash:" .. home.id,
+    }
+end
+
+local function exitDefinition(home)
+    return {
+        id = "exit:" .. home.id,
+        position = pos(home.exit),
+        -- Wider than the stash ring: in the static fallback it stands under the
+        -- arriving player's feet (shared/config.lua, Config.exitRadius).
+        radius = Config.exitRadius or 1.0,
+        style = "objective",
+        maxDistance = 40.0,
+        label = Config.text.exit,
+        description = Config.text.exitDescription,
+        key = "E",
+        icon = "H",
+        marker = "door",
+        promptDistance = Config.promptDistance,
+        event = "rp_housing:poi:exit:" .. home.id,
+    }
+end
+
+-- The three ring kinds the server can move at runtime (auto door): the field
+-- of the home / snapshot that carries the position, the handle table and the
+-- POI definition.
+local RINGS = {
+    { field = "entrance", snapshotField = "entrances", handles = doorHandles, definition = doorDefinition, name = "door" },
+    { field = "exit", snapshotField = "exits", handles = exitHandles, definition = exitDefinition, name = "exit" },
+    { field = "stash", snapshotField = "stashes", handles = stashHandles, definition = stashDefinition, name = "stash" },
+}
+
+-- The server found the flat's real front door (auto door): the ring moves there.
+local function recreatePoi(ring, home)
+    if ring.handles[home.id] then
+        worldui("remove", ring.handles[home.id])
+        ring.handles[home.id] = nil
+    end
+    ring.handles[home.id] = createPoi(ring.definition(home))
+end
+
 local function createPois()
     if poisCreated then return end
     poisCreated = true
@@ -63,46 +135,10 @@ local function createPois()
     }) then created = created + 1 end
 
     for _, home in ipairs(Config.homes) do
-        if createPoi({
-            id = "door:" .. home.id,
-            position = pos(home.entrance),
-            radius = 1.0,
-            style = "interaction",
-            label = Config.text.door,
-            description = home.label .. " - " .. Config.text.doorDescription,
-            key = "E",
-            icon = "H",
-            marker = "door",
-            promptDistance = Config.promptDistance,
-            event = "rp_housing:poi:door:" .. home.id,
-        }) then created = created + 1 end
-        if createPoi({
-            id = "stash:" .. home.id,
-            position = pos(home.stash),
-            radius = 0.6,
-            style = "objective",
-            maxDistance = 40.0,
-            label = Config.text.stash,
-            description = Config.text.stashDescription,
-            key = "E",
-            icon = "S",
-            promptDistance = Config.promptDistance,
-            event = "rp_housing:poi:stash:" .. home.id,
-        }) then created = created + 1 end
-        if createPoi({
-            id = "exit:" .. home.id,
-            position = pos(home.exit),
-            radius = 0.6,
-            style = "objective",
-            maxDistance = 40.0,
-            label = Config.text.exit,
-            description = Config.text.exitDescription,
-            key = "E",
-            icon = "H",
-            marker = "door",
-            promptDistance = Config.promptDistance,
-            event = "rp_housing:poi:exit:" .. home.id,
-        }) then created = created + 1 end
+        for _, ring in ipairs(RINGS) do
+            ring.handles[home.id] = createPoi(ring.definition(home))
+            if ring.handles[home.id] then created = created + 1 end
+        end
     end
     print(("%s %d world prompts created"):format(TAG, created))
 end
@@ -169,12 +205,35 @@ local function refreshBlips()
     end
 end
 
+-- Rings resolved by the server (auto door): the entrance, the exit and the
+-- stash move together, along the door -> interior axis. Move ours when they
+-- differ from what we drew.
+local function applyRings(snapshot)
+    for _, ring in ipairs(RINGS) do
+        local positions = snapshot[ring.snapshotField]
+        if type(positions) == "table" then
+            for _, home in ipairs(Config.homes) do
+                local e = positions[home.id]
+                if type(e) == "table" and type(e.x) == "number" and type(e.y) == "number" and type(e.z) == "number" then
+                    local cur = home[ring.field]
+                    if math.abs(cur.x - e.x) > 0.05 or math.abs(cur.y - e.y) > 0.05 or math.abs(cur.z - e.z) > 0.05 then
+                        home[ring.field] = { x = e.x, y = e.y, z = e.z }
+                        print(("%s %s ring of %s moved to %.1f, %.1f, %.1f (auto door)"):format(TAG, ring.name, home.id, e.x, e.y, e.z))
+                        if poisCreated then CreateThread(function() recreatePoi(ring, home) end) end
+                    end
+                end
+            end
+        end
+    end
+end
+
 RegisterNetEvent("rp_housing:state", function(snapshot)
     if type(snapshot) ~= "table" then return end
     state.mine = snapshot.mine or false
     state.owned = snapshot.owned or {}
     state.keys = snapshot.keys or {}
     state.inside = snapshot.inside or false
+    applyRings(snapshot)
     refreshBlips()
 end)
 

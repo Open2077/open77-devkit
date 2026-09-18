@@ -1,4 +1,5 @@
--- rp_mecano / client: ALT+click entries for the garage job.
+-- rp_mecano / client: ALT+click entries for the garage job, plus two bare rings
+-- (open77_worldui, nothing to press) at the workshop and the CHOOH2 pump.
 -- Nothing is decided here. Every entry sends a request to the server, which
 -- checks the job, the duty state, the distance and the money again.
 
@@ -79,11 +80,41 @@ local function registerActions()
         },
         {
             id = "rp_mecano_impound", label = "Impound (garage)", group = "Garage", icon = "lock",
-            description = "Inside the garage zone, empty vehicles only.", networked = true, distance = 8.0, order = 44,
+            description = "At the junkyard (impound zone), empty vehicles only.", networked = true, distance = 8.0, order = 44,
             danger = true, canInteract = "rpMecanoCanInteract", onSelect = "rpMecanoImpound",
         },
     })
     if not vehicles then print("[rp_mecano] context menu (vehicles): " .. tostring(verr)) end
+end
+
+-- The workshop and pump rings: bare markers (no prompt, nothing to press).
+local poiHandles = {}
+
+local function worldui(method, ...)
+    local promise, dispatchError = Open77.exports.call("open77_worldui", method, ...)
+    if not promise then return nil, dispatchError end
+    return promise:await()
+end
+
+local function placeRings()
+    for _, entry in ipairs({ { id = "rp_mecano_workshop", spot = Config.workshop }, { id = "rp_mecano_pump", spot = Config.pump } }) do
+        local spot = entry.spot
+        if type(spot) == "table" and type(spot.position) == "table" then
+            local result, err = worldui("create", {
+                id = entry.id,
+                position = { x = spot.position.x, y = spot.position.y, z = spot.position.z },
+                radius = spot.radius or 2.0,
+                style = "interaction",
+                maxDistance = 120.0,
+                color = "#F5A623",
+            })
+            if result and result.ok then
+                poiHandles[#poiHandles + 1] = result.handle
+            else
+                print(("[rp_mecano] ring %s refused: %s"):format(entry.id, tostring(err or (result and result.error))))
+            end
+        end
+    end
 end
 
 AddEventHandler("onClientResourceStart", function(name)
@@ -91,7 +122,14 @@ AddEventHandler("onClientResourceStart", function(name)
     CreateThread(function()
         registerActions()
         if name == GetCurrentResourceName() then
+            placeRings()
             TriggerServerEvent("rp_mecano:whoami")
         end
     end)
+end)
+
+AddEventHandler("onClientResourceStop", function(name)
+    if name ~= GetCurrentResourceName() then return end
+    for _, handle in ipairs(poiHandles) do worldui("remove", handle) end
+    poiHandles = {}
 end)

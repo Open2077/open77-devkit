@@ -22,15 +22,33 @@ action, and requests.
 Both commands refuse the server console (`run this from the game`). They are published as chat
 suggestions on `chat:ready` and once at start.
 
-## The counter
+## Where it is
 
-`RpBarConfig.counter.position = { x = 360.0, y = -2390.0, z = 181.99 }` — the centre of the
-`afterlife` zone of `rp_zones`, **24 m north-west of the freeroam spawn** (`381.36, -2401.79,
-181.99`). While a barman is on duty their client draws a ring, a map pin and an `E` prompt
-**Bar counter** there (`open77_worldui`, `promptDistance = 3.0`, style `interaction`);
-customers see nothing (`showCounterToCustomers = false`). `z` is the spawn's ground height: if
-the ring is invisible, stand on the spot, `/pos`, paste the ground height. The server re-checks
-the duty and the distance (`counter.reach`, 8 m; `0` = anywhere) before opening anything.
+The bar is **The Afterlife** (Little China, Watson) — the real one, inside, at the end of its
+bar counter. `RpBarConfig.counter.position = { x = -1451.5, y = 1012.5, z = 17.8 }` (a bot
+stood on that exact spot on 2026-09-18; `z` is the walked floor height). It sits inside the
+`afterlife` zone of `rp_zones` (centre `-1453, 1017, 16.6`, radius 50). From the Kabuki Market
+spawn (`-1191.3, 2006.9, 7.8`) it is about **1 km south**: follow the map pin, or a Delamain.
+
+| What | Position | Notes |
+|---|---|---|
+| Bar counter ring + E prompt | `-1451.5, 1012.5, 17.8`, radius 3.5 | `RpBarConfig.counter`; on-duty barman only |
+| Bar floor (entrance stairs side) | `-1453.0, 1016.7, 16.5` | the `afterlife` zone centre |
+| Jukebox prop | `-1450.3, 1013.5, 18.9`, yaw -138.5 | `RpBarConfig.props[1]` (`electronics.jukebox`), server-spawned |
+
+While a barman is on duty their client draws a ring, a map pin and an `E` prompt **The
+Afterlife - bar counter** there (`open77_worldui`, `promptDistance = 4.0`, style `interaction`);
+customers see nothing (`showCounterToCustomers = false`). The server re-checks the duty and the
+distance (`counter.reach`, 8 m; `0` = anywhere) before opening anything.
+
+The config knows **one counter**. Lizzie's Bar (`-1188.9, 1566.2, 22.9`, zone `lizzies`) is not
+a second counter: that would need a second counter table, POI and ambience sweep.
+
+**Props.** At start the server spawns the entries of `RpBarConfig.props` through
+`Open77.props.create` (permission `world.props`, curated prop alias (see `prop.catalog`) — a
+raw `.mesh` path renders as a white slab) and removes them at stop. The bar exists, so there is
+no counter prop — only a jukebox (`electronics.jukebox`) against the wall behind the counter's
+end. A refused prop is logged (`prop 1 (...) not spawned: <reason>`) and nothing else changes.
 
 The counter menu (UI kit `context`, server-driven):
 
@@ -182,7 +200,8 @@ itself lives in `rp_bank` (society `barman`); the buzz is in memory.
 Permissions: `network.events` (net events, toasts, `Open77.sound`), `database.access`,
 `players.animations.control` (`Open77.animations.play`), `players.interactions.control` +
 `players.interactions.read` (`Open77.playerInteractions.request` / `cancel` / `current`),
-`players.screenfx` (`Open77.effects.screen`). Dependencies (all ship a client half):
+`players.screenfx` (`Open77.effects.screen`), `world.props` (`Open77.props.create` / `remove`,
+the neon frame). Dependencies (all ship a client half):
 `open77_uikit`, `open77_worldui`, `open77_contextmenu`, `open77_player_interactions`,
 `open77_notifications`, `open77_sound`. `open77_animations` must run on the server for clients to
 render the profiles (the server API accepts without it). Files: `sfx/afterlife_ambience.wav`.
@@ -190,7 +209,8 @@ render the profiles (the server API accepts without it). Files: `sfx/afterlife_a
 ## Log (grep-able)
 
 ```text
-[rp_bar] started: counter at 360.0 -2390.0 182.0 (reach 8.0 m), 4 drinks, 3 ingredients, society 'barman', ambience on
+[rp_bar] props spawned: 1
+[rp_bar] started: counter at -1451.5 1012.5 17.8 (reach 8.0 m), 4 drinks, 3 ingredients, society 'barman', ambience on
 [rp_bar] items defined (start): registered=beer,ingredient_ice,... rejected=none
 [rp_bar] store=sql table=rp_bar_sales
 [rp_bar] player 1 restocked ingredient_mixer for 15 till=49985
@@ -204,15 +224,17 @@ render the profiles (the server API accepts without it). Files: `sfx/afterlife_a
 
 ## Test in 2 minutes (one player)
 
-At the freeroam spawn (`381.36, -2401.79, 181.99`), with `rp_jobs`, `rp_bank`, `rp_economy`,
-`rp_inventory` (and ideally `rp_needs`, `rp_zones`) running. Player id `1`.
+Inside The Afterlife (walk in from Kabuki Market, ~1 km south, or console `tp 1 -1453 1017 16.6`
+onto the bar floor), with `rp_jobs`, `rp_bank`, `rp_economy`, `rp_inventory` (and ideally
+`rp_needs`, `rp_zones`) running. Player id `1`.
 
 1. **Console:** `setjob 1 barman 3` — you are boss at the bar; the log shows `society barman
    seeded +50000` (rp_jobs seeds the till once). `/bar` → the card, then `You are the staff
    here: /service to clock in...`.
-2. `/service` → `Clocked in at Bartender...` and `Behind the counter. The ring is at 360, -2390:
-   press E there or /bar.` A pink ring and an `E` prompt **Bar counter** appear 24 m north-west
-   (map pin too). Walk there: the club ambience fades in around 30 m.
+2. `/service` → `Clocked in at Bartender...` and `Behind the counter. The ring is at -1452, 1012:
+   press E there or /bar.` A pink ring and an `E` prompt **The Afterlife - bar counter** appear
+   at the end of the bar counter, a few metres from the entrance stairs (map pin too), with the
+   neon frame on the wall behind it. Walk there: the club ambience fades in around 30 m.
 3. `/bar` (within 8 m) → `Till: 50 000 €$...`, `Stock: Spirits (bottle) x0, ...`, `Buzz: 0/10
    (sober)`, then the counter menu. Or look at the ring and press **E**.
 4. **Restock** → **Mixer (keg) - 15 €$** → `Restocked 1 x Mixer (keg) for 15 €$. Till: 49 985 €$.

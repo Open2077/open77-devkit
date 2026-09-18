@@ -13,23 +13,27 @@ auto_start true
 --                                RegisterNetEvent / TriggerServerEvent (client)
 -- players.interactions.control : Open77.playerInteractions.request / cancel (the bill consent flow)
 -- players.interactions.read    : Open77.playerInteractions.current
+-- world.props                  : Open77.props.create / remove (the garage sign, tyre blockers, the pump)
 permissions {
     "world.vehicles",
     "database.access",
     "network.events",
     "players.interactions.control",
     "players.interactions.read",
+    "world.props",
 }
 
 -- Every declared dependency ships a client half, so a manifest delivered to
 -- clients may depend on it:
 --   open77_uikit               : progress bar (/reparer) and input forms, through the server twins
+--   open77_worldui             : the workshop and pump rings (client)
 --   open77_contextmenu         : ALT+click actions on players and vehicles (client)
 --   open77_player_interactions : the accept / decline prompt of an invoice
 --   open77_notifications       : the toast that accompanies an invoice
 --   rp_jobs                    : job + duty checks (ships client/main.lua)
 --   rp_inventory               : components, spray cans, CHOOH2 cans, toolkit (ships client/main.lua)
 dependency "open77_uikit >=1.0.0"
+dependency "open77_worldui >=0.1.0"
 dependency "open77_contextmenu"
 dependency "open77_player_interactions >=1.0.0"
 dependency "open77_notifications"

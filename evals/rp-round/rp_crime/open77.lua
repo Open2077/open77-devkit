@@ -1,5 +1,5 @@
 -- rp_crime: the NCPD's workload -- shop robberies, vehicle theft, street deals,
--- contraband (nomad crates) and a night-time fence at the scrapyard.
+-- contraband (nomad crates) and a night-time fence at the junkyard.
 -- Server-only: every check, every eddie and every item is decided on the server.
 -- The player sees chat lines, toasts, a UI-kit progress bar and one E prompt on the
 -- fence (declared from the server through open77_interactions, no client half needed).
@@ -35,7 +35,7 @@ permissions {
     "network.events",               -- RegisterNetEvent (chat:ready), Open77.notifications.send
     "database.access",              -- Open77.database.* (rp_crime_log)
     "world.vehicles",               -- Open77.vehicles.nearby / get / getPosition / isLockedForPlayer / setLocked / triggerHorn / getPlayerSeat
-    "world.props",                  -- Open77.props.all / get (the nomad crates, read only)
+    "world.props",                  -- Open77.props.all / get (the nomad crates, read only); create / remove (the fence's crates)
     "world.npcs",                   -- Open77.npcs.create / remove / speak / templates (the fence)
     "world.environment",            -- Open77.environment.getState (the fence's opening hours)
     "players.life.read",            -- Open77.players.isDead

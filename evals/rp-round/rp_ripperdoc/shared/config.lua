@@ -7,22 +7,22 @@ RpRipperConfig = {
     society = "ripper",
 
     -- rp_zones zone the ripper must stand in to operate; nil = anywhere.
-    -- Eval config: the clinic lives in the black market by the spawn. Move it
-    -- (and the chair below) to a real clinic on a production server.
-    clinicZone = "blackmarket",
+    -- The clinic is Viktor Vektor's, under the Misty's Esoterica alley in Little China
+    -- (Watson), the `viktor_clinic` zone of rp_zones (centre -1548, 1230, 11.5, r 12).
+    clinicZone = "viktor_clinic",
 
-    -- The ripperdoc chair: inside the `blackmarket` zone (centre 400, -2390, 182,
-    -- radius 10), about 24 m north-east of the freeroam spawn 381.36, -2401.79, 181.99.
-    -- `z` is the ground height measured for that zone; if the ring is not visible,
-    -- stand on the spot, run /pos, and paste the ground height.
+    -- The ripperdoc chair: Vik's own chair room (AMM point, bot verified inside on
+    -- 2026-09-18; z = measured floor + 0.1). The clinic HAS a chair: no chair prop is
+    -- spawned. The ring covers the chair (r 4) so the prompt reads from either side.
+    -- If the ring is not visible, stand on the spot, run /pos, and paste the floor height.
     chair = {
-        position = { x = 400.0, y = -2386.0, z = 182.0 },
-        yaw = 90.0,                 -- degrees about Z, where the lying body faces
-        promptDistance = 3.0,       -- the E prompt is pressable within this range
-        reach = 3.5,                -- server re-check of the prompt distance (m)
-        radius = 1.2,               -- ground ring radius (m)
-        label = "Ripperdoc chair",
-        description = "Lie down and let the ripper work.",
+        position = { x = -1548.0, y = 1230.0, z = 11.6 },
+        yaw = -89.5,                -- degrees about Z, where the lying body faces (AMM)
+        promptDistance = 4.0,       -- the E prompt is pressable within this range
+        reach = 4.5,                -- server re-check of the prompt distance (m)
+        radius = 4.0,               -- ground ring radius (m): the whole chair
+        label = "Vik's chair",
+        description = "Viktor's clinic. Lie down and let the ripper work.",
     },
 
     -- The ripper must be within this distance of the patient on the chair (m).

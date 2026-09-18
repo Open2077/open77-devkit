@@ -73,7 +73,7 @@ local function distance3(a, b)
     return math.sqrt(dx * dx + dy * dy + dz * dz)
 end
 
--- Reach test with a height tolerance: the eval z values are the plaza's measured height,
+-- Reach test with a height tolerance: the configured z values are the walked floor height,
 -- a body standing on a kerb must still count as "at the counter".
 local function within(pos, target, reach)
     if not pos or not target then return false, 999 end
@@ -580,7 +580,9 @@ local DEAL_REASONS = {
 RegisterCommand("dealer", function(source, args)
     if source == 0 then return print(TAG .. " dealer: run it from the game") end
     local target = tonumber(args[1])
-    if not target then return say(source, "Usage: /dealer <playerId> -- sells one drug pack for " .. Config.deal.price .. " eddies.") end
+    -- Open77.players.name throws (and kills the VM) for id <= 0 or a non-integer: validate first.
+    if not target or target < 1 or target % 1 ~= 0 then return say(source, "Usage: /dealer <playerId> -- sells one drug pack for " .. Config.deal.price .. " eddies.") end
+    target = math.floor(target)
     if target == source then return say(source, "Selling to yourself? Use it instead.") end
     if busy[source] then return say(source, "Finish what you started first.") end
     if not Open77.players.name(target) then return say(source, "No such player.") end
@@ -689,7 +691,7 @@ AddEventHandler("onPlayerInteractionCompleted", function(state)
 
     local pos = positionOf(dealer) or positionOf(buyer)
     if pos and math.random() < tunable("deal.alertChance", Config.deal.alertChance) then
-        local where = zone and (zone.label or zone.name) or "the plaza"
+        local where = zone and (zone.label or zone.name) or "the street"
         pageNcpd("drugs", pos, Config.deal.alertText:format(where), dealer)
         announceCrime("drugs", pos, dealer)
         say(dealer, "Somebody saw that. Badges are on their way.")
@@ -773,7 +775,7 @@ RegisterCommand("voler", function(source)
     local reach = tunable("contraband.reach", Config.contraband.reach)
     local crate = nearestCrate(pos, reach)
     if not crate then
-        return say(source, ("No nomad crate within %d m. They sit at the camp's loading bay (416-422, -2374) while a convoy loads."):format(reach))
+        return say(source, ("No nomad crate within %d m. They sit at the Aldecaldos camp's loading bay while a convoy loads."):format(reach))
     end
     local propId = tostring(crate.id)
     if guttedCrates[propId] then return say(source, "That crate is already gutted. Nothing left but the box.") end
@@ -822,7 +824,7 @@ RegisterCommand("voler", function(source)
     end
     guttedCrates[propId] = true
 
-    say(source, ("You gut the crate: Stolen parts x%d in your pockets. Vik at the scrapyard pays for those after dark (/receler)."):format(count))
+    say(source, ("You gut the crate: Stolen parts x%d in your pockets. Vik at the junkyard pays for those after dark (/receler)."):format(count))
     toast(source, "success", "Contraband", ("Stolen parts x%d"):format(count))
     for _, h in ipairs(holders) do
         if h ~= source then
@@ -839,7 +841,7 @@ AddEventHandler("onPropRemoved", function(id)
 end)
 
 -- ---------------------------------------------------------------------------------------------
--- The fence: an NPC at the scrapyard, /receler and an E prompt, 22:00-06:00
+-- The fence: an NPC at the junkyard, /receler and an E prompt, 22:00-06:00
 -- ---------------------------------------------------------------------------------------------
 
 local fence = { npcId = nil, record = nil, promptDefined = false, clockWarned = false }
@@ -893,7 +895,7 @@ local function sellToFence(playerId, via)
     if not pos then return say(playerId, "The server cannot place you. Try again in a second.") end
     local near, d = within(pos, Config.fence.position, tunable("fence.reach", Config.fence.reach))
     if not near then
-        return say(playerId, ("%s is not within %d m (you are %d m away). The scrapyard is at %d, %d."):format(
+        return say(playerId, ("%s is not within %d m (you are %d m away). The junkyard is at %d, %d."):format(
             Config.fence.name, Config.fence.reach, math.floor(d + 0.5), Config.fence.position.x, Config.fence.position.y))
     end
 
@@ -1028,7 +1030,38 @@ local function spawnFence()
     defineFencePrompt()
 end
 
+-- The fence's crates (Config.fence.props): decoration beside Vik, owned here, removed on
+-- stop. A refusal only logs; the NPC and the prompt do not depend on them.
+local fenceProps = {}
+
+local function spawnFenceProps()
+    for index, at in ipairs(Config.fence.props or {}) do
+        if not fenceProps[index] and at.model then
+            local id, reason = Open77.props.create({
+                model = at.model,
+                position = { x = at.x, y = at.y, z = at.z },
+                yaw = at.yaw or 0.0,
+                bucket = 0,
+                streamingRadius = 120.0,
+            })
+            if id then
+                fenceProps[index] = id
+            else
+                log("fence crate %d not spawned (%s)", index, tostring(reason))
+            end
+        end
+    end
+end
+
+local function removeFenceProps()
+    for index, propId in pairs(fenceProps) do
+        Open77.props.remove(propId)
+        fenceProps[index] = nil
+    end
+end
+
 local function removeFence()
+    removeFenceProps()
     if fence.npcId then
         Open77.npcs.remove(fence.npcId)
         fence.npcId = nil
@@ -1076,7 +1109,7 @@ local SUGGESTIONS = {
     { command = "/dealer", help = "Sell a drug pack to a player within 3 m for 120 eddies",
       parameters = { { name = "playerId", help = "the buyer's id" } } },
     { command = "/voler", help = "Gut a nomad crate that is not yours (within 3 m)" },
-    { command = "/receler", help = "Sell stolen parts and boxed implants to the fence at the scrapyard (22:00-06:00)" },
+    { command = "/receler", help = "Sell stolen parts and boxed implants to the fence at the junkyard (22:00-06:00)" },
 }
 
 local function publishSuggestions(target)
@@ -1105,6 +1138,8 @@ AddEventHandler("onResourceStart", function(name)
     defineItems()
     chooseStore()
     spawnFence()
+    local crates, err = pcall(spawnFenceProps)
+    if not crates then log("fence crates failed: %s", tostring(err)) end
     publishSuggestions(-1)
     for _, pid in ipairs(Open77.players.all()) do importWanted(pid) end
 end)

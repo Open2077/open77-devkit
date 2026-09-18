@@ -168,7 +168,9 @@ names are back-quoted in every statement because `until` and `by` are reserved w
 Expired bans are deleted at load and dropped on sight afterwards. Fallback when
 `Open77.database.ready` answers `database_unavailable` (or the load fails): keys
 `entry:<identifier>` and `ban:<identifier>` (JSON) in this resource's KVP store, logged as
-`falling back to Open77.kvp`. The `enabled` flag is always in KVP (key `enabled`).
+`falling back to Open77.kvp`. A bridge that is still `connecting` after
+`Config.storageWaitSeconds` (15 s) falls back the same way for the whole boot (a late
+`database ready` is logged and ignored). The `enabled` flag is always in KVP (key `enabled`).
 
 ## Log lines (grep-able)
 
@@ -186,8 +188,8 @@ refusal and `connecting '<name>': queue #...` for every hold.
 
 ## Test in 2 minutes (console, with the eval bot)
 
-Nothing here needs the player to move: the plaza at the freeroam spawn
-`381.36, -2401.79, 181.99` is where the bot stands when it is in.
+Nothing here needs the player to move: Kabuki Market, the freeroam spawn
+`-1191.30, 2006.88, 7.82 (Kabuki Market Centre, Watson)`, is where the bot stands when it is in.
 
 1. Load list: `rp_identity`, `rp_logs` (or comment that dependency out), `rp_whitelist`.
    Log: `[rp_whitelist] registry loaded from sql: ...` then `gate online: whitelist
@@ -200,13 +202,13 @@ Nothing here needs the player to move: the plaza at the freeroam spawn
 4. Console: `wl statut` -> `Whitelist disabled, mode allowlist, storage sql.`,
    `Entries: 1. Active bans: 0 (0 permanent). Bans while disabled: yes.`,
    `Capacity: no soft cap (1 online), the queue is off.`
-5. Console: `wl ban <botPlayerId> 1 loud in the plaza` -> `<RP name> banned for 1 min: loud
-   in the plaza. Not kicked - the next connect is refused (the platform /kick removes them
+5. Console: `wl ban <botPlayerId> 1 loud in the market` -> `<RP name> banned for 1 min: loud
+   in the market. Not kicked - the next connect is refused (the platform /kick removes them
    now).` **The bot is still in** (this is deliberate); it reads the red `GATE` line.
-   `wl statut` now lists `ban <userId> 1 min left: loud in the plaza (by console)`.
+   `wl statut` now lists `ban <userId> 1 min left: loud in the market (by console)`.
 6. **The owner does this part**: disconnect the bot and reconnect it within the minute. The
    connection is refused and the shell shows `Banned from Night City for 42s: loud in the
-   plaza`. Log: `Player '<name>' (<userId>) refused (Refused): Banned from Night City...`.
+   market`. Log: `Player '<name>' (<userId>) refused (Refused): Banned from Night City...`.
    `wl statut` shows it under `Last refusals`.
 7. Wait for the minute to pass (or `wl unban <userId>`), reconnect: admitted. `wl statut`:
    `Active bans: 0`.

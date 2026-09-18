@@ -25,8 +25,9 @@ missing platform resource logs one line and the other four keep running.
   `weatherMaxMinutes`), excluding the current preset, applied with
   `Open77.environment.setWeather(preset, 45)`. Shipped weights: clear (`sunny`) 50, `cloudy` 25,
   `rain` 15, `sandstorm` 5, `fog` 5. The sandstorm row is `badlandsOnly`: it is counted while
-  `Config.cycle.badlands = true` (the RP map is on the Badlands flats) and dropped otherwise.
-  Weather is one sky per routing bucket, so "Badlands-only" is a map flag, not a per-zone sky.
+  `Config.cycle.badlands = true` (shipped on: Night City's vanilla cycle blows sandstorms in
+  from the Badlands) and dropped otherwise. Weather is one sky per routing bucket, so
+  "Badlands-only" is a map flag, not a per-zone sky.
 - The platform's own random scheduler is **pinned** with `setWeatherFrozen(true)` at start so
   the two never compete, and restored to what it was when the resource stops.
 - Each draw is toasted to everyone (`announceWeather`). `startHour = nil` keeps the clock where
@@ -36,20 +37,22 @@ missing platform resource logs one line and the other four keep running.
 
 ### 2. Figurants (`Config.figurants`)
 
-2–3 civilian NPCs per key zone — `afterlife` (3), `blackmarket` (2), `nomad_camp` (2),
-`ncpd_hq` (3) — spawned on start around the zone centre (the centres mirror
-`rp_zones/README.md`; `exports.rp_zones:list()` carries no coordinates), invulnerable
-(`damagePolicy = 2`), combat disabled, `wander` within 6 m of the centre, removed on stop.
+2–3 civilian NPCs per key zone — `kabuki_market` (3, around the spawn at Market Centre
+`-1191.30, 2006.88, 7.82`), `afterlife` (3, the bar floor `-1453, 1017, 16.5`), `lizzies` (2,
+`-1188.9, 1566.2, 22.9`), `junkyard` (2, Rancho Coronado `1374.9, -1674.9, 49.3`) — spawned
+on start around the zone centre (the centres mirror `rp_zones/shared/config.lua`;
+`exports.rp_zones:list()` carries no coordinates), invulnerable (`damagePolicy = 2`), combat
+disabled, `wander` within 6 m of the centre, removed on stop.
 
 - **Lines.** While a player is within 8 m, a figurant says one of its zone's six English lines
   every 60–120 s: the text goes to every player in that radius as a chat line signed with the
-  figurant's name (`Afterlife regular`, `Street dealer`, `Nomad kid`, `Desk sergeant`...), and
+  figurant's name (`Noodle Row regular`, `Afterlife regular`, `Mox bouncer`, `Scav lookout`...), and
   an audible bark (`Open77.npcs.speak` with a `voContext` from `Config.figurants.barks`:
   `greeting`, `bump`, `stlh_curious`) is queued on the body. `speak` takes engine voice contexts,
   not free text, which is why the line is chat + bark. A bark the record's voiceset lacks is
   silent and unreportable — test by ear on the records you ship.
 - When `rp_jobs` runs and the nearest player holds a job listed in the zone's `linesForJob`
-  (NCPD at the Afterlife and the black market), that pool is used half of the time.
+  (NCPD at Kabuki Market, the Afterlife and Lizzie's), that pool is used half of the time.
 - **Sweep every 5 min** (`sweepSeconds`): a figurant that died, was removed or whose wander
   ended is respawned or re-tasked. `onNpcDied` / `onNpcRemoved` mark the slot immediately; a
   wander that ends is re-issued after 2 s (failures back off up to 60 s).
@@ -80,8 +83,8 @@ VFX alias is the one the platform documents for a server one-shot and the siren 
 
 ### 5. Ambience loop per zone (`Config.music`)
 
-On `rp_zones:entered` of `afterlife` or `blackmarket`, `Open77.sound.play(playerId,
-"sfx/<zone>.wav", { id = "zone:<zone>", loop = true, volume = 0.35 })` starts that zone's loop
+On `rp_zones:entered` of `afterlife` or `lizzies`, `Open77.sound.play(playerId,
+"sfx/<file>.wav", { id = "zone:<zone>", loop = true, volume = 0.35 })` starts that zone's loop
 for that player only; `rp_zones:left` stops it (`Open77.sound.stop`), the resource stopping
 stops everything (`stopAll`, also sent by the host). Players already inside a zone when the
 resource or `rp_zones` (re)starts are picked up through `exports.rp_zones:isIn`.
@@ -90,10 +93,11 @@ resource or `rp_zones` (re)starts are picked up through `exports.rp_zones:isIn`.
   Afterlife loop is skipped (`skipWhenResourceRuns`), logged once.
 - **The files are the resource's own** (`files { "sfx/*.wav" }`): a resource can only play a
   file it ships, and the file is read from the client image, which is why `client/main.lua`
-  exists. The two shipped WAVs (16 kHz mono, 12 s, 384 KB, seamless) are synthesised
-  placeholders — a dark pad with a muffled beat and crowd murmur for the Afterlife, a mains hum
-  with crackle and a scanner beep for the black market. Replace them with real assets of at
-  most 1 MiB (`mp3`, `ogg`, `wav`...), same paths.
+  exists. The two shipped WAVs (16 kHz mono, 12 s, 384 KB, seamless) are synthesised loops —
+  `sfx/afterlife.wav`, a dark pad with a muffled beat and crowd murmur for the Afterlife, and
+  `sfx/blackmarket.wav`, a mains hum with crackle and a scanner beep, which plays inside
+  Lizzie's (the file name is an asset name, not a zone name). Replace them with real assets of
+  at most 1 MiB (`mp3`, `ogg`, `wav`...), same paths.
 - Not in the game's mix: it ignores the in-game volume sliders (sound guide), hence the low
   default gain.
 
@@ -143,7 +147,7 @@ start and on `/ambiance reload`: `rp_ambiance.realHoursPerDay`, `.weatherMinMinu
 [rp_ambiance] figurants: 10/10 spawned in 4 zone(s)
 [rp_ambiance] started: 8 notice(s) every 15 min, sirens on, music on (2 zone loop(s))
 [rp_ambiance] ambience for afterlife skipped: rp_bar already plays there
-[rp_ambiance] figurant blackmarket#1 died; back at the next sweep (3m10s)
+[rp_ambiance] figurant lizzies#1 died; back at the next sweep (3m10s)
 [rp_ambiance] sweep: 1 figurant(s) respawned
 [rp_ambiance] environment unavailable (environment_unavailable): day cycle and weather table paused, retry in 30 s
 [rp_ambiance] stopped (manual): figurants removed, weather scheduler restored
@@ -151,33 +155,36 @@ start and on `/ambiance reload`: `rp_ambiance.realHoursPerDay`, `.weatherMinMinu
 
 ## Test in 2 minutes (one player)
 
-Freeroam spawn `381.36, -2401.79, 181.99`. Everything is within 70 m on the flat band north
-and north-east of the plaza. Have `rp_zones`, `open77_notifications`, `open77_sound`,
-`open77_weather` and `open77_effects` running; give yourself `command.ambiance` (or use the
-console).
+Freeroam spawn = Kabuki Market Centre `-1191.30, 2006.88, 7.82` (Watson). The market
+figurants are at your feet; Lizzie's is 440 m south, the Afterlife 1.0 km south-west (drive),
+the junkyard 4.5 km south-east in the Badlands. Have `rp_zones`, `open77_notifications`,
+`open77_sound`, `open77_weather` and `open77_effects` running; give yourself
+`command.ambiance` (or use the console).
 
 1. Start: the log shows `weather -> <preset>` then `cycle: 3.0 real h ... (rate 8.0)`,
    `figurants: 10/10 spawned in 4 zone(s)`, `started: 8 notice(s) ...`. Everyone gets a
    **Weather** toast top-right.
 2. `/ambiance` (or `ambiance` in the console): four lines — cycle `HH:MM ... rate 8.0 ...`,
    `Weather: <preset> now (1 draw(s) so far), next draw in NNmNNs; table: sunny 50, cloudy 25,
-   rain 15, sandstorm 5, fog 5`, `Figurants: 10/10 alive (afterlife 3/3, blackmarket 2/2,
-   ncpd_hq 3/3, nomad_camp 2/2), next sweep in ...`, `Notices: 8 line(s) every 15 min ...`,
-   `Music: afterlife, blackmarket; 0 player(s) listening. Sirens: sparks.burst.small + ...`.
+   rain 15, sandstorm 5, fog 5`, `Figurants: 10/10 alive (afterlife 3/3, junkyard 2/2,
+   kabuki_market 3/3, lizzies 2/2), next sweep in ...`, `Notices: 8 line(s) every 15 min ...`,
+   `Music: afterlife, lizzies; 0 player(s) listening. Sirens: sparks.burst.small + ...`.
    With `rp_bar` running the music line reads `afterlife skipped (covered_by_rp_bar)`.
 3. `/ambiance weather rain` → toast **Weather - Rain / Acid rain incoming...**, the sky blends
    over 45 s, chat `Weather set to rain; the next random draw is in ...`. `/ambiance time 22`
    → night for everyone, `Clock set to 22:00 for everyone.` (`/ambiance weather foo` →
    `Unknown preset 'foo'...`).
-4. Walk 24 m north-west to the Afterlife ring (`360, -2390`): the **Afterlife** entry toast
-   from rp_zones, then the bar loop starts (with `rp_bar` running: no loop from this resource,
-   rp_bar's own ambience instead). Three figurants stroll within 6 m of the ring; within a few
-   seconds one of them writes in chat, e.g. `Afterlife regular: You buying, choom, or just
-   breathing my air?`, then another line every 60–120 s while you stay. Walk out: the loop stops.
-5. Walk 40 m east to the black market ring (`400, -2390`): the black-market loop (hum, crackle,
-   beep) starts, the dealer and the lookout wander and talk (`Street dealer: Synthcoke, chips, a
-   quickhack or two...`). With an NCPD job (`setjob <you> ncpd` in the console) half of the lines
-   become `Nothing to see here, officer. Just... vitamins.`
+4. At the spawn, three market figurants stroll within 6 m of Market Centre; within a few
+   seconds one of them writes in chat, e.g. `Noodle Row regular: Best synth-noodles in Watson,
+   choom...`, then another line every 60–120 s while you stay. Drive 1.0 km south-west to the
+   Afterlife (`-1453, 1017`, down the ramp): the **The Afterlife** entry toast from rp_zones,
+   then the bar loop starts (with `rp_bar` running: no loop from this resource, rp_bar's own
+   ambience instead). Three more figurants at the bar (`Afterlife regular: You buying, choom,
+   or just breathing my air?`). Walk out of the 50 m `afterlife` zone: the loop stops.
+5. Drive back north to Lizzie's (`-1188.9, 1566.2`, 440 m south of the market): the hum-crackle
+   loop starts, the bouncer and the junkie wander and talk (`Mox bouncer: Mox rules: hands
+   where we can see them...`). With an NCPD job (`setjob <you> ncpd` in the console) half of
+   the lines become `Nothing to see here, officer. Just... vitamins.`
 6. `/ambiance siren` anywhere: three spark flashes 1.2 s apart at your feet and the short police
    siren, `Siren played at your position for everyone within 60 m.` A real page — any resource
    raising `rp_ncpd:alert` — does the same at the alert position.

@@ -6,9 +6,9 @@ Central, hot-reloadable settings store for the Night City RP resources. **Server
 - `shared/defaults.lua` is the catalogue: every tunable worth centralising (prices, salaries,
   rents, fees, timings, cycles, distances, positions of POIs and zones) of every delivered
   `rp_*` resource, with its **current** value, as dotted keys -- `rp_bank.transferFeePercent`,
-  `rp_jobs.salary.ncpd.3`, `rp_zones.spawn_plaza.radius`, `rp_trauma.downSeconds`,
-  `rp_housing.homes.kabuki_flat.price`, `rp_bank.atms.atm_spawn.position.x`. 706 keys across
-  29 sections at delivery.
+  `rp_jobs.salary.ncpd.3`, `rp_zones.kabuki_market.radius`, `rp_trauma.downSeconds`,
+  `rp_housing.homes.kabuki_flat.price`, `rp_bank.atms.atm_kabuki.position.x`. 793 keys across
+  29 sections after the Night City placement (706 at delivery).
 - An **override** is a row of `rp_config_values`. The resource keeps every value in memory:
   `get` is synchronous and never yields, `set` writes through to SQL and announces
   `rp_config:changed`, `reload` re-reads the table without a restart.
@@ -24,7 +24,7 @@ not in chat.
 
 | Command | What it does |
 |---|---|
-| `/config get <key>` | The effective value. A leaf prints `key = value`, or `* key = value (default d) -- by who at unix` when overridden. A branch (`rp_bank.atms.atm_spawn.position`) prints its JSON and how many leaves are overridden. |
+| `/config get <key>` | The effective value. A leaf prints `key = value`, or `* key = value (default d) -- by who at unix` when overridden. A branch (`rp_bank.atms.atm_kabuki.position`) prints its JSON and how many leaves are overridden. |
 | `/config set <key> <value>` | Sets an override, live at once, persisted, `rp_config:changed` raised. The value is parsed against the default's type: a number, `true/false/on/off/yes/no/1/0`, or free text (spaces kept) for a string. A branch takes `x=381,y=-2401,z=182` (dotted names allowed: `position.x=370`) or a JSON object. |
 | `/config unset <key>` | Removes the override (leaf or whole branch): back to the default, row deleted, `rp_config:changed` raised with the default. A key the catalogue no longer knows still gets its stale row purged. `reset` is an alias. |
 | `/config list [prefix]` | Every key under the prefix with its effective value, `*` marking overrides, header line first. From chat the listing is capped at `rp_config.chatListMax` (30, itself a tunable); the console prints everything. |
@@ -120,7 +120,7 @@ later) and removed from KVP.
 Log lines (grep `[rp_config]`):
 
 ```text
-[rp_config] catalogue: 706 key(s) across 29 resource section(s)
+[rp_config] catalogue: 793 key(s) across 29 resource section(s)
 [rp_config] schema ready (rp_config_values); 3 override(s) loaded from SQL, 0 migrated from KVP, 0 ignored, 3 value(s) changed
 [rp_config] rp_bank.transferFeePercent = 2 (by user-..., sql)
 [rp_config] database not ready -- override rp_trauma.downSeconds kept in the KVP fallback until SQL answers
@@ -179,9 +179,9 @@ timings, server-checked distances, switches).
 
 Grant `command.config` to your principal in `acl.jsonc` (`acl.reload`), or run the same lines
 without the slash from the server console. Stand anywhere -- the freeroam spawn
-`381.36, -2401.79, 181.99` is fine, the store has no POI.
+`-1191.30, 2006.88, 7.82 (Kabuki Market Centre, Watson)` is fine, the store has no POI.
 
-1. Server log at start: `[rp_config] catalogue: 706 key(s) across 29 resource section(s)`, then
+1. Server log at start: `[rp_config] catalogue: 793 key(s) across 29 resource section(s)`, then
    `schema ready (rp_config_values); 0 override(s) loaded from SQL ...` (or the
    `database unavailable` line and the KVP fallback on a box without SQL).
 2. `/config get rp_bank.transferFeePercent` -> `rp_bank.transferFeePercent = 1`.
@@ -191,9 +191,9 @@ without the slash from the server console. Stand anywhere -- the freeroam spawn
 4. `/config set rp_bank.transferFeePercent 1.5` -> `Refused: not_integer.`;
    `/config set rp_radio.badlandsCut maybe` -> `Refused: expected true or false.`;
    `/config set rp_nothing.here 1` -> `Refused: unknown key.`
-5. `/config set rp_ncpd.cell x=436,y=-2362,z=181.5,heading=90,radius=6` -> `Set rp_ncpd.cell =
-   {...}. Live now.`; `/config get rp_ncpd.cell.heading` -> `* rp_ncpd.cell.heading = 90.0 (default 180.0) ...`
-6. `/config list rp_trauma` -> a header `24 key(s) under 'rp_trauma', 0 overridden ...` then one
+5. `/config set rp_ncpd.cell x=-1755.5,y=-1010.8,z=94.3,heading=90,radius=6` -> `Set rp_ncpd.cell =
+   {...}. Live now.`; `/config get rp_ncpd.cell.heading` -> `* rp_ncpd.cell.heading = 90.0 (default 270.0) ...`
+6. `/config list rp_trauma` -> a header `28 key(s) under 'rp_trauma', 0 overridden ...` then one
    line per key, in order. `/config list` alone stops after 30 lines and says how many more.
 7. `/config export` -> a `RpConfigOverrides = { ... }` block with the two overrides, also in the log.
 8. Edit the row by hand (`UPDATE rp_config_values SET value = '3' WHERE `key` =
@@ -216,4 +216,11 @@ without the slash from the server console. Stand anywhere -- the freeroam spawn
   (a shop's catalogue, a zone's polygon) are not tunables here: change those in the file.
 - Secrets never belong in the catalogue (the `rp_logs` webhook URL stays in the server convars).
 - `rp_mdt` and `rp_crime`, written in parallel, are not in the catalogue yet: add their
-  sections to `shared/defaults.lua` once their configs are frozen.
+  sections to `shared/defaults.lua` once their configs are frozen. `rp_crime` already reads
+  `rp_crime.<path>` through its own `tunable()` helper (19 keys, listed in the sheet): until
+  its section exists those reads answer `unknown key` and the file value stands.
+- The catalogue was re-synced on 2026-09-18 after the move from the eval plateau to the real
+  Night City map: every position, zone name (`kabuki_market`, `kabuki`, `afterlife`, `lizzies`,
+  `h10`, `viktor_clinic`, `ncpd_hq`, `junkyard`, `nomad_camp`, `westbrook_dealer`, `badlands`),
+  ATM id and home price now mirrors the resources' current `shared/config.lua`; `rp_housing`
+  homes lost their `entrance` keys (the front door is found at runtime, see the sheet).

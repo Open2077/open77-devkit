@@ -20,6 +20,9 @@ local store = nil   -- "sql" | "kvp"; nil while the registry is still loading
 local loaded = false
 local interiorZones = {}  -- [homeId] = prepared sphere around the interior
 local doorState = {}      -- [doorId] = "ready" | "missing" (open77_doors integration)
+local autoDoorLogged = {} -- [homeId] = true once the "not discovered yet" line was printed
+local propIds = {}        -- prop ids (decimal strings) this resource created, removed on stop
+local deriveRings         -- (home, door) -> moves the entrance / exit / stash rings; defined with the auto door
 
 -- ---------------------------------------------------------------------------
 -- Small helpers
@@ -296,7 +299,17 @@ local function stateFor(playerId)
     for id, ring in pairs(keys) do
         if identifier and ring[identifier] then withKey[#withKey + 1] = id end
     end
-    return { mine = homeIdOf(identifier) or false, owned = owned, keys = withKey, inside = inside[playerId] or false }
+    -- The rings: the auto door moves all three at runtime (entrance, exit,
+    -- stash), so the client takes them from here rather than from its copy of
+    -- the shared config.
+    local entrances, exits, stashes = {}, {}, {}
+    for _, home in ipairs(Config.homes) do
+        entrances[home.id] = { x = home.entrance.x, y = home.entrance.y, z = home.entrance.z }
+        exits[home.id] = { x = home.exit.x, y = home.exit.y, z = home.exit.z }
+        stashes[home.id] = { x = home.stash.x, y = home.stash.y, z = home.stash.z }
+    end
+    return { mine = homeIdOf(identifier) or false, owned = owned, keys = withKey, inside = inside[playerId] or false,
+        entrances = entrances, exits = exits, stashes = stashes }
 end
 
 local function sendState(playerId)
@@ -311,7 +324,7 @@ end
 
 -- ---------------------------------------------------------------------------
 -- open77_doors (optional): lock a real door to the owner and the key holders.
--- Nothing on the eval config carries a doorId, so this path stays idle there.
+-- The doorId comes from the "auto door" search below (or from the config).
 -- ---------------------------------------------------------------------------
 
 local function doors(method, ...)
@@ -329,6 +342,12 @@ local function syncDoor(home)
         end
         doorState[home.doorId] = "missing"
         return
+    end
+    -- A hand-set doorId never went through resolveAutoDoor: derive the rings
+    -- from the door the first time it is seen.
+    if not home.ringsDerived and type(snapshot.position) == "table" then
+        deriveRings(home, { id = home.doorId, position = snapshot.position })
+        broadcastState()
     end
     if doorState[home.doorId] ~= "ready" then
         local owned, why = doors("register", { id = home.doorId, bucket = 0, position = snapshot.position })
@@ -359,6 +378,113 @@ end
 
 local function syncAllDoors()
     for _, home in ipairs(Config.homes) do syncHomeDoor(home.id) end
+end
+
+-- ---------------------------------------------------------------------------
+-- Auto door: the flat's own front door. open77_doors:near(interior, 0, radius)
+-- lists the doors a client has discovered around the interior point, nearest
+-- first; the first one becomes the home's doorId and the three rings are
+-- derived from it (deriveRings). Nothing is discovered until a client has
+-- streamed the flat, so the static fallback (shared/config.lua: entrance =
+-- interior + 3 m along x, exit = the interior point, stash = interior + 1.5 m
+-- along x) stays in force and the search is retried every
+-- Config.autoDoor.retrySec. Runs inside a thread (near() is awaited).
+-- ---------------------------------------------------------------------------
+
+-- Unit vector pointing from the door to the outside (the street side).
+local function outsideAxis(home, door)
+    local p = door.position
+    local dx, dy
+    local facing = door.facing or door.heading or door.yaw
+    if type(facing) == "table" and type(facing.x) == "number" and type(facing.y) == "number" then
+        dx, dy = facing.x, facing.y
+    elseif type(facing) == "number" then
+        dx, dy = -math.sin(math.rad(facing)), math.cos(math.rad(facing))
+    else
+        -- The snapshot carries no facing (measured: id, bucket, position, state
+        -- flags only): "outside" is away from the interior point, +x when the
+        -- door sits on the interior point itself.
+        dx, dy = p.x - home.interior.x, p.y - home.interior.y
+    end
+    local n = math.sqrt(dx * dx + dy * dy)
+    if n < 0.01 then dx, dy, n = 1.0, 0.0, 1.0 end
+    return dx / n, dy / n
+end
+
+-- The rule (measured 2026-09-18, Northside: a fixed x offset put the exit and
+-- stash rings inside the walls, 3.3-3.6 m from the arrival point): every ring
+-- lies on the door -> interior axis. entrance = door + `outside` m towards the
+-- street; exit = door + `inside` m towards the interior; stash = interior +
+-- `stashInside` m further along the same direction, never back towards the
+-- door. The interior rings keep the interior's z (the floor the player lands on).
+deriveRings = function(home, door)
+    local ox, oy = outsideAxis(home, door)
+    local p = door.position
+    local out, inn, deep = Config.autoDoor.outside, Config.autoDoor.inside, Config.autoDoor.stashInside
+    home.entrance = { x = p.x + ox * out, y = p.y + oy * out, z = p.z }
+    home.exit = { x = p.x - ox * inn, y = p.y - oy * inn, z = home.interior.z }
+    home.stash = { x = home.interior.x - ox * deep, y = home.interior.y - oy * deep, z = home.interior.z }
+    home.ringsDerived = true
+    log("auto door of %s: %s at %.1f, %.1f, %.1f; entrance ring moved to %.1f, %.1f, %.1f; exit ring to %.1f, %.1f, %.1f; stash ring to %.1f, %.1f, %.1f",
+        home.id, tostring(door.id), p.x, p.y, p.z, home.entrance.x, home.entrance.y, home.entrance.z,
+        home.exit.x, home.exit.y, home.exit.z, home.stash.x, home.stash.y, home.stash.z)
+end
+
+local function resolveAutoDoor(home)
+    if home.doorId ~= "" or not home.autoDoor then return false end
+    local ok, result = pcall(doors, "near",
+        { x = home.interior.x, y = home.interior.y, z = home.interior.z }, 0, Config.autoDoor.radius)
+    if not ok then
+        log("auto door of %s: open77_doors:near raised (%s); retry in %d s", home.id, tostring(result), Config.autoDoor.retrySec)
+        return false
+    end
+    local list = type(result) == "table" and result.doors or nil
+    local door = type(list) == "table" and list[1] or nil
+    if type(door) ~= "table" or type(door.id) ~= "string" or type(door.position) ~= "table" then
+        if not autoDoorLogged[home.id] then
+            log("auto door of %s: no door discovered within %.0f m of the interior yet (a client must stream the flat); static entrance %.1f, %.1f, %.1f in force, retry every %d s",
+                home.id, Config.autoDoor.radius, home.entrance.x, home.entrance.y, home.entrance.z, Config.autoDoor.retrySec)
+            autoDoorLogged[home.id] = true
+        end
+        return false
+    end
+    home.doorId = door.id
+    deriveRings(home, door)
+    broadcastState()
+    return true
+end
+
+-- ---------------------------------------------------------------------------
+-- World props: the agency's listings terminal (Config.agency.props). A refused
+-- model only logs; the ring alone marks the desk.
+-- ---------------------------------------------------------------------------
+
+local function spawnProps(owner, props)
+    for _, prop in ipairs(props or {}) do
+        local created = nil
+        for _, model in ipairs(prop.models or {}) do
+            local ok, id, reason = pcall(Open77.props.create, {
+                model = model,
+                position = { x = prop.position.x, y = prop.position.y, z = prop.position.z },
+                yaw = prop.yaw or 0.0,
+                bucket = 0,
+                streamingRadius = 120.0,
+            })
+            if ok and id then
+                created = id
+                propIds[#propIds + 1] = id
+                log("prop %s of %s at %.1f %.1f %.1f (%s)", tostring(id), owner, prop.position.x, prop.position.y, prop.position.z, model)
+                break
+            end
+            log("prop of %s refused (%s): %s", owner, tostring(ok and reason or id), model)
+        end
+        if not created then log("no prop spawned for %s: the ring alone marks it", owner) end
+    end
+end
+
+local function removeProps()
+    for _, id in ipairs(propIds) do pcall(Open77.props.remove, id) end
+    propIds = {}
 end
 
 -- ---------------------------------------------------------------------------
@@ -478,7 +604,7 @@ local function sell(playerId)
     if not loaded then return nil, "The housing registry is still loading, choom." end
     local identifier = ident(playerId)
     local homeId = homeIdOf(identifier)
-    if not homeId then return nil, "You own nothing to sell. The agency is at the plaza." end
+    if not homeId then return nil, "You own nothing to sell. The agency is at Kabuki Market, The Crossing." end
     local home = Config.home(homeId)
     local amount = math.floor(home.price * Config.sellBackRatio)
     leaveIfInside(playerId, homeId)
@@ -584,7 +710,8 @@ local function giveKey(playerId, targetId)
     local homeId = homeIdOf(identifier)
     if not homeId then return nil, "You own no place to hand keys for." end
     targetId = tonumber(targetId)
-    if not targetId or targetId <= 0 or targetId == playerId then return nil, "Who? /maison cles <playerId>." end
+    -- integer >= 1 only: Open77.players.identifier raises on anything else and that kills the VM
+    if not targetId or targetId < 1 or targetId % 1 ~= 0 or targetId == playerId then return nil, "Who? /maison cles <playerId>." end
     local targetIdentifier = ident(targetId)
     if not targetIdentifier or not Open77.players.name(targetId) then return nil, "Nobody with that id in the city." end
     local close, metres = within(playerId, targetId, Config.keyDistance)
@@ -643,7 +770,7 @@ local function enter(playerId, homeId)
     if Open77.players.isDead(playerId) then return say(playerId, "Dead people do not go home.") end
     local identifier = ident(playerId)
     if not homes[homeId] then
-        return say(playerId, ("%s is for sale (%s €$). The agency is at the plaza, or /agence_immo."):format(
+        return say(playerId, ("%s is for sale (%s €$). The agency is at Kabuki Market, The Crossing, or /agence_immo."):format(
             home.label, money(home.price)))
     end
     if not hasAccess(identifier, homeId) then
@@ -668,6 +795,8 @@ local function leave(playerId, homeId)
     if inside[playerId] ~= homeId then
         return say(playerId, "You are not inside that place.")
     end
+    local close = within(playerId, home.exit, Config.promptDistance + Config.serverTolerance)
+    if not close then return say(playerId, "Too far from the front door.") end
     local ok, why = move(playerId, home.entrance, home.heading)
     if not ok then return say(playerId, ("The door jammed (%s). Try again."):format(tostring(why))) end
     inside[playerId] = nil
@@ -682,6 +811,8 @@ local function openStash(playerId, homeId)
     if inside[playerId] ~= homeId then
         return say(playerId, "Get inside first. The stash does not open from the street.")
     end
+    local close = within(playerId, home.stash, Config.promptDistance + Config.serverTolerance)
+    if not close then return say(playerId, "Too far from the stash.") end
     local identifier = ident(playerId)
     if not hasAccess(identifier, homeId) then
         return say(playerId, "Your key does not open this stash any more.")
@@ -932,6 +1063,7 @@ RegisterCommand("maison", function(source, args)
             return say(source, ("Locks changed: %d key(s) voided."):format(#holders))
         end
         local targetId = tonumber(who)
+        if targetId and (targetId < 1 or targetId % 1 ~= 0) then targetId = nil end -- ident() raises on id 0 / floats
         local targetIdentifier = targetId and ident(targetId)
         if not targetIdentifier then return say(source, "Usage: /maison retirer <playerId> or /maison retirer tous") end
         local ok, why = revokeKey(source, targetIdentifier)
@@ -951,7 +1083,7 @@ RegisterCommand("maison", function(source, args)
         if h.spawnAtHome then
             return say(source, ("Spawn at home ON: next time you connect you wake up inside %s."):format(Config.home(homeId).label))
         end
-        return say(source, "Spawn at home OFF: you will spawn at the plaza like everybody.")
+        return say(source, "Spawn at home OFF: you will spawn at Kabuki Market like everybody.")
     end
 
     if action == "vendre" then
@@ -1023,8 +1155,16 @@ end, false)
 -- Exports (phase 3 contract; synchronous-safe, nothing yields)
 -- ---------------------------------------------------------------------------
 
+-- Session ids only (integer >= 1): Open77.players.identifier raises on anything else,
+-- and a raise inside a synchronous export kills this VM.
+local function sessionId(playerId)
+    local id = tonumber(playerId)
+    if not id or id < 1 or id % 1 ~= 0 then return nil end
+    return id
+end
+
 exports("homeOf", function(playerId)
-    playerId = tonumber(playerId)
+    playerId = sessionId(playerId)
     if not playerId then return nil end
     local homeId = homeIdOf(ident(playerId))
     if not homeId then return nil end
@@ -1033,7 +1173,7 @@ exports("homeOf", function(playerId)
 end)
 
 exports("hasKey", function(playerId, homeId)
-    playerId = tonumber(playerId)
+    playerId = sessionId(playerId)
     if not playerId or type(homeId) ~= "string" then return false end
     return hasAccess(ident(playerId), homeId)
 end)
@@ -1044,7 +1184,7 @@ exports("stashOf", function(homeId)
 end)
 
 exports("isInside", function(playerId)
-    playerId = tonumber(playerId)
+    playerId = sessionId(playerId)
     if not playerId then return nil end
     return inside[playerId]
 end)
@@ -1060,7 +1200,7 @@ RegisterNetEvent("chat:ready", function()
 end)
 
 AddEventHandler("onPlayerReady", function(playerId)
-    local id = tonumber(playerId)
+    local id = sessionId(playerId)
     if not id then return end
     local waited = 0
     while not loaded and waited < 30000 do
@@ -1080,14 +1220,19 @@ AddEventHandler("onPlayerReady", function(playerId)
     if not h.spawnAtHome then return end
 
     -- No spawn-point API on this host: the gamemode places the body at the
-    -- plaza, and we move it once it is standing (never on the continue screen).
-    local t = 0
+    -- market, and we move it once it is standing (never on the continue screen).
+    local t, alive = 0, false
     while t < Config.spawnWaitSec * 1000 do
         if not Open77.players.name(id) then return end
         local life = Open77.players.getLifeState(id)
-        if life and life.phase == "alive" then break end
+        if life and life.phase == "alive" then alive = true break end
         Wait(1000)
         t = t + 1000
+    end
+    -- Never move a body that is not standing (continue screen = client crash): give up instead.
+    if not alive then
+        log("player %d never reached the alive phase within %d s: spawn at home skipped", id, Config.spawnWaitSec)
+        return
     end
     Wait(1500)
     if not Open77.players.name(id) or not homes[homeId] or homes[homeId].identifier ~= identifier then return end
@@ -1131,9 +1276,13 @@ AddEventHandler("onResourceStart", function(name)
         if not loaded then loadFromKvp("database not answering after 20 s") end
     end)
 
+    spawnProps("agency", Config.agency.props)
+
     -- Hot reload: the players already in the city get their pins and their doors back.
+    -- The auto door search runs first so a door already discovered is claimed at once.
     CreateThread(function()
         while not loaded do Wait(500) end
+        for _, home in ipairs(Config.homes) do resolveAutoDoor(home) end
         broadcastState()
         syncAllDoors()
     end)
@@ -1147,7 +1296,7 @@ AddEventHandler("onResourceStart", function(name)
     end)
 
     -- Inside sweep: a player who wandered further than the interior radius (or
-    -- died and respawned at the plaza) is no longer inside.
+    -- died and respawned at the market) is no longer inside.
     CreateThread(function()
         while true do
             Wait(5000)
@@ -1165,13 +1314,20 @@ AddEventHandler("onResourceStart", function(name)
         end
     end)
 
-    -- Doors that were not discovered yet are retried once a minute.
+    -- Front doors not found yet (auto door) and doors not discovered yet are
+    -- retried every Config.autoDoor.retrySec.
     CreateThread(function()
         while true do
-            Wait(60000)
+            Wait(Config.autoDoor.retrySec * 1000)
             for _, home in ipairs(Config.homes) do
+                if home.doorId == "" then resolveAutoDoor(home) end
                 if home.doorId ~= "" and doorState[home.doorId] ~= "ready" then syncDoor(home) end
             end
         end
     end)
+end)
+
+AddEventHandler("onResourceStop", function(name)
+    if name ~= GetCurrentResourceName() then return end
+    removeProps()
 end)

@@ -7,21 +7,37 @@ local Config = RpFerrailleurConfig
 Config.job = "ferrailleur"
 Config.society = "ferrailleur"
 
--- The scrapyard zone of rp_zones (centre 462, -2352, z 178, radius 12). Every point below
--- lies on the flat ground inside it, 95 m north-east of the freeroam spawn (381.36, -2401.79, 181.99).
-Config.zone = "scrapyard"
+-- The yard is the real Rancho Coronado junkyard on the Badlands edge (AMM point 1374.9,
+-- -1674.9, 49.3, yaw -173): the `junkyard` zone of rp_zones (same centre, radius 90).
+-- It is about 4.5 km south-east of the Kabuki Market spawn: drive.
+Config.zone = "junkyard"
 
--- Wreck collection points: 7 points on a ring 5.7 to 6.4 m apart, all within 7.2 m of the centre.
--- z is the measured ground height of the yard (178). If a ring is invisible in game, stand on
--- the spot, `/pos`, and paste the real ground height here.
+-- Wreck collection points: 7 points within 17 m of the yard centre, 6 m or more apart, and
+-- clear of the other junkyard spots (rp_crime's fence at 1381,-1668, rp_gangs' buyer at
+-- 1370,-1670, rp_mecano's impound at 1370,-1680). z = the AMM ground + 0.1; the yard is not
+-- flat, so if a ring is invisible in game, stand on the spot, `/pos`, and paste the real
+-- ground height here (the server tolerates 4 m, `heightTolerance`).
 Config.points = {
-    { x = 456.0, y = -2356.0, z = 178.0, label = "Burnt-out Thorton" },
-    { x = 461.0, y = -2359.0, z = 178.0, label = "Gutted Quadra" },
-    { x = 467.0, y = -2357.0, z = 178.0, label = "Rusted Mizutani" },
-    { x = 469.0, y = -2351.0, z = 178.0, label = "Crushed Archer" },
-    { x = 465.0, y = -2346.0, z = 178.0, label = "Stripped Makigai" },
-    { x = 459.0, y = -2346.0, z = 178.0, label = "Flipped Villefort" },
-    { x = 455.0, y = -2350.0, z = 178.0, label = "Scorched Chevillon" },
+    { x = 1380.0, y = -1682.0, z = 49.4, label = "Burnt-out Thorton" },
+    { x = 1386.0, y = -1676.0, z = 49.4, label = "Gutted Quadra" },
+    { x = 1388.0, y = -1664.0, z = 49.4, label = "Rusted Mizutani" },
+    { x = 1376.0, y = -1660.0, z = 49.4, label = "Crushed Archer" },
+    { x = 1366.0, y = -1664.0, z = 49.4, label = "Stripped Makigai" },
+    { x = 1362.0, y = -1686.0, z = 49.4, label = "Flipped Villefort" },
+    { x = 1372.0, y = -1690.0, z = 49.4, label = "Scorched Chevillon" },
+}
+
+-- Decoration spawned by the server at start (Open77.props.create, permission `world.props`)
+-- and removed at stop: a trash drum by the dealer, a tyre by the first wreck, a corrugated
+-- sheet by the fourth -- each 1.2-1.5 m off its ring. Raw depot `.mesh` paths from the props
+-- catalogue; a refused prop is logged, never fatal.
+Config.props = {
+    { model = "container.barrel",
+      position = { x = 1366.6, y = -1674.6, z = 49.4 }, yaw = -173.0 },
+    { model = "garbage.industrial_trash",
+      position = { x = 1381.4, y = -1683.4, z = 49.4 }, yaw = 20.0 },
+    { model = "debris.corrugated_sheet",
+      position = { x = 1377.5, y = -1658.6, z = 49.4 }, yaw = -60.0 },
 }
 
 -- How close the player must stand to a wreck to search it (planar metres) and the
@@ -55,8 +71,8 @@ Config.crowbar = {
 -- The scrap dealer NPC. `record` (a Character.* id) is tried first when set; the documented
 -- passive civilian alias is the fallback (Character.Panam, invulnerable by TweakDB).
 Config.dealer = {
-    position = { x = 462.0, y = -2352.0, z = 178.0 },
-    yaw = 200.0,
+    position = { x = 1368.0, y = -1676.0, z = 49.4 },
+    yaw = -173.0,                                  -- the yard's own heading (AMM)
     record = nil,                                  -- e.g. "Character.Judy"
     template = "civilian_female_relaxed_01",       -- legacy alias, Open77.npcs.templates()
     damagePolicy = 2,                              -- 2 = invulnerable (numeric on op77.76)

@@ -272,6 +272,10 @@ local function initStorage()
     end
 
     local queued, reason = Open77.database.ready(function()
+        if state.loaded then
+            log("database answered late: keeping the kvp store for this boot")
+            return
+        end
         local ok, err = pcall(loadFromSql)
         if ok then
             state.storage = "sql"
@@ -289,7 +293,20 @@ local function initStorage()
         state.storage = "kvp"
         loadFromKvp()
         announceLoaded()
+        return
     end
+    -- A bridge that stays "connecting" never runs the ready handler either: without this bound
+    -- the gate refuses everyone forever (fail closed) and /wl stays "still loading".
+    CreateThread(function()
+        Wait(Config.storageWaitSeconds * 1000)
+        if state.loaded then return end
+        local ready, why = Open77.database.isReady()
+        if ready then return end
+        warn("database still not ready after " .. Config.storageWaitSeconds .. " s (" .. tostring(why) .. "): falling back to Open77.kvp for this boot")
+        state.storage = "kvp"
+        loadFromKvp()
+        announceLoaded()
+    end)
 end
 
 -- ---------------------------------------------------------------------------
@@ -570,6 +587,8 @@ end)
 -- Does NOT disconnect the player: the next connect is refused.
 exports("ban", function(identifier, minutes, reason)
     if type(identifier) == "number" then
+        -- Open77.players.identifier throws (VM dead) for 0, negative or fractional ids.
+        if identifier < 1 or identifier ~= math.floor(identifier) then return nil, "invalid_player_id" end
         identifier = Open77.players.identifier(identifier)
         if not identifier then return nil, "player_not_found" end
     end

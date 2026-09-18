@@ -1,6 +1,8 @@
 -- rp_crime configuration. Every position, price, delay and chance lives here so the
--- owner can move things without touching server/main.lua. Coordinates are world metres;
--- the eval map sits on the flat band around the freeroam spawn 381.36, -2401.79, 181.99.
+-- owner can move things without touching server/main.lua. Coordinates are world metres,
+-- real Night City (measured 2026-09-18): the freeroam spawn is Kabuki Market Centre
+-- -1191.30, 2006.88, 7.82 (Watson), the shops are the Kabuki market stalls, the fence
+-- works the Rancho Coronado junkyard out in the Badlands.
 RpCrimeConfig = {
     -- Chat presentation.
     chat = {
@@ -15,7 +17,8 @@ RpCrimeConfig = {
 
     -- Shop robbery (/braquer). The vendors are the rp_shops v2 vendors; rp_shops exposes no
     -- export for their positions, so they are repeated here (keep them in sync with
-    -- rp_shops/shared/config.lua).
+    -- rp_shops/shared/config.lua). The five real Kabuki Market stalls (walked points); the
+    -- keys are rp_shops' shop ids (`blackmarket` is the Lower Walkway stall's id, not a zone).
     robbery = {
         reach = 3.0,                      -- metres from the vendor to start
         finishReach = 5.0,                -- re-checked after the bar (rp_shops:rob applies 5 m too)
@@ -25,11 +28,11 @@ RpCrimeConfig = {
         alertText = "%s is being robbed",
         recordText = "Armed robbery of %s (%d eddies)",
         shops = {
-            supermarket = { label = "Badlands Market",        vendor = "Rosa",    position = { x = 370.0, y = -2385.0, z = 182.0 } },
-            pharmacy    = { label = "Med-Point Pharmacy",     vendor = "Dr. Osei", position = { x = 396.0, y = -2372.0, z = 182.0 } },
-            gunshop     = { label = "2nd Amendment Outpost",  vendor = "Wilson",  position = { x = 410.0, y = -2386.0, z = 182.0 } },
-            clothes     = { label = "Jinguji Threads",        vendor = "Kimiko",  position = { x = 352.0, y = -2398.0, z = 182.0 } },
-            blackmarket = { label = "Back-alley Dealer",      vendor = "Dex",     position = { x = 402.0, y = -2393.0, z = 182.0 } },
+            supermarket = { label = "Noodle Row market",        vendor = "Rosa",     position = { x = -1178.66, y = 2028.45, z = 7.95 } },
+            pharmacy    = { label = "The Stalls pharmacy",      vendor = "Dr. Osei", position = { x = -1223.91, y = 1989.45, z = 7.98 } },
+            gunshop     = { label = "East Row gun stall",       vendor = "Wilson",   position = { x = -1160.50, y = 2019.06, z = 7.76 } },
+            clothes     = { label = "Vendor Lane threads",      vendor = "Kimiko",   position = { x = -1212.26, y = 1978.53, z = 7.98 } },
+            blackmarket = { label = "Lower Walkway dealer",     vendor = "Dex",      position = { x = -1201.07, y = 2035.60, z = 5.60 } },
         },
     },
 
@@ -67,13 +70,22 @@ RpCrimeConfig = {
         count = 1,
     },
 
-    -- The fence (/receler and the E prompt on the NPC), scrapyard, night only.
+    -- The fence (/receler and the E prompt on the NPC): the Rancho Coronado junkyard
+    -- (Badlands edge), night only.
     fence = {
         name = "Vik the Fence",
-        -- measured 18 Sept (groundz): 470,-2344 is 3 m down the slope (175.1); Vik now stands
-        -- on the scrapyard floor at 178.3, between the wrecks, inside the rp_zones `scrapyard`
-        position = { x = 464.0, y = -2350.0, z = 178.3 },
+        -- Inside the rp_zones `junkyard` zone (centre 1374.9, -1674.9, 49.3 r 90, AMM point):
+        -- Vik stands between the wrecks, 9 m north-east of the centre.
+        position = { x = 1381.0, y = -1668.0, z = 49.4 },
         yaw = 225.0,
+        -- The fence's stash: two cargo crates beside Vik (Open77.props.create on the server,
+        -- removed on stop; a refusal only logs). Raw depot meshes of the props catalogue.
+        props = {
+            { model = "crate.cargo",
+              x = 1382.4, y = -1667.0, z = 49.3, yaw = 30.0 },
+            { model = "crate.cargo",
+              x = 1379.6, y = -1666.9, z = 49.3, yaw = 100.0 },
+        },
         reach = 5.0,                      -- metres for /receler and the prompt (server re-check)
         openHour = 22,                    -- [openHour, closeHour) in server world time
         closeHour = 6,

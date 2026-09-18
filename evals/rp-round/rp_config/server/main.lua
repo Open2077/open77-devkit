@@ -507,7 +507,7 @@ end
 
 local USAGE = {
     "Usage: /config get <key> | set <key> <value> | unset <key> | list [prefix] | reload | export",
-    "Keys are dotted: rp_bank.transferFeePercent, rp_jobs.salary.ncpd.3, rp_zones.spawn_plaza.radius",
+    "Keys are dotted: rp_bank.transferFeePercent, rp_jobs.salary.ncpd.3, rp_zones.kabuki_market.radius",
 }
 
 -- ---------------------------------------------------------------------------------------------

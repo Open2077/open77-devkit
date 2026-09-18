@@ -23,4 +23,14 @@ RpDelamainConfig = {
 
     ChatAuthor       = "Delamain",
     ChatColor        = { 255, 200, 0 },   -- positional r, g, b (a keyed table is ignored by the chat UI)
+
+    -- Pickup / drop-off presets: `/delamain <id>` uses the preset as the destination instead of
+    -- the map waypoint. Real Night City street points (world metres, 2026-09-18): a cab can stop
+    -- at each one. `id` must match ^[a-z0-9_]+$; the label is what the driver reads.
+    Presets = {
+        { id = "afterlife",  label = "Afterlife street (Little China)",    position = { x = -1408.0, y = 960.0,  z = 23.5 } },
+        { id = "afterlife_lot", label = "The Afterlife lot (South Approach)", position = { x = -1440.0, y = 1035.0, z = 22.7 } },
+        { id = "dealer",     label = "Westbrook vehicle dealership",       position = { x = -1442.2, y = 127.4,  z = 18.0 } },
+        { id = "lizzies",    label = "Lizzie's Bar (Kabuki)",              position = { x = -1188.9, y = 1566.2, z = 22.9 } },
+    },
 }

@@ -12,6 +12,7 @@ auto_start true
 -- players.interactions.control: Open77.playerInteractions.request / cancel (serve with consent)
 -- players.interactions.read   : Open77.playerInteractions.current (is the customer busy?)
 -- players.screenfx            : Open77.effects.screen (the drunk wobble)
+-- world.props                 : Open77.props.create / remove (the neon sign by the counter)
 -- Open77.players.ragdoll (the stumble) checks no permission on op77.76 (its card names
 -- `players.motion.control`, a permission the platform does not define).
 permissions {
@@ -21,6 +22,7 @@ permissions {
     "players.interactions.control",
     "players.interactions.read",
     "players.screenfx",
+    "world.props",
 }
 
 -- Every dependency below ships a client half, so a manifest delivered to clients may

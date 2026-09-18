@@ -5,15 +5,17 @@ version "1.0.0"
 open77_version "*"
 auto_start true
 
--- All four ship a client half, so a manifest delivered to clients may depend on them.
+-- All five ship a client half, so a manifest delivered to clients may depend on them.
 --   open77_contextmenu         : ALT+click actions on a player (client `registerPlayers`)
---   open77_uikit               : amount / minutes dialogs (server twins `input` and `alert`)
+--   open77_uikit               : amount / minutes dialogs (server twins `input` and `alert`), the outpost label (client drawText3D)
 --   open77_player_interactions : the citizen accepts or declines a fine (Open77.playerInteractions)
 --   open77_notifications       : toasts (Open77.notifications.send)
+--   open77_worldui             : the Kabuki-side outpost ring on the Afterlife street (client)
 dependency "open77_contextmenu"
 dependency "open77_uikit >=1.0.0"
 dependency "open77_player_interactions >=1.0.0"
 dependency "open77_notifications"
+dependency "open77_worldui >=0.1.0"
 
 -- open77_rp_basics (auto_start false on a fresh install), rp_jobs, rp_zones, rp_inventory,
 -- rp_bank, rp_economy and rp_identity are reached through exports inside pcall and never
@@ -32,6 +34,7 @@ permissions {
     "world.vehicles",               -- Open77.vehicles.closest / getPlayerSeat / freeSeats / warpPlayerIntoVehicle / forcePlayerOutOfVehicle / setPlayerExitLocked
     "players.wanted",               -- Open77.players.setWanted (optional native heat mirror of a warrant)
     "voice.manage",                 -- Open77.voice.createChannel / addPlayer / removePlayer (dispatch channel)
+    "world.props",                  -- Open77.props.create / remove (the outpost's sign and barrier)
     -- "acl.grant:rp.*",            -- only with Config.grantKitRights = true: Open77.acl.grant / revoke hand
                                     -- rp.cuff / rp.escort / rp.search to an officer on duty. Documented by the
                                     -- ACL guide, but open77_validate 0.1.x rejects the scoped form as unknown.

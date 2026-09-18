@@ -29,47 +29,47 @@ local COLOR_DICE = { 255, 200, 80 }
 local COLOR_INFO = { 0, 229, 255 }
 local COLOR_ERROR = { 255, 96, 96 }
 
--- Message formats (player-facing, French).
+-- Message formats (player-facing, English).
 local FORMAT_ME = "* %s %s"
 local FORMAT_DO = "** %s ((%s))"
 local FORMAT_OOC = "(( OOC ) %s: %s"
-local FORMAT_WHISPER_TO_TARGET = "(murmure) %s : %s"
-local FORMAT_WHISPER_TO_SENDER = "(murmure à %s) %s : %s"
-local FORMAT_DICE = "%s lance un dé (%d) : %d"
+local FORMAT_WHISPER_TO_TARGET = "(whisper) %s: %s"
+local FORMAT_WHISPER_TO_SENDER = "(whisper to %s) %s: %s"
+local FORMAT_DICE = "%s rolls a die (%d): %d"
 
 -- Slash-command suggestions published on chat:ready and on start.
 local SUGGESTIONS = {
-    { command = "/me", help = "Décrit une action de votre personnage (30 m)",
-      parameters = { { name = "action", help = "L'action jouée" } } },
-    { command = "/do", help = "Décrit une situation ou l'environnement (30 m)",
-      parameters = { { name = "description", help = "Ce que les autres perçoivent" } } },
-    { command = "/ooc", help = "Message hors-jeu, visible par tout le serveur",
-      parameters = { { name = "texte", help = "Votre message" } } },
-    { command = "/w", help = "Murmure à un joueur proche (10 m)",
-      parameters = { { name = "playerId", help = "Identifiant du joueur (/id)" },
-                     { name = "texte", help = "Votre message" } } },
-    { command = "/dice", help = "Lance un dé (6 faces par défaut, 30 m)",
-      parameters = { { name = "faces", help = "Nombre de faces, optionnel (2 à 1000)" } } },
-    { command = "/showid", help = "Montre votre carte d'identité, ou celle d'un joueur proche (5 m)",
-      parameters = { { name = "playerId", help = "Joueur ciblé, optionnel" } } },
+    { command = "/me", help = "Describe an action of your character (30 m)",
+      parameters = { { name = "action", help = "The action performed" } } },
+    { command = "/do", help = "Describe a situation or the surroundings (30 m)",
+      parameters = { { name = "description", help = "What the others perceive" } } },
+    { command = "/ooc", help = "Out-of-character message, visible to the whole server",
+      parameters = { { name = "text", help = "Your message" } } },
+    { command = "/w", help = "Whisper to a nearby player (10 m)",
+      parameters = { { name = "playerId", help = "Player id (/id)" },
+                     { name = "text", help = "Your message" } } },
+    { command = "/dice", help = "Roll a die (6 sides by default, 30 m)",
+      parameters = { { name = "sides", help = "Number of sides, optional (2 to 1000)" } } },
+    { command = "/showid", help = "Show your ID card, or a nearby player's (5 m)",
+      parameters = { { name = "playerId", help = "Target player, optional" } } },
 }
 
--- French wording for the reasons the natives return.
+-- Player-facing wording for the reasons the natives return.
 local REASON_TEXT = {
-    player_not_found = "Joueur introuvable.",
-    invalid_player_id = "Identifiant de joueur invalide.",
-    invalid_argument = "Identifiant de joueur invalide.",
-    position_unknown = "Position inconnue : le joueur n'est pas encore dans le monde.",
-    sessions_unavailable = "Sessions joueurs indisponibles pour le moment.",
-    invalid_chat_target = "Destinataire de chat invalide.",
-    invalid_chat_message = "Message de chat invalide.",
-    event_queue_limit = "File de messages saturée, réessayez.",
-    resource_preparing = "La ressource n'est pas encore prête.",
-    resource_stopping = "La ressource s'arrête.",
+    player_not_found = "Player not found.",
+    invalid_player_id = "Invalid player id.",
+    invalid_argument = "Invalid player id.",
+    position_unknown = "Position unknown: the player is not in the world yet.",
+    sessions_unavailable = "Player sessions unavailable right now.",
+    invalid_chat_target = "Invalid chat recipient.",
+    invalid_chat_message = "Invalid chat message.",
+    event_queue_limit = "Message queue full, try again.",
+    resource_preparing = "The resource is not ready yet.",
+    resource_stopping = "The resource is stopping.",
 }
 
 local function reasonText(reason)
-    return REASON_TEXT[reason] or ("Erreur : " .. tostring(reason))
+    return REASON_TEXT[reason] or ("Error: " .. tostring(reason))
 end
 
 -- Log helper: every line carries the resource name.
@@ -109,7 +109,7 @@ end
 local function nameOf(playerId)
     local name = Open77.players.name(playerId)
     if type(name) ~= "string" or name == "" then
-        return ("Joueur %s"):format(tostring(playerId))
+        return ("Player %s"):format(tostring(playerId))
     end
     return name
 end
@@ -134,11 +134,11 @@ end
 -- Validates a free-text argument; tells the caller why when it is refused.
 local function requireText(source, text, usage)
     if not text then
-        tell(source, "Usage : " .. usage)
+        tell(source, "Usage: " .. usage)
         return false
     end
     if #text > MAX_TEXT_BYTES then
-        tell(source, ("Message trop long (%d octets maximum)."):format(MAX_TEXT_BYTES))
+        tell(source, ("Message too long (%d bytes max)."):format(MAX_TEXT_BYTES))
         return false
     end
     return true
@@ -177,7 +177,7 @@ end
 local function announceNearby(source, command, radius, author, text, color)
     local delivered, reason = sendNearby(source, radius, author, text, color)
     if not delivered then
-        tell(source, "Message non envoyé. " .. reasonText(reason))
+        tell(source, "Message not sent. " .. reasonText(reason))
         log("/%s by %d not delivered: %s", command, source, tostring(reason))
         return
     end
@@ -192,7 +192,7 @@ local function withinRange(source, target, radius)
         return false
     end
     if metres > radius then
-        tell(source, ("Trop loin : %s est à %.0f m (%.0f m maximum)."):format(
+        tell(source, ("Too far: %s is %.0f m away (%.0f m max)."):format(
             nameOf(target), metres, radius))
         return false
     end
@@ -246,15 +246,15 @@ end
 -- Builds the identity card lines. The balance is only shown on the owner's card.
 local function buildCard(viewer, target)
     local lines = {
-        "Nom : " .. nameOf(target),
-        "Emploi : " .. (getJob(target) or "sans emploi"),
+        "Name: " .. nameOf(target),
+        "Job: " .. (getJob(target) or "unemployed"),
     }
     if viewer == target then
         local balance = getBalance(target)
         if balance then
-            lines[#lines + 1] = ("Solde : %d €$"):format(balance)
+            lines[#lines + 1] = ("Balance: %d €$"):format(balance)
         else
-            lines[#lines + 1] = "Solde : indisponible"
+            lines[#lines + 1] = "Balance: unavailable"
         end
     end
     return lines
@@ -262,9 +262,9 @@ end
 
 -- Delivers a card: a toast when the notifications API exists, else chat lines.
 local function deliverCard(viewer, target, lines)
-    local title = "Carte d'identité"
+    local title = "ID card"
     if viewer ~= target then
-        title = title .. " de " .. nameOf(target)
+        title = title .. " of " .. nameOf(target)
     end
     if notificationsAvailable() then
         local id, reason = Open77.notifications.send(viewer, {
@@ -310,11 +310,11 @@ end, false)
 RegisterCommand("ooc", function(source, args)
     if not requirePlayer(source, "ooc") then return end
     local message = joinArgs(args, 1)
-    if not requireText(source, message, "/ooc <texte>") then return end
+    if not requireText(source, message, "/ooc <text>") then return end
     local text = FORMAT_OOC:format(nameOf(source), message)
     local ok, reason = sendLine(-1, "OOC", text, COLOR_OOC)
     if not ok then
-        tell(source, "Message non envoyé. " .. reasonText(reason))
+        tell(source, "Message not sent. " .. reasonText(reason))
         return
     end
     log("/ooc by %d: %s", source, message)
@@ -325,13 +325,13 @@ RegisterCommand("w", function(source, args)
     if not requirePlayer(source, "w") then return end
     local target = parsePlayerId(args[1])
     if not target then
-        tell(source, "Usage : /w <playerId> <texte>")
+        tell(source, "Usage: /w <playerId> <text>")
         return
     end
     local message = joinArgs(args, 2)
-    if not requireText(source, message, "/w <playerId> <texte>") then return end
+    if not requireText(source, message, "/w <playerId> <text>") then return end
     if target == source then
-        tell(source, "Vous ne pouvez pas vous murmurer à vous-même.")
+        tell(source, "You can't whisper to yourself.")
         return
     end
     if not Open77.players.name(target) then
@@ -341,13 +341,13 @@ RegisterCommand("w", function(source, args)
     if not withinRange(source, target, RADIUS_WHISPER) then return end
 
     local senderName, targetName = nameOf(source), nameOf(target)
-    local ok, reason = sendLine(target, "Murmure",
+    local ok, reason = sendLine(target, "Whisper",
         FORMAT_WHISPER_TO_TARGET:format(senderName, message), COLOR_WHISPER)
     if not ok then
-        tell(source, "Murmure non envoyé. " .. reasonText(reason))
+        tell(source, "Whisper not sent. " .. reasonText(reason))
         return
     end
-    sendLine(source, "Murmure",
+    sendLine(source, "Whisper",
         FORMAT_WHISPER_TO_SENDER:format(targetName, senderName, message), COLOR_WHISPER)
     log("/w %d -> %d: %s", source, target, message)
 end, false)
@@ -359,14 +359,14 @@ RegisterCommand("dice", function(source, args)
     if args.n and args.n >= 1 and args[1] ~= nil then
         local wanted = tonumber(args[1])
         if not wanted or wanted % 1 ~= 0 or wanted < DICE_MIN or wanted > DICE_MAX then
-            tell(source, ("Nombre de faces invalide (%d à %d)."):format(DICE_MIN, DICE_MAX))
+            tell(source, ("Invalid number of sides (%d to %d)."):format(DICE_MIN, DICE_MAX))
             return
         end
         faces = math.tointeger(wanted) or DICE_DEFAULT
     end
     local roll = math.random(1, faces)
     local text = FORMAT_DICE:format(nameOf(source), faces, roll)
-    announceNearby(source, "dice", RADIUS_DICE, "Dé", text, COLOR_DICE)
+    announceNearby(source, "dice", RADIUS_DICE, "Dice", text, COLOR_DICE)
 end, false)
 
 -- /showid [playerId]
@@ -376,7 +376,7 @@ RegisterCommand("showid", function(source, args)
     if args.n and args.n >= 1 and args[1] ~= nil then
         target = parsePlayerId(args[1])
         if not target then
-            tell(source, "Usage : /showid [playerId]")
+            tell(source, "Usage: /showid [playerId]")
             return
         end
         if target ~= source then

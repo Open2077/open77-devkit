@@ -3,7 +3,9 @@
 -- Everything that moves an item runs here. Clients only render and request.
 -- Exports are synchronous-safe (they never yield): the in-memory cache is the
 -- truth for a connected player, and every change is written straight through
--- to SQL (or the kvp store when no database answers).
+-- to SQL (or the kvp store when no database answers). The /inv panel is a
+-- WebUI page (web/index.html) fed by rp_inventory:panel and driven by
+-- rp_inventory:intent; every intent lands in the same functions as the commands.
 
 local RESOURCE = GetCurrentResourceName()
 local Items = RpInventoryItems
@@ -14,6 +16,12 @@ local stashes = {}       -- [stashId]  = { kind = "stash", id = stashId, items =
 local drops = {}         -- [tostring(lootId)] = { itemId, count }
 local dbReady = false
 local dbFailReason = nil
+
+-- Panel refresh hooks, defined with the panel code below and forward-declared
+-- so the primitive mutations can schedule a push whoever caused the change
+-- (a command, the page, or another resource through the exports).
+local refreshPanel        -- function(playerId, notice?)
+local refreshStashViewers -- function(stashId)
 
 ---------------------------------------------------------------------------
 -- Small helpers
@@ -105,6 +113,7 @@ local function sortedEntries(c)
             entries[#entries + 1] = {
                 id = itemId, label = def.label, count = n, weight = def.weight,
                 total = def.weight * n, usable = def.usable == true, illegal = def.illegal == true,
+                category = def.category or (def.effect and def.effect.kind) or "misc",
             }
         end
     end
@@ -296,6 +305,7 @@ local function creditPlayer(playerId, itemId, n, why)
     persist(inv, itemId)
     log("player %d +%d %s total=%d%s", inv.id, n, itemId, inv.items[itemId], why and (" " .. why) or "")
     TriggerEvent("rp_inventory:changed", inv.id, itemId, n)
+    if refreshPanel then refreshPanel(inv.id) end
     return true
 end
 
@@ -312,6 +322,7 @@ local function debitPlayer(playerId, itemId, n, why)
     persist(inv, itemId)
     log("player %d -%d %s total=%d%s", inv.id, n, itemId, left, why and (" " .. why) or "")
     TriggerEvent("rp_inventory:changed", inv.id, itemId, -n)
+    if refreshPanel then refreshPanel(inv.id) end
     return true
 end
 
@@ -320,6 +331,7 @@ local function creditStash(stash, playerId, itemId, n)
     stash.items[itemId] = (stash.items[itemId] or 0) + n
     persist(stash, itemId)
     log("stash %s +%d %s total=%d by player %d", stash.id, n, itemId, stash.items[itemId], playerId)
+    if refreshStashViewers then refreshStashViewers(stash.id) end
     return true
 end
 
@@ -330,6 +342,7 @@ local function debitStash(stash, playerId, itemId, n)
     stash.items[itemId] = left > 0 and left or nil
     persist(stash, itemId)
     log("stash %s -%d %s total=%d by player %d", stash.id, n, itemId, left, playerId)
+    if refreshStashViewers then refreshStashViewers(stash.id) end
     return true
 end
 
@@ -355,6 +368,7 @@ exports("define", function(items)
                 illegal = def.illegal == true, permit = def.permit,
                 effect = type(def.effect) == "table" and def.effect or nil,
                 record = def.record, visual = def.visual, definedBy = GetInvokingResource(),
+                category = (type(def.category) == "string" and def.category:match("^%l+$")) and def.category or nil,
             }
             registered = registered + 1
         else
@@ -419,29 +433,6 @@ local function chatListing(playerId, c, title)
         parts[#parts + 1] = ("%s x%d (%.1f kg)%s"):format(e.label, e.count, e.total, e.illegal and " [ILLEGAL]" or "")
     end
     tell(playerId, table.concat(parts, ", "))
-end
-
--- Asks "how many?" with a number field. Returns n, or nil when cancelled/refused.
-local function askCount(playerId, title, have)
-    if have < 1 then return nil end
-    if have == 1 then return 1 end
-    local answer, reason = uikit("input", playerId, {
-        title = title,
-        description = ("You have %d."):format(have),
-        fields = {
-            { id = "count", type = "number", label = "How many?", min = 1, max = have, default = 1, required = true },
-        },
-        confirm = "Confirm", cancel = "Cancel", timeoutMs = 60000,
-    })
-    if not answer then
-        tell(playerId, "Dialog unavailable (" .. tostring(reason) .. ").")
-        return nil
-    end
-    if not answer.ok then return nil end
-    local n = math.floor(tonumber(answer.value and answer.value.count) or 0)
-    if n < 1 then return nil end
-    if n > have then n = have end
-    return n
 end
 
 ---------------------------------------------------------------------------
@@ -828,78 +819,88 @@ local function seizeItem(source, targetId, itemId)
 end
 
 ---------------------------------------------------------------------------
--- The /inv menu (server-driven uikit context menus, chat listing as fallback)
+-- The /inv panel: a WebUI page shipped by this resource (web/index.html).
+--
+-- The server owns the panel. It pushes the whole state through
+-- rp_inventory:panel (on open and after every change, whoever caused it) and
+-- answers each page intent with the same functions the slash commands use.
+-- The page renders and asks; it never decides. A stash opened through the
+-- openStash export is the same panel with a second column.
 ---------------------------------------------------------------------------
 
-local function inventoryMenu(playerId)
-    local inv, reason = resolvePlayer(playerId)
-    if not inv then tell(playerId, explain(reason)) return end
-    for _ = 1, 20 do   -- reopen after each action; a cancel or a failure ends the loop
-        local options = {}
-        for _, e in ipairs(sortedEntries(inv)) do
-            options[#options + 1] = {
-                id = e.id,
-                label = ("%s x%d"):format(e.label, e.count),
-                description = e.illegal and "Illegal. NCPD would love to find this." or (e.usable and "Usable." or nil),
-                tone = e.illegal and "danger" or nil,
-                metadata = { { label = "Weight", value = ("%.1f kg"):format(e.total) } },
-            }
-        end
-        if #options == 0 then
-            options[1] = { id = "empty", label = "Nothing in your pockets", disabled = true }
-        end
-        local answer, uerr = uikit("context", playerId, {
-            id = "rp_inventory_main",
-            title = ("Pockets - %.1f / %.0f kg"):format(containerWeight(inv), inv.capacity),
-            description = "Pick an item, then what to do with it.",
-            options = options,
-        }, { timeoutMs = 60000 })
-        if not answer then
-            chatListing(playerId, inv, "Pockets")
-            tell(playerId, ("Menu unavailable (%s); listed in chat. Commands: /use /drop /give."):format(tostring(uerr)))
-            return
-        end
-        if not answer.ok then return end
-        local itemId = answer.value and answer.value.id
-        local def = Items[itemId]
-        if not def then return end
+local panels = {}        -- [playerId] = { stashId = string | nil, name = string }
+local panelPending = {}  -- [playerId] = { notice = table | nil } while a push is scheduled
 
-        local actions = {}
-        if def.usable then actions[#actions + 1] = { id = "use", label = "Use", icon = "U" } end
-        actions[#actions + 1] = { id = "give", label = "Give to someone nearby", icon = "G" }
-        actions[#actions + 1] = { id = "drop", label = "Drop on the ground", icon = "D", tone = "danger" }
-        actions[#actions + 1] = { id = "back", label = "Back" }
-        local pick = uikit("context", playerId, {
-            id = "rp_inventory_item",
-            title = def.label,
-            description = ("%d in your pockets, %.1f kg each."):format(inv.items[itemId] or 0, def.weight),
-            options = actions,
-        }, { timeoutMs = 60000 })
-        if not pick or not pick.ok then return end
-        local action = pick.value and pick.value.id
+-- The RP name of a connected player (rp_identity, else the account name). fullName never yields.
+local function nameOf(playerId)
+    local ok, full = callExport("rp_identity", "fullName", playerId)
+    if ok and type(full) == "string" and full ~= "" then return full end
+    return Open77.players.name(playerId) or ("player " .. tostring(playerId))
+end
 
-        if action == "use" then
-            local ok, why = useItem(playerId, itemId)
-            if not ok and why ~= "cancelled" then tell(playerId, explain(why)) end
-        elseif action == "drop" then
-            local n = askCount(playerId, "Drop " .. def.label, inv.items[itemId] or 0)
-            if n then
-                local ok, why = dropItems(playerId, itemId, n)
-                if ok then tell(playerId, ("Dropped %s x%d at your feet."):format(def.label, n))
-                else tell(playerId, explain(why)) end
-            end
-        elseif action == "give" then
-            giveDialog(playerId, nil)
-        end
-        if not inventories[playerId] then return end
+local function containerView(c)
+    return { id = c.id, entries = sortedEntries(c), weight = containerWeight(c), capacity = c.capacity }
+end
+
+-- The nearest other player within reach, the one a panel "Give" goes to.
+local function nearestPlayer(playerId)
+    local entry = Open77.players.closest(playerId, { radius = Config.interactDistance })
+    if type(entry) ~= "table" or type(entry.playerId) ~= "number" then return nil end
+    return { playerId = entry.playerId, name = nameOf(entry.playerId), distance = entry.distance or 0 }
+end
+
+-- Everything the page renders, nothing else. nil when the panel is not open.
+local function panelState(playerId, notice)
+    local session = panels[playerId]
+    local inv = resolvePlayer(playerId)
+    if not session or not inv then return nil end
+    local state = {
+        open = true,
+        playerId = playerId,
+        name = session.name,
+        pockets = containerView(inv),
+        nearest = nearestPlayer(playerId),
+        notice = notice,
+    }
+    local stash = session.stashId and stashes[session.stashId]
+    if stash and stash.loaded then state.stash = containerView(stash) end
+    return state
+end
+
+-- Coalesces every refresh of the next 50 ms into one push (a give is a debit
+-- plus a credit, a rollback three changes). The last notice wins.
+refreshPanel = function(playerId, notice)
+    if not panels[playerId] then return end
+    local pending = panelPending[playerId]
+    if pending then
+        if notice then pending.notice = notice end
+        return
+    end
+    panelPending[playerId] = { notice = notice }
+    SetTimeout(50, function()
+        local p = panelPending[playerId]
+        panelPending[playerId] = nil
+        local state = panelState(playerId, p and p.notice or nil)
+        if state then TriggerClientEvent("rp_inventory:panel", playerId, state) end
+    end)
+end
+
+refreshStashViewers = function(stashId)
+    for id, session in pairs(panels) do
+        if session.stashId == stashId then refreshPanel(id) end
     end
 end
 
----------------------------------------------------------------------------
--- Stashes (openStash export): the same menu on a shared container
----------------------------------------------------------------------------
+local function closePanel(playerId, tellClient)
+    if not panels[playerId] then return end
+    panels[playerId] = nil
+    panelPending[playerId] = nil
+    if tellClient then TriggerClientEvent("rp_inventory:panel", playerId, { open = false }) end
+end
 
-local function stashMenu(playerId, stashId, capacity)
+-- Loads a stash on first use and waits for a load already in flight. Yields.
+-- Returns the stash | nil.
+local function loadStash(stashId, capacity)
     local stash = stashes[stashId]
     if not stash then
         stash = { kind = "stash", id = stashId, items = {}, capacity = capacity, loaded = false }
@@ -907,8 +908,7 @@ local function stashMenu(playerId, stashId, capacity)
         loadContainer(stash)
         if not stash.loaded then
             stashes[stashId] = nil   -- let the next caller retry the read
-            tell(playerId, "The stash could not be read. Try again in a minute.")
-            return
+            return nil
         end
         log("stash %s loaded from %s: %d item kinds", stashId, tostring(stash.source), #sortedEntries(stash))
     elseif not stash.loaded then
@@ -917,88 +917,179 @@ local function stashMenu(playerId, stashId, capacity)
             if stash.loaded or stash.error then break end
         end
         if not stash.loaded then
-            stashes[stashId] = nil   -- let the next caller retry the read
-            tell(playerId, "The stash could not be read. Try again in a minute.")
-            return
+            stashes[stashId] = nil
+            return nil
         end
     end
     stash.capacity = capacity
-    local inv, reason = resolvePlayer(playerId)
-    if not inv then tell(playerId, explain(reason)) return end
-
-    for _ = 1, 30 do
-        local options = {}
-        for _, e in ipairs(sortedEntries(stash)) do
-            options[#options + 1] = { id = "take_" .. e.id, label = ("Take: %s x%d"):format(e.label, e.count),
-                metadata = { { label = "Weight", value = ("%.1f kg"):format(e.total) } } }
-        end
-        for _, e in ipairs(sortedEntries(inv)) do
-            options[#options + 1] = { id = "store_" .. e.id, label = ("Store: %s x%d"):format(e.label, e.count),
-                metadata = { { label = "Weight", value = ("%.1f kg"):format(e.total) } } }
-        end
-        if #options == 0 then options[1] = { id = "empty", label = "Nothing here and nothing on you", disabled = true } end
-        local answer, uerr = uikit("context", playerId, {
-            id = "rp_inventory_stash",
-            title = ("Stash %s - %.1f / %.0f kg"):format(stashId, containerWeight(stash), stash.capacity),
-            description = ("Your pockets: %.1f / %.0f kg."):format(containerWeight(inv), inv.capacity),
-            options = options,
-        }, { timeoutMs = 60000 })
-        if not answer then
-            chatListing(playerId, stash, "Stash " .. stashId)
-            tell(playerId, "Menu unavailable (" .. tostring(uerr) .. "); listed in chat.")
-            return
-        end
-        if not answer.ok then return end
-        local choice = answer.value and answer.value.id or ""
-        local verb, itemId = choice:match("^(%a+)_(.+)$")
-        local def = Items[itemId or ""]
-        if not def then return end
-        if verb == "take" then
-            local n = askCount(playerId, "Take " .. def.label, stash.items[itemId] or 0)
-            if n then
-                if not canCarry(inv, itemId, n) then
-                    tell(playerId, explain("too_heavy"))
-                else
-                    local ok, why = debitStash(stash, playerId, itemId, n)
-                    if not ok then
-                        tell(playerId, explain(why))
-                    else
-                        local credited, cwhy = creditPlayer(playerId, itemId, n, ("(from stash %s)"):format(stashId))
-                        if not credited then
-                            creditStash(stash, playerId, itemId, n)
-                            tell(playerId, explain(cwhy))
-                        else
-                            tell(playerId, ("Took %s x%d."):format(def.label, n))
-                        end
-                    end
-                end
-            end
-        elseif verb == "store" then
-            local n = askCount(playerId, "Store " .. def.label, inv.items[itemId] or 0)
-            if n then
-                if not canCarry(stash, itemId, n) then
-                    tell(playerId, explain("stash_full"))
-                else
-                    local ok, why = debitPlayer(playerId, itemId, n, ("(into stash %s)"):format(stashId))
-                    if not ok then
-                        tell(playerId, explain(why))
-                    else
-                        local stored, swhy = creditStash(stash, playerId, itemId, n)
-                        if not stored then
-                            creditPlayer(playerId, itemId, n, "(stash store rolled back)")
-                            tell(playerId, explain(swhy))
-                        else
-                            tell(playerId, ("Stored %s x%d."):format(def.label, n))
-                        end
-                    end
-                end
-            end
-        end
-        if not inventories[playerId] then return end
-    end
+    return stash
 end
 
--- openStash(playerId, stashId, capacity) -> true (menu scheduled) | nil, reason
+-- Opens (or re-opens) the panel; with a stash id, the two-column form. Yields (stash load).
+local function openPanel(playerId, stashId, capacity)
+    local inv, reason = resolvePlayer(playerId)
+    if not inv then tell(playerId, explain(reason)) return end
+    local session = { stashId = nil, name = nameOf(playerId) }
+    if stashId then
+        local stash = loadStash(stashId, capacity)
+        if not stash then
+            tell(playerId, "The stash could not be read. Try again in a minute.")
+            return
+        end
+        session.stashId = stashId
+    end
+    if not inventories[playerId] then return end   -- left while the stash was loading
+    panels[playerId] = session
+    refreshPanel(playerId)
+end
+
+-- Pockets <-> stash moves. Both check the receiving side first, then move with a rollback.
+local function takeFromStash(playerId, stash, itemId, n)
+    local inv, reason = resolvePlayer(playerId)
+    if not inv then return nil, reason end
+    if not isCount(n) then return nil, "invalid_count" end
+    if (stash.items[itemId] or 0) < n then return nil, "not_enough" end
+    if not canCarry(inv, itemId, n) then return nil, "too_heavy" end
+    local ok, why = debitStash(stash, playerId, itemId, n)
+    if not ok then return nil, why end
+    local credited, cwhy = creditPlayer(playerId, itemId, n, ("(from stash %s)"):format(stash.id))
+    if not credited then
+        creditStash(stash, playerId, itemId, n)
+        return nil, cwhy
+    end
+    return true
+end
+
+local function storeToStash(playerId, stash, itemId, n)
+    local inv, reason = resolvePlayer(playerId)
+    if not inv then return nil, reason end
+    if not isCount(n) then return nil, "invalid_count" end
+    if (inv.items[itemId] or 0) < n then return nil, "not_enough" end
+    if not canCarry(stash, itemId, n) then return nil, "stash_full" end
+    local ok, why = debitPlayer(playerId, itemId, n, ("(into stash %s)"):format(stash.id))
+    if not ok then return nil, why end
+    local stored, swhy = creditStash(stash, playerId, itemId, n)
+    if not stored then
+        creditPlayer(playerId, itemId, n, "(stash store rolled back)")
+        return nil, swhy
+    end
+    return true
+end
+
+-- Page intents. Each returns ok, text (the notice the page shows); the state
+-- push that follows is scheduled by the mutation itself or by the dispatcher.
+local intents = {}
+
+local function intentItem(payload)
+    local itemId = type(payload.item) == "string" and payload.item or ""
+    if not Items[itemId] then return nil, "unknown_item" end
+    return itemId, math.floor(tonumber(payload.count) or 1)
+end
+
+intents.refresh = function() return true end
+
+intents.use = function(playerId, session, payload)
+    local itemId, err = intentItem(payload)
+    if not itemId then return false, explain(err) end
+    local ok, why = useItem(playerId, itemId)
+    if ok then return true, ("Used %s."):format(Items[itemId].label) end
+    if why == "cancelled" then return false, nil end
+    return false, explain(why)
+end
+
+intents.drop = function(playerId, session, payload)
+    local itemId, n = intentItem(payload)
+    if not itemId then return false, explain(n) end
+    local ok, why = dropItems(playerId, itemId, n)
+    if not ok then return false, explain(why) end
+    local text = ("Dropped %s x%d at your feet."):format(Items[itemId].label, n)
+    tell(playerId, text .. " The prompt or /ramasser picks it up.")
+    return true, text
+end
+
+-- The server picks the receiver: the nearest other player within 3 m, exactly what /give checks.
+intents.give = function(playerId, session, payload)
+    local itemId, n = intentItem(payload)
+    if not itemId then return false, explain(n) end
+    local near = nearestPlayer(playerId)
+    if not near then return false, "Nobody within arm's length to give anything to." end
+    local ok, why = giveItems(playerId, near.playerId, itemId, n)
+    if not ok then return false, explain(why) end
+    return true, ("Handed %s x%d to %s."):format(Items[itemId].label, n, near.name)
+end
+
+local function openStashOf(session)
+    local stash = session.stashId and stashes[session.stashId]
+    if stash and stash.loaded then return stash end
+    return nil
+end
+
+intents.store = function(playerId, session, payload)
+    local itemId, n = intentItem(payload)
+    if not itemId then return false, explain(n) end
+    local stash = openStashOf(session)
+    if not stash then return false, "No stash open." end
+    local ok, why = storeToStash(playerId, stash, itemId, n)
+    if not ok then return false, explain(why) end
+    local text = ("Stored %s x%d."):format(Items[itemId].label, n)
+    tell(playerId, text)
+    return true, text
+end
+
+intents.take = function(playerId, session, payload)
+    local itemId, n = intentItem(payload)
+    if not itemId then return false, explain(n) end
+    local stash = openStashOf(session)
+    if not stash then return false, "No stash open." end
+    local ok, why = takeFromStash(playerId, stash, itemId, n)
+    if not ok then return false, explain(why) end
+    local text = ("Took %s x%d."):format(Items[itemId].label, n)
+    tell(playerId, text)
+    return true, text
+end
+
+-- Transport: the page -> client -> rp_inventory:intent -> here -> rp_inventory:panel
+RegisterNetEvent("rp_inventory:intent", function(payload)
+    local playerId = source
+    if type(playerId) ~= "number" or playerId <= 0 then return end
+    if type(payload) ~= "table" or type(payload.action) ~= "string" then return end
+    local action = payload.action
+
+    -- Escape / the X on the page, or a client that (re)started: nothing to check.
+    if action == "close" then
+        closePanel(playerId, false)
+        return
+    end
+    -- The client has no WebUI: the chat listing stands in, as rp_mdt's fallback does.
+    if action == "unavailable" then
+        local session = panels[playerId]
+        closePanel(playerId, false)
+        local inv = resolvePlayer(playerId)
+        if not inv then return end
+        chatListing(playerId, inv, "Pockets")
+        local stash = session and openStashOf(session)
+        if stash then chatListing(playerId, stash, "Stash " .. stash.id) end
+        tell(playerId, ("Panel unavailable (%s); listed in chat. Commands: /use /drop /give."):format(
+            tostring(payload.reason or "webui_unavailable")))
+        return
+    end
+    local session = panels[playerId]
+    if not session then
+        -- A page nobody opened from here (stale client state): put it away.
+        TriggerClientEvent("rp_inventory:panel", playerId, { open = false })
+        return
+    end
+    local handler = intents[action]
+    if not handler then
+        refreshPanel(playerId, { ok = false, text = "Unknown panel action." })
+        return
+    end
+    local ok, text = handler(playerId, session, payload)
+    if not panels[playerId] then return end   -- closed while the intent ran (a 3 s use, say)
+    refreshPanel(playerId, text and { ok = ok == true, text = text } or nil)
+end)
+
+-- openStash(playerId, stashId, capacity) -> true (panel scheduled) | nil, reason
 exports("openStash", function(playerId, stashId, capacity)
     local inv, reason = resolvePlayer(playerId)
     if not inv then return nil, reason end
@@ -1007,7 +1098,7 @@ exports("openStash", function(playerId, stashId, capacity)
     end
     local cap = tonumber(capacity) or Config.defaultStashCapacity
     if cap <= 0 then return nil, "invalid_capacity" end
-    CreateThread(function() stashMenu(inv.id, stashId, cap) end)
+    CreateThread(function() openPanel(inv.id, stashId, cap) end)
     return true
 end)
 
@@ -1025,7 +1116,7 @@ end
 
 RegisterCommand("inv", function(source)
     if not fromGame(source) then return end
-    inventoryMenu(source)
+    openPanel(source)
 end, false)
 
 RegisterCommand("use", function(source, args)
@@ -1194,9 +1285,20 @@ AddEventHandler("onPlayerReady", function(playerId)
     loadPlayer(playerId)
 end)
 
+AddEventHandler("onResourceStop", function(name)
+    if name ~= RESOURCE then return end
+    for id in pairs(panels) do
+        TriggerClientEvent("rp_inventory:panel", id, { open = false })
+    end
+    panels = {}
+    panelPending = {}
+end)
+
 AddEventHandler("onPlayerDisconnected", function(playerId)
     playerId = tonumber(playerId)
     if not playerId then return end
+    panels[playerId] = nil
+    panelPending[playerId] = nil
     if inventories[playerId] then
         log("player %d inventory unloaded (every change was already persisted)", playerId)
         inventories[playerId] = nil

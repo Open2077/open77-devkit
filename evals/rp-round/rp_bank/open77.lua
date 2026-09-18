@@ -8,7 +8,8 @@ auto_start true
 -- database.access : Open77.database.* (rp_bank_accounts / rp_bank_transactions / rp_bank_societies)
 -- network.events  : RegisterNetEvent (ATM intent, chat:ready) on the server, TriggerServerEvent on the client
 -- ui.vanilla.map  : Open77.blips.create, one map pin per ATM on the client
-permissions { "database.access", "network.events", "ui.vanilla.map" }
+-- world.props     : Open77.props.create / remove, the terminal spawned next to every ATM ring (server)
+permissions { "database.access", "network.events", "ui.vanilla.map", "world.props" }
 
 -- open77_uikit  : server twins (context / input) drive the ATM menu, client drawText3D labels the ATMs
 -- open77_worldui: one owned marker + prompt per ATM on the client

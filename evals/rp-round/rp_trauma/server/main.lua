@@ -148,16 +148,6 @@ local function medicsOnDuty(except)
     return out
 end
 
-local function isInZone(playerId, zoneName)
-    local ok, inside = pcall(function()
-        return exports.rp_zones:isIn(playerId, zoneName)
-    end)
-    if not ok then
-        return nil
-    end
-    return inside == true
-end
-
 -- account -> trauma society. newBalance | nil, reason ("bank_unavailable" without rp_bank)
 local function bankCharge(playerId, amount, reason)
     local ok, newBalance, why = pcall(function()
@@ -608,9 +598,9 @@ end
 local function downMessage(entry)
     local left = secondsLeft(entry)
     if left > 0 then
-        return ("You are down. Trauma Team has been notified. /respawn opens in %d s (hospital bill %d €$)."):format(left, Config.hospitalBill)
+        return ("You are down. Trauma Team has been notified. /respawn opens in %d s (Vik's bill %d €$)."):format(left, Config.hospitalBill)
     end
-    return ("You are down. /respawn takes you to the hospital (%d €$) - or wait for Trauma Team."):format(Config.hospitalBill)
+    return ("You are down. /respawn wakes you up at Vik's clinic (%d €$) - or wait for Trauma Team."):format(Config.hospitalBill)
 end
 
 -- Frees the body: drops the hold, restores regeneration, sets the health, tells the
@@ -807,7 +797,7 @@ CreateThread(function()
             local left = secondsLeft(entry)
             if left == 0 and not entry.announcedOpen then
                 entry.announcedOpen = true
-                say(id, ("/respawn is open: the hospital takes you for %d €$. Or keep waiting for Trauma Team."):format(Config.hospitalBill))
+                say(id, ("/respawn is open: Vik's clinic takes you for %d €$. Or keep waiting for Trauma Team."):format(Config.hospitalBill))
                 toast(id, "info", "Trauma Team", "/respawn is open.", 6000)
                 if entry.held then
                     TriggerClientEvent("rp_trauma:hold", id, true, 0)
@@ -851,12 +841,12 @@ local function hospitalRespawn(playerId)
     else
         local pending, reason = Open77.players.teleport(playerId, target, { heading = Config.hospital.heading, dismount = true })
         if not pending then
-            say(playerId, "Transfer to the hospital refused: " .. tostring(reason) .. ".")
+            say(playerId, "Transfer to Vik's clinic refused: " .. tostring(reason) .. ".")
             log("player %d: teleport to the hospital refused: %s", playerId, tostring(reason))
         else
             local landed, err = pending:await()
             if not landed then
-                say(playerId, "Transfer to the hospital failed: " .. tostring(err) .. ".")
+                say(playerId, "Transfer to Vik's clinic failed: " .. tostring(err) .. ".")
                 log("player %d: teleport to the hospital failed: %s", playerId, tostring(err))
             end
         end
@@ -864,8 +854,8 @@ local function hospitalRespawn(playerId)
     end
 
     local result = collect(playerId, Config.hospitalBill, "hospital")
-    say(playerId, ("Trauma Team dropped you at the hospital. Bill: %s."):format(billSentence(result)))
-    toast(playerId, "info", "Hospital", ("Patched up. %d €$ billed."):format(Config.hospitalBill), 8000)
+    say(playerId, ("Trauma Team dropped you at Vik's clinic. Bill: %s."):format(billSentence(result)))
+    toast(playerId, "info", "Vik's clinic", ("Patched up. %d €$ billed."):format(Config.hospitalBill), 8000)
     TriggerEvent("rp_trauma:revived", playerId, nil)
     log("player %d hospital respawn: account=%d cash=%d debt=%d", playerId, result.account, result.cash, result.debt)
 end
@@ -1211,16 +1201,17 @@ local function traumaAv(medic, mode)
         end
         return say(medic, "You have no AV out.")
     end
-    local inside = isInZone(medic, Config.hospital.zone)
-    if inside == nil then
-        return say(medic, "Zones unavailable (rp_zones offline): the AV pad cannot be located.")
-    end
-    if not inside then
-        return say(medic, ("The AV pad is at the hospital (zone %s): get inside it first."):format(Config.hospital.zone))
-    end
     local read = Open77.players.get(medic)
     if not read or not read.position then
         return say(medic, "Your position is unknown: move a little and try again.")
+    end
+    -- The pad is a street point (Config.av.pad), not a zone: the clinic interior cannot take an AV.
+    local pad = Config.av.pad
+    local dx, dy = read.position.x - pad.x, read.position.y - pad.y
+    local padDistance = math.sqrt(dx * dx + dy * dy)
+    if padDistance > pad.radius then
+        return say(medic, ("The AV pad is on the %s (%d, %d), %d m from you: stand on it first."):format(
+            pad.label, math.floor(pad.x + 0.5), math.floor(pad.y + 0.5), math.floor(padDistance + 0.5)))
     end
     removeAv(medic)
     local yaw = read.heading or 0.0
@@ -1323,7 +1314,7 @@ local function traumaStatus(playerId)
             end
         end
         Wait(0)
-        say(playerId, "/trauma av spawns the AV at the hospital pad; ALT+click a body to Stabilise or Revive.")
+        say(playerId, "/trauma av spawns the AV on the Afterlife street pad; ALT+click a body to Stabilise or Revive.")
     end
 end
 
@@ -1509,8 +1500,8 @@ local SUGGESTIONS = {
     { command = "/911", help = "Alert Trauma Team and the NCPD with your position",
       parameters = { { name = "message", help = "What is happening" } } },
     { command = "/medic", help = "Medics on duty and their distance" },
-    { command = "/respawn", help = "While down: give up and wake up at the hospital (500 €$)" },
-    { command = "/trauma", help = "Status; av | av off (medic, at the hospital); factures | payer",
+    { command = "/respawn", help = "While down: give up and wake up at Vik's clinic (500 €$)" },
+    { command = "/trauma", help = "Status; av | av off (medic, on the Afterlife street pad); factures | payer",
       parameters = { { name = "action", help = "av, av off, factures, payer" } } },
     { command = "/contrat", help = "Trauma Team contract: free revives and priority dispatch" },
 }

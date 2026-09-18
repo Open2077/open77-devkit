@@ -210,7 +210,8 @@ flushed once it is made.
 
 ## Test in 2 minutes
 
-At the freeroam spawn (`381.36, -2401.79, 181.99`, `RpAdminConfig.Spawn`). Player **1** is the
+At the freeroam spawn, Kabuki Market Centre (`-1191.30, 2006.88, 7.82`, `RpAdminConfig.Spawn`).
+Player **1** is the
 owner (ACL `*`, in game), player **2** is the bot (not an admin). `rp_economy`, `rp_bank`,
 `rp_jobs`, `rp_identity` running. Log on start: `[rp_admin] started: ...` then
 `[rp_admin] store=sql ...`.
@@ -224,8 +225,8 @@ owner (ACL `*`, in game), player **2** is the bot (not an admin). `rp_economy`, 
    Player 1: `/tickets fermer 1 pulled you out, choom` → player 2 reads `Your report #1 is
    closed. <name>: pulled you out, choom` + a success toast; player 1 reads `Report #1 closed
    (the reporter was told).`
-3. Player 1: `/rpadmin` → the panel lists both players with job, cash and zone (`Badlands` /
-   `spawn_plaza` when `rp_zones` runs). Pick player 2 → **Set cash** → the dialog says
+3. Player 1: `/rpadmin` → the panel lists both players with job, cash and zone (`Kabuki Market`
+   / `kabuki_market` when `rp_zones` runs). Pick player 2 → **Set cash** → the dialog says
    `<name> has 500 €$ in hand.` → type `5000` → Apply → chat `<name>: cash 500 €$ -> 5 000 €$.`,
    player 2 reads `An admin set your cash to 5 000 €$ (+4 500 €$).` and `/money` says 5000.
 4. Still in the player menu: **Set bank account** → `2000` → player 2's `/solde` shows

@@ -58,7 +58,8 @@ everybody else comes from the civil registry table. Click a hit → the file:
   badge, Trauma Team contract (`rp_trauma:hasContract`, else `rp_trauma_contracts`).
 - **NCPD mode only**: **Warrant** (`rp_ncpd:wanted`, else `rp_ncpd_warrants`) with a **Set /
   update warrant** form (level 1–5 + reason → `rp_ncpd:setWanted`) and **Lift warrant**
-  (`setWanted(…, 0)`); **Unpaid fines** (`rp_ncpd_fines WHERE paid_at IS NULL`, total);
+  (`setWanted(…, 0)`); **Unpaid fines** (`rp_ncpd_fines WHERE paid_at = 0 AND remaining > 0` —
+  rp_ncpd stores `paid_at` as `BIGINT NOT NULL DEFAULT 0`, never NULL; total);
   **Criminal record** (`rp_ncpd:record`, else `rp_ncpd_records`) with an **Add to record** form
   (kind `report / warning / arrest / seizure / note` + text → `rp_ncpd:addRecord(…, byPlayerId)`);
   **Vehicles** (`rp_garage:vehiclesOf`, else `rp_garage_vehicles`) with the WANTED flag; **Gun
@@ -181,11 +182,11 @@ citizen — file an MDT report instead.
 [rp_mdt] player 1 lifted the warrant on player 2 (abcd123456)
 [rp_mdt] player 1 added a [warning] record entry on player 2
 [rp_mdt] player 1 flagged plate NC-K7P2 wanted=true reason=hit and run
-[rp_mdt] player 1 filed ncpd report #3: Plaza brawl
+[rp_mdt] player 1 filed ncpd report #3: Market brawl
 [rp_mdt] store=kvp reason=database_unavailable (reports in Open77.kvp, citizen directory limited to connected players)
 ```
 
-## Test in 2 minutes (one player, freeroam spawn `381.36, -2401.79, 181.99`)
+## Test in 2 minutes (one player, freeroam spawn Kabuki Market `-1191.30, 2006.88, 7.82 (Kabuki Market Centre, Watson)`)
 
 Load `rp_jobs`, `rp_identity`, `rp_ncpd`, `rp_trauma`, `rp_garage`, `rp_logs`, `rp_shops`
 (optional, for the licence) and `rp_mdt`. Start log: `[rp_mdt] started: …` then `store=sql …`.
@@ -200,15 +201,15 @@ Register your citizen record if the form pops (`rp_identity`).
    sheet`, your vehicles (if you bought one at the dealership: `/concession`), `No NCPD gun
    licence on file` (buy one at the gun shop, `/acheter licence`, and **Refresh**: `licensed`),
    `no contract`.
-3. **Add to record**: kind `warning`, text `jaywalking on the plaza` → toast `Record entry
+3. **Add to record**: kind `warning`, text `jaywalking on Noodle Row` → toast `Record entry
    [warning] added on <you>.` and the entry appears in the record with your name as officer.
    `/casier 1` in chat shows the same entry (it went through `rp_ncpd:addRecord`).
 4. **Set warrant**: level `2`, reason `test warrant` → toast, `WANTED L2 test warrant` badge,
    chat line from rp_ncpd (`NCPD has a warrant on you (level 2)`), `/ncpd` lists it. **Lift
    warrant** → `No open warrant`.
-5. **File report** from your file: title `Plaza check`, body anything → toast `Report #1
+5. **File report** from your file: title `Market check`, body anything → toast `Report #1
    filed`. **Reports** tab: the row (author = you, about = you); click → full text. **New
-   report** with a free "About" name → a second row; search `Plaza` → one hit.
+   report** with a free "About" name → a second row; search `Market` → one hit.
 6. **Second citizen id**: search `Vince` or `#1` (the bot **Vince Kovac** is citizen #1 when
    the eval server's registry is seeded). If he is **connected**, his file offers Set / Lift
    warrant and Add to record exactly like yours; if he is **offline**, the file still shows
@@ -219,7 +220,7 @@ Register your citizen record if the form pops (`rp_identity`).
 7. **Vehicles**: with a dealership car, type its plate (or `NC`) → the row with you as owner
    (`online`). **Flag stolen** with reason `hit and run` → toast, `WANTED hit and run`, chat APB
    from rp_garage, `/plaque` next to the car shows the flag. **Clear** → `clean`.
-8. **Dispatch**: empty at first. In chat `/911 shots fired at the plaza` (rp_trauma raises
+8. **Dispatch**: empty at first. In chat `/911 shots fired at the market` (rp_trauma raises
    `rp_ncpd:alert("911", …)`), back in the tablet **Refresh** → the row with `911`, your name,
    the position and `0 m`. Walk 30 m and refresh: the distance follows you.
 9. **Net traces**: `Logs offline` if `rp_logs` is not loaded, else the recent `rp_netrunner`

@@ -695,7 +695,14 @@ exports("fullName", function(playerId)
     local id = tonumber(playerId)
     local record = id and citizens[id]
     if record then return fullNameOf(record) end
-    return (id and Open77.players.name(id)) or "Unknown citizen"
+    -- Open77.players.name throws for id <= 0 or a non-integer (console actors arrive
+    -- as id 0), and that throw crosses the C boundary and kills this VM before the
+    -- caller's pcall can catch it: only look up a real, positive, integer session id.
+    if type(id) == "number" and id >= 1 and id % 1 == 0 then
+        local name = Open77.players.name(id)
+        if name then return name end
+    end
+    return "Unknown citizen"
 end)
 
 exports("isRegistered", function(playerId)

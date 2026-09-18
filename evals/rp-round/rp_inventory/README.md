@@ -8,8 +8,10 @@ render and request.
 
 - Max carry weight: **40 kg** (`RpInventoryConfig.maxCarryWeight`).
 - Items: `shared/items.lua` (`id, label, weight, usable, illegal, effect`).
-- Menus: the UI kit (`open77_uikit`), driven from the server through its
-  server twins; a chat listing replaces the menu when the kit is unavailable.
+- The pockets panel: a WebUI page shipped by this resource (`web/index.html`),
+  opened by `/inv`, fed by the server (`rp_inventory:panel`) and driving it with
+  intents (`rp_inventory:intent`); a chat listing replaces it when the client
+  has no WebUI. Stashes (`openStash`) are the same panel with a second column.
 - Player-to-player actions: ALT+click a player (`open77_contextmenu`),
   slash commands as the fallback.
 - Ground drops: the loot API (`Open77.loot.*`), picked up with the game's own
@@ -19,7 +21,7 @@ render and request.
 
 | Command | What it does |
 |---|---|
-| `/inv` | Opens the pockets menu: every item with its count and weight, the total, and per item **Use / Give / Drop**. Falls back to a chat listing when the menu cannot open. |
+| `/inv` | Opens the **POCKETS** panel: your RP name, the weight bar (`9.0 / 40 kg`), a tile per item (label, count, weight, category glyph, illegal items in red) and, for the selected tile, **Use / Give / Drop** with a count field. Escape or the `x` closes it. Falls back to a chat listing when the client has no WebUI (`Panel unavailable (webui_unavailable); listed in chat.`). |
 | `/use <item>` | Uses one unit. A 3 s progress bar (cancellable), then the effect. |
 | `/drop <item> [n]` | Removes `n` (default 1) from the pockets and creates a pickable ground drop at the player's feet (30 min TTL). |
 | `/ramasser` | Picks up the nearest `rp_inventory` drop within 3 m, for when the native prompt is not convenient. |
@@ -30,6 +32,48 @@ render and request.
 
 `<item>` accepts the id (`burrito`), the label (`Burrito`) or an unambiguous
 prefix (`bur`).
+
+### The panel
+
+`/inv` opens `web/index.html` (created hidden by `client/main.lua` at start,
+shown with keyboard + cursor focus, hidden again on Escape / the `x`). The page
+is presentation only: the **server owns the panel** and pushes its whole state
+through `rp_inventory:panel` when it opens and after **every** change of the
+pockets or of the open stash, whoever caused it (a command, the page, another
+resource through `add` / `remove`, another player storing into the same stash).
+The `I` key is not bound (the game uses it).
+
+State payload (`rp_inventory:panel`, server -> client -> page `state` event):
+
+```lua
+{
+  open = true, playerId = 3, name = "Vincent Marino",       -- rp_identity fullName, else the account name
+  pockets = { id = 3, entries = { ... }, weight = 9.0, capacity = 40 },
+  stash   = { id = "home:12", entries = { ... }, weight = 12.5, capacity = 200 },  -- only while a stash is open
+  nearest = { playerId = 4, name = "Jackie Welles", distance = 1.2 },            -- the Give target, or nil
+  notice  = { ok = true, text = "Used Burrito." },                              -- the answer to the last intent, or nil
+}
+-- entries: { id, label, count, weight, total, usable, illegal, category } sorted by label
+-- category (tile glyph only): heal food drink fuel smoke drug stamina tech tool material cargo misc
+{ open = false }   -- closes the panel
+```
+
+Intents (page `intent` event -> client -> `rp_inventory:intent` -> server). Every
+one lands in the function the matching command uses, is re-validated there and is
+followed by a state push carrying the `notice`:
+
+| intent | payload | server path |
+|---|---|---|
+| `use` | `{ item }` | `/use`: 3 s progress bar, effect, one unit debited |
+| `drop` | `{ item, count }` | `/drop`: ground drop at the feet, 30 min |
+| `give` | `{ item, count }` | `/give` to the **nearest other player within 3 m** (`Open77.players.closest`), same distance / weight checks |
+| `store` | `{ item, count }` | pockets -> open stash (capacity checked, rollback on failure) |
+| `take` | `{ item, count }` | open stash -> pockets (carry weight checked, rollback on failure) |
+| `refresh` | | a fresh state, nothing moved |
+| `close` | | the server forgets the panel (Escape, the `x`, a client restart) |
+| `unavailable` | `{ reason }` | sent by the client when `Open77.webui.create` failed: the pockets (and the stash) are listed in chat instead |
+
+Money is not an item and never appears on the panel (`rp_economy` owns it).
 
 ### Items
 
@@ -69,18 +113,20 @@ exports.rp_inventory:has(playerId, "chooh2", 1)              -- boolean
 exports.rp_inventory:count(playerId, "scrap")                -- number
 local entries, weight, capacity = exports.rp_inventory:list(playerId)
 -- entries = { { id, label, count, weight, total, usable, illegal }, ... } sorted by label
-exports.rp_inventory:openStash(playerId, "house_12", 200)    -- true (menu scheduled) | nil, reason
+exports.rp_inventory:openStash(playerId, "house_12", 200)    -- true (panel scheduled) | nil, reason
 ```
 
 Reasons: `invalid_player`, `player_not_found`, `not_loaded` (the pockets are
 still being read), `unknown_item`, `invalid_count`, `too_heavy`, `not_enough`,
 `invalid_stash`, `invalid_capacity`.
 
-`openStash(playerId, stashId, capacity)` opens the shared-container menu
-(**Take** rows for the stash, **Store** rows for the pockets) on the given
-player; `capacity` is in kg (default 100). The stash is loaded from
+`openStash(playerId, stashId, capacity)` opens the panel in its two-column
+form (**POCKETS | STASH `<stashId>`** with the stash capacity, **Store** on a
+pocket tile, **Take** on a stash tile, both with a count) on the given player;
+`capacity` is in kg (default 100). The stash is loaded from
 `rp_inventory_stashes` on first use and every move is persisted. Housing and
-vehicle trunks call this with their own stash ids.
+vehicle trunks call this with their own stash ids (`home:12`). `/inv` while a
+stash is open goes back to the pockets-only panel.
 
 `define(items) -> registered, rejected` lets another resource declare its own
 items in the `shared/items.lua` shape (`id = { label, weight, usable, illegal,
@@ -109,7 +155,9 @@ AddEventHandler("rp_inventory:used", function(playerId, itemId) end)           -
 ```
 
 Client -> server requests (internal): `rp_inventory:giveMenu(targetPlayerId)`,
-`rp_inventory:search(targetPlayerId)`, raised by the ALT+click actions.
+`rp_inventory:search(targetPlayerId)`, raised by the ALT+click actions;
+`rp_inventory:intent(payload)` from the panel. Server -> client:
+`rp_inventory:panel(state)` (see *The panel*).
 
 ## Logs
 
@@ -157,34 +205,59 @@ verified on your build.
 `network.events` (events), `database.access` (SQL), `world.loot` (drops),
 `world.vehicles` (the seat read for the fuel can), `players.stats.read` /
 `players.stats.apply` (heals), `players.animations.read` (hands-up check).
-Dependencies: `open77_uikit`, `open77_contextmenu`, `open77_loot` (all ship a
-client half). `rp_needs`, `open77_fuel`, `open77_rp_basics` and `rp_jobs` are
+`web_files { "web/**" }` ships the panel page; `Open77.webui.create` needs no
+permission (same lines as `rp_mdt`). Dependencies: `open77_uikit` (the /use
+progress bar and the ALT+click Give dialog), `open77_contextmenu`, `open77_loot`
+(all ship a client half). `rp_needs`, `open77_fuel`, `open77_rp_basics` and `rp_jobs` are
 reached through exports inside `pcall` and are optional at runtime.
 
 ## Test in 2 minutes
 
 1. Start the server with `rp_inventory`, `open77_uikit`, `open77_contextmenu`
-   and `open77_loot` in the load list; connect two players (ids 1 and 2).
+   and `open77_loot` in the load list; connect two players (ids 1 and 2). The
+   client log says nothing about the page unless it failed
+   (`[rp_inventory] webui unavailable: <reason>`).
 2. From the server console: `giveitem 1 burrito 3`, `giveitem 1 maxdoc 1`,
    `giveitem 1 synthcoke 2`, `giveitem 1 crate 1`. Player 1 sees the toasts in
    chat; the log shows `player 1 +3 burrito total=3 (giveitem by 0)`.
-3. Player 1: `/inv`. The menu lists four rows with counts and weights, the
-   title reads `Pockets - 27.6 / 40 kg`. Pick **Burrito**, then **Use**: a 3 s
-   bar, then `You eat the burrito.` (or the `rp_needs` answer). Escape closes
-   the menu cleanly.
+3. Player 1: `/inv`. The POCKETS panel opens with the player's name top right,
+   the header bar reading `27.6 / 40 kg` (69%, cyan), four tiles: `Burrito x3`,
+   `Cargo crate x1`, `MaxDoc Mk.1 x1` and `Synthcoke x2` tinted red with an
+   `ILLEGAL` tag. Click **Burrito**: the right column shows `x3`, `0.4 kg`,
+   `1.2 kg`, a count field and **Use / Give / Drop** (Give reads `nobody within
+   3 m` and is greyed while alone). **Use**: the button reads `Working...`, a
+   3 s bar, chat `You eat the burrito. Better.` (or the `rp_needs` answer), then
+   the tile reads `x2`, the bar `27.2 / 40 kg` and a toast `Used Burrito.`
+   Escape (or the `x`) closes the panel and gives the game its keys back;
+   `/inv` reopens it. Log: `player 1 -1 burrito total=2 (used)`.
 4. Player 1: `/use maxdoc` at full health: `You are already at full health.`
    Take some damage, use it again: `+60 health`.
 5. Player 1: `/drop crate`. A drop appears at the feet; the console
    `giveitem 1 crate 1` again shows `too heavy` only once the pockets exceed
    40 kg. Player 2 walks over and uses the native **Take** prompt, or
    `/ramasser`: `Picked up Cargo crate x1`, log `player 2 +1 crate ... (picked up loot N)`.
-6. Player 1 stands next to player 2, holds ALT, clicks them, **Give item**:
-   the dialog lists the pockets, pick `Burrito`, count 1, **Give**. Both are
-   told. Walk 5 m away and `/give 2 burrito`: `Get closer.`
+6. Player 1 stands next to player 2, `/inv`, click **Burrito**: the Give
+   button now reads `to <player 2's name> (1.x m)`. Count `1`, **Give**: chat
+   `You hand Burrito x1 to <name>.` on 1, `<name> hands you Burrito x1.` on 2,
+   toast `Handed Burrito x1 to <name>.`, the tile drops to `x1`; player 2's own
+   open panel (if any) refreshes at once. ALT+click player 2 > **Give item**
+   still opens the targeted dialog. Walk 5 m away and `/give 2 burrito`:
+   `Get closer. Three metres, arm's length.` From the panel at that distance the
+   Give button is greyed (`nobody within 3 m`).
 7. Player 2 raises hands (`handsup` RP profile) or is cuffed by an officer with
    the RP kit. Player 1: `/fouiller 2` lists player 2's pockets and names
    `synthcoke` as contraband; `/saisir 2 synthcoke` moves both units. Without
    hands up: `They are neither cuffed nor surrendering.`
 8. Reconnect player 1: the pockets come back from SQL (`loaded from sql`).
-9. From another resource: `exports.rp_inventory:openStash(1, "test_stash", 50)`
-   opens the Take / Store menu; store two items, reopen, they are still there.
+9. From another resource (rp_housing does it from its home prompt):
+   `exports.rp_inventory:openStash(1, "test_stash", 50)`. The panel opens with
+   two columns, **POCKETS | STASH `test_stash`** `0.0 / 50 kg`. Click a pocket
+   tile: **Store** (`into test_stash`) joins the actions; store two burritos:
+   toast `Stored Burrito x2.`, chat the same, the tile moves to the stash
+   column, log `stash test_stash +2 burrito total=2 by player 1`. Click the
+   stash tile: **Take** brings it back. Escape, reopen: still there
+   (`rp_inventory_stashes`). Storing the crate into a 50 kg stash that already
+   holds 26 kg: `The stash is full.`
+10. Client without a WebUI (or `Open77.webui.create` refused): `/inv` answers
+    in chat `Pockets - 27.6 / 40 kg`, the listing, then
+    `Panel unavailable (webui_unavailable); listed in chat. Commands: /use /drop /give.`

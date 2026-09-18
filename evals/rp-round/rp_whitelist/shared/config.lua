@@ -62,6 +62,10 @@ Config.failClosed = true
 -- start before deciding (seconds). Below the gate deadline on purpose.
 Config.loadWaitSeconds = 5
 
+-- How long the resource waits for the database bridge after a start before it falls back to
+-- its Open77.kvp store for the whole boot (a bridge stuck in "connecting" never answers).
+Config.storageWaitSeconds = 15
+
 -- Bans are enforced even while the whitelist is disabled (a ban is a ban). Set to false
 -- to make `/wl desactiver` switch the bans off as well.
 Config.bansWhenDisabled = true

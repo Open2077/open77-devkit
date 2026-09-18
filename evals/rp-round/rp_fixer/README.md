@@ -1,8 +1,8 @@
 # rp_fixer — the fixer's gig board
 
 Gigs for a Night City RP server on Open77 (build `2.31.13+op77.76`). The fixer publishes
-gigs on a board at the office; mercs accept one at a time, run it against a clock, and are
-paid in cash on success. The fixer's society takes a **15 % cut**, every success earns
+gigs on a board at the office — Rogue's meeting room at the back of **The Afterlife**; mercs
+accept one at a time, run it against a clock, and are paid in cash on success. The fixer's society takes a **15 % cut**, every success earns
 **+1 reputation**, and reputation tiers gate the better-paid templates.
 
 Server-authoritative: the server owns the board, the phases, the clock, the pay, the
@@ -93,6 +93,30 @@ key of every objective entered after the first (`dropoff`, `return`, `walk`), th
 `success`, `timeout`, `abandoned`, `dropped`. Internal net events (`rp_fixer:board`,
 `rp_fixer:interact`, `rp_fixer:objective`) are the client transport, not an API.
 
+## Where things are
+
+Real Night City places (world metres; walked points exact, AMM points +0.1 m for the rings):
+
+| Point (`Config.points`) | Place | Position |
+|---|---|---|
+| `office` | The Afterlife — Rogue's meeting room (Little China, Watson) | `-1436.8, 977.0, 17.0` |
+| `kabuki_market` | Kabuki Market Centre (the spawn) | `-1191.3, 2006.9, 7.82` |
+| `kabuki_noodle_row` | Kabuki Market — Noodle Row | `-1178.7, 2028.5, 7.95` |
+| `lizzies` | Lizzie's Bar, inside (Kabuki) | `-1188.9, 1566.2, 23.0` |
+| `h10` | Megabuilding H10 — V's apartment floor | `-1391.9, 1271.7, 123.2` |
+| `junkyard` | Rancho Coronado junkyard (Badlands edge) | `1374.9, -1674.9, 49.4` |
+
+Distances (straight line): Kabuki Market → Lizzie's ≈ 440 m, Lizzie's → the Afterlife ≈ 640 m, Kabuki Market →
+the Afterlife ≈ 1.0 km, the Afterlife → H10 ≈ 300 m (plus the elevator), Kabuki Market → the
+junkyard ≈ 4.5 km (drive). The guarded points (junkyard, Lizzie's) are outside the
+`kabuki_market` safe zone on purpose: inside it the guards would shoot without doing damage.
+
+**Props.** At start the server spawns `Config.props` through `Open77.props.create` (permission
+`world.props`, curated prop alias (see `prop.catalog`) — a raw `.mesh` path renders as a white
+slab) and removes them at stop: a data terminal (`electronics.monitor.device`) at the booth
+(`-1435.6, 978.0, 16.9`, yaw 83), 1.3 m off the board ring. A refused prop is logged (`prop 1 (...) not spawned: <reason>`); the board works
+without it.
+
 ## Persistence
 
 SQL first, created inside `Open77.database.ready(...)` with `CREATE TABLE IF NOT EXISTS`
@@ -136,8 +160,9 @@ the first player): everything falls back to `Open77.kvp` (`rep:<identifier>`,
 ## Log (grep-able)
 
 ```text
-[rp_fixer] started: office at 400.0 -2390.0 182.0, board without fixer=true, commission=15%
+[rp_fixer] started: office at -1436.8 977.0 17.0, board without fixer=true, commission=15%
 [rp_fixer] items registered in rp_inventory: 2 (rejected: 0)
+[rp_fixer] props spawned: 1
 [rp_fixer] store=sql tables=rp_fixer_gigs,rp_fixer_reputation
 [rp_fixer] gig 1 published template=delivery_hot pay=1200 net=1020 cut=180 by=board
 [rp_fixer] player 1 reputation loaded score=0 tier=street (sql)
@@ -153,25 +178,27 @@ the first player): everything falls back to `Open77.kvp` (`rep:<identifier>`,
 | Key | Default | Meaning |
 |---|---|---|
 | `openBoardWithoutFixer` | `true` | `false` = the board only answers while a fixer is on duty (or to that fixer). |
-| `office` | `400, -2390, 182` | The `blackmarket` zone centre: board, retrieval and extraction drop. |
+| `office` | `-1436.8, 977.0, 17.0` | Rogue's meeting room at The Afterlife (`afterlife` zone): board, retrieval and extraction drop. |
+| `props` | 1 terminal | Server-spawned decoration at the booth (`world.props`), removed at stop. |
 | `boardReach` / `interactReach` / `promptDistance` | 15 / 4.5 / 3.0 m | Board distance, server-side prompt distance, client prompt distance. |
 | `arrivalDistance` | 5 m | Escort / extraction success distance (planar). |
-| `points` | rp_zones centres | `scrapyard 462,-2352,178`, `nomad_camp 420,-2378,182`, `hospital 400,-2366,182`, `ncpd_hq 440,-2366,181`. |
+| `points` | real places | `kabuki_market`, `kabuki_noodle_row`, `lizzies`, `h10`, `junkyard` — see "Where things are". |
 | `tiers`, `reputation`, `commissionRate`, `society` | see file | The rules above. |
 | `maxOpenGigs`, `autoPublish`, `republishDelaySec`, `warnBeforeDeadlineSec` | 20 / true / 60 / 60 | Board behaviour. |
 | `items` | `gig_package`, `gig_datashard` | Registered in `rp_inventory` through `define` at start and whenever `rp_inventory` restarts. |
 | `guards`, `escort` | see file | Records, policies, distances. |
-| `templates` | 6 templates | `delivery_meds` (street, 600), `escort_witness` (street, 800), `retrieval_shard` (street, 1000), `extraction_techie` (street, 1500), `delivery_hot` (known, 1200, 6 min), `extraction_vip` (trusted, 3000). |
+| `templates` | 6 templates | `delivery_meds` (street, 600, Noodle Row → junkyard, 20 min), `escort_witness` (street, 800, Lizzie's → Kabuki Market, 15 min), `retrieval_shard` (street, 1000, junkyard → office, 25 min), `extraction_techie` (street, 1500, Lizzie's → office, 20 min), `delivery_hot` (known, 1200, H10 → Lizzie's, 10 min), `extraction_vip` (trusted, 3000, junkyard → office, 30 min). |
 
 **`z` matters.** A ring drawn inside the floor is invisible although everything reports
-success, and the server measures the prompt distance in 3D. The z values are the ones
-rp_zones measured with `Open77.world.groundZ`; if a ring is not visible, stand on the spot,
-`/pos`, and paste the ground height.
+success, and the server measures the prompt distance in 3D. Walked points carry their exact
+floor height, AMM points +0.1 m; if a ring is not visible, stand on the spot, `/pos`, and
+paste the ground height.
 
 ## Manifest
 
 Permissions: `network.events` (net events both sides), `database.access` (SQL),
-`world.npcs` (guards, escorts, targets), `ui.vanilla.map` (client pins and waypoint).
+`world.npcs` (guards, escorts, targets), `ui.vanilla.map` (client pins and waypoint),
+`world.props` (the booth terminal).
 Dependencies: `open77_uikit >=1.0.0` (the board and the accept dialog, server twins),
 `open77_worldui >=0.1.0` (rings and prompts). `rp_jobs`, `rp_zones`, `rp_inventory`,
 `rp_economy`, `rp_bank` and `rp_identity` are server-only and reached through `pcall`:
@@ -182,37 +209,42 @@ board opens for anyone (`openBoardWithoutFixer`).
 
 ## Test in 2 minutes
 
-One client at the freeroam spawn (`381.36, -2401.79, 181.99`), id `1`; `rp_inventory`,
-`rp_economy`, `rp_bank`, `rp_jobs`, `rp_zones` running. Log on start: `[rp_fixer] started:
-...`, `items registered in rp_inventory: 2`, `store=sql ...`, six `gig N published` lines.
+One client, id `1`, with a car (`/car`) — the gigs cross Watson and one goes to the Badlands;
+`rp_inventory`, `rp_economy`, `rp_bank`, `rp_jobs`, `rp_zones` running. Log on start:
+`[rp_fixer] started: ...`, `items registered in rp_inventory: 2`, `props spawned: 1`,
+`store=sql ...`, six `gig N published` lines.
 
-1. Open the map: a **Fixer's office** pin 22 m north-east of the spawn (inside the black
-   market ring). Walk to `400, -2390`: a cyan ring and an **E — Fixer's board** prompt.
-2. From the spawn, `/gigs` → `The board is at the fixer's office, 22 m from you. Walk.`
+1. Open the map: a **The Afterlife - fixer's booth** pin about 1 km south of the Kabuki Market
+   spawn. Drive to the Afterlife, walk in, and go to Rogue's meeting room at the back
+   (`-1436.8, 977`): a cyan ring, an **E — Fixer's board** prompt and the data terminal on
+   the booth.
+2. From the spawn, `/gigs` → `The board is at the fixer's office, 1059 m from you. Walk.`
    At the ring, press **E** (or `/gigs`): the board lists six gigs; `Hot package` and `VIP
    extraction` are greyed out (`Rep needed: known (3+)` / `trusted (6+)`).
 3. Pick **Meds run** → the dialog shows the story, `Pay: 510 €$ ... the fixer keeps 90 €$`,
-   `Clock: 10 min 00 s`. **Accept the gig** → chat `Gig accepted: Meds run. Pick up the sealed
-   package. You have 10 min 00 s. ...`, a ring + **E — Grab the sealed package** at the
-   hospital (`400, -2366`, 24 m north), a map pin and a GPS route.
-4. `/gig` → `Gig: Meds run (Delivery). Now: Pick up the sealed package, 24 m away. Time left:
-   9 min 40 s. Pay 510 €$.`
-5. Walk to the hospital ring, look at it, press **E** → `You pocket the sealed package. Now
-   move.` then `Next: Deliver the sealed package. 9 min ... left.`; `/inv` shows `Sealed
-   package` (1 kg). The objective moves to the scrapyard (`462, -2352`, 64 m further).
-6. Press **E** at the scrapyard → `Handed over the sealed package.` then `Gig done: Meds run.
+   `Clock: 20 min 00 s`. **Accept the gig** → chat `Gig accepted: Meds run. Pick up the sealed
+   package. You have 20 min 00 s. ...`, a ring + **E — Grab the sealed package** at Kabuki
+   Market's Noodle Row (`-1178.7, 2028.5`, ~1 km north), a map pin and a GPS route.
+4. `/gig` → `Gig: Meds run (Delivery). Now: Pick up the sealed package, 1083 m away. Time left:
+   19 min 40 s. Pay 510 €$.`
+5. Drive to Kabuki, walk to the Noodle Row ring, look at it, press **E** → `You pocket the
+   sealed package. Now move.` then `Next: Deliver the sealed package. 15 min ... left.`; `/inv`
+   shows `Sealed package` (1 kg). The objective moves to the Rancho Coronado junkyard
+   (`1374.9, -1674.9`, ~4.5 km by road, east then south).
+6. Press **E** at the junkyard → `Handed over the sealed package.` then `Gig done: Meds run.
    510 €$ in cash (fixer's cut 90 €$). Reputation 1 (street).`; `/money` is up by 510; log
    `gig N success ... paid=510 commission=90 rep=1`. Console: `/fixer` shows the `fixer`
    society at 90 €$ (if the society existed; rp_bank creates it on first use).
-7. Back at the board: **Junkyard shard** → Accept. Two Maelstrom goons stand at the scrapyard.
-   Inside 25 m: `Maelstrom made you. Guns out, choom.` and they open fire (on you only).
-   Take the shard with **E** (`Take the encrypted shard`), run it back to the office ring,
-   **E** → paid 850 €$, reputation 2.
-8. **Witness walk** → Accept. Kess waits at the nomad camp (`420, -2378`). **E** on the
-   ring → `Kess falls in behind you. Keep them close and walk.` Walk to the hospital ring:
-   when she stands within 5 m of it, `Kess made it.` then the pay line. Reputation 3 →
-   `Word gets around: you are now known. Better-paid gigs are on the board.` — the board now
-   offers **Hot package**.
+7. Back at the board: **Junkyard shard** → Accept. Two Maelstrom goons stand at the junkyard.
+   Inside 25 m: `Maelstrom made you. Guns out, choom.` and they open fire (on you only — the
+   junkyard is outside every safe zone, so it hurts). Take the shard with **E** (`Take the
+   encrypted shard`), drive it back to the office ring at the Afterlife, **E** → paid 850 €$,
+   reputation 2.
+8. **Witness walk** → Accept. Kess waits inside Lizzie's Bar (`-1188.9, 1566.2`). **E** on the
+   ring → `Kess falls in behind you. Keep them close and walk.` Walk her 440 m north to the
+   Kabuki Market Centre ring: when she stands within 5 m of it, `Kess made it.` then the pay
+   line. Reputation 3 → `Word gets around: you are now known. Better-paid gigs are on the
+   board.` — the board now offers **Hot package**.
 9. **Techie extraction** → Accept, then `/gig abandonner` → `You walked away from Techie
    extraction. Reputation 2.`; the guards and the techie vanish; a minute later
    `gig N published template=extraction_techie` is back.

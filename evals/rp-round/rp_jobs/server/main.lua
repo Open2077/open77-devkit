@@ -679,7 +679,7 @@ local function agencyRequest(playerId)
             return
         end
         if metres > C.Agency.reach then
-            tell(playerId, ("The employment agency is %d m away (the ring and map pin by the spawn plaza). Walk over."):format(
+            tell(playerId, ("The employment agency is %d m away (the ring and map pin on the Kabuki Gallery walkway). Walk over."):format(
                 math.floor(metres + 0.5)))
             return
         end
@@ -1109,12 +1109,47 @@ local function loadPlayer(playerId, greet)
     sendSelf(playerId)
 end
 
+-- The job board: one terminal prop behind the agency ring, owned here, removed on stop.
+-- A refusal only logs: the ring and the prompt do not depend on it.
+local boardProp = nil
+
+local function spawnBoard()
+    local prop = C.Agency.prop
+    if not prop or not prop.model or boardProp then
+        return
+    end
+    local id, reason = Open77.props.create({
+        model = prop.model,
+        position = { x = prop.position.x, y = prop.position.y, z = prop.position.z },
+        yaw = prop.yaw or 0.0,
+        bucket = 0,
+        streamingRadius = 120.0,
+    })
+    if id then
+        boardProp = id
+        log("job board prop %s at %.1f %.1f %.1f", tostring(id), prop.position.x, prop.position.y, prop.position.z)
+    else
+        log("job board prop not spawned (%s): the ring alone marks the agency", tostring(reason))
+    end
+end
+
+local function removeBoard()
+    if boardProp then
+        Open77.props.remove(boardProp)
+        boardProp = nil
+    end
+end
+
 AddEventHandler("onResourceStart", function(name)
     if name ~= RESOURCE then
         return
     end
     Open77.chat.addSuggestions(-1, SUGGESTIONS)
     initStore()
+    local spawned, err = pcall(spawnBoard)
+    if not spawned then
+        log("job board prop failed: %s", tostring(err))
+    end
     -- Players already in the world when the resource (re)started.
     for _, playerId in ipairs(Open77.players.all()) do
         local id = toPlayerId(playerId)
@@ -1141,6 +1176,7 @@ AddEventHandler("onResourceStop", function(name)
     if name ~= RESOURCE then
         return
     end
+    removeBoard()
     for playerId, rec in pairs(records) do
         if rec.onDuty then
             rec.onDuty = false

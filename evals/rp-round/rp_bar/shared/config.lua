@@ -7,16 +7,18 @@ RpBarConfig = {}
 RpBarConfig.job = "barman"
 RpBarConfig.society = "barman"
 
--- The bar counter. The point sits at the centre of the `afterlife` zone of rp_zones
--- (360, -2390, z 182, radius 10), 24 m north-west of the freeroam spawn
--- (381.36, -2401.79, 181.99). `z` is the spawn's own ground height: if the ring is not
--- visible, stand on the spot, `/pos`, and paste the ground height here.
+-- The bar counter: the end of the real bar counter inside The Afterlife (Little China,
+-- Watson) -- a bot stood on this exact spot on 2026-09-18, so `z` is the walked floor
+-- height. The point lies inside the `afterlife` zone of rp_zones (centre -1453, 1017,
+-- 16.5, radius 25). The Afterlife is about 1 km south of the Kabuki Market spawn.
+-- The config knows ONE counter: Lizzie's Bar (-1188.9, 1566.2, 22.9) would need a second
+-- counter table, a second ambience sweep and a second POI, so the Afterlife is the bar.
 RpBarConfig.counter = {
-    position = { x = 360.0, y = -2390.0, z = 181.99 },
-    label = "Bar counter",
+    position = { x = -1451.5, y = 1012.5, z = 17.8 },
+    label = "The Afterlife - bar counter",
     description = "Recipes, restock and the till. Barman on duty only.",
-    promptDistance = 3.0,   -- the E prompt is pressable within this distance (metres)
-    radius = 1.5,           -- ground ring radius
+    promptDistance = 4.0,   -- the E prompt is pressable within this distance (metres)
+    radius = 3.5,           -- ground ring radius: the counter's end, not a single spot
     maxDistance = 60.0,     -- ring visibility
     -- The server re-checks the distance before opening the counter menu (E prompt and /bar).
     -- 0 = the barman may open the counter menu from anywhere.
@@ -26,6 +28,19 @@ RpBarConfig.counter = {
 -- The map/ring/prompt of the counter is shown to the on-duty barman only.
 -- Customers use /bar for the card.
 RpBarConfig.showCounterToCustomers = false
+
+-- Decoration spawned by the server at start (Open77.props.create, permission `world.props`)
+-- and removed at stop. The bar itself exists: no counter prop, only a small neon frame on
+-- the wall behind the counter's end, 1.4 m off the ring so the ring stays readable. Raw
+-- depot `.mesh` paths from the props catalogue. A refused prop is logged, never fatal.
+-- Empty the table for no decoration.
+RpBarConfig.props = {
+    {
+        model = "electronics.jukebox",
+        position = { x = -1450.3, y = 1013.5, z = 18.9 },
+        yaw = -138.5,           -- the bar's own heading (AMM)
+    },
+}
 
 -- Drinks: the items this resource defines through rp_inventory:define (label, weight,
 -- usable, illegal, effect) plus the fields only rp_bar reads: `price` (what a customer

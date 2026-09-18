@@ -1,4 +1,4 @@
--- rp_logs — audit trail for the Night City RP stack.
+-- rp_logs - audit trail for the Night City RP stack.
 --
 -- What it does:
 --   * listens (AddEventHandler) to every rp_*:... event the other resources
@@ -816,12 +816,15 @@ local function needsBand(v)
     return "ok"
 end
 
-describe["rp_needs:changed"] = function(playerId, first)
+describe["rp_needs:changed"] = function(playerId, first, thirst, fatigue)
     local pid = tonumber(playerId)
     if not pid then return nil end
     local needs
     if type(first) == "table" then
         needs = first
+    elseif type(first) == "number" then
+        -- rp_needs raises (playerId, hunger, thirst, fatigue) every tick: no export call needed.
+        needs = { hunger = first, thirst = thirst, fatigue = fatigue }
     else
         local ok, got = pcall(function() return exports.rp_needs:get(pid) end)
         if ok and type(got) == "table" then needs = got end
@@ -906,7 +909,9 @@ end)
 AddEventHandler("onPlayerLifeStateChanged", function(playerId, revision, phase, reason)
     if phase ~= "dead" then return end
     if reason == "registered" or reason == "restored" or reason == "resync_requested" then return end
-    local life = Open77.players.getLifeState(playerId)
+    -- The host delivers the id as a string; getLifeState only takes an integer and answers nil
+    -- otherwise, which would turn every admin tp (weapon open77_admin:tp) into a death row.
+    local life = Open77.players.getLifeState(tonumber(playerId))
     local weapon = life and life.weapon
     local cause = life and life.cause
     if type(weapon) == "string" and weapon:find("^open77_admin:") then return end
@@ -1128,8 +1133,8 @@ RegisterCommand("logs", function(source, args)
     if first == "test" then return cmdTest(source, args) end
     if first == "help" then
         return replyLines(source, {
-            "[LOGS] /logs [kind] [n] — last n events (SQL). /logs stats — counters. /logs test [text] — write a test row (mirrored to Discord).",
-            "[LOGS] /logs webhook <url|off|status> — Discord webhook for the sensitive kinds.",
+            "[LOGS] /logs [kind] [n] - last n events (SQL). /logs stats - counters. /logs test [text] - write a test row (mirrored to Discord).",
+            "[LOGS] /logs webhook <url|off|status> - Discord webhook for the sensitive kinds.",
         })
     end
     local kind, count = nil, cfg.defaultListCount

@@ -1074,6 +1074,32 @@ local function defineItems()
     log("items registered in rp_inventory: %d (rejected: %s)", n, type(rejected) == "table" and countTable(rejected) or tostring(rejected))
 end
 
+-- Decoration: the props of Config.props (the booth terminal), created at start and removed
+-- at stop. A refused prop only logs: the board works without it.
+local propIds = {}
+
+local function spawnProps()
+    for i, def in ipairs(Config.props or {}) do
+        local id, reason = Open77.props.create({
+            model = def.model,
+            position = { x = def.position.x, y = def.position.y, z = def.position.z },
+            yaw = def.yaw or 0.0,
+            bucket = 0,
+        })
+        if id then
+            propIds[#propIds + 1] = id
+        else
+            log("prop %d (%s) not spawned: %s", i, tostring(def.model), tostring(reason))
+        end
+    end
+    if #propIds > 0 then log("props spawned: %d", #propIds) end
+end
+
+local function removeProps()
+    for _, id in ipairs(propIds) do Open77.props.remove(id) end
+    propIds = {}
+end
+
 AddEventHandler("onResourceStart", function(name)
     if name == "rp_inventory" then
         defineItems()
@@ -1086,6 +1112,7 @@ AddEventHandler("onResourceStart", function(name)
         math.floor(Config.commissionRate * 100 + 0.5))
     defineItems()
     decideStore()
+    spawnProps()
     Open77.chat.addSuggestions(-1, SUGGESTIONS)
 
     if Config.autoPublish then
@@ -1114,6 +1141,7 @@ AddEventHandler("onResourceStop", function(name)
         removeNpcs(gig)
         if isConnected(playerId) then TriggerClientEvent("rp_fixer:objective", playerId, false) end
     end
+    removeProps()
     log("stopped: %d running gig(s) dropped without penalty", n)
 end)
 

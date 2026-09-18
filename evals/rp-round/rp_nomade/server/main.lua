@@ -115,10 +115,20 @@ local function societyAdd(amount, reason)
     return balance
 end
 
--- rp_zones:isIn, with a planar-distance fallback when rp_zones is not running.
+-- The rp_zones name a destination is checked against: its key, or `false` when the config says
+-- `zone = false` (a place rp_zones does not know, e.g. the Drive-In: planar distance only).
+local function destZone(key)
+    local dest = C.Destinations[key]
+    if dest and dest.zone == false then return false end
+    return key
+end
+
+-- rp_zones:isIn, with a planar-distance fallback when rp_zones is not running or when the
+-- zone name is `false` (see destZone).
 local function playerInZone(playerId, zoneName, fallbackPos, fallbackRadius)
-    local inside, err = callSync("rp_zones", "isIn", playerId, zoneName)
-    if inside == nil and err then
+    local inside, err
+    if zoneName ~= false then inside, err = callSync("rp_zones", "isIn", playerId, zoneName) end
+    if zoneName == false or (inside == nil and err) then
         local p = Open77.players.position(playerId)
         if not p or not fallbackPos then return false end
         return dist2(p, fallbackPos) <= (fallbackRadius or 10.0)
@@ -253,8 +263,13 @@ local function loadHistory(limit)
     if store.mode == "sql" then
         -- `limit` comes from the config (an integer), never from a player: inlining it keeps the
         -- statement valid on drivers that refuse a placeholder in LIMIT.
-        local rows = Open77.database.query.await(
+        -- `.await` raises on a failed read; a dead /convois is worse than an empty page.
+        local ok, rows = pcall(Open77.database.query.await,
             ("SELECT id, identifier, player_name, template, destination, crates, delivered, pay, bonus, society_cut, convoy, status, started_at, ended_at FROM rp_nomade_contracts ORDER BY id DESC LIMIT %d"):format(limit))
+        if not ok then
+            log("history read failed: %s", tostring(rows))
+            return {}, "sql"
+        end
         return rows or {}, "sql"
     end
     local list = readHistory()
@@ -320,9 +335,13 @@ local function spawnTruck(bucket)
             position = { x = spot.x, y = spot.y, z = spot.z },
             yaw = spot.yaw or 0.0,
             bucket = bucket,
-            ttlMs = C.Truck.ttlMs,
         })
-        if id then return id, record end
+        if id then
+            -- `ttlMs` is not a create field on this build: the safety-net deadline is its own call.
+            local ttlOk, ttlWhy = Open77.vehicles.setTimeToLive(id, C.Truck.ttlMs)
+            if not ttlOk then log("truck %s ttl refused: %s", tostring(id), tostring(ttlWhy)) end
+            return id, record
+        end
         log("truck record %s refused: %s", record, tostring(reason))
     end
     return nil, "no_truck_record"
@@ -569,7 +588,7 @@ local function startContract(playerId, template)
         startedAtUnix = math.floor(Open77.time.unix()),
         ambushed = false,
         ambushNpcs = {},
-        atDestination = playerInZone(playerId, template.destination, dest.position, dest.radius),
+        atDestination = playerInZone(playerId, destZone(template.destination), dest.position, dest.radius),
         atCamp = playerInZone(playerId, C.Camp.zone, C.Camp.position, 9.0),
         store = (store.mode == "sql") and "sql" or "kvp",
     }
@@ -876,7 +895,7 @@ RegisterNetEvent("rp_nomade:unload", function(vehicleId)
         return
     end
     local dest = C.Destinations[contract.destination]
-    if not playerInZone(playerId, contract.destination, dest and dest.position, dest and dest.radius) then
+    if not playerInZone(playerId, destZone(contract.destination), dest and dest.position, dest and dest.radius) then
         say(playerId, ("This is not the %s. Check the map pin."):format(dest and dest.label or contract.destination))
         return
     end
@@ -1074,10 +1093,37 @@ local function defineItems()
     end
 end
 
+-- Decoration: the props of C.Camp.props, created at start and removed at stop.
+-- A refused prop only logs: the camp works without it.
+local campPropIds = {}
+
+local function spawnCampProps()
+    for i, def in ipairs(C.Camp.props or {}) do
+        local id, reason = Open77.props.create({
+            model = def.model,
+            position = { x = def.position.x, y = def.position.y, z = def.position.z },
+            yaw = def.yaw or 0.0,
+            bucket = 0,
+        })
+        if id then
+            campPropIds[#campPropIds + 1] = id
+        else
+            log("camp prop %d (%s) not spawned: %s", i, tostring(def.model), tostring(reason))
+        end
+    end
+    if #campPropIds > 0 then log("camp props spawned: %d", #campPropIds) end
+end
+
+local function removeCampProps()
+    for _, id in ipairs(campPropIds) do Open77.props.remove(id) end
+    campPropIds = {}
+end
+
 AddEventHandler("onResourceStart", function(name)
     if name == RESOURCE then
         Open77.chat.addSuggestions(-1, SUGGESTIONS)
         defineItems()
+        spawnCampProps()
         log("started: %d templates, camp at %.1f %.1f %.1f, board at %.1f %.1f, ambush %s at %.1f %.1f r=%.0f, carry=%s",
             #C.Templates, C.Camp.position.x, C.Camp.position.y, C.Camp.position.z,
             C.Camp.board.position.x, C.Camp.board.position.y,
@@ -1100,6 +1146,7 @@ AddEventHandler("onResourceStop", function(name)
     for playerId, contract in pairs(contracts) do
         endContract(playerId, contract, "resource_stopped")
     end
+    removeCampProps()
 end)
 
 AddEventHandler("onPlayerDisconnected", function(playerId)
@@ -1203,6 +1250,19 @@ CreateThread(function()
                         and dist2(tp, C.Ambush.center) <= C.Ambush.radius
                         and dist2(tp, contract.truckSpawn) >= C.Ambush.minTravel then
                         spawnAmbush(playerId, contract, tp)
+                    end
+                end
+                -- A destination rp_zones does not know never raises rp_zones:entered / left:
+                -- keep its atDestination flag from the planar check instead.
+                if destZone(contract.destination) == false then
+                    local dest = C.Destinations[contract.destination]
+                    local at = playerInZone(playerId, false, dest and dest.position, dest and dest.radius)
+                    if at ~= (contract.atDestination == true) then
+                        contract.atDestination = at
+                        if at and contract.loaded - contract.delivered > 0 then
+                            say(playerId, "You made it. Park, get out and press E on the truck to unload.")
+                        end
+                        pushState(playerId, contract)
                     end
                 end
             end

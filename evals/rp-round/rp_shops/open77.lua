@@ -26,6 +26,7 @@ permissions {
     "world.npcs",         -- Open77.npcs.create / speak / tasks / remove (the vendors)
     "players.life.read",  -- Open77.players.isDead (a corpse buys nothing)
     "world.environment",  -- Open77.environment.getState (black market opening hours)
+    "world.props",        -- Open77.props.create / remove (one stall prop per vendor, removed on stop)
 }
 
 shared_script "shared/config.lua"

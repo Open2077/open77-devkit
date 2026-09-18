@@ -90,7 +90,8 @@ local function applyOverrides()
     local applied = 0
     for _, entry in ipairs(Config.overrides or {}) do
         local ok, value = pcall(function() return exports.rp_config:get(entry.key, nil) end)
-        if ok and value ~= nil and Config[entry.section] then
+        -- Same type as the shipped value only: a string "false" would otherwise read as true.
+        if ok and value ~= nil and Config[entry.section] and type(value) == type(Config[entry.section][entry.field]) then
             Config[entry.section][entry.field] = value
             applied = applied + 1
         end
@@ -564,7 +565,11 @@ end
 AddEventHandler("rp_ncpd:alert", function(kind, position, text, byPlayerId)
     if not state.running or not Config.alerts.enabled then return end
     local pos = toPosition(position)
-    if not pos and byPlayerId then pos = Open77.players.position(tonumber(byPlayerId)) end
+    if not pos then
+        -- Open77.players.position throws for id <= 0 (console alerts carry 0) or a non-integer.
+        local by = tonumber(byPlayerId)
+        if by and by >= 1 and by % 1 == 0 then pos = Open77.players.position(math.floor(by)) end
+    end
     if not pos then
         log("alert '%s' carried no usable position: no siren", tostring(kind))
         return

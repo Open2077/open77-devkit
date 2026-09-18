@@ -24,7 +24,7 @@ server also owns the numbers, the voice channels, the animation the body plays a
    Console: `giveitem <id> phone 1`. With `rp_inventory` not running the check is skipped and the
    log says so once per player.
 4. Nothing to place in the world: every position the phone uses is the caller's own. The freeroam
-   spawn is `381.36, -2401.79, 181.99`; `shared/config.lua` holds every tunable.
+   spawn is `-1191.30, 2006.88, 7.82 (Kabuki Market Centre, Watson)`; `shared/config.lua` holds every tunable.
 
 ## The panel (`/tel`)
 
@@ -158,7 +158,7 @@ summaries and 25 messages of the open thread.
 [rp_phone] database not ready (database_unavailable): falling back to Open77.kvp for phone data
 ```
 
-## Test in 2 minutes (one player, freeroam spawn `381.36, -2401.79, 181.99`)
+## Test in 2 minutes (one player, freeroam spawn Kabuki Market `-1191.30, 2006.88, 7.82 (Kabuki Market Centre, Watson)`)
 
 Player id `1`, registered at NCID (`/carte` shows `NCID #<n>`), `rp_inventory`, `rp_identity`,
 `rp_economy` running. Console: `giveitem 1 phone 1`.

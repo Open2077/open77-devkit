@@ -287,7 +287,7 @@ local function searchWreck(playerId, index)
     -- rp_zones' own verdict when it runs (a moved point outside the yard is refused here).
     local inZone = callExport("rp_zones", "isIn", playerId, Config.zone)
     if inZone == false then
-        say(playerId, "You are outside the scrapyard. The wrecks are inside the yard's ring.")
+        say(playerId, "You are outside the junkyard. The wrecks are inside the yard's ring.")
         return
     end
     local ok, why = checkDuty(playerId)
@@ -604,6 +604,32 @@ local function defineItems()
     log("items defined in rp_inventory: registered=%s rejected=%s", tostring(registered), tostring(rejected))
 end
 
+-- Decoration: the props of Config.props, created at start and removed at stop.
+-- A refused prop only logs: the yard works without it.
+local propIds = {}
+
+local function spawnProps()
+    for i, def in ipairs(Config.props or {}) do
+        local id, reason = Open77.props.create({
+            model = def.model,
+            position = { x = def.position.x, y = def.position.y, z = def.position.z },
+            yaw = def.yaw or 0.0,
+            bucket = 0,
+        })
+        if id then
+            propIds[#propIds + 1] = id
+        else
+            log("prop %d (%s) not spawned: %s", i, tostring(def.model), tostring(reason))
+        end
+    end
+    if #propIds > 0 then log("props spawned: %d", #propIds) end
+end
+
+local function removeProps()
+    for _, id in ipairs(propIds) do Open77.props.remove(id) end
+    propIds = {}
+end
+
 AddEventHandler("onResourceStart", function(name)
     if name == "rp_inventory" and name ~= RESOURCE then
         defineItems()
@@ -614,6 +640,7 @@ AddEventHandler("onResourceStart", function(name)
     defineItems()
     rollPrices()
     spawnDealer()
+    spawnProps()
     Open77.chat.addSuggestions(-1, SUGGESTIONS)
 
     -- Database: create the table once the connection answers; decide the store once.
@@ -661,6 +688,7 @@ AddEventHandler("onResourceStop", function(name)
         Open77.npcs.remove(dealerNpcId)
         dealerNpcId = nil
     end
+    removeProps()
 end)
 
 RegisterNetEvent("chat:ready", function()
@@ -782,7 +810,8 @@ end)
 
 exports("durability", function(playerId)
     playerId = tonumber(playerId)
-    if not playerId or playerId <= 0 then return nil, "invalid_player_id" end
+    if not playerId or playerId <= 0 or playerId % 1 ~= 0 then return nil, "invalid_player_id" end
+    playerId = math.tointeger(playerId)
     local identifier = Open77.players.identifier(playerId)
     if not identifier then return nil, "player_not_found" end
     if loadedTools[playerId] ~= identifier then return nil, "not_loaded" end

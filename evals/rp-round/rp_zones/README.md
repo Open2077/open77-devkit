@@ -54,7 +54,7 @@ when none). Call inside `pcall`: a synchronous export raises when the resource i
 
 ```lua
 local ok, zone = pcall(function() return exports.rp_zones:zoneOf(source) end)
-if ok and zone and zone.kind == "hospital" then ... end
+if ok and zone and zone.kind == "clinic" then ... end
 ```
 
 ## Events (host bus, `TriggerEvent`)
@@ -68,42 +68,54 @@ if ok and zone and zone.kind == "hospital" then ... end
 
 ## Shipped zones
 
-All on the flat band around the freeroam spawn `381.36, -2401.79, 181.99`, measured with
-`Open77.world.groundZ` on 2026-09-18 (north of y -2361, south of y -2415 and west of x 335 the
-ground drops 20-30 m; east of x 400 at y -2401 there is no ground). Circles, `maxHeight` 15 m.
+Real Night City places, measured on 2026-09-18 (walked points in Kabuki, AMM interiors for the
+landmarks). The freeroam spawn is **Kabuki Market Centre** `-1191.30, 2006.88, 7.82` (Watson).
+Circles (`maxHeight` 15 m unless noted) except `badlands`, which is a polygon. Zones with a
+radius of at most 25 m draw a ground ring.
 
-| Name | Kind | Centre (x, y, z) | Radius | From spawn |
+| Name | Kind | Centre (x, y, z) | Radius | From the spawn |
 |---|---|---|---|---|
-| `spawn_plaza` | safe | 381.36, -2401.79, 182 | 45 m | 0 m (around the spawn) |
-| `afterlife` | bar | 360, -2390, 182 | 10 m | 24 m north-west |
-| `mecano_shop` | garage | 341, -2401, 180.3 | 10 m | 40 m west |
-| `blackmarket` | blackmarket | 400, -2390, 182 | 10 m | 22 m north-east |
-| `hospital` | hospital | 400, -2366, 182 | 12 m | 41 m north-north-east |
-| `nomad_camp` | camp | 420, -2378, 182 | 9 m | 46 m north-east |
-| `ncpd_hq` | ncpd | 440, -2366, 181 | 12 m | 69 m north-east |
-| `scrapyard` | scrapyard | 462, -2352, 178 | 12 m | 95 m north-east |
-| `badlands` | badlands | 381.36, -2401.79 | 900 m | covers the whole area (no ring) |
+| `kabuki_market` | safe (`noWeapons`) | -1191.30, 2006.88, 7.82 | 70 m | 0 m (the walked market: Noodle Row, The Stalls, Vendor Lane, East Row, Lower Walkway, South Gate, West Approach, Far Corner) |
+| `kabuki` | district | -1200, 1900, 10 | 420 m, `maxHeight` 200 | the district around it (pin only, no ring); Lizzie's is inside it |
+| `afterlife` | bar | -1453, 1017, 16.6 | 50 m | 1.0 km south-west (bar floor, counter, Rogue's room, back room; no ring, the radius is above 25 m) |
+| `lizzies` | bar | -1188.9, 1566.2, 23.0 | 18 m | 440 m south |
+| `h10` | residential | -1391.9, 1271.7, 123.1 | 45 m | 760 m south-west (V's floor of Megabuilding H10, the gym included) |
+| `viktor_clinic` | clinic | -1548, 1230, 11.6 | 12 m | 855 m south-west (Vik's chair room) |
+| `ncpd_hq` | ncpd | -1761.5, -1010.8, 94.3 | 30 m | 3.1 km south (the NCPD building's conference room, city centre - drive) |
+| `junkyard` | industrial | 1374.9, -1674.9, 49.3 | 90 m, `maxHeight` 30 | 4.5 km south-east (Rancho Coronado, Badlands edge) |
+| `nomad_camp` | camp | 1792.9, 2248.9, 180.2 | 120 m, `maxHeight` 30 | 3.0 km east (Aldecaldos camp) |
+| `westbrook_dealer` | dealership | -1442.2, 127.4, 18.0 | 40 m | 1.9 km south (the Westbrook dealership lot) |
+| `badlands` | badlands | polygon `900,-4000` → `5000,-4000` → `5000,4000` → `900,4000`, `minZ` -200 / `maxZ` 1200 | everything east of x 900 | everything east of the city (no ring); the junkyard and the Aldecaldos camp are inside it |
 
-Non-overlapping placeholders; the owner moves the city ones to real Night City places by
-editing the centres (`/goto` candidates are listed in the config).
+The Gallery (`-1173.12, 2087.44, 11.94`, the rp_jobs agency) is 83 m from the market centre:
+outside `kabuki_market`, inside `kabuki`. `badlands` is a polygon rather than a circle because
+the platform caps a circle radius at 2 000 m (`open77_zones.lua` `MAX_RADIUS`, `invalid_radius`
+at start): the rectangle east of x 900 covers the Aldecaldos camp (`1793, 2249`), the junkyard
+(`1375, -1675`), the oil fields and the road out of the city, while the city itself stays out
+(see the config comment).
 
 ## Test in 2 minutes
 
-1. Connect; you spawn inside `spawn_plaza` (and `badlands`). Expect two toasts top-right —
-   "Badlands Plaza / No heat in here, choom..." and "Badlands / You're past the city limits..." —
+1. Connect; you spawn inside `kabuki_market` (and `kabuki`). Expect two toasts top-right -
+   "Kabuki Market / No heat in here, choom..." and "Kabuki / Kabuki, Watson. Tyger Claws
+   turf..." - and no chat line (only `badlands` writes one).
+2. `/zone` → `You are in Kabuki Market (kabuki_market, safe) - also inside: kabuki`.
+3. `/zones` → eleven lines, nearest first; `kabuki_market` and `kabuki` marked `[HERE]`.
+4. Open the map: eleven pins (a `fast_travel` pin on the market, the Kabuki district pin over
+   it, bar pins at Lizzie's (440 m south) and the Afterlife, meds at Vik's, NCPD in the city
+   centre, junk and nomad far east, tech at Westbrook, the outpost pin on the Badlands).
+5. Walk 70 m out of the market (the South Gate alley at `-1218, 1950` is 63 m from the centre,
+   seven more metres down the street does it): toast **Leaving Kabuki Market / You're fair game
+   again, choom**.
+6. Drive south to the Afterlife (`-1453, 1017`, 1.0 km): the zone (50 m, pin only - no ground
+   ring above 25 m) covers the whole bar; toast **The Afterlife / The bar's open...**; `/zone`
+   → `afterlife`. Walk back out: no toast for `afterlife` (only safe zones announce their exit).
+7. Same with `lizzies` (`-1188.9, 1566.2`, on the way) and `viktor_clinic` (`-1548, 1230`):
+   every job zone is a short drive from the market.
+8. Safe zone check (two players): both stand in the market; shoot the other - no health loss.
+   Step one player outside the ring, shoot back in - still no damage (victim protected); the
+   inside player shooting out - refused too (`blockDamageFromInside`). Both outside - normal damage.
+9. Drive east past the city limit (anything east of x 900, e.g. the junkyard at `1375, -1675`
+   or the Aldecaldos camp at `1793, 2249`): toast **Badlands / You're past the city limits...**
    plus the orange chat line **Out of NCPD coverage**.
-2. `/zone` → `You are in Badlands Plaza (spawn_plaza, safe) - also inside: badlands`.
-3. `/zones` → nine lines, nearest first; `spawn_plaza` and `badlands` marked `[HERE]`.
-4. Open the map: nine pins (a `fast_travel` pin at the spawn, NCPD, meds, bar, tech, junk, black
-   market, nomad, outpost around it). Look north-east: rings at the black market (22 m) and the
-   hospital (41 m).
-5. Walk 45 m in any direction: toast **Leaving Badlands Plaza / You're fair game again, choom**.
-6. Walk north-east along the road to 440, -2366 (69 m): toast **NCPD Badlands Outpost / NCPD
-   precinct. Badges everywhere...**; `/zone` → `ncpd_hq`. Walk back 15 m: no toast for `ncpd_hq`
-   (only safe zones announce their exit).
-7. Same with `hospital` (400, -2366), `blackmarket` (400, -2390) and `afterlife` (360, -2390):
-   every job zone is reachable on foot.
-8. Safe zone check (two players): both stand in the plaza; shoot the other — no health loss. Step
-   one player outside the ring, shoot back in — still no damage (victim protected); the inside
-   player shooting out — refused too (`blockDamageFromInside`). Both outside — normal damage.
-9. Server log shows `9 zone(s) prepared: ...` and `safe-zone damage arbiter installed` at start.
+10. Server log shows `11 zone(s) prepared: ...` and `safe-zone damage arbiter installed` at start.

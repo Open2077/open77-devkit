@@ -1,4 +1,4 @@
--- rp_ncpd — the NCPD for a Night City RP server (build 2.31.13+op77.76).
+-- rp_ncpd - the NCPD for a Night City RP server (build 2.31.13+op77.76).
 -- Server-authoritative: every police action is checked here (job `ncpd` AND on duty through
 -- rp_jobs); the client only shows ALT+click actions and renders blips / input blocks.
 --
@@ -49,13 +49,15 @@ local function notify(playerId, kind, title, message, durationMs)
 end
 
 local function identifierOf(playerId)
-    if type(playerId) ~= "number" then return nil end
+    -- Open77.players.identifier raises for id <= 0 or a non-integer (console actors and the
+    -- "system" officer 0 reach this through addRecordFor / setWarrantFor).
+    if type(playerId) ~= "number" or playerId < 1 or playerId % 1 ~= 0 then return nil end
     return Open77.players.identifier(playerId)
 end
 
 local function nameOf(playerId)
     if type(playerId) ~= "number" then return "Night City" end
-    if playerId == 0 then return "Dispatch" end
+    if playerId < 1 or playerId % 1 ~= 0 then return "Dispatch" end
     local ok, full = pcall(function() return exports.rp_identity:fullName(playerId) end)
     if ok and type(full) == "string" and full ~= "" then return full end
     return Open77.players.name(playerId) or ("citizen #" .. playerId)
@@ -668,6 +670,7 @@ local function resolveTarget(source, raw, opts)
         say(source, "Give a player id (see /players).")
         return nil
     end
+    target = math.tointeger(target)  -- the natives refuse an integral float (2.0) as an id
     if target == source then
         say(source, "Not on yourself, officer.")
         return nil
@@ -1229,6 +1232,9 @@ local function doJail(source, target, minutes)
         say(target, ("Contraband confiscated at booking: %s."):format(text), C.colors.warn)
     end
     if kitHold(target) then kitCall("release", target, source, "released") end
+    -- Open77.players.teleport refuses a seated player (player_in_vehicle): take them out first.
+    local seatedIn = Open77.vehicles.getPlayerSeat(target)
+    if seatedIn and seatedIn.vehicleId then Open77.vehicles.forcePlayerOutOfVehicle(target, seatedIn.vehicleId) end
     local now = math.floor(Open77.time.unix())
     local s = { playerId = target, remaining = minutes * 60, total = minutes, officerName = nameOf(source), startedAt = now, sinceNotify = 0, sincePersist = 0 }
     sentences[identifier] = s
@@ -1342,7 +1348,7 @@ AddEventHandler("rp_ncpd:alert", function(kind, position, text, byPlayerId)
         pos = { x = tonumber(position.x), y = tonumber(position.y), z = tonumber(position.z) }
     end
     byPlayerId = tonumber(byPlayerId)
-    local by = byPlayerId and (" - " .. nameOf(byPlayerId)) or ""
+    local by = (byPlayerId and byPlayerId >= 1) and (" - " .. nameOf(byPlayerId)) or ""
     local officers = officersOnDuty()
     for _, officerId in ipairs(officers) do
         local dist = pos and Open77.players.distance(officerId, pos) or nil
@@ -1715,10 +1721,44 @@ RegisterNetEvent("chat:ready", function()
     if type(source) == "number" and source > 0 then Open77.chat.addSuggestions(source, SUGGESTIONS) end
 end)
 
+-- The outpost's props (Config.outpost.props): the NCPD sign and a barrier on the Afterlife
+-- street, owned here, removed on stop. A refusal only logs; the ring is the client's.
+local outpostProps = {}
+
+local function spawnOutpostProps()
+    local o = C.outpost
+    if not o or type(o.props) ~= "table" then return end
+    for index, at in ipairs(o.props) do
+        if not outpostProps[index] and at.model then
+            local id, reason = Open77.props.create({
+                model = at.model,
+                position = { x = at.x, y = at.y, z = at.z },
+                yaw = at.yaw or 0.0,
+                bucket = 0,
+                streamingRadius = 120.0,
+            })
+            if id then
+                outpostProps[index] = id
+            else
+                log("outpost prop %d not spawned (%s)", index, tostring(reason))
+            end
+        end
+    end
+end
+
+local function removeOutpostProps()
+    for index, propId in pairs(outpostProps) do
+        Open77.props.remove(propId)
+        outpostProps[index] = nil
+    end
+end
+
 AddEventHandler("onResourceStart", function(name)
     if name ~= GetCurrentResourceName() then return end
     log("started: cell %.1f %.1f %.1f, entrance %.1f %.1f %.1f, jail %d-%d min, fines %d-%d eddies",
         C.cell.x, C.cell.y, C.cell.z, C.entrance.x, C.entrance.y, C.entrance.z, C.prison.minMinutes, C.prison.maxMinutes, C.fine.min, C.fine.max)
+    local props, err = pcall(spawnOutpostProps)
+    if not props then log("outpost props failed: %s", tostring(err)) end
     bootStore()
     Open77.chat.addSuggestions(-1, SUGGESTIONS)
     ensureVoiceChannel()
@@ -1760,6 +1800,7 @@ end)
 
 AddEventHandler("onResourceStop", function(name)
     if name ~= GetCurrentResourceName() then return end
+    removeOutpostProps()
     for identifier, s in pairs(sentences) do Store.setSentence(identifier, s) end
     for playerId in pairs(grantedRights) do revokeRights(playerId) end
     for _, playerId in ipairs(Open77.players.all()) do TriggerClientEvent("rp_ncpd:jailed", playerId, false) end

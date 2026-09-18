@@ -19,7 +19,7 @@ decided or stored here — **no SQL table, no exports**.
  THIRST  ██░░░░░░░░                  23%   <- red and pulsing under 25 %
  FATIGUE ██████████                 100%
  ─────────────────────────────────────────
- BADLANDS PLAZA  safe        14:32 sunny
+ Kabuki Market   SAFE        14:32 sunny
 ```
 
 | Row | Source (server export, through `pcall`) | When it is missing |
@@ -137,23 +137,25 @@ retries every 15 s, the cinematic probe every 30 s).
 
 ## Test in 2 minutes
 
-At the freeroam spawn `381.36, -2401.79, 181.99`, with `rp_economy`, `rp_bank`, `rp_jobs`,
+At the freeroam spawn Kabuki Market `-1191.30, 2006.88, 7.82 (Kabuki Market Centre, Watson)`, with `rp_economy`, `rp_bank`, `rp_jobs`,
 `rp_needs`, `rp_zones`, `rp_identity`, `open77_weather` and `open77_uikit` in the load list.
 
 1. Start the server: log `[rp_hud] started: 0 player(s) online, ...`. Connect: the panel
    fades in bottom-left within a second of the world loading. Client log:
    `[rp_hud] client started, page created`.
 2. Read it: your RP name (or account name) and `#<id>`, `CASH €$ 500` for a new wallet,
-   `ACCOUNT €$ 0`, `unemployed · no shift`, three full cyan bars, `BADLANDS PLAZA safe`
-   (you spawn inside `spawn_plaza`), the clock ticking (12:00 at boot, at open77_weather's
+   `ACCOUNT €$ 0`, `unemployed · no shift`, three full cyan bars, `Kabuki Market SAFE`
+   (the zone label as rp_zones gives it, the kind in small caps; you spawn inside `kabuki_market`, the 70 m safe zone around Kabuki Market Centre), the clock ticking (12:00 at boot, at open77_weather's
    `timeScale` — 4 game seconds per real second by default, so a minute passes every 15 s).
 3. `/interface` → the panel fades out, toast `RP INTERFACE: OFF`. `/interface` again → back.
 4. Server console: `givemoney <id> 1000` → `CASH` reads `€$ 1 500` within 250 ms.
    `setneeds <id> 80 20 60` → the thirst bar turns red and pulses at `20%`.
    `setjob <id> ncpd 2` → `NCPD 2/3 senior`, grey dot. `/service` → green dot, `ON DUTY`.
-5. Walk 45 m out of the plaza → the zone row reads `BADLANDS badlands`; walk to the black
-   market ring (`400, -2390`, 22 m north-east) → the label rp_zones gives it, kind
-   `blackmarket`; walk back → `BADLANDS PLAZA safe`.
+5. Walk 70 m out of the market (the South Gate alley at `-1218, 1950` is 63 m from the
+   centre, a few more metres down the street does it) → the zone row reads `Kabuki DISTRICT`
+   (the 420 m `kabuki` zone around the market); go down to the Lower Walkway dealer
+   (`-1201.07, 2035.60, 5.60`, 30 m north, under the market — an rp_shops stall, not a zone,
+   still inside `kabuki_market`) → `Kabuki Market SAFE`; walk back up → `Kabuki Market SAFE`.
 6. `/cinematic` (freeroam) → the panel is gone with the HUD; `/cinematic off` → back.
    Open photo mode (if a resource exposes it) → gone; close it → back.
 7. Server console: `weather.time.set 23:58` → the clock jumps to `23:58` within 2 s and

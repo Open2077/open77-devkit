@@ -441,25 +441,33 @@ end
 -- Vendors (NPCs)
 -- ---------------------------------------------------------------------------
 
+local stopping = false -- set on onResourceStop: a vendor removed by the stop is not respawned
+
+local function spawnVendor(shop)
+    if shop.npcId then return end
+    local where = shop.vendorPosition or shop.position -- 1.2 m behind the ring, facing it
+    local npcId, reason = Open77.npcs.create({
+        record = (shop.vendor and shop.vendor.record) or Config.vendor.record,
+        position = where,
+        yaw = shop.yaw or 0.0,
+        damagePolicy = 2, -- invulnerable: this build wants the numeric policy
+        behavior = { combatEnabled = false },
+        streamingRadius = Config.vendor.streamingRadius,
+        persistent = false, -- gone with the resource, recreated on start
+    })
+    if npcId then
+        shop.npcId = npcId
+        byNpc[tostring(npcId)] = shop.id
+        print(LOG .. (" vendor %s of %s spawned at %.1f %.1f %.1f (npc %s)"):format(
+            shop.vendor and shop.vendor.name or "?", shop.id, where.x, where.y, where.z, tostring(npcId)))
+    else
+        print(LOG .. " vendor of " .. shop.id .. " not created: " .. tostring(reason))
+    end
+end
+
 local function spawnVendors()
     for _, shop in ipairs(shopOrder) do
-        local npcId, reason = Open77.npcs.create({
-            record = (shop.vendor and shop.vendor.record) or Config.vendor.record,
-            position = shop.position,
-            yaw = shop.yaw or 0.0,
-            damagePolicy = 2, -- invulnerable: this build wants the numeric policy
-            behavior = { combatEnabled = false },
-            streamingRadius = Config.vendor.streamingRadius,
-            persistent = false, -- gone with the resource, recreated on start
-        })
-        if npcId then
-            shop.npcId = npcId
-            byNpc[tostring(npcId)] = shop.id
-            print(LOG .. (" vendor %s of %s spawned at %.1f %.1f %.1f (npc %s)"):format(
-                shop.vendor and shop.vendor.name or "?", shop.id, shop.position.x, shop.position.y, shop.position.z, tostring(npcId)))
-        else
-            print(LOG .. " vendor of " .. shop.id .. " not created: " .. tostring(reason))
-        end
+        spawnVendor(shop)
     end
 end
 
@@ -469,6 +477,45 @@ local function removeVendors()
             Open77.npcs.remove(shop.npcId)
             byNpc[tostring(shop.npcId)] = nil
             shop.npcId = nil
+        end
+    end
+end
+
+-- ---------------------------------------------------------------------------
+-- Stall props: one real streamed prop per shop (shop.prop), next to the vendor.
+-- A refused model only logs; the ring and the vendor still mark the stall.
+-- ---------------------------------------------------------------------------
+
+local function spawnProps()
+    for _, shop in ipairs(shopOrder) do
+        local prop = shop.prop
+        if prop and not shop.propId then
+            for _, model in ipairs(prop.models or {}) do
+                local ok, id, reason = pcall(Open77.props.create, {
+                    model = model,
+                    position = { x = prop.position.x, y = prop.position.y, z = prop.position.z },
+                    yaw = prop.yaw or shop.yaw or 0.0,
+                    bucket = 0,
+                    streamingRadius = 120.0,
+                })
+                if ok and id then
+                    shop.propId = id
+                    print(LOG .. (" prop %s of %s at %.1f %.1f %.1f (%s)"):format(
+                        tostring(id), shop.id, prop.position.x, prop.position.y, prop.position.z, model))
+                    break
+                end
+                print(LOG .. (" prop of %s refused (%s): %s"):format(shop.id, tostring(ok and reason or id), model))
+            end
+            if not shop.propId then print(LOG .. " no prop spawned for " .. shop.id .. ": the vendor alone marks the stall") end
+        end
+    end
+end
+
+local function removeProps()
+    for _, shop in ipairs(shopOrder) do
+        if shop.propId then
+            pcall(Open77.props.remove, shop.propId)
+            shop.propId = nil
         end
     end
 end
@@ -1219,8 +1266,8 @@ end)
 
 AddEventHandler("onPlayerReady", function(playerId)
     playerId = tonumber(playerId)
-    if not playerId then
-        return
+    if not playerId or playerId < 1 then
+        return -- Open77.players.identifier raises on id 0 and that kills the VM
     end
     local identifier = identifierOf(playerId)
     if identifier and store then
@@ -1244,6 +1291,15 @@ AddEventHandler("onNpcRemoved", function(npcId, reason, resource)
         shops[shopId].npcId = nil
     end
     print(LOG .. " vendor of " .. shopId .. " removed (" .. tostring(reason) .. ")")
+    -- The counter must not stay empty until the next restart: put the vendor back
+    -- (a few seconds later, so an explosion / cleanup sweep has finished).
+    if stopping then return end
+    SetTimeout(5000, function()
+        local shop = shops[shopId]
+        if shop and not shop.npcId and not stopping then
+            spawnVendor(shop)
+        end
+    end)
 end)
 
 RegisterNetEvent("chat:ready", function()
@@ -1263,14 +1319,17 @@ AddEventHandler("onResourceStart", function(name)
     end
     setupStore()
     spawnVendors()
+    spawnProps()
     Open77.chat.addSuggestions(-1, SUGGESTIONS)
     print(LOG .. (" %d shops open around %.0f, %.0f; gun licence %d, styling %d, black market %02d:00-%02d:00"):format(
-        #shopOrder, 381.36, -2401.79, Config.gunLicenceFee, Config.stylingFee, Config.blackmarket.openHour, Config.blackmarket.closeHour))
+        #shopOrder, Config.hub.x, Config.hub.y, Config.gunLicenceFee, Config.stylingFee, Config.blackmarket.openHour, Config.blackmarket.closeHour))
 end)
 
 AddEventHandler("onResourceStop", function(name)
     if name ~= RESOURCE then
         return
     end
+    stopping = true
     removeVendors()
+    removeProps()
 end)

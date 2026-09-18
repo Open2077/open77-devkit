@@ -151,27 +151,31 @@ CreateThread(function()
         Wait(Config.visibilityPollMs)
         elapsedMs = elapsedMs + Config.visibilityPollMs
         if page and pageReady then
-            local hidden, reason = false, ""
+            -- pcall: a raise in any probe would retire this loop for the whole session.
+            local ok, err = pcall(function()
+                local hidden, reason = false, ""
 
-            if Open77.photoMode.isActive() == true then
-                hidden, reason = true, "photo_mode"
-            end
+                if Open77.photoMode.isActive() == true then
+                    hidden, reason = true, "photo_mode"
+                end
 
-            if not hidden and vanillaHudHidden() then
-                hidden, reason = true, "vanilla_hud_hidden"
-            end
+                if not hidden and vanillaHudHidden() then
+                    hidden, reason = true, "vanilla_hud_hidden"
+                end
 
-            sinceCinematicMs = sinceCinematicMs + Config.visibilityPollMs
-            if sinceCinematicMs >= Config.cinematicPollMs then
-                sinceCinematicMs = 0
-                refreshCinematic(elapsedMs)
-            end
-            if not hidden and cinematicActive then
-                hidden, reason = true, "cinematic"
-            end
+                sinceCinematicMs = sinceCinematicMs + Config.visibilityPollMs
+                if sinceCinematicMs >= Config.cinematicPollMs then
+                    sinceCinematicMs = 0
+                    refreshCinematic(elapsedMs)
+                end
+                if not hidden and cinematicActive then
+                    hidden, reason = true, "cinematic"
+                end
 
-            policyHidden, policyReason = hidden, reason
-            applyVisibility(false)
+                policyHidden, policyReason = hidden, reason
+                applyVisibility(false)
+            end)
+            if not ok then log("visibility poll failed: %s", tostring(err)) end
         end
     end
 end)
@@ -209,20 +213,24 @@ CreateThread(function()
     while true do
         local delay = Config.clockPollMs
         if page and pageReady then
-            local pending, reason = Open77.exports.call("open77_weather", "getState")
-            if pending then
-                local state = pending:await()
-                if type(state) == "table" then
-                    sendClock(state)
+            -- pcall: a raise here would retire the clock loop for the whole session.
+            local ok, err = pcall(function()
+                local pending, reason = Open77.exports.call("open77_weather", "getState")
+                if pending then
+                    local state = pending:await()
+                    if type(state) == "table" then
+                        sendClock(state)
+                    end
+                else
+                    if clockAvailable ~= false then
+                        clockAvailable = false
+                        log("world clock unavailable: %s", tostring(reason))
+                        page:send("clock", { available = false, reason = tostring(reason) })
+                    end
+                    delay = Config.clockRetryMs
                 end
-            else
-                if clockAvailable ~= false then
-                    clockAvailable = false
-                    log("world clock unavailable: %s", tostring(reason))
-                    page:send("clock", { available = false, reason = tostring(reason) })
-                end
-                delay = Config.clockRetryMs
-            end
+            end)
+            if not ok then log("clock poll failed: %s", tostring(err)) end
         end
         Wait(delay)
     end

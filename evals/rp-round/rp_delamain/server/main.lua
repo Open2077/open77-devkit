@@ -23,7 +23,7 @@ local store        = nil
 local pendingRows  = {}   -- rows written before the store was decided
 
 local SUGGESTIONS = {
-    { command = "/delamain", help = "Call a Delamain driver (uses your map waypoint as destination)",
+    { command = "/delamain", help = "Call a Delamain driver (your map waypoint, or a preset: afterlife, afterlife_lot, dealer, lizzies)",
       parameters = { { name = "annuler", help = "optional: drop your current call / ride" } } },
     { command = "/accepter", help = "Delamain driver: take a call",
       parameters = { { name = "rideId", help = "the ride number from the dispatch line" } } },
@@ -103,6 +103,8 @@ end
 
 -- RP name from rp_identity when it runs, else the account name.
 local function nameOf(playerId)
+    -- Open77.players.name raises for nil / id <= 0 (a ride with no driver yet, a console caller).
+    if type(playerId) ~= "number" or playerId < 1 or playerId % 1 ~= 0 then return "#" .. tostring(playerId) end
     local ok, name = pcall(function() return exports.rp_identity:fullName(playerId) end)
     if ok and type(name) == "string" and #name > 0 then return name end
     return Open77.players.name(playerId) or ("#" .. tostring(playerId))
@@ -721,14 +723,24 @@ RegisterCommand("delamain", function(source, args)
         return
     end
 
+    -- `/delamain <preset>`: a configured drop-off (Config.Presets) instead of the map waypoint.
+    local preset
     if sub ~= "" then
-        return say(source, "Usage: /delamain (call a driver, your map waypoint is the destination) or /delamain annuler.")
+        for _, p in ipairs(Config.Presets or {}) do
+            if p.id == sub then preset = p break end
+        end
+        if not preset then
+            local ids = {}
+            for _, p in ipairs(Config.Presets or {}) do ids[#ids + 1] = p.id end
+            return say(source, ("Usage: /delamain (call a driver, your map waypoint is the destination), /delamain <%s> or /delamain annuler."):format(
+                table.concat(ids, "|")))
+        end
     end
 
     local existing = activeRideOf(source)
     if existing then return say(source, REASON_TEXT.already_in_ride) end
 
-    local rideId, reason = createRide(source, nil)
+    local rideId, reason = createRide(source, preset and preset.position or nil)
     if not rideId then
         return say(source, REASON_TEXT[reason] or ("Delamain could not take your call: " .. tostring(reason)))
     end
@@ -737,6 +749,10 @@ RegisterCommand("delamain", function(source, args)
     for _ in pairs(ride.paged) do paged = paged + 1 end
     say(source, ("Delamain dispatch: looking for a driver... (ride #%d, %d driver%s paged). /delamain annuler to cancel."):format(
         rideId, paged, paged == 1 and "" or "s"))
+    if preset then
+        say(source, ("Destination: %s."):format(preset.label))
+        return
+    end
     -- The caller's map waypoint becomes the destination when the client answers.
     ride.askedWaypoint = true
     TriggerClientEvent("rp_delamain:askWaypoint", source, rideId)

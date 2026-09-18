@@ -56,28 +56,38 @@ Config.kinds = {
     },
     camp = {
         title = "Nomad camp",
-        flavour = "Nomad camp. Clan rules apply - respect the fire and the family.",
+        flavour = "Aldecaldos camp. Clan rules apply - respect the fire and the family.",
         type = "info", icon = "CAMP", sprite = "LifepathNomadVariant", style = "interaction",
     },
-    scrapyard = {
-        title = "Scrapyard",
-        flavour = "Scrapyard. Everything here was somebody's ride once. Mind the crusher.",
+    industrial = {
+        title = "Junkyard",
+        flavour = "Junkyard. Everything here was somebody's ride once. Mind the crusher.",
         type = "info", icon = "SCRAP", sprite = "junk", style = "danger",
     },
-    blackmarket = {
-        title = "Black market",
-        flavour = "Black market. No receipts, no questions, no refunds. Eddies talk.",
-        type = "warning", icon = "E$", sprite = "Zzz14_ServicePointBlackMarketVariant", style = "danger",
+    district = {
+        title = "District",
+        flavour = "Kabuki, Watson. Tyger Claws turf, noodle steam and neon. Mind your eddies.",
+        type = "info", icon = "NC", sprite = "objective", style = "objective",
+    },
+    residential = {
+        title = "Residential",
+        flavour = "Megabuilding floor. Keep it down, choom - the neighbours have guns too.",
+        type = "info", icon = "H10", sprite = "objective", style = "interaction",
+    },
+    clinic = {
+        title = "Ripperdoc",
+        flavour = "Vik's clinic. Chrome in, eddies out. Don't touch the chair unless you're paying.",
+        type = "info", icon = "RIP", sprite = "meds", style = "objective",
     },
     bar = {
         title = "Bar",
         flavour = "The bar's open. Keep your iron holstered and your tab paid.",
         type = "info", icon = "BAR", sprite = "bar", style = "interaction",
     },
-    garage = {
-        title = "Garage",
-        flavour = "Garage. Chooh2 fumes, spare parts and a mecano who's seen worse.",
-        type = "info", icon = "SHOP", sprite = "tech", style = "interaction",
+    dealership = {
+        title = "Dealership",
+        flavour = "Westbrook dealership. Every ride on the lot has a price and a warranty nobody honours.",
+        type = "info", icon = "CAR", sprite = "tech", style = "interaction",
     },
 }
 
@@ -91,63 +101,82 @@ Config.kinds = {
 --   optional flags    : free table handed back by zoneOf (e.g. { noWeapons = true })
 --   optional blip = false / ring = false to hide the map pin / ground ring for that zone
 --
--- Layout (measured with Open77.world.groundZ on 2026-09-18): the freeroam spawn is
--- 381.36, -2401.79, 181.99 on a small plateau. North of y -2361 and south of y -2415 the
--- ground drops 20-30 m (a teleport to z 182 there is a fall), west of x 335 it drops too, and
--- east of x 400 at y -2401 there is no ground. The flat band runs from the plaza north-east
--- along the road (x 380-460, y -2355..-2390, z 178-182). Every small zone below sits on that
--- band, non-overlapping, reachable on foot:
---   afterlife 360,-2390   mecano_shop 341,-2401   blackmarket 400,-2390
---   hospital 400,-2366    nomad_camp 420,-2378    ncpd_hq 440,-2366   scrapyard 462,-2352
--- These are placeholders; the owner moves the city ones to real Night City places. /goto
--- candidates: City west -667.14, -382.61, 9.16   Vehicle dealership -1442.2, 127.4, 18.0
---   King Stoop forecourt -410.22, 722.73, 115.0   Lower Watson junction -644.91, 1019.37, 36.56
+-- Layout (real Night City, measured 2026-09-18 - walked points and AMM interiors). The hub is
+-- Watson: the freeroam spawn is Kabuki Market Centre (-1191.30, 2006.88, 7.82), a flat walked
+-- market with The Afterlife, Lizzie's, Viktor's clinic and Megabuilding H10 a few hundred
+-- metres south. The Badlands (east of the city) keep the Aldecaldos camp and the junkyard,
+-- Westbrook keeps the dealership, and the NCPD sits in its city-centre building (cops drive).
+-- Small zones (radius <= 25 m) draw a ground ring at `centre` (interior z + 0.1 so the ring is
+-- not swallowed by the floor); the big ones are pins only.
 Config.zones = {
     {
-        name = "spawn_plaza", label = "Badlands Plaza", kind = "safe",
-        shape = "circle", centre = { x = 381.36, y = -2401.79, z = 181.99 }, radius = 45.0, maxHeight = 15.0,
+        -- The safe hub: the whole walked market (Noodle Row, The Stalls, Vendor Lane, East Row,
+        -- the Lower Walkway 2 m under it and The Gallery 4 m above it - hence maxHeight 15).
+        name = "kabuki_market", label = "Kabuki Market", kind = "safe",
+        shape = "circle", centre = { x = -1191.30, y = 2006.88, z = 7.82 }, radius = 70.0, maxHeight = 15.0,
         flags = { noWeapons = true },
     },
     {
-        name = "ncpd_hq", label = "NCPD Badlands Outpost", kind = "ncpd",
-        shape = "circle", centre = { x = 440.00, y = -2366.00, z = 181.00 }, radius = 12.0, maxHeight = 15.0,
-    },
-    {
-        name = "hospital", label = "Trauma Team Field Station", kind = "hospital",
-        shape = "circle", centre = { x = 400.00, y = -2366.00, z = 182.00 }, radius = 12.0, maxHeight = 15.0,
-    },
-    {
-        name = "afterlife", label = "The Afterlife", kind = "bar",
-        shape = "circle", centre = { x = 360.00, y = -2390.00, z = 182.00 }, radius = 10.0, maxHeight = 15.0,
-    },
-    {
-        name = "mecano_shop", label = "Mecano Shop", kind = "garage",
-        shape = "circle", centre = { x = 341.00, y = -2401.00, z = 180.30 }, radius = 10.0, maxHeight = 15.0,
-    },
-    {
-        name = "scrapyard", label = "Scrapyard", kind = "scrapyard",
-        shape = "circle", centre = { x = 462.00, y = -2352.00, z = 178.00 }, radius = 12.0, maxHeight = 15.0,
-    },
-    {
-        name = "blackmarket", label = "Black Market", kind = "blackmarket",
-        shape = "circle", centre = { x = 400.00, y = -2390.00, z = 182.00 }, radius = 10.0, maxHeight = 15.0,
-    },
-    {
-        name = "nomad_camp", label = "Nomad Camp", kind = "camp",
-        shape = "circle", centre = { x = 420.00, y = -2378.00, z = 182.00 }, radius = 9.0, maxHeight = 15.0,
-    },
-    {
-        -- Large circle covering the whole spawn area. Tall height band so hills do not drop you out.
-        name = "badlands", label = "Badlands", kind = "badlands",
-        shape = "circle", centre = { x = 381.36, y = -2401.79, z = 181.99 }, radius = 900.0, maxHeight = 600.0,
+        -- The district around the market (Kabuki, Watson): pin only, no ring.
+        name = "kabuki", label = "Kabuki", kind = "district",
+        shape = "circle", centre = { x = -1200.00, y = 1900.00, z = 10.00 }, radius = 420.0, maxHeight = 200.0,
         ring = false,
     },
-    -- Polygon example (disabled): a concave turf with a height range.
+    {
+        -- The Afterlife: bar floor 16.5, counter level 17.8, meeting room and back room inside r 25.
+        name = "afterlife", label = "The Afterlife", kind = "bar",
+        shape = "circle", centre = { x = -1453.00, y = 1017.00, z = 16.60 }, radius = 50.0, maxHeight = 15.0,
+    },
+    {
+        name = "lizzies", label = "Lizzie's Bar", kind = "bar",
+        shape = "circle", centre = { x = -1188.90, y = 1566.20, z = 23.00 }, radius = 18.0, maxHeight = 15.0,
+    },
+    {
+        -- V's apartment floor of Megabuilding H10 (the gym at -1420.9, 1320.4 is inside r 45).
+        name = "h10", label = "Megabuilding H10", kind = "residential",
+        shape = "circle", centre = { x = -1391.90, y = 1271.70, z = 123.10 }, radius = 45.0, maxHeight = 15.0,
+    },
+    {
+        name = "viktor_clinic", label = "Vik's Clinic", kind = "clinic",
+        shape = "circle", centre = { x = -1548.00, y = 1230.00, z = 11.60 }, radius = 12.0, maxHeight = 15.0,
+    },
+    {
+        -- The real NCPD building, city centre: conference room, cell 6 m east, desk 4 m north.
+        name = "ncpd_hq", label = "NCPD Headquarters", kind = "ncpd",
+        shape = "circle", centre = { x = -1761.50, y = -1010.80, z = 94.30 }, radius = 30.0, maxHeight = 15.0,
+    },
+    {
+        name = "junkyard", label = "Rancho Coronado Junkyard", kind = "industrial",
+        shape = "circle", centre = { x = 1374.90, y = -1674.90, z = 49.30 }, radius = 90.0, maxHeight = 30.0,
+    },
+    {
+        name = "nomad_camp", label = "Aldecaldos Camp", kind = "camp",
+        shape = "circle", centre = { x = 1792.90, y = 2248.90, z = 180.20 }, radius = 120.0, maxHeight = 30.0,
+    },
+    {
+        name = "westbrook_dealer", label = "Westbrook Dealership", kind = "dealership",
+        shape = "circle", centre = { x = -1442.20, y = 127.40, z = 18.00 }, radius = 40.0, maxHeight = 15.0,
+    },
+    {
+        -- Everything east of the city: no NCPD coverage. Tall height band so the hills do not
+        -- drop you out. No ring, pin only. The junkyard centre is 1 344 m from this centre;
+        -- the Aldecaldos camp centre is 2 649 m from it (49 m past the edge: the camp's own
+        -- 120 m ring overlaps the badlands circle, its centre point does not).
+        name = "badlands", label = "Badlands", kind = "badlands",
+        -- A circle cannot cover it: the platform caps a radius at 2 000 m (open77_zones.lua
+        -- MAX_RADIUS, "invalid_radius" at start, measured 18 Sept). The polygon is everything
+        -- east of x 900: the Aldecaldos camp (1793, 2249), the junkyard (1375, -1675), the
+        -- oil fields and the road out of the city; the city itself stays out.
+        shape = "polygon", minZ = -200.0, maxZ = 1200.0,
+        points = { { x = 900, y = -4000 }, { x = 5000, y = -4000 }, { x = 5000, y = 4000 }, { x = 900, y = 4000 } },
+        ring = false,
+    },
+    -- Polygon example (disabled): a concave turf with a height range, north of the market.
     -- {
     --     name = "turf_example", label = "Example Turf", kind = "camp",
-    --     shape = "polygon", minZ = 170.0, maxZ = 200.0,
-    --     points = { { x = 300, y = -2300 }, { x = 340, y = -2300 }, { x = 340, y = -2320 }, { x = 320, y = -2320 },
-    --                { x = 320, y = -2340 }, { x = 300, y = -2340 } },
+    --     shape = "polygon", minZ = 0.0, maxZ = 30.0,
+    --     points = { { x = -1240, y = 2090 }, { x = -1200, y = 2090 }, { x = -1200, y = 2110 }, { x = -1220, y = 2110 },
+    --                { x = -1220, y = 2130 }, { x = -1240, y = 2130 } },
     -- },
 }
 

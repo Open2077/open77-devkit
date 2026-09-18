@@ -1,5 +1,5 @@
 -- rp_phone: values both runtimes read. Data only: no natives here.
--- Every position is in world metres; the freeroam spawn is 381.36, -2401.79, 181.99.
+-- Every position is in world metres; the freeroam spawn is -1191.30, 2006.88, 7.82 (Kabuki Market Centre, Watson).
 RpPhoneConfig = {
     -- The pockets must hold this rp_inventory item to open the phone. With
     -- requireItem = false (or rp_inventory not running) the phone always opens.

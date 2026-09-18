@@ -8,13 +8,13 @@ local Config = RpGangsConfig
 -- the territory the gang is associated with (informative, and the fallback zone
 -- for an influence loss when the member's last territory is unknown).
 Config.gangs = {
-    maelstrom   = { label = "Maelstrom",   color = "#D7263D", rgb = { 215, 38, 61 },   home = "scrapyard" },
-    tygerclaws  = { label = "Tyger Claws", color = "#FF3CAC", rgb = { 255, 60, 172 },  home = "afterlife" },
-    valentinos  = { label = "Valentinos",  color = "#F2C14E", rgb = { 242, 193, 78 },  home = "blackmarket" },
-    sixthstreet = { label = "6th Street",  color = "#2E86DE", rgb = { 46, 134, 222 },  home = "nomad_camp" },
-    animals     = { label = "Animals",     color = "#8E44AD", rgb = { 142, 68, 173 },  home = "afterlife" },
-    voodooboys  = { label = "Voodoo Boys", color = "#27AE60", rgb = { 39, 174, 96 },   home = "blackmarket" },
-    scavs       = { label = "Scavs",       color = "#7F8C8D", rgb = { 127, 140, 141 }, home = "scrapyard" },
+    maelstrom   = { label = "Maelstrom",   color = "#D7263D", rgb = { 215, 38, 61 },   home = "junkyard" },
+    tygerclaws  = { label = "Tyger Claws", color = "#FF3CAC", rgb = { 255, 60, 172 },  home = "kabuki_market" },
+    valentinos  = { label = "Valentinos",  color = "#F2C14E", rgb = { 242, 193, 78 },  home = "afterlife" },
+    sixthstreet = { label = "6th Street",  color = "#2E86DE", rgb = { 46, 134, 222 },  home = "afterlife" },
+    animals     = { label = "Animals",     color = "#8E44AD", rgb = { 142, 68, 173 },  home = "lizzies" },
+    voodooboys  = { label = "Voodoo Boys", color = "#27AE60", rgb = { 39, 174, 96 },   home = "lizzies" },
+    scavs       = { label = "Scavs",       color = "#7F8C8D", rgb = { 127, 140, 141 }, home = "junkyard" },
 }
 
 -- Display order of the gangs in lists.
@@ -23,20 +23,30 @@ Config.gangOrder = { "maelstrom", "tygerclaws", "valentinos", "sixthstreet", "an
 -- Ranks 0..2.
 Config.ranks = { [0] = "member", [1] = "lieutenant", [2] = "boss" }
 
--- Territories = rp_zones zone names. `label` mirrors rp_zones; `position` is the zone
--- centre (used for NCPD alerts); `buyer` is where the street buyer NPC stands
--- (inside the zone, a few metres off the centre so it does not overlap the other
--- resources' NPCs / POIs). If a buyer lands in the ground, stand on the spot, /pos,
--- and paste the height.
+-- Territories = rp_zones zone names (real Night City places, measured 2026-09-18). `label`
+-- mirrors rp_zones; `position` is the zone centre (used for NCPD alerts); `buyer` is where
+-- the street buyer NPC stands (inside the zone, off the centre so it does not overlap the
+-- other resources' NPCs / POIs) - a territory without `buyer` has no street market (the
+-- Afterlife: deals happen elsewhere, the zone is only fought over). `buyer.prop` is the
+-- crate the server drops beside the buyer (Open77.props.create, removed on stop; a refusal
+-- only logs). No default holder: every territory starts unheld. If a buyer lands in the
+-- ground, stand on the spot, /pos, and paste the height.
 Config.territories = {
-    { name = "blackmarket", label = "Black Market",   position = { x = 400.0, y = -2390.0, z = 182.0 },
-      buyer = { x = 397.0, y = -2393.0, z = 182.0, yaw = 45.0 } },
-    { name = "afterlife",   label = "Afterlife",      position = { x = 360.0, y = -2390.0, z = 182.0 },
-      buyer = { x = 358.0, y = -2392.0, z = 182.0, yaw = 45.0 } },
-    { name = "nomad_camp",  label = "Nomad camp",     position = { x = 420.0, y = -2378.0, z = 182.0 },
-      buyer = { x = 418.0, y = -2380.0, z = 182.0, yaw = 45.0 } },
-    { name = "scrapyard",   label = "Scrapyard",      position = { x = 462.0, y = -2352.0, z = 178.0 },
-      buyer = { x = 460.0, y = -2355.0, z = 178.0, yaw = 45.0 } },
+    { name = "kabuki_market", label = "Kabuki Market",  position = { x = -1191.30, y = 2006.88, z = 7.82 },
+      buyer = { x = -1149.22, y = 2054.84, z = 7.76, yaw = 225.0,                 -- Far Corner (walked)
+                prop = { x = -1148.10, y = 2055.60, z = 7.76, yaw = 20.0 } } },
+    { name = "lizzies",       label = "Lizzie's Bar",   position = { x = -1188.90, y = 1566.20, z = 22.90 },
+      buyer = { x = -1185.00, y = 1568.00, z = 23.00, yaw = 200.0,                -- inside, off the floor centre
+                prop = { x = -1183.90, y = 1568.80, z = 22.90, yaw = 0.0 } } },
+    { name = "junkyard",      label = "Junkyard",       position = { x = 1374.90, y = -1674.90, z = 49.30 },
+      buyer = { x = 1370.00, y = -1670.00, z = 49.40, yaw = 135.0,
+                prop = { x = 1368.90, y = -1669.20, z = 49.30, yaw = 40.0 } } },
+    { name = "afterlife",     label = "The Afterlife",  position = { x = -1453.00, y = 1017.00, z = 16.50 } },
+}
+
+-- The crate dropped beside every buyer (raw depot mesh of the props catalogue); false = none.
+Config.buyerProp = {
+    model = "crate.cargo",
 }
 
 -- Founding: with `openFounding` the first member of a gang founds it and becomes its

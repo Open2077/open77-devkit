@@ -1,5 +1,6 @@
 -- rp_ambiance configuration. Shared script: public, no secret and no ACL in here.
--- Every position is in world metres around the freeroam spawn 381.36, -2401.79, 181.99.
+-- Every position is in world metres; the freeroam spawn is Kabuki Market Centre
+-- -1191.30, 2006.88, 7.82 (Watson) and the figurant zones are real Night City places.
 -- Runtime overrides: rp_config (when it runs) may override the scalar keys listed at the
 -- bottom of this file (`Config.overrides`); `/ambiance reload` re-reads them.
 
@@ -25,14 +26,15 @@ Config.cycle = {
     -- Seconds the sky takes to blend into the new preset (0..300).
     weatherTransitionSeconds = 45,
 
-    -- The RP map sits in the Badlands: sandstorms are allowed. Set false for a city map and
-    -- the sandstorm row is dropped from the draw (its weight is simply not counted).
+    -- Night City gets sandstorms too (the vanilla cycle blows them in from the Badlands):
+    -- true keeps the row in the draw. Set false and the sandstorm row is dropped (its weight
+    -- is simply not counted).
     badlands = true,
 
     -- Weighted table. `preset` is an open77_weather name (sunny, lightclouds, cloudy, rain,
     -- heavyclouds, fog, pollution, sandstorm). Weights need not sum to 100.
     weather = {
-        { preset = "sunny",     weight = 50, label = "Clear skies",  toast = "Clear skies over the Badlands. Enjoy it while it lasts, choom." },
+        { preset = "sunny",     weight = 50, label = "Clear skies",  toast = "Clear skies over Night City. Enjoy it while it lasts, choom." },
         { preset = "cloudy",    weight = 25, label = "Overcast",     toast = "Clouds rolling in from the west." },
         { preset = "rain",      weight = 15, label = "Rain",         toast = "Acid rain incoming. Keep your chrome dry." },
         { preset = "sandstorm", weight = 5,  label = "Sandstorm",    toast = "Sandstorm warning. Visibility dropping - stay off the roads.", badlandsOnly = true },
@@ -82,20 +84,40 @@ Config.figurants = {
     -- Chat colour of a figurant line.
     chatColor = { 170, 170, 190 },
 
-    -- Per zone: the centre (mirrors rp_zones/README.md), the bodies (2-3), display names,
-    -- and the six lines. `linesForJob` (optional) replaces the pool when the nearest player
-    -- holds that rp_jobs job.
+    -- Per zone (rp_zones names): the centre (the real place, mirrors rp_zones/shared/config.lua),
+    -- the bodies (2-3), display names, and the six lines. `linesForJob` (optional) replaces
+    -- the pool when the nearest player holds that rp_jobs job.
     zones = {
+        kabuki_market = {
+            -- The market itself, around the freeroam spawn (Market Centre, walked).
+            centre = { x = -1191.30, y = 2006.88, z = 7.82 },
+            bodies = { "regular", "regular", "nomad" },
+            names  = { "Noodle Row regular", "Market vendor", "Tyger Claws lookout" },
+            lines = {
+                "Best synth-noodles in Watson, choom. Don't ask what the meat is.",
+                "Tyger Claws run this market. Smile at the lookouts and keep walking.",
+                "Lizzie's is ten minutes south if you want the Mox and real music.",
+                "The ripper by the market? Skip him. Vik in Little China does honest work.",
+                "Safe zone, they say. Tell that to the guy who lost his optics on the Lower Walkway.",
+                "The Afterlife is for mercs with a rep. You, choom, have a tab.",
+            },
+            linesForJob = {
+                ncpd = {
+                    "A badge in Kabuki. The Claws will love that, officer.",
+                    "Nothing to declare, officer. Just noodles.",
+                },
+            },
+        },
         afterlife = {
-            centre = { x = 360.0, y = -2390.0, z = 182.0 },
+            centre = { x = -1453.0, y = 1017.0, z = 16.5 },
             bodies = { "regular", "nomad", "regular" },
             names  = { "Afterlife regular", "Tired merc", "Bar fly" },
             lines = {
                 "You buying, choom, or just breathing my air?",
-                "Heard a merc from Watson got flatlined over a data shard. Eddies ain't worth it.",
+                "Heard a merc from Kabuki got flatlined over a data shard. Eddies ain't worth it.",
                 "Two Johnny Silverhands and a tab I'll never pay. That's the Afterlife.",
                 "Don't stare at the ripper in the corner. He bites. Literally, since the mantis job.",
-                "Trauma Team never comes out here. Platinum or not, you're on your own past the plaza.",
+                "Trauma Team never comes past the ramp. Platinum or not, you walk in on your own.",
                 "If a fixer offers you a milk run, it's never a milk run.",
             },
             linesForJob = {
@@ -105,49 +127,36 @@ Config.figurants = {
                 },
             },
         },
-        blackmarket = {
-            centre = { x = 400.0, y = -2390.0, z = 182.0 },
-            bodies = { "ganger", "regular" },
-            names  = { "Street dealer", "Lookout" },
+        lizzies = {
+            centre = { x = -1188.9, y = 1566.2, z = 22.9 },
+            bodies = { "regular", "ganger" },
+            names  = { "Mox bouncer", "Braindance junkie" },
             lines = {
-                "Synthcoke, chips, a quickhack or two. Cash only, no questions.",
+                "Mox rules: hands where we can see them, eddies where we can count them.",
+                "Judy's got a new BD in the back. Don't ask, don't scroll it twice.",
+                "Tyger Claws tried the door last week. They left in a Trauma AV.",
                 "You didn't see me, I didn't see you. That's the deal, choom.",
-                "Word is the NCPD outpost got a new sergeant. Bad for business.",
-                "Scavs pay good eddies for chrome. Don't ask where they get it.",
-                "Need a lockpick? A crowbar? Or something that goes bang?",
-                "Netrunner fried a whole convoy's brakes last week. Nomads are still pissed.",
+                "Need a lockpick? A crowbar? Or something that goes bang? Not here. Try the Lower Walkway.",
+                "Best drinks in Kabuki, worst gossip. Or the other way around.",
             },
             linesForJob = {
                 ncpd = {
                     "Nothing to see here, officer. Just... vitamins.",
-                    "Badge or no badge, you're standing on my corner.",
+                    "Badge or no badge, the Mox own this floor.",
                 },
             },
         },
-        nomad_camp = {
-            centre = { x = 420.0, y = -2378.0, z = 182.0 },
-            bodies = { "nomad", "nomad" },
-            names  = { "Aldecaldo mechanic", "Nomad kid" },
+        junkyard = {
+            centre = { x = 1374.9, y = -1674.9, z = 49.3 },
+            bodies = { "ganger", "regular" },
+            names  = { "Scav lookout", "Scrapper" },
             lines = {
-                "Convoy rolls at dawn. Chooh2 is topped up, tyres are not.",
-                "City folks call it wasteland. We call it home, choom.",
-                "Raffen Shiv hit the eastern route again. Ride in pairs.",
-                "That Delamain cab won't make it past the first dune. Trust me.",
-                "Family first, clan second, eddies a distant third.",
-                "You want a ride? Bring your own fuel and your own gun.",
-            },
-        },
-        ncpd_hq = {
-            centre = { x = 440.0, y = -2366.0, z = 181.0 },
-            bodies = { "regular", "nomad", "regular" },
-            names  = { "Desk sergeant", "Off-duty cop", "Informant" },
-            lines = {
-                "Filing a complaint? Take a number. We'll get to it next year.",
-                "Keep your iron holstered around the precinct, choom. Rookies are twitchy.",
-                "Wanted list got longer overnight. Black market again, I'd bet.",
-                "MaxTac doesn't come out this far. That's the good news and the bad news.",
-                "If you see a Trauma AV, stay clear. They don't slow down for pedestrians.",
-                "Somebody stole a patrol car last night. From the lot. With the lights on.",
+                "Everything here was somebody's ride once. Mind the crusher.",
+                "Scavs pay good eddies for chrome. Don't ask where they get it.",
+                "NCPD doesn't drive out to Rancho Coronado. That's the good news and the bad news.",
+                "Netrunner fried a whole convoy's brakes last week. Nomads are still pissed.",
+                "Vik the Fence opens after dark. Bring what fell off the truck.",
+                "Aldecaldos camp is north of here. Long drive, longer if the Raffen see you.",
             },
         },
     },
@@ -173,11 +182,11 @@ Config.notices = {
     lines = {
         "Rules: no RDM, no VDM, stay in character. /ooc for out-of-character talk.",
         "New in town? /carte shows your ID card, /civil registers one.",
-        "Looking for work? Walk to the employment agency by the spawn, or type /agence.",
-        "The Afterlife, the black market, the nomad camp and the NCPD outpost are all within 80 m of the plaza. /zones lists them.",
-        "Cash runs out. /bank for an account, /solde for the balance, /payday every 10 minutes.",
+        "Looking for work? Walk up to the employment agency on the Kabuki Gallery, or type /agence.",
+        "Kabuki Market is home. The Afterlife, Lizzie's and Vik's clinic are a short drive south; the nomads and the junkyard are out in the Badlands. /zones lists them.",
+        "Cash runs out. /bank at any ATM (Kabuki Market, the Afterlife, Vik's) for an account, /solde for the balance, /payday every 10 minutes.",
         "Hurt? /911 pages Trauma Team. Robbed? /ncpd pages the badges. Both cost eddies.",
-        "The plaza is a safe zone. Step outside the ring and you are fair game, choom.",
+        "Kabuki Market is a safe zone. Step outside the ring and you are fair game, choom.",
         "Report griefers with /report. Admins read the tickets.",
     },
 }
@@ -212,10 +221,11 @@ Config.music = {
     -- skipped so the two never stack.
     skipWhenResourceRuns = { afterlife = "rp_bar" },
     -- Files must be declared in the manifest `files` entry. The shipped WAVs are synthesised
-    -- placeholders (12 s seamless loops); replace them with real assets of at most 1 MiB.
+    -- loops (12 s, seamless); replace them with real assets of at most 1 MiB. The file names
+    -- are asset names, not zone names: the hum-and-crackle loop plays inside Lizzie's.
     zones = {
-        afterlife   = { file = "sfx/afterlife.wav" },
-        blackmarket = { file = "sfx/blackmarket.wav" },
+        afterlife = { file = "sfx/afterlife.wav" },
+        lizzies   = { file = "sfx/blackmarket.wav" },
     },
 }
 

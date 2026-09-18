@@ -52,18 +52,18 @@ Config.contractPrice = 1000
 Config.contractMinutes = 30
 Config.contractMaxFailures = 2
 
--- The hospital: the rp_zones zone name, and where a /respawn puts the body.
--- The zone shipped by rp_zones is a placeholder 41 m north-north-east of the
--- freeroam spawn (381.36, -2401.79, 181.99), on flat measured ground. The owner
--- will move both the zone (rp_zones/shared/config.lua) and this point to a real
--- Night City hospital.
+-- "The hospital": where a /respawn puts the body. In the lore you wake up at Vik's, so
+-- it is Viktor Vektor's clinic (Little China, Watson; the rp_zones `viktor_clinic` zone,
+-- AMM chair room -1548, 1230, 11.5), 855 m south-west of the freeroam spawn (Kabuki
+-- Market Centre -1191.30, 2006.88, 7.82). The respawn point is 2 m off the chair.
+-- The keys keep their names (rp_config overrides `rp_trauma.hospital.*`).
 Config.hospital = {
-    zone = "hospital",
-    respawn = { x = 400.0, y = -2366.0, z = 182.0 },
+    zone = "viktor_clinic",
+    respawn = { x = -1546.0, y = 1231.0, z = 11.6 },
     heading = 180.0,
 }
 
--- The Trauma Team AV spawned by /trauma av (on-duty medic, inside the hospital zone).
+-- The Trauma Team AV spawned by /trauma av (on-duty medic, standing on the pad).
 -- `Vehicle.av_trauma` is the "AV Trauma" record of the 2.31 catalogue (class av,
 -- 4 seats). No `_player` variant of any AV exists in the catalogue; if this record
 -- refuses to spawn on your build, try `Vehicle.av_rayfield_excalibur`.
@@ -73,6 +73,10 @@ Config.av = {
     spawnUp = 1.0,         -- metres above the medic's feet
     ttlMs = 30 * 60 * 1000,
     despawnWhenUnobserved = true,
+    -- The landing / dispatch pad: the real street outside the Afterlife ramp (probed
+    -- crosswalk -1408.0, 960.0, 23.5; a clinic interior cannot take an AV). The medic must
+    -- stand within `radius` metres (planar) of it for /trauma av.
+    pad = { x = -1370.0, y = 953.0, z = 23.5, radius = 12.0, label = "Afterlife street" },  -- east of the garage bays (-1398..-1380, y 953) so the AV never lands on a parked car
 }
 
 -- Blips drawn on every on-duty medic's map while a player is down. A per-blip

@@ -55,19 +55,27 @@ RpJobsConfig.SocietyStartingFund = 50000
 -- A boss must stand within this many metres of the person they hire (/embaucher and ALT+click).
 RpJobsConfig.HireDistance = 5.0
 
--- The employment agency: a ring, a map pin and an E prompt. Within 40 m of the
--- freeroam spawn (381.36, -2401.79, 181.99). z is the spawn's own height: stand
--- on the spot, /pos, and paste the ground height if the ring is not visible.
+-- The employment agency: a ring, a map pin and an E prompt on The Gallery, the elevated
+-- walkway at the north end of Kabuki Market (walked point -1173.12, 2087.44, 11.94; 83 m
+-- north-east of the freeroam spawn, Market Centre -1191.30, 2006.88, 7.82). z is the walked
+-- height: stand on the spot, /pos, and paste the ground height if the ring is not visible.
 RpJobsConfig.Agency = {
-    position = { x = 396.0, y = -2388.0, z = 181.99 },
+    position = { x = -1173.12, y = 2087.44, z = 11.94 },
     radius = 1.5,
     promptDistance = 3.0,
     maxDistance = 80.0,
     color = "#22D8E2",
-    label = "Employment agency",
+    label = "Employment agency - Kabuki Gallery",
     description = "Press E to browse the open positions.",
     -- /agence works within this many metres of the agency (ground distance). 0 = anywhere.
     reach = 12.0,
+    -- The job board: a data terminal spawned by the server 1.2 m behind the ring
+    -- (Open77.props.create, removed on stop; a refusal only logs). false = no prop.
+    prop = {
+        model = "electronics.monitor.device",
+        position = { x = -1172.30, y = 2088.30, z = 11.94 },
+        yaw = 225.0,
+    },
 }
 
 -- How far away an on-duty nameplate tag stays readable (metres).

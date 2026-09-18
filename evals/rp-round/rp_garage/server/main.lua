@@ -417,6 +417,12 @@ local function loadFromSql()
     end
     store.mode = "sql"
     log("store=sql tables=rp_garage_vehicles,rp_garage_keys vehicles=%d keys=%d", count, keyCount)
+    -- Rows that were `out` at the last shutdown were read back as `stored` (adoptRow): write that
+    -- through, so rp_mdt's direct SELECTs on rp_garage_vehicles do not keep showing `out`.
+    for _, r in ipairs(rows) do
+        local row = vehicles[r.plate]
+        if row and r.state == "out" then persistVehicle(row) end
+    end
 end
 
 local function loadFromKvp(reason)
@@ -850,7 +856,7 @@ end
 local function openGarage(playerId, garage)
     if not storeReady(playerId) then return end
     if garage.kind == "society" and not hasJob(playerId, garage.society) then
-        return warn(playerId, ("This bay is for the %s crew. The public garage is by the plaza."):format(garage.society))
+        return warn(playerId, ("This bay is for the %s crew. The public lot is 12 m west, on the Afterlife street."):format(garage.society))
     end
     if not claimMenu(playerId) then return end
     local options = {}
@@ -1059,7 +1065,7 @@ end
 local function listKeys(playerId)
     if not storeReady(playerId) then return end
     local rows = ownedRows(playerId, nil)
-    if #rows == 0 then return say(playerId, "No vehicle on file. The dealership by the plaza sells them.") end
+    if #rows == 0 then return say(playerId, "No vehicle on file. Westbrook Motors sells them.") end
     say(playerId, ("%d vehicle(s) on file:"):format(#rows))
     for _, row in ipairs(rows) do
         Wait(0)
@@ -1248,7 +1254,7 @@ RegisterCommand("garage", function(source)
     if not fromGame(source) then return end
     local garage = garageNear(source)
     if not garage then
-        return warn(source, ("No garage within %.0f m. Public garage: %.0f, %.0f by the plaza; mechanic's garage: %.0f, %.0f."):format(
+        return warn(source, ("No garage within %.0f m. Afterlife street lot: %.0f, %.0f; mechanic's garage: %.0f, %.0f."):format(
             Config.reach.garage, Config.garages[1].position.x, Config.garages[1].position.y, Config.garages[2].position.x, Config.garages[2].position.y))
     end
     openGarage(source, garage)
@@ -1340,12 +1346,56 @@ RegisterNetEvent("chat:ready", function()
     if type(source) == "number" and source > 0 then Open77.chat.addSuggestions(source, SUGGESTIONS) end
 end)
 
+-- ---------------------------------------------------------------------------------------------
+-- World props: the garage sign and the showroom neon (Config.<poi>.props). Real streamed
+-- entities next to the rings; a refused model only logs, the ring alone marks the POI.
+-- ---------------------------------------------------------------------------------------------
+
+local propIds = {}   -- prop ids (decimal strings) this resource created, removed on stop
+
+local function spawnProps(owner, props)
+    for _, prop in ipairs(props or {}) do
+        local created = nil
+        for _, model in ipairs(prop.models or {}) do
+            local ok, id, reason = pcall(Open77.props.create, {
+                model = model,
+                position = { x = prop.position.x, y = prop.position.y, z = prop.position.z },
+                yaw = prop.yaw or 0.0,
+                bucket = 0,
+                streamingRadius = 120.0,
+            })
+            if ok and id then
+                created = id
+                propIds[#propIds + 1] = id
+                log("prop %s of %s at %.1f %.1f %.1f (%s)", tostring(id), owner, prop.position.x, prop.position.y, prop.position.z, model)
+                break
+            end
+            log("prop of %s refused (%s): %s", owner, tostring(ok and reason or id), model)
+        end
+        if not created then log("no prop spawned for %s: the ring alone marks it", owner) end
+    end
+end
+
+local function removeProps()
+    for _, id in ipairs(propIds) do
+        pcall(Open77.props.remove, id)
+    end
+    propIds = {}
+end
+
 AddEventHandler("onResourceStart", function(name)
     if name ~= GetCurrentResourceName() then return end
     log("started: %d garage(s), dealership at %.0f %.0f, %d record(s) for sale, impound fee %d, society %s",
         #Config.garages, Config.dealership.position.x, Config.dealership.position.y, #Config.vehicles, Config.impound.fee, Config.society)
     startStore()
+    for _, g in ipairs(Config.garages) do spawnProps(g.id, g.props) end
+    spawnProps("dealership", Config.dealership.props)
     Open77.chat.addSuggestions(-1, SUGGESTIONS)
+end)
+
+AddEventHandler("onResourceStop", function(name)
+    if name ~= GetCurrentResourceName() then return end
+    removeProps()
 end)
 
 AddEventHandler("onPlayerReady", function(playerId)
@@ -1420,7 +1470,20 @@ CreateThread(function()
     while true do
         Wait(Config.snapshotIntervalMs)
         for _, row in pairs(vehicles) do
-            if row.state == "out" then snapshotRow(row) end
+            if row.state == "out" and row.vehicleId then
+                if Open77.vehicles.get(row.vehicleId) == nil then
+                    -- Gone without onVehicleRemoved reaching us (event lost, handler raised):
+                    -- same outcome as the handler below, back in the garage as last snapshotted.
+                    live[tostring(row.vehicleId)] = nil
+                    row.vehicleId = nil
+                    row.state = "stored"
+                    persistVehicle(row)
+                    log("plate %s lost from the world (sweep): back in the garage", row.plate)
+                    TriggerEvent("rp_garage:changed", row.owner, row.plate, "lost")
+                else
+                    snapshotRow(row)
+                end
+            end
         end
     end
 end)

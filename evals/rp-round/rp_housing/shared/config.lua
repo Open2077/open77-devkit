@@ -1,8 +1,10 @@
 -- rp_housing configuration. Shared by the client (rings, prompts, pins) and the
 -- server (distances, prices, rent). Every position is world metres; the owner
--- moves them by editing this file. z = 182 is the plateau height around the
--- freeroam spawn (381.36, -2401.79, 181.99), measured by rp_zones; stand on a
--- spot and run /pos to correct a ring that is drawn inside the floor.
+-- moves them by editing this file. The five homes are real Night City flats
+-- (AMM interior points, 2026-09-18): `interior` is where entering puts you, the
+-- entrance ring is the flat's own front door, found at runtime through
+-- open77_doors (see Config.autoDoor) with a static fallback 3 m from the
+-- interior point along +x.
 Config = {}
 
 -- Money. Rent is charged from the bank account (rp_bank:charge into the
@@ -31,93 +33,123 @@ Config.enterFade = 400
 
 -- How long the server waits for a freshly connected player to be alive before
 -- moving them home (/maison spawn). The freeroam gamemode spawns everybody at
--- the plaza first; the host has no "spawn point" API, so the move happens once
--- the body is standing (see README, "Respawn at home").
+-- Kabuki Market first; the host has no "spawn point" API, so the move happens
+-- once the body is standing (see README, "Respawn at home").
 Config.spawnWaitSec = 30
 
--- The real-estate agency: a ring + E prompt + map pin. 7 m south-west of the spawn.
+-- The flat's own front door ("auto door"). At start, and every `retrySec`
+-- until it works, the server asks open77_doors for the doors discovered within
+-- `radius` metres of each interior point and takes the nearest one as the
+-- home's `doorId`: the door is then claimed and locked to the owner and the
+-- key holders, and the three rings are derived from it along the door ->
+-- interior axis: the entrance ring `outside` metres outside the door, the
+-- "Front door" (exit) ring `inside` metres inside it, and the stash ring
+-- `stashInside` metres beyond the interior point, further from the door (a
+-- fixed x offset lands inside the walls: the interior points are AMM points
+-- right at the doorstep, and every flat faces its own way). A door is only
+-- discovered once a client has streamed it (walked past the flat), so until
+-- then the static fallback is what the rings, the E prompts and the teleports
+-- use: entrance = interior + `fallback` m along x, exit = the interior point
+-- itself (the player arrives standing on it), stash = interior + 1.5 m along
+-- x. Per home, `autoDoor = false` keeps the static rings for good; a hand-set
+-- `doorId` skips the search (the rings are still derived from that door).
+Config.autoDoor = {
+    radius = 6.0,
+    outside = 1.5,
+    inside = 1.2,
+    stashInside = 1.2,
+    fallback = 3.0,
+    retrySec = 60,
+}
+
+-- The exit ring is 1.0 m wide (the others 0.6) because in the fallback it
+-- stands under the arriving player's feet; open77_interactions measures the
+-- prompt distance in 3D from the player to the card anchor 1 m above the ring,
+-- so a player standing on it is ~1 m away and promptDistance 3.0 keeps it
+-- pressable.
+Config.exitRadius = 1.0
+
+-- The real-estate agency: a ring + E prompt + map pin at Kabuki Market, The
+-- Crossing (walked), 32 m west of the market centre, with a listings terminal
+-- prop 1.1 m off the ring (Open77.props.create on the server, removed on stop;
+-- `models` are depot meshes tried in order).
 Config.agency = {
-    label = "Real-estate agency",
-    description = "Buy or sell a place to crash.",
-    position = { x = 365.0, y = -2408.0, z = 182.0 },
+    label = "Night City Real Estate",
+    description = "Buy or sell a place to crash. Kabuki Market, The Crossing.",
+    position = { x = -1218.65, y = 2022.93, z = 7.82 },
     radius = 1.5,
+    props = {
+        { models = {
+              "electronics.monitor.device",
+              "electronics.monitor.device",
+          },
+          position = { x = -1216.05, y = 2022.93, z = 7.82 }, yaw = 90.0 },
+    },
 }
 
 -- Homes. Fields:
 --   id        stable identifier (letters, digits, underscore), also the map/stash key
+--             and the rp_config key: kept across the move to the real map so deeds,
+--             stashes and overrides survive (the label is what players read)
 --   label     what players read
 --   district  flavour text for the agency menu
 --   zone      optional rp_zones zone name; its label replaces `district` when rp_zones runs
 --   price     purchase price in eddies; sold back at Config.sellBackRatio
 --   rent      optional per-home rent (defaults to Config.rent)
---   entrance  the door ring: the E prompt "Apartment door", and where leaving puts you
---   interior  where entering puts you (on the eval config: 6 m away on the same plateau;
---             the owner maps real interiors here)
---   stash     where the "Stash" ring stands (defaults to interior + 1.5 m east)
---   exit      where the "Front door" (leave) ring stands (defaults to interior - 1.5 m east)
---   heading   optional body yaw applied on arrival (degrees)
---   doorId    optional open77_doors engine id ("0x..." string). Empty on the eval
---             config: no known door there. When set, the server claims the door and
---             locks it to the owner and the key holders (defaultAccess = false).
--- All five sit on the plateau between the spawn plaza rings: clear of the
--- afterlife (360,-2390 r10), mecano (341,-2401 r10) and black market (400,-2390 r10)
--- zone rings, the ATM ring on the spawn and the agency. East of x 400 at y -2401
--- there is no ground (rp_zones measurement), so nothing goes past x 392; west of x 350 at
--- y -2386 the plateau drops (groundz 18 Sept), so nothing goes past x 352 either.
+--   interior  where entering puts you: the flat's floor (AMM point)
+--   heading   body yaw applied on arrival (degrees, AMM)
+--   entrance  the door ring: the E prompt "Apartment door", and where leaving puts
+--             you. Left empty: the auto door fills it (interior + 3 m along x until
+--             the front door is discovered)
+--   stash     where the "Stash" ring stands (default: interior + 1.5 m along x until the
+--             front door is found, then interior + 1.2 m further inside along door -> interior)
+--   exit      where the "Front door" (leave) ring stands (default: the interior point itself
+--             until the front door is found, then 1.2 m inside the door)
+--   doorId    optional open77_doors engine id ("0x..." string). Empty: found by the
+--             auto door. When set, the server claims the door and locks it to the
+--             owner and the key holders (defaultAccess = false).
+--   autoDoor  false = never search for the front door (static entrance)
 Config.homes = {
     {
         id = "northside_container",
-        label = "Northside container",
+        label = "Northside Apartment",
         district = "Northside, Watson",
         zone = nil,
         price = 9000,
-        -- measured 18 Sept (groundz): 348,-2386 is the cliff slope (176.6) and 342,-2386 the
-        -- cliff bottom (159); the container now stands on the west lawn, ground 181.1-181.3
-        entrance = { x = 354.0, y = -2394.0, z = 181.3 },
-        interior = { x = 354.0, y = -2388.0, z = 181.1 },
-        doorId = "",
+        interior = { x = -1503.8, y = 2224.9, z = 22.2 },
     },
     {
         id = "badlands_hideout",
-        label = "Badlands hideout",
-        district = "Badlands, outside the walls",
-        zone = "badlands",
+        label = "Glen Apartment",
+        district = "The Glen, Heywood",
+        zone = nil,
         price = 15000,
-        entrance = { x = 352.0, y = -2404.0, z = 182.0 },
-        interior = { x = 352.0, y = -2410.0, z = 182.0 },
-        doorId = "",
+        interior = { x = -1524.0, y = -992.6, z = 9.1 },
     },
     {
         id = "h10_studio",
-        label = "Megabuilding H10 studio",
+        label = "Megabuilding H10 - V's Apartment",
         district = "Little China, Watson",
-        zone = nil,
+        zone = "h10",
         price = 25000,
-        entrance = { x = 376.0, y = -2380.0, z = 182.0 },
-        interior = { x = 376.0, y = -2374.0, z = 182.0 },
-        doorId = "",
+        interior = { x = -1391.9, y = 1271.7, z = 123.1 },
+        heading = -99.3,
     },
     {
         id = "kabuki_flat",
-        label = "Kabuki flat",
+        label = "Judy's Apartment",
         district = "Kabuki, Watson",
         zone = nil,
-        price = 40000,
-        entrance = { x = 388.0, y = -2388.0, z = 182.0 },
-        interior = { x = 388.0, y = -2382.0, z = 182.0 },
-        doorId = "",
+        price = 30000,
+        interior = { x = -906.3, y = 1868.7, z = 42.4 },
     },
     {
         id = "japantown_loft",
-        label = "Japantown loft",
+        label = "Japantown Apartment",
         district = "Japantown, Westbrook",
         zone = nil,
-        price = 65000,
-        -- measured 18 Sept (groundz): no ground reported at 390,-2405; the loft interior moved
-        -- to the plaza centre, ground 181.87
-        entrance = { x = 390.0, y = -2399.0, z = 182.0 },
-        interior = { x = 384.0, y = -2393.0, z = 181.9 },
-        doorId = "",
+        price = 40000,
+        interior = { x = -785.3, y = 992.6, z = 12.0 },
     },
 }
 
@@ -137,9 +169,14 @@ Config.stashCapacity = 200
 -- Derived helpers shared by both runtimes. Fill the optional positions.
 for _, home in ipairs(Config.homes) do
     home.rent = home.rent or Config.rent
+    home.entrance = home.entrance or { x = home.interior.x + Config.autoDoor.fallback, y = home.interior.y, z = home.interior.z }
     home.stash = home.stash or { x = home.interior.x + 1.5, y = home.interior.y, z = home.interior.z }
-    home.exit = home.exit or { x = home.interior.x - 1.5, y = home.interior.y, z = home.interior.z }
+    -- The exit ring waits on the arrival point: `interior - 1.5 m along x` was
+    -- inside the flat's wall (measured 2026-09-18, Northside: 3.3-3.6 m from a
+    -- player on the arrival point, never pressable).
+    home.exit = home.exit or { x = home.interior.x, y = home.interior.y, z = home.interior.z }
     home.doorId = home.doorId or ""
+    if home.autoDoor == nil then home.autoDoor = (home.doorId == "") end
 end
 
 function Config.home(id)

@@ -12,7 +12,7 @@ UI-kit progress bar and, on the fence NPC, one **E** prompt that the server decl
 | **Vehicle theft** | `/crocheter` | within 4 m of a **locked** server vehicle you hold **no key** for, a `lockpick`, 12 s bar | the door opens (`Open77.vehicles.setLocked(id, false)`), the lockpick snaps 50 % of the time | NCPD paged, plate flagged **WANTED** (`rp_garage:setWanted`), the owner told, on-duty officers within 20 m read an APB every 30 s |
 | **Street deal** | `/dealer <playerId>` | a `drug_pack`, the buyer within 3 m with 120 €$ cash, their **consent** | 120 €$ to the dealer, the pack to the buyer, +1 gang influence in the zone | 20 % chance the NCPD is paged |
 | **Contraband** | `/voler` | within 3 m of a nomad crate (`rp_nomade` prop) that is not yours, 8 s bar | `stolen_parts` x1 (2 kg, illegal) | the convoy driver(s) |
-| **Fence** | `/receler` or **E** on Vik | at the scrapyard fence, **22:00–06:00** world time | 300 €$ per `stolen_parts`, 40 % of the ripper's price per `implant_box*` | nobody (that is the point) |
+| **Fence** | `/receler` or **E** on Vik | at the junkyard fence, **22:00–06:00** world time | 300 €$ per `stolen_parts`, 40 % of the ripper's price per `implant_box*` | nobody (that is the point) |
 
 Every refusal is one chat line from `CRIME` that says why: too far (with the distance), dead,
 in a vehicle, no weapon drawn, shop still hot (minutes left), not locked, you hold a key, no
@@ -20,23 +20,28 @@ lockpick, nothing to sell, buyer broke, busy, already gutted, your own crate, da
 hour), pockets offline, and so on. From the server console every command answers that it must be
 run from the game.
 
-## Where things are (eval map, freeroam spawn `381.36, -2401.79, 181.99`)
+## Where things are (real Night City; freeroam spawn = Kabuki Market Centre `-1191.30, 2006.88, 7.82`)
 
-Everything is in `shared/config.lua` (`RpCrimeConfig`).
+Everything is in `shared/config.lua` (`RpCrimeConfig`). The five shops are the Kabuki Market
+stalls (walked points, 2026-09-18); the fence works the Rancho Coronado junkyard out in the
+Badlands.
 
 | What | Position | From spawn | Config key |
 |---|---|---|---|
-| Badlands Market (Rosa) | 370, -2385, 182 | 20 m N | `robbery.shops.supermarket` |
-| Med-Point Pharmacy (Dr. Osei) | 396, -2372, 182 | 33 m NNE | `robbery.shops.pharmacy` |
-| 2nd Amendment Outpost (Wilson) | 410, -2386, 182 | 33 m NE | `robbery.shops.gunshop` |
-| Jinguji Threads (Kimiko) | 352, -2398, 182 | 30 m W | `robbery.shops.clothes` |
-| Back-alley Dealer (Dex) | 402, -2393, 182 | 22 m NE | `robbery.shops.blackmarket` |
-| Nomad loading bay (crates) | 416–422, -2374, 182 | 45 m NE | (rp_nomade's) |
-| **Vik the Fence** (NPC + E prompt) | **464, -2350, 178.3** (measured; 470,-2344 is down the slope), yaw 225 | 90 m NE, inside the `scrapyard` zone (462, -2352 r12), between the wrecks | `fence.position` |
+| Noodle Row market (Rosa) | -1178.66, 2028.45, 7.95 | 25 m NE | `robbery.shops.supermarket` |
+| The Stalls pharmacy (Dr. Osei) | -1223.91, 1989.45, 7.98 | 37 m SW | `robbery.shops.pharmacy` |
+| East Row gun stall (Wilson) | -1160.50, 2019.06, 7.76 | 33 m E | `robbery.shops.gunshop` |
+| Vendor Lane threads (Kimiko) | -1212.26, 1978.53, 7.98 | 35 m SW | `robbery.shops.clothes` |
+| Lower Walkway dealer (Dex) | -1201.07, 2035.60, 5.60 | 30 m N, under the market | `robbery.shops.blackmarket` (rp_shops' shop id, not a zone) |
+| Nomad loading bay (crates) | Aldecaldos camp, `1792.9, 2248.9, 180.2` area | 3.0 km E | (rp_nomade's) |
+| **Vik the Fence** (NPC + E prompt + two cargo crates) | **1381, -1668, 49.4**, yaw 225 | 4.5 km SE, inside the `junkyard` zone (1374.9, -1674.9 r 90), between the wrecks | `fence.position`, `fence.props` |
 
 The vendor positions are `rp_shops`' own (it exposes no export for them): keep the two configs in
-sync when a shop moves. `z = 178` is the yard's measured height; if Vik stands in the ground, `/pos`
-on the spot and paste the height. The server tolerates 4 m of height error on every reach check.
+sync when a shop moves — these are the market points `rp_shops` moves to. `z = 49.3` is the
+yard's AMM height; if Vik stands in the ground, `/pos` on the spot and paste the height. The
+server tolerates 4 m of height error on every reach check. The two crates beside Vik are
+`Open77.props.create` (the curated prop alias `crate.cargo`, twice — see `prop.catalog`), removed
+on stop; a refusal only logs.
 
 ## Rules the server applies
 
@@ -171,10 +176,10 @@ flushed. Cooldowns, the wanted list, gutted crates and pending deals live in mem
 ## Log (grep-able)
 
 ```text
-[rp_crime] started: 5 shops to rob (cooldown 20 min), lockpick theft 12 s, deal 120 eddies, fence Vik the Fence at 464.0 -2350.0 178.3 open 22:00-06:00
+[rp_crime] started: 5 shops to rob (cooldown 20 min), lockpick theft 12 s, deal 120 eddies, fence Vik the Fence at 1381.0 -1668.0 49.4 open 22:00-06:00
 [rp_crime] items defined in rp_inventory: registered=1 rejected=0
 [rp_crime] store=sql table=rp_crime_log
-[rp_crime] fence Vik the Fence spawned template=gang_tygerclaws_ranged_01 record=Character.... id=... at 464.0 -2350.0 178.3
+[rp_crime] fence Vik the Fence spawned template=gang_tygerclaws_ranged_01 record=Character.... id=... at 1381.0 -1668.0 49.4
 [rp_crime] fence prompt declared (Sell stolen goods) on record Character....
 [rp_crime] robbery started shop=supermarket by player 1 officers_on_duty=1
 [rp_crime] robbery player 1 (<identifier>) target=supermarket amount=412
@@ -192,7 +197,8 @@ flushed. Cooldowns, the wanted list, gutted crates and pending deals live in mem
 
 Permissions: `network.events` (`chat:ready`, toasts), `database.access`, `world.vehicles`
 (`nearby`, `getPosition`, `isLockedForPlayer`, `setLocked`, `triggerHorn`, `getPlayerSeat`),
-`world.props` (`all`, `get` — read only), `world.npcs` (the fence), `world.environment`
+`world.props` (`all`, `get` for the nomad crates; `create`, `remove` for the fence's own two
+crates), `world.npcs` (the fence), `world.environment`
 (`getState`), `players.life.read` (`isDead`), `player.weapons.read` (`weapons.get`),
 `players.interactions.read` / `players.interactions.control` (the deal consent — the guide
 requires them, the cards list no check, declared as rp_ncpd does).
@@ -203,7 +209,8 @@ Dependencies: `open77_uikit`, `open77_player_interactions`, `open77_interactions
 `rp_identity`, `rp_zones`, `rp_ncpd`, `rp_shops`, `rp_garage`, `rp_gangs`, `rp_nomade`. Every export is
 still called inside `pcall` and degrades to a chat line. `rp_config` is optional: every number can
 be overridden through `exports.rp_config:get("rp_crime.<path>")` (e.g. `rp_crime.deal.price`).
-`rp_ferrailleur` is not called (the fence is this resource's own NPC, 9 m from Rusty).
+`rp_ferrailleur` is not called (the fence is this resource's own NPC, a few metres from the
+scrappers' dealer in the same yard).
 
 ## Honest limits (measured against the devkit, not guessed)
 
@@ -231,7 +238,7 @@ be overridden through `exports.rp_config:get("rp_crime.<path>")` (e.g. `rp_crime
 - Voice lines (`greeting`, `rep_ask_to_leave`) are queued, not proven heard, and depend on the fence
   record's voiceset. `npc_not_streamed` (nobody near) is silent by design.
 
-## Test in 2 minutes (one player, id `1`, eval config)
+## Test in 2 minutes (one player, id `1`, at the Kabuki Market spawn)
 
 Prerequisites: `rp_economy`, `rp_inventory`, `rp_identity`, `rp_zones`, `rp_ncpd`, `rp_shops`,
 `rp_garage`, `rp_gangs`, `rp_nomade`, `open77_uikit`, `open77_player_interactions`,
@@ -239,18 +246,18 @@ Prerequisites: `rp_economy`, `rp_inventory`, `rp_identity`, `rp_zones`, `rp_ncpd
 start: `[rp_crime] started: 5 shops ...`, `items defined ...`, `store=sql ...`, `fence ... spawned`,
 `fence prompt declared`.
 
-1. **Robbery.** Walk 20 m north to Rosa (370, -2385). `/braquer` with nothing in hand → `Rosa
+1. **Robbery.** Walk 25 m north-east to Rosa on Noodle Row (-1178.7, 2028.5). `/braquer` with nothing in hand → `Rosa
    laughs at your empty hands. Draw a weapon first.` Get a gun (buy one at Wilson's: `/acheter licence`
    then `/acheter pistol`, or the platform's admin weapon command), draw it, `/braquer` → `You point your iron at Rosa...`,
    the **Emptying the till...** bar (20 s, X bails), log `robbery started shop=supermarket ...`. An
    officer on duty (console `setjob 2 ncpd 3`, `/service` on client 2) reads
-   `[NCPD DISPATCH] ROBBERY: Badlands Market is being robbed ...` with a map pin. At the end: `Rosa
+   `[NCPD DISPATCH] ROBBERY: Noodle Row market is being robbed ...` with a map pin. At the end: `Rosa
    empties the register: 4xx eddies in your pocket. Now run.`, a toast, `/money` went up, log
    `robbery player 1 ... amount=4xx`, then a second dispatch line from rp_shops. With an officer on
    duty: `An officer was on duty: the robbery lands on your criminal record.` and `/casier 1` from
-   the officer lists `[ROBBERY] Armed robbery of Badlands Market (4xx eddies)`. `/braquer` again →
-   `Badlands Market was hit not long ago ... 20 min to go.` Walk 10 m away → `No vendor within 3 m
-   (nearest: Badlands Market, 10 m)`.
+   the officer lists `[ROBBERY] Armed robbery of Noodle Row market (4xx eddies)`. `/braquer` again →
+   `Noodle Row market was hit not long ago ... 20 min to go.` Walk 10 m away → `No vendor within 3 m
+   (nearest: Noodle Row market, 10 m)`.
 2. **Vehicle theft.** `/car` next to you, get out, stand 2 m from it. `/crocheter` → `That ... is
    not locked. Just open the door.` `/lock` (eval_carlock) then `/crocheter` → `No lockpick in your
    pockets...`. Console `giveitem 1 lockpick 2`. `/crocheter` → **Jimmying the lock...** (12 s), a
@@ -268,20 +275,24 @@ start: `[rp_crime] started: 5 shops ...`, `items defined ...`, `store=sql ...`, 
    /interaction accept ...` + toast; `/interaction accept` → the give animation, then `Deal done:
    <name> took the pack for 120 eddies. Cash: ...` on both sides, `/inv` on player 2 shows the pack,
    `/money` moved 120 €$. With player 1 in a gang (`/gang creer maelstrom`) and standing in the
-   black market ring: `maelstrom influence in Black Market: 1.` and `/territoire` shows it. One deal
+   market (the `kabuki_market` territory): `maelstrom influence in Kabuki Market: 1.` and
+   `/territoire` shows it. One deal
    in five: `Somebody saw that. Badges are on their way.` and the officer's dispatch line. `/interaction
    decline` → `Deal off with <name> (declined).` Player 2 with 50 €$ → `<name> cannot cover 120
    eddies in cash. No deal.`
 4. **Contraband.** Player 2 as a nomad (`setjob 2 nomade 0`, `/service`) accepts a contract at the
-   camp board (420, -2381.5): three crates appear at 416–422, -2374. Player 1 walks up to one:
+   Aldecaldos camp board (3.0 km east, `1790, 2252`): three crates appear at the camp's loading
+   bay (rp_nomade's `Camp.loadingPoints`). Player 1 walks up to one:
    `/voler` → **Prying the crate open...** (8 s) → `You gut the crate: Stolen parts x1 in your
    pockets...`, player 2 reads `Somebody is gutting one of your crates at the loading bay!`, log
    `crate_theft player 1 ... target=prop#N`. `/voler` on the same crate → `That crate is already
    gutted.` Player 2 `/voler` on their own crate (only contract running) → `Steal your own cargo?
    Load it in the truck instead (/convoi).` A crate on player 2's shoulder → `It is in somebody's
    hands. Wait until it touches the ground.`
-5. **Fence.** Walk 95 m north-east to the scrapyard; Vik stands at 464, -2350 with a **Sell stolen
-   goods** card (E within 2.5 m, looking at him). By day, `/receler` (or E) → `Vik the Fence does not
+5. **Fence.** Drive 4.5 km south-east to the Rancho Coronado junkyard (toast **Badlands** and
+   **Rancho Coronado Junkyard** on the way in); Vik stands at 1381, -1668 between two cargo
+   crates with a **Sell stolen goods** card (E within 2.5 m, looking at him). By day, `/receler`
+   (or E) → `Vik the Fence does not
    trade in daylight. Come back between 22:00 and 06:00 (it is 14:07).` Console
    `weather.time.set 23:00`. E → `Vik the Fence counts out 300 eddies for 1 x Stolen parts @ 300.
    "Never saw you."`, toast, `/money` +300, `/inv` no longer lists the parts, log `fence player 1 ...

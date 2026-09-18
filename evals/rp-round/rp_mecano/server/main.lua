@@ -917,7 +917,7 @@ local function doImpound(source, explicitVehicleId)
     if not okm then return say(source, why) end
     local here, how = atImpoundLot(source)
     if not here then
-        return say(source, ("The impound lot is the garage (zone %s, around %.0f, %.0f). Bring the vehicle there first."):format(
+        return say(source, ("The impound lot is the Rancho Coronado junkyard (zone %s, around %.0f, %.0f). Bring the vehicle there first."):format(
             C.impound.zone, C.impound.fallbackCenter.x, C.impound.fallbackCenter.y))
     end
 
@@ -1163,25 +1163,29 @@ RegisterNetEvent("rp_mecano:whoami", function()
 end)
 
 RegisterNetEvent("rp_mecano:action", function(action, vehicleId)
+    -- `source` is only valid until the first yield: capture it before the dialog awaits.
+    local src = source
+    if type(src) ~= "number" or src < 1 then return end
     local id = tonumber(vehicleId)
     if not id or not isInteger(id) then
-        return say(source, "That is not a server vehicle.")
+        return say(src, "That is not a server vehicle.")
     end
+    id = math.tointeger(id)
     if action == "repair" then
-        doRepair(source, id)
+        doRepair(src, id)
     elseif action == "tow" then
-        doTow(source, id)
+        doTow(src, id)
     elseif action == "impound" then
-        doImpound(source, id)
+        doImpound(src, id)
     elseif action == "refuel" then
-        doRefuel(source, id)
+        doRefuel(src, id)
     elseif action == "paint" then
-        local okm, why = mechanicCheck(source)
-        if not okm then return say(source, why) end
+        local okm, why = mechanicCheck(src)
+        if not okm then return say(src, why) end
         local options = {}
         for name in pairs(C.paint.colours) do options[#options + 1] = name end
         table.sort(options)
-        local promise, reason = Open77.exports.call("open77_uikit", "input", source, {
+        local promise, reason = Open77.exports.call("open77_uikit", "input", src, {
             title = "Paint job",
             description = ("%s, billed to the driver. One spray can."):format(fmtMoney(C.paint.price)),
             fields = {
@@ -1191,24 +1195,28 @@ RegisterNetEvent("rp_mecano:action", function(action, vehicleId)
             confirm = "Spray it", cancel = "Not now", timeoutMs = 60000,
         })
         if not promise then
-            return say(source, ("The paint form could not open (%s). Use /peindre <colour>."):format(tostring(reason)))
+            return say(src, ("The paint form could not open (%s). Use /peindre <colour>."):format(tostring(reason)))
         end
         local answer = promise:await()
-        if not answer or not answer.ok then return end
-        doPaint(source, answer.value.colour, answer.value.secondary, id)
+        if not answer or not answer.ok or type(answer.value) ~= "table" then return end
+        doPaint(src, answer.value.colour, answer.value.secondary, id)
     else
-        say(source, "Unknown garage action.")
+        say(src, "Unknown garage action.")
     end
 end)
 
 RegisterNetEvent("rp_mecano:billMenu", function(targetId)
+    -- `source` is only valid until the first yield: capture it before the dialog awaits.
+    local src = source
+    if type(src) ~= "number" or src < 1 then return end
     local target = tonumber(targetId)
-    if not target or not isInteger(target) then return say(source, "Pick a player.") end
-    local okm, why = mechanicCheck(source)
-    if not okm then return say(source, why) end
-    if target == source then return say(source, "Billing yourself? Nice try, choom.") end
-    if not Open77.players.name(target) then return say(source, "That player is gone.") end
-    local promise, reason = Open77.exports.call("open77_uikit", "input", source, {
+    if not target or not isInteger(target) or target < 1 then return say(src, "Pick a player.") end
+    target = math.tointeger(target)
+    local okm, why = mechanicCheck(src)
+    if not okm then return say(src, why) end
+    if target == src then return say(src, "Billing yourself? Nice try, choom.") end
+    if not Open77.players.name(target) then return say(src, "That player is gone.") end
+    local promise, reason = Open77.exports.call("open77_uikit", "input", src, {
         title = ("Invoice for %s"):format(playerName(target)),
         description = ("%d %% to you, the rest to the garage. Cash only."):format(math.floor(C.bill.mechanicShare * 100)),
         fields = {
@@ -1218,13 +1226,13 @@ RegisterNetEvent("rp_mecano:billMenu", function(targetId)
         confirm = "Send", cancel = "Cancel", timeoutMs = 60000,
     })
     if not promise then
-        return say(source, ("The invoice form could not open (%s). Use /facture <playerId> <amount>."):format(tostring(reason)))
+        return say(src, ("The invoice form could not open (%s). Use /facture <playerId> <amount>."):format(tostring(reason)))
     end
     local answer = promise:await()
-    if not answer or not answer.ok then return end
+    if not answer or not answer.ok or type(answer.value) ~= "table" then return end
     local amount = tonumber(answer.value.amount)
-    if not amount then return say(source, "That is not an amount.") end
-    doBillCommand(source, table.pack(tostring(target), tostring(math.floor(amount)), tostring(answer.value.reason or "")))
+    if not amount then return say(src, "That is not an amount.") end
+    doBillCommand(src, table.pack(tostring(target), tostring(math.floor(amount)), tostring(answer.value.reason or "")))
 end)
 
 -- ---------------------------------------------------------------------------
@@ -1256,10 +1264,42 @@ end)
 -- Lifecycle
 -- ---------------------------------------------------------------------------
 
+-- Decoration: the props of Config.props (sign, tyre blockers, pump), created at start and
+-- removed at stop. A refused prop only logs: the garage works without it.
+local propIds = {}
+
+local function spawnProps()
+    for i, def in ipairs(C.props or {}) do
+        local id, reason = Open77.props.create({
+            model = def.model,
+            position = { x = def.position.x, y = def.position.y, z = def.position.z },
+            yaw = def.yaw or 0.0,
+            bucket = 0,
+        })
+        if id then
+            propIds[#propIds + 1] = id
+        else
+            log("prop %d (%s) not spawned: %s", i, tostring(def.model), tostring(reason))
+        end
+    end
+    if #propIds > 0 then log("props spawned: %d", #propIds) end
+end
+
+local function removeProps()
+    for _, id in ipairs(propIds) do Open77.props.remove(id) end
+    propIds = {}
+end
+
+AddEventHandler("onResourceStop", function(name)
+    if name ~= RES then return end
+    removeProps()
+end)
+
 AddEventHandler("onResourceStart", function(name)
     if name == RES then
         setupDatabase()
         defineItems()
+        spawnProps()
         Open77.chat.addSuggestions(-1, SUGGESTIONS)
         local players = Open77.players.all()
         for _, id in ipairs(players or {}) do sendDuty(id) end

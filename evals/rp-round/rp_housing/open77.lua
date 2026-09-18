@@ -14,9 +14,9 @@ auto_start true
 --   open77_notifications: the toasts (Open77.notifications.send on the server)
 -- rp_inventory, rp_bank, rp_economy, rp_identity and rp_zones are server-only:
 -- a manifest delivered to clients may not depend on them, so their exports are
--- reached through pcall. open77_doors is optional (no door on the eval config):
--- it is reached through Open77.exports.call, which answers nil, reason instead
--- of raising when the package is absent.
+-- reached through pcall. open77_doors is optional: it is reached through
+-- Open77.exports.call, which answers nil, reason instead of raising when the
+-- package is absent (the "auto door" then keeps the static entrance).
 dependency "open77_worldui >=0.1.0"
 dependency "open77_uikit >=1.0.0"
 dependency "open77_contextmenu"
@@ -28,6 +28,7 @@ permissions {
     "players.teleport",   -- Open77.players.teleport (enter / leave / spawn at home)
     "players.life.read",  -- Open77.players.isDead / getLifeState (never move a dead or not-ready player)
     "ui.vanilla.map",     -- Open77.blips.create / remove (client): agency and home pins
+    "world.props",        -- Open77.props.create / remove (server): the agency's listings terminal, removed on stop
 }
 
 shared_script "shared/config.lua"

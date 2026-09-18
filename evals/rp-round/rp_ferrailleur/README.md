@@ -1,34 +1,43 @@
 # rp_ferrailleur — scrap and salvage out of town
 
 The "miner" job of Night City for an Open77 RP server (build `2.31.13+op77.76`): a scrapper
-clocks in, pries wrecks open in the **scrapyard** with a **crowbar** that wears out, and sells the
-junk to a **scrap dealer NPC** whose prices drift every ten minutes. Server-authoritative: the
+clocks in, pries wrecks open in the **Rancho Coronado junkyard** with a **crowbar** that wears
+out, and sells the junk to a **scrap dealer NPC** whose prices drift every ten minutes. Server-authoritative: the
 client only draws the rings and forwards the E prompt; the server checks the distance, the job,
 the tool, the wreck's state, rolls the loot, moves the eddies and keeps the durability in SQL.
 
 ## Where it is
 
-Everything sits inside the `scrapyard` zone of `rp_zones` (centre `462, -2352, z 178`, radius
-12 m), **95 m north-east of the freeroam spawn** `381.36, -2401.79, 181.99`. Follow the map
-pin `junk` (rp_zones) or walk north-east along the road past the NCPD outpost (`440, -2366`).
-All positions are in `shared/config.lua`:
+The yard is the **real Rancho Coronado junkyard** on the Badlands edge (AMM point `1374.9,
+-1674.9, 49.3`), the `junkyard` zone of `rp_zones` (same centre, radius 90 m, kind industrial).
+From the Kabuki Market spawn (`-1191.3, 2006.9, 7.8`) it is about **4.5 km south-east** as the
+crow flies: take a car. Follow the map pin (rp_zones). All positions are in
+`shared/config.lua`:
 
 | What | Position | Notes |
 |---|---|---|
-| Scrap dealer (NPC + ring + prompt) | `462.0, -2352.0, 178.0`, yaw 200 | `Config.dealer` |
-| Wreck 1 — Burnt-out Thorton | `456.0, -2356.0, 178.0` | |
-| Wreck 2 — Gutted Quadra | `461.0, -2359.0, 178.0` | |
-| Wreck 3 — Rusted Mizutani | `467.0, -2357.0, 178.0` | |
-| Wreck 4 — Crushed Archer | `469.0, -2351.0, 178.0` | |
-| Wreck 5 — Stripped Makigai | `465.0, -2346.0, 178.0` | |
-| Wreck 6 — Flipped Villefort | `459.0, -2346.0, 178.0` | |
-| Wreck 7 — Scorched Chevillon | `455.0, -2350.0, 178.0` | |
+| Scrap dealer (NPC + ring + prompt) | `1368.0, -1676.0, 49.4`, yaw -173 | `Config.dealer` |
+| Wreck 1 — Burnt-out Thorton | `1380.0, -1682.0, 49.4` | trash prop 1.5 m south-east |
+| Wreck 2 — Gutted Quadra | `1386.0, -1676.0, 49.4` | |
+| Wreck 3 — Rusted Mizutani | `1388.0, -1664.0, 49.4` | |
+| Wreck 4 — Crushed Archer | `1376.0, -1660.0, 49.4` | corrugated sheet 2 m north-east |
+| Wreck 5 — Stripped Makigai | `1366.0, -1664.0, 49.4` | |
+| Wreck 6 — Flipped Villefort | `1362.0, -1686.0, 49.4` | |
+| Wreck 7 — Scorched Chevillon | `1372.0, -1690.0, 49.4` | |
 
-Seven wrecks on a ring 5.7–6.4 m apart, all within 7.2 m of the centre; the dealer stands in
-the middle. `z = 178` is the yard's measured ground height (from `rp_zones`); if a ring is not
-visible, stand on the spot, `/pos`, and paste the real height — a ring drawn inside the floor
-reports success and shows nothing. The server tolerates 4 m of height error
-(`Config.heightTolerance`).
+Seven wrecks within 17 m of the yard centre, 6 m or more apart, clear of the other junkyard
+spots (rp_crime's fence `1381, -1668`, rp_gangs' buyer `1370, -1670`, rp_mecano's impound
+`1370, -1680`); the dealer stands near the middle. `z = 49.4` is the AMM ground height + 0.1;
+the yard is not flat, so if a ring is not visible, stand on the spot, `/pos`, and paste the
+real height — a ring drawn inside the floor reports success and shows nothing. The server
+tolerates 4 m of height error (`Config.heightTolerance`).
+
+**Props.** At start the server spawns `Config.props` through `Open77.props.create` (permission
+`world.props`, curated prop aliases (see `prop.catalog`) — a raw `.mesh` path renders as a white
+slab) and removes them at stop: a barrel (`container.barrel`) by the dealer (`1366.6, -1674.6`),
+industrial trash (`garbage.industrial_trash`) by wreck 1 (`1381.4, -1683.4`), a corrugated sheet
+(`debris.corrugated_sheet`) by wreck 4 (`1377.5, -1658.6`). A refused prop is logged (`prop N (...) not
+spawned: <reason>`); the yard works without it.
 
 ## What the player sees
 
@@ -55,7 +64,7 @@ reports success and shows nothing. The server tolerates 4 m of height error
   `Config.societyShare`; set it to `0` to give the scrapper everything). A crowbar's price
   also goes to the society, which is what pays the scrappers' payroll in `rp_jobs`.
 
-Every refusal is one chat line from `Scrapyard`: too far (with the distance), not a scrapper,
+Every refusal is one chat line from `Scrapyard` (the author name): too far (with the distance), not a scrapper,
 off duty, no crowbar, wreck busy / picked clean (with the time left), pockets too heavy, not
 enough eddies, a sibling resource offline.
 
@@ -139,7 +148,7 @@ the prices.
 ## Manifest
 
 Permissions: `network.events` (net events, toasts), `database.access` (SQL), `world.npcs`
-(the dealer), `players.animations.control` (the kneel). Dependencies: `open77_uikit` (server
+(the dealer), `players.animations.control` (the kneel), `world.props` (the decoration). Dependencies: `open77_uikit` (server
 twins `progress` and `context`), `open77_worldui` (rings + prompts), `open77_notifications`
 (toasts) — all three ship a client half. `rp_jobs`, `rp_zones`, `rp_inventory`, `rp_economy`
 and `rp_bank` are server-only and reached through `pcall`'d exports: without `rp_jobs` a
@@ -165,10 +174,11 @@ forehead, fingerless gloves. Nothing here touches the wardrobe; the hook would b
 ## Log (grep-able)
 
 ```text
-[rp_ferrailleur] started: 7 wrecks, dealer at 462.0 -2352.0 178.0, regen 5 min, crowbar 20 searches / 250 €$
+[rp_ferrailleur] started: 7 wrecks, dealer at 1368.0 -1676.0 49.4, regen 5 min, crowbar 20 searches / 250 €$
 [rp_ferrailleur] items defined in rp_inventory: registered=1 rejected=0
 [rp_ferrailleur] prices scrap=14 component=66 chip=181 (next roll in 10 min)
-[rp_ferrailleur] dealer spawned template=civilian_female_relaxed_01 id=... at 462.0 -2352.0 178.0
+[rp_ferrailleur] dealer spawned template=civilian_female_relaxed_01 id=... at 1368.0 -1676.0 49.4
+[rp_ferrailleur] props spawned: 3
 [rp_ferrailleur] store=sql table=rp_ferrailleur_tools
 [rp_ferrailleur] player 3 tool loaded durability=nil (sql)
 [rp_ferrailleur] player 3 bought a crowbar for 250 cash=250
@@ -179,17 +189,18 @@ forehead, fingerless gloves. Nothing here touches the wardrobe; the hook would b
 
 ## Test in 2 minutes
 
-One client at the freeroam spawn (id `1`); `rp_jobs`, `rp_inventory`, `rp_economy`, `rp_bank`
-and `rp_zones` running. Log on start: the `started:` line, `items defined in rp_inventory`,
-`prices ...`, `dealer spawned ...`, then `store=sql ...`.
+One client at the Kabuki Market spawn (id `1`) with a car; `rp_jobs`, `rp_inventory`,
+`rp_economy`, `rp_bank` and `rp_zones` running. Log on start: the `started:` line, `items
+defined in rp_inventory`, `prices ...`, `dealer spawned ...`, `props spawned: 3`, then
+`store=sql ...`.
 
-1. **Console:** `setjob 1 ferrailleur 0` (or walk to the agency ring 20 m from the spawn,
-   press **E**, pick **Scrapper**). Then in game `/service` → `Clocked in at Scrapper ...`.
+1. **Console:** `setjob 1 ferrailleur 0` (or walk to the agency ring at Kabuki's Gallery, press
+   **E**, pick **Scrapper**). Then in game `/service` → `Clocked in at Scrapper ...`.
 2. `/ferraille` → `Scrapper on duty. No crowbar. Rusty sells one for 250 €$.`, the prices
-   line, `All 7 wrecks are ready to be searched. Yard: 462, -2352.`
-3. Walk 95 m north-east to the yard (map pin `junk`; past the NCPD outpost at `440, -2366`).
-   Seven rings around a standing NPC, one ring under her. Console `givemoney 1 500` if
-   short on cash (`/money`).
+   line, `All 7 wrecks are ready to be searched. Yard: 1368, -1676.`
+3. Drive to the Rancho Coronado junkyard, ~4.5 km south-east (rp_zones map pin; the toast
+   `Junkyard` fires 90 m out). Seven rings among the real wrecks, a standing NPC by a trash
+   drum with a ring under her. Console `givemoney 1 500` if short on cash (`/money`).
 4. Look at the dealer's ring, press **E**: the menu `Rusty, scrap dealer`. **Buy a crowbar** →
    `Bought a crowbar for 250 €$. Good for 20 searches. Cash: ...`. `/inv` lists `Crowbar`.
    Open the menu again, **Buy a crowbar** → `You already carry a crowbar. Wear it out first.`
@@ -201,8 +212,8 @@ and `rp_zones` running. Log on start: the `started:` line, `items defined in rp_
 6. Press **E** on the same wreck from 4 m away with the prompt of a neighbour: nothing — walk
    to a ready one instead. Search two or three more wrecks (different loot rolls).
 7. `/service` (clock out), press **E** on a wreck → `Clock in first: /service.` Clock back in.
-8. Walk 10 m away, `/vendre` → `Rusty is not within 5 m (you are 10 m away) ...`. Walk back
-   next to the dealer, `/vendre` → `Sold 3 x scrap @ 14, 1 x component @ 66 for 108 €$. You
+8. Walk 10 m away, `/vendre` → `Rusty is not within 5 m (you are 10 m away). The yard is at
+   1368, -1676.` Walk back next to the dealer, `/vendre` → `Sold 3 x scrap @ 14, 1 x component @ 66 for 108 €$. You
    pocket 97 €$, the guild takes 11 €$. Cash: ...`; `/money` went up; `/societe` as a scrapper
    shows the society balance.
 9. Console `giveitem 1 crate 1` then search a wreck: `You dig out 2 x scrap but your pockets

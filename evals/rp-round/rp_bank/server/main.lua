@@ -755,11 +755,47 @@ local SUGGESTIONS = {
     { command = "/societe", help = "Your job's society balance" },
 }
 
+-- The ATM terminals: one prop per configured ATM (Config.AtmProp.model at atm.prop), owned by
+-- this resource and removed on stop. A refusal only logs: the ring and the prompt still work.
+local atmProps = {}      -- atm id -> prop id (decimal string)
+
+local function spawnAtmProps()
+    local model = Config.AtmProp and Config.AtmProp.model
+    if not model then return end
+    for _, atm in ipairs(Config.Atms) do
+        local at = atm.prop
+        if at and not atmProps[atm.id] then
+            local id, reason = Open77.props.create({
+                model = model,
+                position = { x = at.x, y = at.y, z = at.z },
+                yaw = at.yaw or 0.0,
+                bucket = 0,
+                streamingRadius = Config.AtmProp.streamingRadius or 120.0,
+            })
+            if id then
+                atmProps[atm.id] = id
+                log("terminal prop %s for %s at %.1f %.1f %.1f", tostring(id), atm.id, at.x, at.y, at.z)
+            else
+                log("terminal prop for %s not spawned (%s): the ring alone marks it", atm.id, tostring(reason))
+            end
+        end
+    end
+end
+
+local function removeAtmProps()
+    for atmId, propId in pairs(atmProps) do
+        Open77.props.remove(propId)
+        atmProps[atmId] = nil
+    end
+end
+
 AddEventHandler("onResourceStart", function(name)
     if name ~= GetCurrentResourceName() then return end
     bootStore()
     Open77.chat.addSuggestions(-1, SUGGESTIONS)
     log("started, %d ATMs configured", #Config.Atms)
+    local spawned, err = pcall(spawnAtmProps)
+    if not spawned then log("terminal props failed: %s", tostring(err)) end
     -- Players already in the world when the resource (re)starts.
     for _, id in ipairs(Open77.players.all()) do
         local identifier = Open77.players.identifier(id)
@@ -784,6 +820,11 @@ AddEventHandler("onPlayerReady", function(playerId)
     local acct = findAccount(identifier) or createAccount(identifier)
     say(id, ("Account balance: %s."):format(formatMoney(acct.balance)))
     log("player %d loaded %s account=%d", id, identifier, acct.balance)
+end)
+
+AddEventHandler("onResourceStop", function(name)
+    if name ~= GetCurrentResourceName() then return end
+    removeAtmProps()
 end)
 
 AddEventHandler("onPlayerDisconnected", function(playerId)

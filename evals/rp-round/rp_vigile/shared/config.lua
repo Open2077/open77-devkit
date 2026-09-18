@@ -31,46 +31,45 @@ VigileConfig = {
     -- Which job pays for a zone. A zone missing here is a "corpo" contract: the
     -- platform pays (rp_economy:add only). Society names are rp_jobs job names.
     zoneSociety = {
-        afterlife   = "barman",
-        mecano_shop = "mecano",
-        nomad_camp  = "nomade",
-        scrapyard   = "ferrailleur",
-        hospital    = "trauma",
-        ncpd_hq     = "ncpd",
-        -- blackmarket, spawn_plaza, badlands: corpo
+        afterlife        = "barman",
+        lizzies          = "barman",
+        nomad_camp       = "nomade",
+        junkyard         = "ferrailleur",
+        viktor_clinic    = "ripper",
+        ncpd_hq          = "ncpd",
+        westbrook_dealer = "mecano",
+        -- kabuki_market, kabuki, h10, badlands: corpo
     },
 
     -- Zone geometry used only to compute the expulsion point (centre + radius,
-    -- copied from rp_zones/shared/config.lua). Keep it in sync when zones move;
-    -- a zone missing here is still guardable, /expulser then pushes the player
-    -- 20 m straight away from the guard instead of past the ring.
+    -- copied from rp_zones/shared/config.lua, real Night City places). Keep it in
+    -- sync when zones move; a zone missing here is still guardable, /expulser then
+    -- pushes the player 20 m straight away from the guard instead of past the ring.
     zoneGeometry = {
-        spawn_plaza = { x = 381.36, y = -2401.79, z = 182.0, radius = 45 },
-        afterlife   = { x = 360.0,  y = -2390.0,  z = 182.0, radius = 10 },
-        mecano_shop = { x = 341.0,  y = -2401.0,  z = 180.3, radius = 10 },
-        blackmarket = { x = 400.0,  y = -2390.0,  z = 182.0, radius = 10 },
-        hospital    = { x = 400.0,  y = -2366.0,  z = 182.0, radius = 12 },
-        nomad_camp  = { x = 420.0,  y = -2378.0,  z = 182.0, radius = 9 },
-        ncpd_hq     = { x = 440.0,  y = -2366.0,  z = 181.0, radius = 12 },
-        scrapyard   = { x = 462.0,  y = -2352.0,  z = 178.0, radius = 12 },
+        kabuki_market    = { x = -1191.30, y = 2006.88,  z = 7.82,  radius = 70 },
+        afterlife        = { x = -1453.0,  y = 1017.0,   z = 16.6,  radius = 50 },
+        lizzies          = { x = -1188.9,  y = 1566.2,   z = 23.0,  radius = 18 },
+        h10              = { x = -1391.9,  y = 1271.7,   z = 123.1, radius = 45 },
+        viktor_clinic    = { x = -1548.0,  y = 1230.0,   z = 11.6,  radius = 12 },
+        ncpd_hq          = { x = -1761.5,  y = -1010.8,  z = 94.3,  radius = 30 },
+        junkyard         = { x = 1374.9,   y = -1674.9,  z = 49.3,  radius = 90 },
+        nomad_camp       = { x = 1792.9,   y = 2248.9,   z = 180.2, radius = 120 },
+        westbrook_dealer = { x = -1442.2,  y = 127.4,    z = 18.0,  radius = 40 },
     },
 
     -- The standing zone contracts on the board (always available while nobody
     -- guards that zone). `minutes` is the length of one shift.
     templates = {
-        { zone = "afterlife",   minutes = 30 },
-        { zone = "blackmarket", minutes = 30 },
-        { zone = "mecano_shop", minutes = 20 },
-        { zone = "nomad_camp",  minutes = 20 },
-        { zone = "scrapyard",   minutes = 20 },
-        { zone = "hospital",    minutes = 20 },
+        { zone = "afterlife",     minutes = 30 },
+        { zone = "lizzies",       minutes = 30 },
+        { zone = "kabuki_market", minutes = 20 },
     },
 
-    -- Where a tester stands for the README walkthrough (freeroam spawn and the
-    -- afterlife ring, 24 m north-west of it).
+    -- Where a tester stands for the README walkthrough (freeroam spawn = Kabuki
+    -- Market Centre, and the Afterlife bar floor, 1.0 km south-west of it).
     testSpots = {
-        spawn     = { x = 381.36, y = -2401.79, z = 181.99 },
-        afterlife = { x = 360.0,  y = -2390.0,  z = 182.0 },
+        spawn     = { x = -1191.30, y = 2006.88, z = 7.82 },
+        afterlife = { x = -1453.0,  y = 1017.0,  z = 16.6 },
     },
 
     -- Chat presentation

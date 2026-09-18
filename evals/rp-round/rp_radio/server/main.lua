@@ -129,7 +129,7 @@ local function persist(playerId, key)
         Open77.database.update(
             "INSERT INTO rp_radio_tuning (identifier, frequency, updated_at) VALUES (?, ?, ?) "
                 .. "ON DUPLICATE KEY UPDATE frequency = VALUES(frequency), updated_at = VALUES(updated_at)",
-            { identifier, key, now },
+            { identifier, key or "", now },   -- "" = off the air; a nil here would be a params hole
             function() end)
         return
     end
@@ -490,7 +490,9 @@ RegisterCommand("radio", function(source, args)
     if first == "off" then
         if not untune(source, "Radio off.") then
             chat(source, "Your radio is already off.", Config.colors.info)
+            return
         end
+        persist(source, nil)   -- forget the dial: the next session must not re-tune it
         return
     end
 

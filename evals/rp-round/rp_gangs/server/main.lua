@@ -160,7 +160,7 @@ local function zoneOfPlayer(playerId)
 end
 
 -- The territory the player stands in right now, or nil. A player can stand in
--- several overlapping zones (the plaza and the black market): zoneOf answers the
+-- several overlapping zones (Kabuki Market inside the Kabuki district): zoneOf answers the
 -- smallest one first, so also fall back to isIn per territory.
 local function territoryOfPlayer(playerId)
     local zone = zoneOfPlayer(playerId)
@@ -504,14 +504,42 @@ end
 -- Buyer NPCs and the street deal
 -- ---------------------------------------------------------------------------
 
+local buyerProps = {}        -- zone -> prop id (the crate beside the buyer)
+
 local function removeBuyers()
     for _, npcId in pairs(buyerByZone) do Open77.npcs.remove(npcId) end
     buyers, buyerByZone = {}, {}
+    for zone, propId in pairs(buyerProps) do
+        Open77.props.remove(propId)
+        buyerProps[zone] = nil
+    end
+end
+
+-- The crate beside a buyer: decoration only, a refusal only logs.
+local function spawnBuyerProp(t)
+    local model = Config.buyerProp and Config.buyerProp.model
+    local at = t.buyer and t.buyer.prop
+    if not model or not at or buyerProps[t.name] then return end
+    local id, reason = Open77.props.create({
+        model = model,
+        position = { x = at.x, y = at.y, z = at.z },
+        yaw = at.yaw or 0.0,
+        bucket = 0,
+        streamingRadius = 120.0,
+    })
+    if id then
+        buyerProps[t.name] = id
+    else
+        log(("buyer crate refused zone=%s: %s"):format(t.name, tostring(reason)))
+    end
 end
 
 local function spawnBuyers()
     removeBuyers()
     for _, t in ipairs(Config.territories) do
+        -- A territory without a buyer (the Afterlife) has no street market: nothing to spawn.
+        if not t.buyer then goto continue end
+        spawnBuyerProp(t)
         local npcId, reason = Open77.npcs.create({
             record = Config.buyer.record,
             position = { x = t.buyer.x, y = t.buyer.y, z = t.buyer.z },
@@ -529,6 +557,7 @@ local function spawnBuyers()
         else
             log(("buyer spawn refused zone=%s: %s"):format(t.name, tostring(reason)))
         end
+        ::continue::
     end
     TriggerClientEvent("rp_gangs:buyers", -1, buyerIds())
 end
@@ -886,7 +915,7 @@ local SUGGESTIONS = {
     { command = "/gang vendre", help = "Sell one drug pack to the buyer of the territory you stand in" },
     { command = "/gang depouiller", help = "Rob a cuffed or surrendering player within 3 m", parameters = { { name = "playerId", help = "session id" } } },
     { command = "/territoire", help = "Territories, their holder and the top-3 influence" },
-    { command = "/guerre", help = "Boss: declare war on a territory your gang does not hold", parameters = { { name = "zone", help = "blackmarket, afterlife, nomad_camp, scrapyard" } } },
+    { command = "/guerre", help = "Boss: declare war on a territory your gang does not hold", parameters = { { name = "zone", help = "kabuki_market, lizzies, junkyard, afterlife" } } },
     { command = "/racket", help = "Threaten a player for protection money (NCPD is paged)", parameters = { { name = "playerId", help = "session id" } } },
     { command = "/setgang", help = "Admin: put a player in a gang (or none)", parameters = { { name = "playerId", help = "session id" }, { name = "gang", help = "gang id or none" }, { name = "rank", help = "0..2" } } },
 }

@@ -2,41 +2,66 @@
 -- distance against the same numbers. Every position is here so the owner can move it.
 Config = {}
 
--- The freeroam spawn of the eval server (a plaza labelled Badlands). Every POI below is within
--- 45 m of it so a tester reaches everything on foot.
-Config.spawn = { x = 381.36, y = -2401.79, z = 181.99 }
+-- The hub of the RP server: Kabuki Market Centre (Watson), the freeroam spawn. The garages sit
+-- on the Afterlife street a few hundred metres south, the dealership in Westbrook, the impound
+-- lot at the Rancho Coronado junkyard: a car is the point of this resource, so the POIs are on
+-- real streets, not on the market's pedestrian alleys.
+Config.spawn = { x = -1191.30, y = 2006.88, z = 7.82 }
 
 -- Garages. `kind = "public"` is open to everybody; `kind = "society"` is reserved for the
 -- employees of `society` (rp_jobs) and also lists that society's fleet vehicles.
--- `position` is the POI (ring + E prompt); `spawnPoint` is where a vehicle taken out appears
--- (`yaw` 0 faces +y on this engine). Stored vehicles can be taken out at any public garage.
+-- `position` is the POI (ring + E prompt); `spawnPoint` is the first bay where a vehicle taken
+-- out appears (`yaw` 0 faces +y on this engine); the next bays are `Config.spawnStep` metres
+-- further along +x. Stored vehicles can be taken out at any public garage.
+-- `props` are real world props spawned by the server next to the ring (Open77.props.create,
+-- removed on stop): `models` is a list of depot meshes tried in order, first success wins.
 Config.garages = {
     {
         id = "public",
-        label = "Public garage",
+        label = "Afterlife street lot",
         kind = "public",
-        position = { x = 370.0, y = -2405.0, z = 182.0 },     -- 12 m west-south-west of the spawn
-        spawnPoint = { x = 364.0, y = -2406.0, z = 182.0, yaw = 90.0 },
+        -- The street outside the Afterlife's ramp (Watson), probed 2026-09-18: a crosswalk, room for
+        -- three cars side by side facing north at x -1412 / -1406 / -1400, y 964..972.
+        position = { x = -1408.0, y = 960.0, z = 23.5 },
+        spawnPoint = { x = -1398.0, y = 953.0, z = 23.5, yaw = 90.0 },  -- the road lanes east of the crosswalk (y 968 is inside the Ellison building, checked 18 Sept)
         color = "#00E5FF",
+        props = {
+            -- The garage sign, 1.2 m south of the ring, facing the bays.
+            { models = { "sign.street" },
+              position = { x = -1408.0, y = 956.8, z = 23.5 }, yaw = 0.0 },
+        },
     },
     {
         id = "mecano",
         label = "Mechanic's garage",
         kind = "society",
         society = "mecano",                                    -- rp_jobs job name
-        zone = "mecano_shop",                                  -- rp_zones name, informative
-        position = { x = 341.0, y = -2401.0, z = 180.3 },     -- the rp_zones `mecano_shop` centre, 40 m west
-        spawnPoint = { x = 347.0, y = -2405.0, z = 180.5, yaw = 90.0 },
+        -- Same street, 12 m east of the public lot (the mechanic's workshop, rp_mecano, stands
+        -- here too). The bay is derived from the street line (6 m east of the ring, facing
+        -- north like the public bays), not probed: move it if a car lands on the kerb.
+        position = { x = -1396.0, y = 966.0, z = 23.5 },
+        spawnPoint = { x = -1380.0, y = 953.0, z = 23.5, yaw = 90.0 },  -- same road, further east
         color = "#FF9A1F",
     },
 }
 
 -- The dealership POI and where a bought vehicle appears.
 Config.dealership = {
-    label = "Dealership",
-    position = { x = 392.0, y = -2410.0, z = 182.0 },         -- 13 m south-east of the spawn
-    spawnPoint = { x = 392.0, y = -2404.0, z = 182.0, yaw = 0.0 },
+    label = "Westbrook Motors",
+    -- The Westbrook vehicle dealership (freeroam goto list, driven); the showroom bay is the
+    -- Westbrook race grid 11 m south-west of the ring. The grid's facing was not measured:
+    -- yaw 0 (north) until a drive proves otherwise.
+    position = { x = -1442.2, y = 127.4, z = 18.1 },
+    spawnPoint = { x = -1450.2, y = 119.9, z = 14.8, yaw = 0.0 },
     color = "#F5D90A",
+    props = {
+        -- A neon frame 1.3 m off the ring, facing it (the showroom sign).
+        { models = {
+              "light.spotlight",
+              "sign.kiosk_frame",
+          },
+          position = { x = -1439.6, y = 129.4, z = 18.0 }, yaw = 128.0 },
+    },
 }
 
 -- Records for sale. Every record was checked against `open77_data vehicles` (game 2.31) and
@@ -55,8 +80,8 @@ Config.society = "garage"          -- rp_bank society that receives the dealersh
 Config.impound = {
     fee = 500,                     -- eddies to get an impounded vehicle back, paid at any garage
     society = "ncpd",              -- rp_bank society that receives the release fee
-    lot = "ncpd_hq",               -- rp_zones name of the impound (informative)
-    lotPosition = { x = 440.0, y = -2366.0, z = 181.0 },
+    lot = "junkyard",              -- rp_zones name of the impound (informative)
+    lotPosition = { x = 1370.0, y = -1680.0, z = 49.3 },   -- the Rancho Coronado junkyard (rp_mecano's tow yard)
 }
 
 -- Plates: NC-XXXX, four characters from this alphabet (no 0/O, 1/I ambiguity).
@@ -71,13 +96,14 @@ Config.reach = {
     plate = 8.0,       -- /plaque: nearest server vehicle within this distance
     key = 5.0,         -- /cles: the receiving player must be within this distance
     keyVehicle = 8.0,  -- /cles without a plate: nearest owned vehicle within this distance
-    height = 4.0,      -- tolerated height error on POI checks (z of a POI is a guess)
+    height = 4.0,      -- tolerated height error on POI checks (the dealership bay sits 3.3 m below its ring)
 }
 
 -- Spawn: a bay is tried up to `spawnTries` times, `spawnStep` metres apart along x, and skipped
--- when another server vehicle stands within `spawnClearance` metres of it.
+-- when another server vehicle stands within `spawnClearance` metres of it. 6 m is the pitch of
+-- the three Afterlife street bays (x -1412 / -1406 / -1400).
 Config.spawnTries = 3
-Config.spawnStep = 4.5
+Config.spawnStep = 6.0
 Config.spawnClearance = 3.0
 
 -- Condition. A vehicle that was destroyed or exploded when it was stored or lost comes back
