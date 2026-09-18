@@ -18,11 +18,11 @@ owner's build, however plausible it looks.
 ```
 open77_build                       which build you are answering for; say it in your first message
 open77_search "<what you need>"    cards, guides, events, permissions, FiveM aliases
-open77_api <name>                  the card: runtime, permissions, since, reasons, example
+open77_api <name>                  the card: runtime, permissions, since, reasons, example (server:<name> / client:<name> pins a side)
 open77_guide <slug|slug#section>   the how-to behind the card (a search ref pastes as is)
 open77_manifest_schema             before writing open77.lua
    write
-open77_validate <resource>         (local MCP) syntax, manifest, unknown natives, wrong side, permissions, build
+open77_validate <resource>         (local MCP) syntax, manifest, unknown natives, wrong side, permissions, build, command names taken by another resource
 open77_resource reload <name>      (local MCP, through Warden) then open77_console_tail for the result
 ```
 

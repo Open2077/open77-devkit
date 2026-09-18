@@ -12,6 +12,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 import { opNumber } from "./index/builder.js";
+import { guideOnlyGlobals, type GuideOnlyGlobal } from "./index/conventions.js";
 import { loadCatalogue, readStub } from "./index/loader.js";
 import { IndexSearch, type SearchKind } from "./index/search.js";
 import type { ApiCard, DevIndex, Guide, GuideSection } from "./index/types.js";
@@ -154,7 +155,7 @@ export function createMcpServer(context: ServerContext): McpServer {
       title: "Read one native's card",
       description:
         "The full card of one Lua native: signature, description, permissions the manifest must declare, reasons it can return, " +
-        "the first build that has it, example, related guides. Accepts a qualified name (Open77.map.getWaypoint, TriggerClientEvent) or a route id (server:Open77.vehicles.spawn).",
+        "the first build that has it, example, related guides. Accepts a qualified name (Open77.map.getWaypoint, TriggerClientEvent) or a side-pinned name (server:Open77.vehicles.spawn, client:Open77.camera.attach).",
       inputSchema: {
         name: z.string().min(1),
         runtime: RUNTIME.optional().describe("Disambiguates a name that exists on both runtimes"),
@@ -162,12 +163,17 @@ export function createMcpServer(context: ServerContext): McpServer {
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async ({ name, runtime }) => {
+      const { bare, side } = splitRoute(name);
+      if (side && runtime && side !== runtime) return text(`${name} names the ${side} side but runtime=${runtime} was passed; drop one of them.`);
       const cards = findCards(name, runtime);
-      if (!cards.length) {
+      // `exports` and `print` on the server are documented by guide table
+      // rows and have no card yet: a real answer, not "missing".
+      const fromGuides = guideOnlyGlobals(index, runtime ?? side).filter((g) => g.name === bare && !cards.some((c) => c.runtime === g.runtime));
+      if (!cards.length && !fromGuides.length) {
         const near = search.search(name, { kinds: ["card"], limit: 5 }).map((h) => h.title);
         return text(`No native named ${name} in the catalogue for ${context.resolved.build}.${near.length ? ` Closest: ${near.join(", ")}.` : ""} Do not call it: a name absent from the catalogue does not exist on this build.`);
       }
-      return text(cards.map((c) => renderCard(c, context, index.guides)).join("\n\n---\n\n"));
+      return text([...cards.map((c) => renderCard(c, context, index.guides)), ...fromGuides.map((g) => renderGuideOnlyGlobal(g, context))].join("\n\n---\n\n"));
     },
   );
 
@@ -202,7 +208,9 @@ export function createMcpServer(context: ServerContext): McpServer {
           const avail = availabilityNote(c, context);
           return `- ${cardHeader(c)} — ${c.summary}${c.permissions.length ? ` [${c.permissions.join(", ")}]` : ""}${c.since ? ` (since ${c.since})` : " (unreleased)"}${avail ? ` — ${avail}` : ""}`;
         });
-      return text([`${cards.length} natives in ${namespace} — ${buildLine(context)}`, ...lines].join("\n"));
+      const extra = wanted === "_g" ? guideOnlyGlobals(index, runtime) : [];
+      const footnote = extra.length ? ["", `Also present, documented in the guides only (no card yet): ${extra.map((g) => `${g.runtime} ${g.signature} — ${g.guides[0]}`).join("; ")}. open77_api ${extra[0]!.runtime}:${extra[0]!.name} renders it.`] : [];
+      return text([`${cards.length} natives in ${namespace} — ${buildLine(context)}`, ...lines, ...footnote].join("\n"));
     },
   );
 
@@ -619,21 +627,55 @@ export function createMcpServer(context: ServerContext): McpServer {
     );
   }
 
-  function findCards(name: string, runtime?: "client" | "server"): ApiCard[] {
+  /**
+   * `server:Open77.x` / `client:Open77.x` -> the bare name and the side. A
+   * server route id really is spelled `server:`; a client route id is the
+   * bare name, so `client:` is accepted as its mirror rather than looked up.
+   */
+  function splitRoute(name: string): { bare: string; side?: "client" | "server" } {
     const trimmed = name.trim().replace(/\(.*$/, "");
+    const routed = /^(client|server):(.+)$/i.exec(trimmed);
+    if (!routed) return { bare: trimmed };
+    return { bare: routed[2]!.trim(), side: routed[1]!.toLowerCase() as "client" | "server" };
+  }
+
+  function findCards(name: string, runtime?: "client" | "server"): ApiCard[] {
     // A client route id is the bare qualified name, so a bare name hits the
     // route map first and used to win outright -- `Open77.vehicles.setFrozen`
     // with runtime "server" answered the CLIENT card (measured 2026-09-16 on
-    // 0.1.0). Only an explicit route id (`server:` / `client:`) is a direct
-    // hit; a bare name goes through the qualified map, where the runtime
-    // filter applies and a name both runtimes carry returns both cards.
-    if (trimmed.includes(":")) {
-      const direct = byRoute.get(trimmed);
-      if (direct) return runtime && direct.runtime !== runtime ? [] : [direct];
-    }
-    const cards = byQualified.get(trimmed.toLowerCase()) ?? [];
-    return runtime ? cards.filter((c) => c.runtime === runtime) : cards;
+    // 0.1.0). A bare name goes through the qualified map, where the runtime
+    // filter applies and a name both runtimes carry returns both cards; an
+    // explicit `server:` / `client:` prefix pins the side the same way
+    // (`client:` was refused until 0.1.3, measured 2026-09-18).
+    const { bare, side } = splitRoute(name);
+    if (side && runtime && side !== runtime) return [];
+    const wanted = side ?? runtime;
+    const cards = byQualified.get(bare.toLowerCase()) ?? [];
+    return wanted ? cards.filter((c) => c.runtime === wanted) : cards;
   }
+}
+
+/** The card-shaped answer for a global that only the guides document. */
+export function renderGuideOnlyGlobal(global: GuideOnlyGlobal, context: ServerContext): string {
+  const sections = global.guides
+    .map((ref) => {
+      const [slug, anchor] = ref.split("#");
+      const section = context.index.guides.find((g) => g.slug === slug)?.sections.find((s) => s.anchor === anchor);
+      return section ? { ref, text: section.text } : null;
+    })
+    .filter((s): s is { ref: string; text: string } => s !== null);
+  return [
+    `# ${global.runtime} ${global.signature}`,
+    "",
+    global.summary,
+    "",
+    `- runtime: ${global.runtime}`,
+    "- catalogue: no card on this index; the global is documented by the guides below (the generator has not turned that table row into a card yet)",
+    `- guides: ${global.guides.join(", ")}`,
+    ...(sections.length ? ["", `## ${sections[0]!.ref}`, "", sections[0]!.text] : ["", `Read open77_guide ${global.guides[0]} for the worked example.`]),
+    "",
+    `_${buildLine(context)}_`,
+  ].join("\n");
 }
 
 export function instructions(context: ServerContext): string {
