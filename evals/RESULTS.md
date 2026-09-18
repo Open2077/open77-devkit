@@ -445,3 +445,21 @@ Open after this pass: the Northside flat's "Front door" exit card stays at "3.0 
 for the bot although the ring is 1.2 m away (the H10 door, the stash and every other prompt work);
 the dealer's UI-kit confirmation timed out once (`export_timeout`) and worked on retry; two-player
 paths, driving legs, unmeasured prop yaws.
+
+## Night City apartment crash, 2026-09-18 evening: a platform heap corruption, not the RP scripts
+
+Entering the Northside DLC flat (`-1503.8, 2224.9, 22.2`) and looking at the consumables on the
+table killed the owner's client five times (`+0x53F9D4` ×3, `+0x1458DF`, `+0x142F17`). Base
+investigation (PR #38, `fix/apartment-interior-crash`): one heap corruption — an 8-byte
+`PoolRefCount` cell of the engine's lockless slab allocator freed, then a ref-count op on the
+dangling handle (`{strong=2, weak=-2}`), later read as a free-list link. The three table drop
+objects respawn ~24 times in the 18 s before each fault. Isolation: the three RP world targets
+(`open77_interactions` globalNpc/globalVehicle for the fence, the gang buyer and the nomad truck)
+were switched off through `nativePrompt(s)` config flags; crash #5 reproduced with no `world.`
+line in the log, and the owner reports the crash predates the RP round. Leading base candidate:
+the multiplayer loot-suppression wraps (`gameItemDropObject.IsContainer → false`), A/B recipe in
+`docs/research/loot-ground-items.md`; PR #38 also gates `OnItemEntitySpawned` on a `bindable`
+bridge command and fixes a weak-ref leak in `world.nearby` (`ScopedParts`). Not built/deployed
+yet. RP side: `northside_container` became the No-Tell Motel room Venus (Kabuki); the flags are
+back to `true`. Lesson for the eval method: keep a config switch on every client-side world
+target so a crash can be bisected without a redeploy.

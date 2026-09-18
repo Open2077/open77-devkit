@@ -77,6 +77,10 @@ Config.tributeIntervalMs = 600000
 
 -- Street deals: the buyer NPC per territory.
 Config.buyer = {
+    -- nativePrompt: the E prompt on the NPC goes through open77_interactions (a 250 ms world
+    -- query on the client). Kept switchable: it was turned off on 2026-09-18 to isolate the
+    -- Northside flat crash, which reproduced without it (platform loot bug, not this).
+    nativePrompt = true,
     record = "Character.cpz_maelstrom_grunt1_ranged1_lexington_wa", -- proven on 2.31; passive + silent below
     damagePolicy = 2,          -- numeric: 2 = invulnerable
     reach = 4.0,               -- server-measured distance to the buyer for a deal

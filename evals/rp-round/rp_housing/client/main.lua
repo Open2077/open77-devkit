@@ -7,9 +7,10 @@ local TAG = "[rp_housing]"
 
 local state = { mine = false, owned = {}, keys = {}, inside = false } -- last server snapshot
 local blips = {}          -- [homeId | "agency"] = blip id
-local doorHandles = {}    -- [homeId] = worldui handle of the door ring (moved by the auto door)
-local exitHandles = {}    -- [homeId] = worldui handle of the "Front door" ring (moved by the auto door)
+local sideAHandles = {}   -- [homeId] = worldui handle of the door ring on side A (moved by the auto door)
+local sideBHandles = {}   -- [homeId] = worldui handle of the door ring on side B (moved by the auto door)
 local stashHandles = {}   -- [homeId] = worldui handle of the stash ring (moved by the auto door)
+local generations = {}    -- ["<kind>:<homeId>"] = n, the last worldui id suffix used (never reused in a session)
 local poisCreated = false
 local actionRegistered = false
 
@@ -34,8 +35,17 @@ local function pos(p)
 end
 
 -- ---------------------------------------------------------------------------
--- Rings and prompts: one POI per door, stash, exit, plus the agency
+-- Rings and prompts: two door rings (one per side) and a stash per home, plus
+-- the agency. Every worldui id carries a generation suffix (`door_a:<id>:<n>`):
+-- a ring re-created under an id already used this session kept a frozen
+-- distance and never fired (measured 2026-09-18), so an id is never reused.
 -- ---------------------------------------------------------------------------
+
+local function nextPoiId(kind, homeId)
+    local key = homeId and (kind .. ":" .. homeId) or kind
+    generations[key] = (generations[key] or 0) + 1
+    return key .. ":" .. tostring(generations[key])
+end
 
 local function createPoi(definition)
     local result, err = worldui("create", definition)
@@ -46,10 +56,12 @@ local function createPoi(definition)
     return result.handle
 end
 
-local function doorDefinition(home)
+-- Both sides of the door share the label, the description and the intent: the
+-- server tells from the nearer ring which side the player stands on.
+local function doorDefinition(home, kind, field)
     return {
-        id = "door:" .. home.id,
-        position = pos(home.entrance),
+        id = nextPoiId(kind, home.id),
+        position = pos(home[field]),
         radius = 1.0,
         style = "interaction",
         label = Config.text.door,
@@ -62,9 +74,12 @@ local function doorDefinition(home)
     }
 end
 
+local function sideADefinition(home) return doorDefinition(home, "door_a", "sideA") end
+local function sideBDefinition(home) return doorDefinition(home, "door_b", "sideB") end
+
 local function stashDefinition(home)
     return {
-        id = "stash:" .. home.id,
+        id = nextPoiId("stash", home.id),
         position = pos(home.stash),
         radius = 0.6,
         style = "objective",
@@ -78,41 +93,27 @@ local function stashDefinition(home)
     }
 end
 
-local function exitDefinition(home)
-    return {
-        id = "exit:" .. home.id,
-        position = pos(home.exit),
-        -- Wider than the stash ring: in the static fallback it stands under the
-        -- arriving player's feet (shared/config.lua, Config.exitRadius).
-        radius = Config.exitRadius or 1.0,
-        style = "objective",
-        maxDistance = 40.0,
-        label = Config.text.exit,
-        description = Config.text.exitDescription,
-        key = "E",
-        icon = "H",
-        marker = "door",
-        promptDistance = Config.promptDistance,
-        event = "rp_housing:poi:exit:" .. home.id,
-    }
-end
-
 -- The three ring kinds the server can move at runtime (auto door): the field
 -- of the home / snapshot that carries the position, the handle table and the
 -- POI definition.
 local RINGS = {
-    { field = "entrance", snapshotField = "entrances", handles = doorHandles, definition = doorDefinition, name = "door" },
-    { field = "exit", snapshotField = "exits", handles = exitHandles, definition = exitDefinition, name = "exit" },
+    { field = "sideA", snapshotField = "sideA", handles = sideAHandles, definition = sideADefinition, name = "door_a" },
+    { field = "sideB", snapshotField = "sideB", handles = sideBHandles, definition = sideBDefinition, name = "door_b" },
     { field = "stash", snapshotField = "stashes", handles = stashHandles, definition = stashDefinition, name = "stash" },
 }
 
--- The server found the flat's real front door (auto door): the ring moves there.
+-- The server moved a ring (auto door): drop the old POI, create the new one
+-- under a fresh id (generation suffix), never the same id twice in a session.
 local function recreatePoi(ring, home)
     if ring.handles[home.id] then
         worldui("remove", ring.handles[home.id])
         ring.handles[home.id] = nil
     end
-    ring.handles[home.id] = createPoi(ring.definition(home))
+    local definition = ring.definition(home)
+    ring.handles[home.id] = createPoi(definition)
+    if ring.handles[home.id] then
+        print(("%s %s ring of %s recreated as %s"):format(TAG, ring.name, home.id, definition.id))
+    end
 end
 
 local function createPois()
@@ -121,7 +122,7 @@ local function createPois()
     local created = 0
 
     if createPoi({
-        id = "agency",
+        id = nextPoiId("agency"),
         position = pos(Config.agency.position),
         radius = Config.agency.radius or 1.5,
         style = "interaction",
@@ -157,8 +158,10 @@ for _, home in ipairs(Config.homes) do
     AddEventHandler("rp_housing:poi:stash:" .. id, function()
         TriggerServerEvent("rp_housing:stash", id)
     end)
+    -- No ring raises it any more (the door is the same pass-through from both
+    -- sides); kept so nothing that still fires the old name breaks.
     AddEventHandler("rp_housing:poi:exit:" .. id, function()
-        TriggerServerEvent("rp_housing:exit", id)
+        TriggerServerEvent("rp_housing:door", id)
     end)
 end
 
@@ -196,7 +199,7 @@ local function refreshBlips()
             blips[home.id] = nil
         end
         local id, reason = Open77.blips.create({
-            position = pos(home.entrance),
+            position = pos(home.sideB),
             sprite = sprite,
             title = title,
             description = description,
@@ -205,9 +208,9 @@ local function refreshBlips()
     end
 end
 
--- Rings resolved by the server (auto door): the entrance, the exit and the
--- stash move together, along the door -> interior axis. Move ours when they
--- differ from what we drew.
+-- Rings resolved by the server (auto door): the two door rings and the stash
+-- move together, along the interior -> door axis. Move ours when they differ
+-- from what we drew.
 local function applyRings(snapshot)
     for _, ring in ipairs(RINGS) do
         local positions = snapshot[ring.snapshotField]

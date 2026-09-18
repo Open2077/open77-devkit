@@ -968,6 +968,10 @@ end
 
 local function defineFencePrompt()
     if fence.promptDefined or not fence.npcId then return end
+    -- A world target makes open77_interactions call Open77.world.nearby every 250 ms on every
+    -- client; on 2.31 that query is unproven and correlates with heap-corruption crashes near
+    -- lootable decor (18 Sept, 4 crashes). Off by default until base PR #37 lands; /receler works.
+    if Config.fence.nativePrompt ~= true then return end
     if not fence.record then
         log("fence record unknown: no E prompt (it would show on every NPC); /receler still works")
         return

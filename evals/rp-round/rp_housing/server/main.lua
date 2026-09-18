@@ -14,7 +14,7 @@ local COLOR = { 0, 229, 255 }
 
 local homes = {}    -- [homeId] = { identifier, ownerName, paid, boughtAt, rentDueAt, unpaid, spawnAtHome }
 local keys = {}     -- [homeId] = { [identifier] = { name = , grantedBy = , grantedAt = } }
-local inside = {}   -- [playerId] = homeId, set by a door, cleared by the exit / distance / disconnect
+local inside = {}   -- [playerId] = homeId, toggled by every door pass-through, cleared by distance / disconnect
 local moving = {}   -- [playerId] = true while a teleport is in flight
 local store = nil   -- "sql" | "kvp"; nil while the registry is still loading
 local loaded = false
@@ -22,7 +22,7 @@ local interiorZones = {}  -- [homeId] = prepared sphere around the interior
 local doorState = {}      -- [doorId] = "ready" | "missing" (open77_doors integration)
 local autoDoorLogged = {} -- [homeId] = true once the "not discovered yet" line was printed
 local propIds = {}        -- prop ids (decimal strings) this resource created, removed on stop
-local deriveRings         -- (home, door) -> moves the entrance / exit / stash rings; defined with the auto door
+local deriveRings         -- (home, door) -> moves the door rings A / B and the stash ring; defined with the auto door
 
 -- ---------------------------------------------------------------------------
 -- Small helpers
@@ -299,17 +299,17 @@ local function stateFor(playerId)
     for id, ring in pairs(keys) do
         if identifier and ring[identifier] then withKey[#withKey + 1] = id end
     end
-    -- The rings: the auto door moves all three at runtime (entrance, exit,
-    -- stash), so the client takes them from here rather than from its copy of
-    -- the shared config.
-    local entrances, exits, stashes = {}, {}, {}
+    -- The rings: the auto door moves all three at runtime (door side A, door
+    -- side B, stash), so the client takes them from here rather than from its
+    -- copy of the shared config.
+    local sideA, sideB, stashes = {}, {}, {}
     for _, home in ipairs(Config.homes) do
-        entrances[home.id] = { x = home.entrance.x, y = home.entrance.y, z = home.entrance.z }
-        exits[home.id] = { x = home.exit.x, y = home.exit.y, z = home.exit.z }
+        sideA[home.id] = { x = home.sideA.x, y = home.sideA.y, z = home.sideA.z }
+        sideB[home.id] = { x = home.sideB.x, y = home.sideB.y, z = home.sideB.z }
         stashes[home.id] = { x = home.stash.x, y = home.stash.y, z = home.stash.z }
     end
     return { mine = homeIdOf(identifier) or false, owned = owned, keys = withKey, inside = inside[playerId] or false,
-        entrances = entrances, exits = exits, stashes = stashes }
+        sideA = sideA, sideB = sideB, stashes = stashes }
 end
 
 local function sendState(playerId)
@@ -385,8 +385,8 @@ end
 -- lists the doors a client has discovered around the interior point, nearest
 -- first; the first one becomes the home's doorId and the three rings are
 -- derived from it (deriveRings). Nothing is discovered until a client has
--- streamed the flat, so the static fallback (shared/config.lua: entrance =
--- interior + 3 m along x, exit = the interior point, stash = interior + 1.5 m
+-- streamed the flat, so the static fallback (shared/config.lua: side A = the
+-- interior point, side B = interior + 3 m along x, stash = interior + 1.5 m
 -- along x) stays in force and the search is retried every
 -- Config.autoDoor.retrySec. Runs inside a thread (near() is awaited).
 -- ---------------------------------------------------------------------------
@@ -411,23 +411,27 @@ local function outsideAxis(home, door)
     return dx / n, dy / n
 end
 
--- The rule (measured 2026-09-18, Northside: a fixed x offset put the exit and
--- stash rings inside the walls, 3.3-3.6 m from the arrival point): every ring
--- lies on the door -> interior axis. entrance = door + `outside` m towards the
--- street; exit = door + `inside` m towards the interior; stash = interior +
--- `stashInside` m further along the same direction, never back towards the
--- door. The interior rings keep the interior's z (the floor the player lands on).
+-- The rule (measured 2026-09-18, Northside: a fixed x offset put the rings
+-- inside the walls, and the "which side is inside" guess was wrong - the AMM
+-- interior point is the corridor in front of the unit door): the door is a
+-- two-sided pass-through. Every ring lies on the interior -> door axis: side A
+-- = door - `ring` m (interior side), side B = door + `ring` m (beyond the
+-- door), both at the door's z; a pass-through lands `land` m from the door on
+-- the far side (landA / landB). The stash = interior + `stashInside` m further
+-- from the door, at the interior's z (the floor spawn-at-home lands on).
 deriveRings = function(home, door)
     local ox, oy = outsideAxis(home, door)
     local p = door.position
-    local out, inn, deep = Config.autoDoor.outside, Config.autoDoor.inside, Config.autoDoor.stashInside
-    home.entrance = { x = p.x + ox * out, y = p.y + oy * out, z = p.z }
-    home.exit = { x = p.x - ox * inn, y = p.y - oy * inn, z = home.interior.z }
+    local ring, land, deep = Config.autoDoor.ring, Config.autoDoor.land, Config.autoDoor.stashInside
+    home.sideA = { x = p.x - ox * ring, y = p.y - oy * ring, z = p.z }
+    home.sideB = { x = p.x + ox * ring, y = p.y + oy * ring, z = p.z }
+    home.landA = { x = p.x - ox * land, y = p.y - oy * land, z = p.z }
+    home.landB = { x = p.x + ox * land, y = p.y + oy * land, z = p.z }
     home.stash = { x = home.interior.x - ox * deep, y = home.interior.y - oy * deep, z = home.interior.z }
     home.ringsDerived = true
-    log("auto door of %s: %s at %.1f, %.1f, %.1f; entrance ring moved to %.1f, %.1f, %.1f; exit ring to %.1f, %.1f, %.1f; stash ring to %.1f, %.1f, %.1f",
-        home.id, tostring(door.id), p.x, p.y, p.z, home.entrance.x, home.entrance.y, home.entrance.z,
-        home.exit.x, home.exit.y, home.exit.z, home.stash.x, home.stash.y, home.stash.z)
+    log("auto door of %s: %s at %.1f, %.1f, %.1f; door ring A moved to %.1f, %.1f, %.1f; door ring B to %.1f, %.1f, %.1f; stash ring to %.1f, %.1f, %.1f",
+        home.id, tostring(door.id), p.x, p.y, p.z, home.sideA.x, home.sideA.y, home.sideA.z,
+        home.sideB.x, home.sideB.y, home.sideB.z, home.stash.x, home.stash.y, home.stash.z)
 end
 
 local function resolveAutoDoor(home)
@@ -439,11 +443,25 @@ local function resolveAutoDoor(home)
         return false
     end
     local list = type(result) == "table" and result.doors or nil
-    local door = type(list) == "table" and list[1] or nil
+    -- Same floor only: `near` is a 3-D radius, and a megabuilding stacks flats 4 m apart,
+    -- so the nearest door can be the unit BELOW (measured 18 Sept: Northside got the door
+    -- at z 18.2 while the flat's floor is 22.2 and the rings went under the floor).
+    local door = nil
+    if type(list) == "table" then
+        for _, candidate in ipairs(list) do
+            local p = type(candidate) == "table" and candidate.position or nil
+            if type(p) == "table" and type(p.z) == "number"
+                and math.abs(p.z - home.interior.z) <= (Config.autoDoor.floorTolerance or 1.5) then
+                door = candidate
+                break
+            end
+        end
+    end
     if type(door) ~= "table" or type(door.id) ~= "string" or type(door.position) ~= "table" then
         if not autoDoorLogged[home.id] then
-            log("auto door of %s: no door discovered within %.0f m of the interior yet (a client must stream the flat); static entrance %.1f, %.1f, %.1f in force, retry every %d s",
-                home.id, Config.autoDoor.radius, home.entrance.x, home.entrance.y, home.entrance.z, Config.autoDoor.retrySec)
+            log("auto door of %s: no door discovered within %.0f m of the interior yet (a client must stream the flat); static rings A %.1f, %.1f, %.1f / B %.1f, %.1f, %.1f in force, retry every %d s",
+                home.id, Config.autoDoor.radius, home.sideA.x, home.sideA.y, home.sideA.z,
+                home.sideB.x, home.sideB.y, home.sideB.z, Config.autoDoor.retrySec)
             autoDoorLogged[home.id] = true
         end
         return false
@@ -594,7 +612,7 @@ local function leaveIfInside(playerId, homeId)
     local home = Config.home(homeId)
     if not home then return end
     CreateThread(function()
-        local ok, why = move(playerId, home.entrance, home.heading)
+        local ok, why = move(playerId, home.landB)
         if not ok then log("player %d could not be moved out of %s: %s", playerId, homeId, tostring(why)) end
         sendState(playerId)
     end)
@@ -755,18 +773,23 @@ local function revokeKey(playerId, targetIdentifier)
 end
 
 -- ---------------------------------------------------------------------------
--- Doors, stash, exit (net events raised by the client's E prompts)
+-- Door pass-through and stash (net events raised by the client's E prompts)
 -- ---------------------------------------------------------------------------
 
-local function enter(playerId, homeId)
+-- The door is two-sided: E on either "Apartment door" ring moves the player to
+-- the other side of the door (the nearer ring says which side they stand on).
+-- Which side is the flat proper is not knowable, so `inside` toggles on every
+-- pass-through: the first crossing marks the player inside, the next one out.
+local function passThrough(playerId, homeId)
     if not loaded then return say(playerId, "The housing registry is still loading, choom.") end
     local home = Config.home(homeId)
     if not home then return say(playerId, "That door goes nowhere.") end
-    local close, metres = within(playerId, home.entrance, Config.promptDistance + Config.serverTolerance)
-    if not close then
+    local reach = Config.promptDistance + Config.serverTolerance
+    local nearA, metresA = within(playerId, home.sideA, reach)
+    local nearB, metresB = within(playerId, home.sideB, reach)
+    if not nearA and not nearB then
         return say(playerId, ("Too far from the door of %s."):format(home.label))
     end
-    if inside[playerId] then return say(playerId, "You are already inside.") end
     if Open77.players.isDead(playerId) then return say(playerId, "Dead people do not go home.") end
     local identifier = ident(playerId)
     if not homes[homeId] then
@@ -777,32 +800,25 @@ local function enter(playerId, homeId)
         return say(playerId, ("Locked. %s belongs to %s and you hold no key, choom."):format(
             home.label, homes[homeId].ownerName))
     end
-    local ok, why = move(playerId, home.interior, home.heading)
+    -- Both rings can be within reach at once (they are 4 m apart): the nearer
+    -- one is the side the player stands on, the far one's landing is the target.
+    local fromSide, toSide, target = "A", "B", home.landB
+    if not nearA or (nearB and metresB < metresA) then fromSide, toSide, target = "B", "A", home.landA end
+    local ok, why = move(playerId, target)
     if not ok then return say(playerId, ("The door jammed (%s). Try again."):format(tostring(why))) end
-    inside[playerId] = homeId
+    if inside[playerId] == homeId then inside[playerId] = nil else inside[playerId] = homeId end
     sendState(playerId)
-    if homes[homeId].identifier == identifier then
-        say(playerId, "Welcome home. E on the stash, E on the front door to leave.")
+    if inside[playerId] == homeId then
+        if homes[homeId].identifier == identifier then
+            say(playerId, "Welcome home. E on the stash, E on the door again to step back out.")
+        else
+            say(playerId, ("You let yourself into %s with %s's key."):format(home.label, homes[homeId].ownerName))
+        end
     else
-        say(playerId, ("You let yourself into %s with %s's key."):format(home.label, homes[homeId].ownerName))
+        say(playerId, ("You step out of %s."):format(home.label))
     end
-    log("player %d entered %s", playerId, homeId)
-end
-
-local function leave(playerId, homeId)
-    local home = Config.home(homeId)
-    if not home then return end
-    if inside[playerId] ~= homeId then
-        return say(playerId, "You are not inside that place.")
-    end
-    local close = within(playerId, home.exit, Config.promptDistance + Config.serverTolerance)
-    if not close then return say(playerId, "Too far from the front door.") end
-    local ok, why = move(playerId, home.entrance, home.heading)
-    if not ok then return say(playerId, ("The door jammed (%s). Try again."):format(tostring(why))) end
-    inside[playerId] = nil
-    sendState(playerId)
-    say(playerId, ("You step out of %s."):format(home.label))
-    log("player %d left %s", playerId, homeId)
+    log("player %d passed through the door of %s: side %s -> side %s, inside=%s", playerId, homeId, fromSide, toSide,
+        tostring(inside[playerId] == homeId))
 end
 
 local function openStash(playerId, homeId)
@@ -952,13 +968,15 @@ end)
 RegisterNetEvent("rp_housing:door", function(homeId)
     local playerId = source
     if type(playerId) ~= "number" or playerId <= 0 then return end
-    enter(playerId, tostring(homeId))
+    passThrough(playerId, tostring(homeId))
 end)
 
+-- Kept for older clients: the separate "Front door" ring is gone, the door is
+-- the same pass-through from either side.
 RegisterNetEvent("rp_housing:exit", function(homeId)
     local playerId = source
     if type(playerId) ~= "number" or playerId <= 0 then return end
-    leave(playerId, tostring(homeId))
+    passThrough(playerId, tostring(homeId))
 end)
 
 RegisterNetEvent("rp_housing:stash", function(homeId)
@@ -1169,7 +1187,7 @@ exports("homeOf", function(playerId)
     local homeId = homeIdOf(ident(playerId))
     if not homeId then return nil end
     local home = Config.home(homeId)
-    return { id = homeId, label = home.label, position = { x = home.entrance.x, y = home.entrance.y, z = home.entrance.z } }
+    return { id = homeId, label = home.label, position = { x = home.sideB.x, y = home.sideB.y, z = home.sideB.z } }
 end)
 
 exports("hasKey", function(playerId, homeId)

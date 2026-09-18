@@ -565,6 +565,9 @@ end
 -- The "Street deal" E prompt on the buyer NPCs: a server declaration every client
 -- applies. The client predicate `rpGangsIsBuyer` keeps it off every other NPC.
 local function defineBuyerPrompt()
+    -- Same rule as rp_crime: no world target on 2.31 (Open77.world.nearby unproven, crash
+    -- correlation 18 Sept); /gang vendre next to the buyer still works.
+    if Config.buyer.nativePrompt ~= true then return end
     local ok, result, reason = pcall(function()
         return exports.open77_interactions:define({
             {

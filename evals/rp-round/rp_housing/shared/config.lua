@@ -1,10 +1,11 @@
 -- rp_housing configuration. Shared by the client (rings, prompts, pins) and the
 -- server (distances, prices, rent). Every position is world metres; the owner
 -- moves them by editing this file. The five homes are real Night City flats
--- (AMM interior points, 2026-09-18): `interior` is where entering puts you, the
--- entrance ring is the flat's own front door, found at runtime through
--- open77_doors (see Config.autoDoor) with a static fallback 3 m from the
--- interior point along +x.
+-- (AMM interior points, 2026-09-18): `interior` is where spawn-at-home puts
+-- you and the anchor of the stash ring; the door is the flat's own front door,
+-- found at runtime through open77_doors (see Config.autoDoor) and drawn as two
+-- pass-through rings, one on each side, with a static fallback on the interior
+-- point and 3 m from it along +x.
 Config = {}
 
 -- Money. Rent is charged from the bank account (rp_bank:charge into the
@@ -41,33 +42,30 @@ Config.spawnWaitSec = 30
 -- until it works, the server asks open77_doors for the doors discovered within
 -- `radius` metres of each interior point and takes the nearest one as the
 -- home's `doorId`: the door is then claimed and locked to the owner and the
--- key holders, and the three rings are derived from it along the door ->
--- interior axis: the entrance ring `outside` metres outside the door, the
--- "Front door" (exit) ring `inside` metres inside it, and the stash ring
--- `stashInside` metres beyond the interior point, further from the door (a
--- fixed x offset lands inside the walls: the interior points are AMM points
--- right at the doorstep, and every flat faces its own way). A door is only
--- discovered once a client has streamed it (walked past the flat), so until
--- then the static fallback is what the rings, the E prompts and the teleports
--- use: entrance = interior + `fallback` m along x, exit = the interior point
--- itself (the player arrives standing on it), stash = interior + 1.5 m along
--- x. Per home, `autoDoor = false` keeps the static rings for good; a hand-set
--- `doorId` skips the search (the rings are still derived from that door).
+-- key holders, and the rings are derived from it along the interior -> door
+-- axis ("outside" = beyond the door, seen from the interior point). The door
+-- is a two-sided pass-through: ring A stands `ring` metres on the interior
+-- side of the door, ring B `ring` metres beyond it, both "Apartment door";
+-- E on either side teleports the player to the other side, `land` metres
+-- from the door (a little past the far ring so the next press goes back). The
+-- stash ring stands `stashInside` metres beyond the interior point, further
+-- from the door. Which side is the flat proper is not knowable from the door
+-- snapshot (Northside, 2026-09-18: the AMM interior point is the corridor in
+-- front of the unit door), so "inside" toggles on every pass-through. A door
+-- is only discovered once a client has streamed it (walked past the flat), so
+-- until then the static fallback is what the rings, the E prompts and the
+-- teleports use: side A = the interior point itself, side B = interior +
+-- `fallback` m along x, stash = interior + 1.5 m along x. Per home,
+-- `autoDoor = false` keeps the static rings for good; a hand-set `doorId`
+-- skips the search (the rings are still derived from that door).
 Config.autoDoor = {
     radius = 6.0,
-    outside = 1.5,
-    inside = 1.2,
+    ring = 2.0,
+    land = 2.5,
     stashInside = 1.2,
     fallback = 3.0,
-    retrySec = 60,
+    retrySec = 60, floorTolerance = 1.5, -- metres of height a discovered door may differ from the flat floor (the unit below is 4 m down)
 }
-
--- The exit ring is 1.0 m wide (the others 0.6) because in the fallback it
--- stands under the arriving player's feet; open77_interactions measures the
--- prompt distance in 3D from the player to the card anchor 1 m above the ring,
--- so a player standing on it is ~1 m away and promptDistance 3.0 keeps it
--- pressable.
-Config.exitRadius = 1.0
 
 -- The real-estate agency: a ring + E prompt + map pin at Kabuki Market, The
 -- Crossing (walked), 32 m west of the market centre, with a listings terminal
@@ -98,25 +96,30 @@ Config.agency = {
 --   rent      optional per-home rent (defaults to Config.rent)
 --   interior  where entering puts you: the flat's floor (AMM point)
 --   heading   body yaw applied on arrival (degrees, AMM)
---   entrance  the door ring: the E prompt "Apartment door", and where leaving puts
---             you. Left empty: the auto door fills it (interior + 3 m along x until
---             the front door is discovered)
+--   sideA     the "Apartment door" ring on the interior side of the door, and
+--             where a pass-through from side B lands (landA). Left empty: the auto
+--             door fills it (the interior point itself until the door is discovered,
+--             then door - 2 m along the axis; landing door - 2.5 m)
+--   sideB     the same ring beyond the door (default: interior + 3 m along x until the
+--             door is discovered, then door + 2 m along the axis; landing door + 2.5 m)
 --   stash     where the "Stash" ring stands (default: interior + 1.5 m along x until the
---             front door is found, then interior + 1.2 m further inside along door -> interior)
---   exit      where the "Front door" (leave) ring stands (default: the interior point itself
---             until the front door is found, then 1.2 m inside the door)
+--             front door is found, then interior + 1.2 m further from the door)
 --   doorId    optional open77_doors engine id ("0x..." string). Empty: found by the
 --             auto door. When set, the server claims the door and locks it to the
 --             owner and the key holders (defaultAccess = false).
---   autoDoor  false = never search for the front door (static entrance)
+--   autoDoor  false = never search for the front door (static rings)
 Config.homes = {
     {
+        -- Was the Northside Apartment (-1503.8, 2224.9, 22.2): entering that DLC flat kills the
+        -- client 15 s after its lootable decor streams in (reproduced three times 18 Sept,
+        -- engine pool free-list corruption, base investigation open). The No-Tell Motel room
+        -- (Kabuki, AMM "No-Tell Motel - Venus") was walked 45 s without harm.
         id = "northside_container",
-        label = "Northside Apartment",
-        district = "Northside, Watson",
+        label = "No-Tell Motel - room Venus",
+        district = "Kabuki, Watson",
         zone = nil,
         price = 9000,
-        interior = { x = -1503.8, y = 2224.9, z = 22.2 },
+        interior = { x = -1202.2, y = 1333.2, z = 20.0 },
     },
     {
         id = "badlands_hideout",
@@ -156,11 +159,9 @@ Config.homes = {
 -- Prompt copy (English, on purpose: it is what every player reads).
 Config.text = {
     door = "Apartment door",
-    doorDescription = "Enter if you hold the keys.",
+    doorDescription = "Unit door - pass through (keys required)",
     stash = "Stash",
     stashDescription = "Your private stash, 200 kg.",
-    exit = "Front door",
-    exitDescription = "Step back outside.",
 }
 
 -- Stash capacity handed to rp_inventory:openStash, in kg.
@@ -169,12 +170,13 @@ Config.stashCapacity = 200
 -- Derived helpers shared by both runtimes. Fill the optional positions.
 for _, home in ipairs(Config.homes) do
     home.rent = home.rent or Config.rent
-    home.entrance = home.entrance or { x = home.interior.x + Config.autoDoor.fallback, y = home.interior.y, z = home.interior.z }
+    -- Static fallback (no door yet): side A on the interior point, side B 3 m
+    -- along +x; a pass-through lands on the far ring itself.
+    home.sideA = home.sideA or { x = home.interior.x, y = home.interior.y, z = home.interior.z }
+    home.sideB = home.sideB or { x = home.interior.x + Config.autoDoor.fallback, y = home.interior.y, z = home.interior.z }
+    home.landA = home.landA or { x = home.sideA.x, y = home.sideA.y, z = home.sideA.z }
+    home.landB = home.landB or { x = home.sideB.x, y = home.sideB.y, z = home.sideB.z }
     home.stash = home.stash or { x = home.interior.x + 1.5, y = home.interior.y, z = home.interior.z }
-    -- The exit ring waits on the arrival point: `interior - 1.5 m along x` was
-    -- inside the flat's wall (measured 2026-09-18, Northside: 3.3-3.6 m from a
-    -- player on the arrival point, never pressable).
-    home.exit = home.exit or { x = home.interior.x, y = home.interior.y, z = home.interior.z }
     home.doorId = home.doorId or ""
     if home.autoDoor == nil then home.autoDoor = (home.doorId == "") end
 end

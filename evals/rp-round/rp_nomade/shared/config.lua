@@ -118,6 +118,9 @@ RpNomadeConfig.Truck = {
     rental = 100,               -- eddies, cash, refunded when the truck is returned inside the camp zone
     reach = 4.0,                -- load / unload / return: the player must be within this distance of the truck
     ttlMs = 40 * 60 * 1000,     -- safety net: the vehicle registry removes a forgotten truck after this
+    -- nativePrompts: Load / Unload / Return as E prompts on the truck through open77_interactions.
+    -- Switchable: turned off 2026-09-18 to isolate the Northside flat crash (reproduced without it).
+    nativePrompts = true,
 }
 
 RpNomadeConfig.Crate = {

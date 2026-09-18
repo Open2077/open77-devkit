@@ -173,7 +173,7 @@ vendeurs PNJ et props de marché.
 |---|---|---|
 | `rp_garage` | `/concession`, `/garage`, `/cles [id\|revoke]`, `/verrouiller`, `/plaque` ; anneaux **E** garage public **Afterlife street lot** (`-1408, 960`, baies `-1412 / -1406 / -1400, 968` face au nord, enseigne garage), garage mécano (`-1396, 966`), concession **Westbrook Motors** (`-1442.2, 127.4`, cadre néon ; la voiture apparaît sur la grille de course `-1450.2, 119.9`), fourrière = casse | achat d'une Arch Nazare (plaque NC-9TX3), `/plaque`, véhicule perdu (retiré du monde → de retour au garage en 30 s), sortie au garage public, rangement avec carburant (60 L) et état conservés en SQL (`rp_garage_vehicles`, `rp_garage_keys`) ; exports `ownerOf hasKey plateOf vehiclesOf spawnOwned impound setWanted` |
 | `rp_shops` | `/boutiques`, `/acheter <id> [n]` ; 5 stands de Kabuki Market avec vendeur PNJ et prop : supermarché **Noodle Row** (Rosa, `-1178.7, 2028.5`, étagère), pharmacie **Med-Point — The Stalls** (Dr. Osei, `-1223.9, 1989.5`, distributeur, tenue par `trauma`), armurerie **2nd Amendment — East Row** (Wilson, `-1160.5, 2019.1`, râtelier), vêtements **Jinguji Threads — Vendor Lane** (Kimiko, `-1212.3, 1978.5`, mannequin), marché noir **Lower Walkway Dealer** (Dex, `-1201.1, 2035.6`, sous le marché, caisse, 22 h–6 h) | eau ×2, licence d'arme (500 €$, `rp_shops_licences`), Lexington (400 €$, arme livrée en main), braquage par `rp_crime` (375 €$) ; stock et ventes en SQL ; exports `openShop stock rob` |
-| `rp_housing` | `/agence_immo` (**Night City Real Estate**, The Crossing `-1218.65, 2022.93`, borne-terminal), `/maison [cles\|retirer\|spawn\|vendre\|acheter]`, `/loyer [payer]` ; **5 vrais appartements** : Northside 9 000, Glen (Heywood) 15 000, V's Apartment / Megabuilding H10 25 000, Judy's (Kabuki) 30 000, Japantown 40 000 ; la porte est la vraie porte du logement, trouvée via `open77_doors` (« auto door », repli intérieur + 3 m tant qu'un client n'a pas streamé l'étage) + intérieur + coffre + « Front door » en anneaux **E** | achat du Northside (9 000 €$), `/maison`, trois loyers de 500 €$ prélevés à la paie, puis (après le correctif base #35) E sur la porte → intérieur, E sur le coffre → pied-de-biche rangé (`rp_inventory_stashes`), E sur *Front door* → dehors, `/maison spawn`, `/loyer payer` (`rp_housing_homes`, `rp_housing_keys`) ; porte réelle de H10 découverte et anneau déplacé (`auto door of h10_studio: 0x…`) ; exports `homeOf isInside stashOf hasKey` |
+| `rp_housing` | `/agence_immo` (**Night City Real Estate**, The Crossing `-1218.65, 2022.93`, borne-terminal), `/maison [cles\|retirer\|spawn\|vendre\|acheter]`, `/loyer [payer]` ; **5 vrais appartements** : No-Tell Motel (chambre Venus, Kabuki) 9 000, Glen (Heywood) 15 000, V's Apartment / Megabuilding H10 25 000, Judy's (Kabuki) 30 000, Japantown 40 000 ; la porte est la vraie porte du logement, trouvée via `open77_doors` (« auto door », repli intérieur + 3 m tant qu'un client n'a pas streamé l'étage) + intérieur + coffre + « Front door » en anneaux **E** | achat du No-Tell Motel (9 000 €$ ; était le Northside DLC, retiré le 18/09 au soir : crash moteur plateforme, voir pièges), `/maison`, trois loyers de 500 €$ prélevés à la paie, puis (après le correctif base #35) E sur la porte → intérieur, E sur le coffre → pied-de-biche rangé (`rp_inventory_stashes`), E sur *Front door* → dehors, `/maison spawn`, `/loyer payer` (`rp_housing_homes`, `rp_housing_keys`) ; porte réelle de H10 découverte et anneau déplacé (`auto door of h10_studio: 0x…`) ; exports `homeOf isInside stashOf hasKey` |
 
 ## Phase 4 — immersion, outils et vie criminelle (livrée le 18 septembre)
 
@@ -206,8 +206,8 @@ vendeurs PNJ et props de marché.
    (première baie libre `-1412, 968`). `/cles`. **2** : `/cles <id2>` puis `/verrouiller` par
    le second joueur ; le garage mécano est 12 m à l'est (`-1396, 966`).
 2. Anneau **Night City Real Estate** à The Crossing (`-1218.65, 2022.93`, 32 m à l'ouest du
-   spawn, borne-terminal à côté) : E → *Northside Apartment* → *Sign*. `/maison`, `/loyer`.
-   Northside (`-1503.8, 2224.9, 22.2`, 380 m au nord-ouest ; `tp <id> -1500.8 2224.9 22.2`) :
+   spawn, borne-terminal à côté) : E → *No-Tell Motel - room Venus* → *Sign*. `/maison`, `/loyer`.
+   No-Tell Motel (`-1202.2, 1333.2, 20.0`, Kabuki, 675 m au sud ; `tp <id> -1202.2 1333.2 20.0`) :
    l'anneau est sur la vraie porte dès qu'elle est découverte (`auto door` dans le log), sinon
    à intérieur + 3 m : E → fondu, intérieur ; E sur *Stash* (coffre `rp_inventory`), écarte-toi
    de plus de 3,4 m du coffre, E sur *Front door*. `/maison spawn` puis reconnexion → réveil chez
@@ -275,6 +275,29 @@ Trois limites de plus, mesurées le 18 au soir en habillant Night City de props 
 - **La carte d'invite ne sait pas dessiner un tiret cadratin** (—) : les libellés d'invite
   écrivent « - » (`The Afterlife - bar counter`, `E - Fixer's board`).
 
+### Piège plateforme découvert le 18 septembre au soir : l'appartement Northside (DLC) crashe le jeu
+
+Entrer dans le Northside Apartment (`-1503.8, 2224.9, 22.2`) et regarder les objets posés sur la
+table (un jus de tomate, deux autres consommables) tue le client en quelques secondes :
+`0xC0000005` à `Cyberpunk2077.exe+0x53F9D4`, `+0x1458DF` ou `+0x142F17` — cinq reproductions
+le 18/09, trois sites de faute, **une seule corruption du tas** (une cellule de 8 octets
+`PoolRefCount` de l'allocateur slab moteur est libérée puis un compteur de références y est
+encore incrémenté : `{strong=2, weak=-2}`). Les trois objets de la table sont respawnés
+~24 fois dans les 18 s qui précèdent chaque faute. **Ce n'est pas une ressource RP** : la
+5e reproduction a eu lieu avec les trois cibles `open77_interactions` du monde (fence, acheteur
+de gang, camion nomade) désactivées, sans une seule requête `world.` dans le journal, et le
+propriétaire confirme que le crash précède les scripts RP. Piste principale côté base : les
+wraps de suppression du loot multijoueur (`gameItemDropObject.IsContainer` → `false`), qui
+tournent dès que la politique multijoueur est active. Base PR #38 (branche
+`fix/apartment-interior-crash`) : root cause prouvée, garde `bindable` sur `OnItemEntitySpawned`
+(plus de handle fort ni de `BindNative` sur le décor), fuite de weak-refs de `world.nearby`
+corrigée, breadcrumbs dans le loot, recette A/B documentée dans
+`docs/research/loot-ground-items.md` — **pas encore construit ni déployé** (exige l'arrêt du
+jeu). Conséquences RP : `northside_container` est devenu la chambre Venus du No-Tell Motel
+(Kabuki, marchée 45 s sans mal) ; les prompts natifs fence / acheteur / camion sont pilotés par
+`nativePrompt(s)` dans les configs (remis à `true` une fois la piste écartée) ; éviter tout
+intérieur avec du décor lootable jusqu'au correctif base.
+
 ## Carte de Night City
 
 Toutes les positions en mètres monde, relevées le 18 septembre (points marchés à pied par le bot,
@@ -324,7 +347,7 @@ référence sont les `shared/config.lua` et les README de chaque ressource.
 
 | Logement | Id | Intérieur | Prix | Depuis le spawn |
 |---|---|---|---|---|
-| Northside Apartment (Watson) | `northside_container` | `-1503.8, 2224.9, 22.2` | 9 000 €$ | 380 m NO |
+| No-Tell Motel - chambre Venus (Kabuki) | `northside_container` | `-1202.2, 1333.2, 20.0` | 9 000 €$ | 675 m S |
 | Glen Apartment (Heywood) | `badlands_hideout` | `-1524.0, -992.6, 9.1` | 15 000 €$ | 3 km S |
 | V's Apartment — Megabuilding H10 | `h10_studio` | `-1391.9, 1271.7, 123.1` | 25 000 €$ | 760 m SO |
 | Judy's Apartment (Kabuki) | `kabuki_flat` | `-906.3, 1868.7, 42.4` | 30 000 €$ | 320 m E |

@@ -91,6 +91,9 @@ local function registerTruckPrompts()
         { id = "rp_nomade_return", label = "Return the truck", description = "Give the keys back and get the deposit.",
           event = "rp_nomade:ui:return", canInteract = "canReturn", icon = "KEYS" },
     }
+    -- Vehicle targets make open77_interactions poll Open77.world.nearby every 250 ms; unproven
+    -- on 2.31 and correlated with heap-corruption crashes (18 Sept). Off until base PR #37.
+    if C.Truck.nativePrompts ~= true then defs = {} end
     for _, def in ipairs(defs) do
         local result, err = call("open77_interactions", "addGlobalVehicle", {
             id = def.id,
