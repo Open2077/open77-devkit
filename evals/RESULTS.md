@@ -322,3 +322,65 @@ What the round found (platform):
   AV `_player` record in the catalogue (`Vehicle.av_trauma` spawns fine); the validator ignores
   calls made through a local alias of `Open77.database` (permission check skipped silently);
   `TriggerEvent` nil holes and the callback failure shape remain undocumented.
+
+## RP phases 3–5, 2026-09-18 07:50–09:30: fourteen resources, fourteen agents, the whole server on one eval box
+
+Wave D (`rp_garage`, `rp_shops`, `rp_housing`, `rp_hud`, `rp_radio`, `rp_ambiance`), wave E
+(`rp_logs`, `rp_whitelist`, `rp_admin`, `rp_phone`, `rp_gangs`), then `rp_mdt`, `rp_crime`,
+`rp_config`, on the contract `rp-round/PROMPT-COMMON-v4.md` (every phase-1/2 export and event as
+shipped, the measured plaza coordinates, the client-manifest dependency rule, the 0.1.3 validator).
+All fourteen validate OK and lint clean with the server binary; the whole set — 39 RP resources
+plus the 45 platform ones — starts together on the eval server on SQL (37 tables). Played by the
+bot: dealership purchase → plate → lost vehicle reclaimed → take-out → store (fuel and body state
+kept); housing purchase and rent; shop goods, gun licence and a delivered pistol; the HUD; radio
+tuning and talk; phone number and UI; gang founding and a black-market deal; the NCPD tablet
+(citizen search, card, a record entry written through `rp_ncpd:addRecord`); crime: fencing stolen
+parts, jimmying a locked car (NCPD alert + APB), an armed shop robbery (alert + record); ambiance
+cycle/weather/extras; admin warn; SQL audit trail; whitelist status; `rp_config` set/get/type
+refusal/branch/list/export/unset with a live override applied by `rp_ambiance`. Two-player paths
+(keys, SMS, gang war, dealing, crate theft, freeze/spectate, the whitelist gate itself) are the
+owner's. 42–103 MCP calls per agent.
+
+What the round found (platform):
+
+- **The client script budget divides by the number of running resources, and platform loops
+  die at scale.** `ResourceHost.Tick()` slices 2000 µs by the running-resource count (floor 50 µs);
+  the instruction hook fires every 10 000 instructions and kills the resume when the slice is
+  spent; a `CreateThread` loop that raises is retired for the session. With ~70 client resources
+  `open77_interactions` (every E prompt) and `open77_contextmenu` (ALT+click registration) died
+  within seconds of each connect or swap: cards still render from the native anchors, nothing ever
+  fires. Base PR in flight (slice floor, phased tick with `Wait(0)` + `pcall`, linear contextmenu
+  registry). Until it lands, any RP server past ~40 resources loses its prompts.
+- **A resource whose manifest reaches the client (any `shared_script`) must not `dependency` a
+  server-only resource**: the client rejects the *entire* resource set
+  (`server resource candidate rejected before swap: rp_crime:missing_dependency:rp_economy`) and
+  nothing new is delivered until the manifest is fixed. Loading a shared config as `server_script`
+  is the workaround for server-only resources.
+- **`refresh` then `restart <name>`**: a `restart` alone re-sends the package the server already
+  holds; a client-delivered file change (shared/, client/, web/) only reaches players after
+  `refresh`. Any restart swaps the whole set on every client (and re-triggers the budget failure).
+- **`Open77.players.identifier(0)` / `name(0)` throw** `id must be positive (Parameter 'value')`
+  and kill the resource VM — an audit resource fed a console actor (id 0) by another resource's
+  event died and took its dependants down (`dependency_stopped`). Ids must be guarded before every
+  player lookup; the natives could answer nil instead.
+- **`state.write` is a real permission** (`open77_fuel` declares it, `rp_garage` gets
+  `permission_denied:state.write` without it) but `open77_permissions` says it does not exist and
+  the validator flags it as unknown. Same family: `local.events` (context-menu guide) does not
+  exist on op77.76; `webui.keep_input` (`setFocus` third argument) is not in the list.
+- **No webui guide**: `Open77.webui.create` + `WebUI.Page.*` cards only; layer semantics, the
+  page-side bridge (`window.Open77.on/emit`), the `visible` contradiction between the card and
+  the `open77_new_resource` scaffold, `ui_page` vs `web_ui_page` vs the manifest schema — every
+  HUD/MDT/phone agent guessed the same things.
+- **No environment-variable API for resources** although the convars guide sends tokens to the
+  environment; `rp_logs` had to take its Discord webhook from a convar the operator sets.
+- Database: `*.await` and callback failure shapes undocumented (raise vs nil vs never called);
+  `LIMIT ?` as a bound parameter undocumented; nil holes in params arrays fail the write silently.
+- `open77_data` misses: `npc-templates` answers `.ent` paths with no `Character.*` ids; `vehicles`
+  needs the accented display name (`Nazaré`) or the exact record suffix; the VFX alias catalogue
+  and the effects guide's 60 aliases are unreachable; `Open77.npcs.speak` takes a voice context, not
+  text; the `npcs.create` card shows `damagePolicy = "invulnerable"` while the rules say numeric.
+- `Open77.hud.setCinematic` is op77.78+; `open77_vehiclepicker` has no roster guide (unusable for
+  a dealership — UI-kit context used); `rp_zones:list()` carries no centres; `Open77.time.monotonic`
+  units and `GetResourceState` values unstated; `TriggerClientEvent` card truncated.
+- Client E prompts need the card within `distance` of the *player* (not the ring) and the world
+  positions must be measured: `groundz` found the cliff under two housing doors and the fence.
