@@ -232,3 +232,49 @@ What the round found:
   change: main had been fast-forwarded onto a branch that merged main, and the `--first-parent`
   walk no longer resolved release dates to the commits the builds were cut from. Release commits
   are pinned in the history file now (base #28).
+
+## RP phase 1, 2026-09-18 04:40–05:50: four agents on SQL, played end-to-end by a bot client
+
+Four subagents, MCP-only again, one resource each, on a second contract
+(`rp-round/PROMPT-COMMON-v2.md`: SQL first through `Open77.database.*`, table prefix per
+resource, the client-manifest dependency rule, the context menu for player-to-player actions,
+the platform's command names): `rp_identity` (civil registry form, `/carte`, `/civil`, Show ID
+context action, RP nameplate), `rp_inventory` (weighted pockets, 17 items in a Lua table, use /
+drop as ground loot / pick up / give / search / seize, stashes by export), `rp_bank` (accounts,
+ATM POIs with map pins and an E prompt, deposit / withdraw / wire / statement, societies),
+`rp_needs` (hunger / thirst / fatigue with effects, `consume` export). A MariaDB container was
+provisioned for the eval server first (connection string injected from a local env file, never
+in a resource). All four validated OK, lint clean, started together on the eval server with the
+schema created by `Open77.database.ready`, and — new this round — were played end-to-end by an
+agent-driven client: the registration form typed with SendInput, `/carte`, `/needs`, `/solde`,
+the ATM menu (deposit 300, withdraw 100, statement), `/inv` → burrito used (hunger +35 through
+`rp_needs`) → water dropped as loot → `/ramasser`, with every step read back from SQL and
+surviving a `restart` of the resource. 62–85 MCP calls per agent.
+
+What the round found:
+
+- **The validator contradicts the database cards**: every `Open77.database.*` card and the
+  `ready` example use `query.await` / `update.await`, and the guide says `MySQL` is the same
+  table, yet `open77_validate` flags `Open77.database.query.await`, `.update.await` and every
+  `MySQL.*` spelling as "not in the catalogue" (6 errors on a clean resource). Two agents rebuilt
+  the wait from the callback form plus `promise.new()`; one hid the dotted form behind
+  `local DB = Open77.database`. The lexical check must accept the documented `.await` sub-forms
+  and the `MySQL` alias (0.1.3).
+- `open77_api` accepts a `server:` route prefix but not `client:` (the unqualified name returns
+  both sides); no server card for `exports(name, fn)` or `print`; `_G` server listing omits
+  both; the callback-form failure shape of `Open77.database.update` is unspecified; the
+  context-menu guide tells resources to declare `local.events`, which `open77_permissions` says
+  does not exist.
+- **`open77_worldui` prompts are pressable only within `radius + 0.5 m`** by default
+  (`promptDistance`), and only while the projection sits within `focusRadius` of the screen
+  centre (`requireLookAt`): the ATM prompt showed at 1.8 m and ignored E until `rp_bank` passed
+  `promptDistance = 3`. Neither default is on the worldui card. The prompt's 3D labels also draw
+  above UI-kit dialogs (cosmetic, platform).
+- `Open77.animations.current` says "requires players.animations.read" in prose and "no
+  permission checked" in metadata; the `steps` shape is undocumented (hands-up detection scans
+  for the profile id). No consumable catalogue in `open77_data items` (clothing only) — drops
+  use the documented `Items.money` record with an RP label, so the native card shows money.
+- A DB-enabled server walls every fresh identity in the vanilla character creator, which
+  synthetic input cannot finish; seeding one `open77_characters` + `open77_player_appearances`
+  row (copied from an existing profile) lets an agent client through — worth a devkit note in the
+  database guide.
