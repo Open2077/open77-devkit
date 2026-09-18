@@ -191,7 +191,14 @@ export async function validateResource(dir: string, context: ServerContext): Pro
       if (!(await expandGlob(dir, pattern)).length) findings.push({ severity: key === "preload_mods" ? "error" : "warning", file: "open77.lua", message: `${key} ${pattern} matches no file` });
     }
   }
-  if (!scripts.length) findings.push({ severity: "warning", file: "open77.lua", message: "no client_script, server_script or shared_script: the resource does nothing" });
+  if (!scripts.length) {
+    // A passive library publishes modules under `files` for a dependant's
+    // require('@name/...') and needs no script of its own; both hosts accept
+    // it. With neither scripts nor files the manifest is refused on both sides
+    // (client `no_client_scripts`, server "Resource contains no scripts or files.").
+    if ((manifest.lists["files"] ?? []).length) findings.push({ severity: "note", file: "open77.lua", message: "no client_script, server_script or shared_script: a passive library; its files are served to dependants through require('@" + (name ?? "name") + "/...')" });
+    else findings.push({ severity: "error", file: "open77.lua", message: "no client_script, server_script, shared_script or files: the server and the client both refuse this manifest", fix: "add a script, or publish modules under files { ... } for a passive library" });
+  }
 
   const byQualified = new Map<string, ApiCard[]>();
   for (const card of index.cards) {
