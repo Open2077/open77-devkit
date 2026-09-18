@@ -6,7 +6,8 @@
 --     resource start/stop), and turns each one into a row;
 --   * keeps the newest rows in a ring buffer answered by the synchronous
 --     `query` export (never yields);
---   * writes rows to `rp_logs_events` in batches (every 2 s or 50 rows) with
+--   * writes rows to `rp_logs_events` in batches (every 2 s or 10 rows: the bridge caps a
+--     statement at 64 positional parameters) with
 --     the callback forms of Open77.database, so no export ever touches SQL;
 --   * mirrors the sensitive kinds to a Discord webhook, one POST per second.
 --

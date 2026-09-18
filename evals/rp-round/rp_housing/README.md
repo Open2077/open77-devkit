@@ -209,7 +209,9 @@ Dependencies: `open77_worldui`, `open77_uikit`, `open77_contextmenu`, `open77_no
    `northside_container`.
 7. Look at the **Stash** ring 1.5 m east, press **E**: the `rp_inventory` Take / Store
    menu opens (200 kg). Store something, close, reopen: it is still there.
-8. Look at the **Front door** ring 1.5 m west, press **E**: fade, you are back on the door
+8. Step 2 m west of the **Stash** first: `open77_interactions` keeps the prompt you are already
+   within reach of (the Stash, 3 m) until you leave its range, so the **Front door** card only
+   takes over once the stash is more than ~3.4 m behind you (measured 18 Sept). Then press **E**: fade, you are back on the door
    ring: `You step out of Northside container.` Try the **Stash** ring from outside
    (walk 6 m west without pressing the door): `Get inside first ...`.
 9. `/maison spawn` -> `Spawn at home ON ...`. You do **not** need to reconnect to check

@@ -350,7 +350,15 @@ What the round found (platform):
   `open77_interactions` (every E prompt) and `open77_contextmenu` (ALT+click registration) died
   within seconds of each connect or swap: cards still render from the native anchors, nothing ever
   fires. Base PR in flight (slice floor, phased tick with `Wait(0)` + `pcall`, linear contextmenu
-  registry). Until it lands, any RP server past ~40 resources loses its prompts.
+  registry) — opened as base #35; its Lua half was deployed on the eval server the same morning:
+  no `budget exceeded` since the swap, `15 context actions registered`, and the housing door /
+  stash / front-door prompts fired (the loop is alive at 89 loaded resources). The C++ half (the
+  300 µs slice floor) waits for a client rebuild. Until it lands, any RP server past ~40 resources
+  loses its prompts.
+- **The database bridge caps a statement at 64 positional parameters** (`MySqlMaxParameters`,
+  `LuaResourceRuntime.cs`) and 64 KB of SQL, undocumented on the cards: a 50-row batched
+  `INSERT` (300 params) answered nil three times and the audit trail dropped 96 rows at every cold
+  start. Batches of 10 rows now.
 - **A resource whose manifest reaches the client (any `shared_script`) must not `dependency` a
   server-only resource**: the client rejects the *entire* resource set
   (`server resource candidate rejected before swap: rp_crime:missing_dependency:rp_economy`) and

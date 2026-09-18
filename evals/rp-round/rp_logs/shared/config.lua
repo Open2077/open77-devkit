@@ -6,7 +6,10 @@ RpLogsConfig = {
     -- SQL batching: a flush happens every flushIntervalMs or as soon as
     -- flushBatchSize rows are waiting, whichever comes first.
     flushIntervalMs = 2000,
-    flushBatchSize = 50,
+    -- 10 rows x 6 parameters = 60: the server's database bridge refuses a statement with
+    -- more than 64 positional parameters (LuaResourceRuntime MySqlMaxParameters, measured
+    -- 18 Sept: 50-row batches failed three times and were dropped at every start).
+    flushBatchSize = 10,
     -- Rows kept in memory while the database is connecting (bounded).
     pendingMax = 2000,
     -- A batch whose INSERT fails is retried this many times, then dropped.

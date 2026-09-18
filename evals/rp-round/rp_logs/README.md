@@ -123,7 +123,8 @@ CREATE TABLE IF NOT EXISTS rp_logs_events (
 ```
 
 Rows are written with the **callback form** of `Open77.database.insert`, batched: a flush
-every 2 s or as soon as 50 rows wait, one multi-row `INSERT` per batch. A failed batch is
+every 2 s or as soon as 10 rows wait (the bridge refuses more than 64 positional parameters per
+statement), one multi-row `INSERT` per batch. A failed batch is
 retried twice and then dropped with an `ERR` line. On start the newest 500 rows are read back
 into the cache so `query` is useful right after a restart.
 
