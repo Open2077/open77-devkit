@@ -338,6 +338,33 @@ end
 -- Synchronous callers (exports.rp_inventory:add(...)) are fine: nothing here yields.
 ---------------------------------------------------------------------------
 
+-- define(items) -> registered, rejected | nil, reason
+-- Lets another resource declare its own items (a crowbar, a boxed implant, a quickhack...) in
+-- the same shape as shared/items.lua. Idempotent: a definer calls it from its onResourceStart
+-- and again when rp_inventory itself restarts (its VM restarts with the built-in table only;
+-- rows of undefined ids stay in SQL and come back after the next definition + load).
+exports("define", function(items)
+    if type(items) ~= "table" then return nil, "invalid_items" end
+    local registered, rejected = 0, 0
+    for id, def in pairs(items) do
+        if type(id) == "string" and id:match("^[%l%d_]+$") and type(def) == "table"
+            and type(def.label) == "string" and #def.label > 0 and #def.label <= 48
+            and type(def.weight) == "number" and def.weight >= 0 and def.weight <= 100 then
+            Items[id] = {
+                label = def.label, weight = def.weight, usable = def.usable == true,
+                illegal = def.illegal == true, permit = def.permit,
+                effect = type(def.effect) == "table" and def.effect or nil,
+                record = def.record, visual = def.visual, definedBy = GetInvokingResource(),
+            }
+            registered = registered + 1
+        else
+            rejected = rejected + 1
+        end
+    end
+    log("define: %d item(s) registered, %d rejected", registered, rejected)
+    return registered, rejected
+end)
+
 exports("has", function(playerId, itemId, count)
     local inv = resolvePlayer(playerId)
     if not inv then return false end
@@ -425,6 +452,18 @@ end
 local function applyEffect(playerId, itemId, def)
     local effect = def.effect or {}
     local kind = effect.kind
+
+    -- Items another resource declared through `define` own their effect: this resource only
+    -- debits and raises rp_inventory:used; the definer applies whatever the item does. A
+    -- `needs` table on the effect is applied here through rp_needs:apply for convenience.
+    if def.definedBy then
+        if type(effect.needs) == "table" then
+            local called, result, reason = callExport("rp_needs", "apply", playerId, effect.needs, def.label)
+            if called and not result then return nil, reason or "needs_refused" end
+        end
+        tell(playerId, effect.text or ("You use the %s."):format(def.label:lower()))
+        return true
+    end
 
     if kind == "heal" then
         local stats = Open77.stats.get(playerId)

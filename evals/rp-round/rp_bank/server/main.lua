@@ -393,8 +393,34 @@ local function societyRemove(name, amount, reason)
     return soc.balance
 end
 
+-- Account -> society, in one move: a fine, a hospital bill, a subscription. `reason` is a short
+-- note kept on both ledgers. Returns the player's new account balance.
+local function charge(playerId, amount, toSociety, reason)
+    local acct, identifier, id = accountOf(playerId)
+    if not acct then return nil, identifier end
+    local n, amountReason = toAmount(amount)
+    if not n then return nil, amountReason end
+    local clean, why = cleanSocietyName(toSociety)
+    if not clean then return nil, why end
+    local note, noteReason = cleanNote(reason)
+    if reason ~= nil and not note then return nil, noteReason end
+    if acct.balance < n then return nil, "insufficient_funds" end
+    local soc = ensureSociety(clean)
+    if soc.balance + n > Config.MaxBalance then return nil, "balance_limit" end
+    acct.balance = acct.balance - n
+    soc.balance = soc.balance + n
+    persistAccount(identifier)
+    persistSociety(clean)
+    record(identifier, -n, acct.balance, "charge", clean .. (note and (":" .. note) or ""))
+    record("society:" .. clean, n, soc.balance, "society_add", "charge:" .. identifier)
+    log("player %d charged %d to society %s (%s) account=%d", id, n, clean, note or "-", acct.balance)
+    emitChanged(id, identifier, acct.balance, -n, "charge")
+    emitChanged(nil, "society:" .. clean, soc.balance, n, "society_add")
+    return acct.balance
+end
+
 -- ---------------------------------------------------------------------------------------------
--- exports (phase 1 contract)
+-- exports (phase 1 contract + charge)
 
 exports("getAccount", getAccount)
 exports("deposit", deposit)
@@ -403,6 +429,7 @@ exports("transfer", transfer)
 exports("society", society)
 exports("societyAdd", societyAdd)
 exports("societyRemove", societyRemove)
+exports("charge", charge)
 
 -- ---------------------------------------------------------------------------------------------
 -- database boot: three states (ready / coming / never), the cache loads once
@@ -537,7 +564,7 @@ end
 
 local KIND_LABEL = {
     deposit = "Deposit", withdraw = "Withdrawal", transfer_out = "Wire sent",
-    transfer_in = "Wire received", fee = "Wire fee", society_add = "Society credit",
+    transfer_in = "Wire received", fee = "Wire fee", charge = "Charge", society_add = "Society credit",
     society_remove = "Society debit",
 }
 
@@ -570,8 +597,9 @@ local function resolveRecipient(text)
     if text == "" then return nil end
     local id = toPlayerId(text)
     if id then
-        local identifier = Open77.players.identifier(id)
-        if identifier and findAccount(identifier) then return identifier, id end
+        -- A connected player always has an account (created on first sight).
+        local acct, identifier = accountOf(id)
+        if acct then return identifier, id end
     end
     if findAccount(text) then return text, online[text] end
     return nil
@@ -814,9 +842,10 @@ RegisterCommand("virement", function(source, args)
         return
     end
     if targetId == source then say(source, reasonText("self_transfer")); return end
-    local toIdentifier = Open77.players.identifier(targetId)
-    if not toIdentifier or not findAccount(toIdentifier) then
-        say(source, reasonText("player_not_found"))
+    -- accountOf creates the account of a connected player who has none yet.
+    local targetAcct, toIdentifier = accountOf(targetId)
+    if not targetAcct then
+        say(source, reasonText(toIdentifier == "bank_not_ready" and "bank_not_ready" or "player_not_found"))
         return
     end
     local fee = math.max(Config.TransferFeeMin, math.ceil(amount * Config.TransferFeePercent / 100))

@@ -278,3 +278,47 @@ What the round found:
   synthetic input cannot finish; seeding one `open77_characters` + `open77_player_appearances`
   row (copied from an existing profile) lets an agent client through — worth a devkit note in the
   database guide.
+
+## RP phase 2, 2026-09-18 05:55–07:45: thirteen job resources, eleven agents, one bot player
+
+Wave A (`rp_jobs` v2, `rp_zones`), wave B (`rp_ncpd`, `rp_trauma`, `rp_delamain`, `rp_mecano`),
+wave C (`rp_ferrailleur`, `rp_nomade`, `rp_bar`, `rp_ripperdoc`, `rp_fixer`, `rp_netrunner`,
+`rp_vigile`) on the contract `rp-round/PROMPT-COMMON-v3.md` (phase-1 contracts as shipped, the
+`rp_inventory:define` / `rp_needs:apply` / `rp_bank:charge` additions, measured map coordinates, the
+worldui `promptDistance` rule, the 0.1.3 validator from `C:\Games\cyberm\devkit-013` for waves B/C).
+All thirteen validate OK, lint clean with the server binary, and start together on the eval server
+with `rp_medic` unloaded. Played by the bot: jobs (setjob → duty → agency menu), zones, NCPD status
++ radio + voice channel, the death flow (down 60 s → hospital respawn billed), mechanic repair /
+refuel / paint / tow, the whole scrapper loop (crowbar → wreck → sale), the nomad run up to the
+ambush (contract → crate in hand → loaded on the truck → 3 hostile Maelstrom), bar (restock →
+mix → drink), fixer board (accept / abandon), netrunner (status, jam), guard (contract, per-minute
+pay), Delamain fallback. Two-player paths and the driving legs are left to the owner. 47–111 MCP
+calls per agent.
+
+What the round found (platform):
+
+- **Any console or player command with ~50+ tokens killed the dedicated server** (`0xC0000374`,
+  no exception, no dump): `LuaResourceRuntime.ExecuteCommand` pushed every token without
+  `lua_checkstack`. Reproduced twice with a 24-point `groundz` probe, fixed in base #33
+  (`ReserveStack` on every variadic push site, `PushJson` depth reservation, 64-token cap with a
+  `WRN`), cherry-picked onto the eval build and re-run: 24 results, server alive.
+- **`onPlayerLifeStateChanged` says `dead` on connect and on every admin teleport**: the pristine
+  template reports a dead phase 10 ms after the freeroam gate opens, and `open77_admin` `/tp` kills
+  with `cause=script`, `weapon=open77_admin:tp` before respawning. A death-driven resource
+  (`rp_trauma`) must read `getLifeState().weapon`/`cause` and skip both; the `Open77.players.teleport`
+  API moves a living player with no transition. Worth a line in the life guide.
+- No vehicle→vehicle attach/tow native; no server-side respawn hold (`onPlayerLifeStateChanged` is
+  not cancellable, `open77_death` is read-only); `npcs.tasks.attack` on a player seated in a vehicle
+  answers `invocation_failed` (hostile attitude still engages); `Open77.blips` is client-only;
+  worldui 3D labels draw above UI-kit dialogs; `open77_interactions` cards resolve at ~4 m but the
+  key fired only once the bot stood ~2 m from the vehicle.
+- MCP defects (repeated by several agents, for devkit 0.1.4 / base docs): `promptDistance` absent
+  from the interactions definition reference; `Open77.playerInteractions.request` says "none
+  checked" while requiring `players.interactions.control`; `Open77.players.teleport`,
+  `players.wanted`, `database.*` same contradiction; `acl.grant:rp.*` documented by the ACL guide but
+  rejected by the validator; seat name vocabulary (`seat_front_left` vs `driver`) contradicts itself
+  across cards; `setTransform` transform shape documented two ways; yaw→forward sign undocumented;
+  `Open77.notifications.send` card asks for a dependency line no delivered resource needs; no
+  AV `_player` record in the catalogue (`Vehicle.av_trauma` spawns fine); the validator ignores
+  calls made through a local alias of `Open77.database` (permission check skipped silently);
+  `TriggerEvent` nil holes and the callback failure shape remain undocumented.

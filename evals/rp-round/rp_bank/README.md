@@ -64,6 +64,9 @@ exports.rp_bank:transfer(fromPlayerId, toIdentifier, amount[, fee])
 exports.rp_bank:society(name)               -- { name, balance } (row created on first use) | nil, reason
 exports.rp_bank:societyAdd(name, amount, reason)     -- newBalance | nil, reason
 exports.rp_bank:societyRemove(name, amount, reason)  -- newBalance | nil, "insufficient_funds" | reason
+exports.rp_bank:charge(playerId, amount, society, reason)
+                                            -- account -> society in one move (a fine, a bill, a
+                                            -- subscription); the player's newBalance | nil, reason
 ```
 
 Reasons: `invalid_player_id player_not_found bank_not_ready invalid_amount amount_too_large

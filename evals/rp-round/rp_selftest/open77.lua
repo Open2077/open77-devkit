@@ -7,5 +7,9 @@ auto_start true
 -- refusals each must give. Prints one PASS/FAIL line per check.
 dependency "rp_economy"
 dependency "rp_jobs"
+dependency "rp_identity"
+dependency "rp_inventory"
+dependency "rp_bank"
+dependency "rp_needs"
 
 server_script "server/main.lua"

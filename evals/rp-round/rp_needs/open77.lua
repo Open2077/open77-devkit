@@ -19,4 +19,4 @@ permissions {
 server_script "server/main.lua"
 
 -- Phase 1 contract: get(playerId) and consume(playerId, itemId).
-server_exports { "get", "consume" }
+server_exports { "get", "consume", "apply" }

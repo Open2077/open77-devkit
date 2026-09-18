@@ -82,6 +82,25 @@ player; `capacity` is in kg (default 100). The stash is loaded from
 `rp_inventory_stashes` on first use and every move is persisted. Housing and
 vehicle trunks call this with their own stash ids.
 
+`define(items) -> registered, rejected` lets another resource declare its own
+items in the `shared/items.lua` shape (`id = { label, weight, usable, illegal,
+effect?, permit? }`, ids `^[a-z0-9_]+$`, label up to 48 chars, weight 0..100 kg).
+An item defined this way owns its effect: `/use` only debits one unit and raises
+`rp_inventory:used (playerId, itemId)` for the definer to act on; an
+`effect = { needs = { thirst = 25 }, text = "Cold and bitter. Good." }` is applied here through
+`rp_needs:apply` before the event. Call it from your `onResourceStart` and again whenever `rp_inventory` restarts
+(its VM comes back with the built-in table only; rows of an undefined id stay in
+SQL and reappear once the id is defined again and the player reconnects):
+
+```lua
+local MY_ITEMS = { crowbar = { label = "Crowbar", weight = 1.5, usable = false, illegal = false } }
+AddEventHandler("onResourceStart", function(name)
+    if name == GetCurrentResourceName() or name == "rp_inventory" then
+        pcall(function() exports.rp_inventory:define(MY_ITEMS) end)
+    end
+end)
+```
+
 ## Events (host-wide bus)
 
 ```lua

@@ -139,6 +139,24 @@ local function boardAnimated(playerId)
     end
 end
 
+-- groundz <playerId> <x> <y> [<x> <y> ...]: ground height of one or more map points, from the
+-- console, to place zones and POIs on real ground instead of a guessed z.
+RegisterCommand("groundz", function(source, args)
+    local playerId = tonumber(args[1])
+    if not playerId then log("usage: groundz <playerId> <x> <y> [<x> <y> ...]"); return end
+    CreateThread(function()
+        local i = 2
+        while args[i] and args[i + 1] do
+            local x, y = tonumber(args[i]), tonumber(args[i + 1])
+            if x and y then
+                local z, how = groundAt(playerId, x, y, nil)
+                log("groundz %.2f %.2f -> %s (%s)", x, y, tostring(z), how)
+            end
+            i = i + 2
+        end
+    end)
+end, true)
+
 RegisterCommand("taxitest", function(source, args)
     local mode = args[1]
     local playerId = tonumber(args[2])
@@ -186,6 +204,36 @@ RegisterCommand("taxitest", function(source, args)
             local task, reason = Open77.vehicles.ai.driveTo(car, { position = { x = tx, y = ty, z = z }, speed = 25, arrivalRadius = 8, timeoutMilliseconds = 120000, behavior = "normal" })
             log("driveTo(nearenter) to %.1f,%.1f,%.1f -> %s %s", tx, ty, z, tostring(task and task.status or task), tostring(reason))
             if task then watch(60) end
+        elseif mode == "voice" or mode == "voicecar" then
+            -- Does Open77.npcs.speak produce audible sound on this record, standing
+            -- next to the player, then seated in a car? Chat echoes every bark.
+            local record = args[3] or "Character.NightlifeMaleDriver"
+            local me = Open77.players.get(playerId)
+            if not me or not me.position then return end
+            stopCar()
+            if mode == "voicecar" then
+                local id = Open77.vehicles.create({ record = "Vehicle.v_standard2_archer_hella_player",
+                    position = { x = me.position.x + 4, y = me.position.y, z = me.position.z }, yaw = me.heading or 0, bucket = me.bucket, ttlMs = 120000 })
+                car = id; Wait(3000)
+            end
+            npc = Open77.npcs.create({ record = record, position = { x = me.position.x + 2, y = me.position.y + 1, z = me.position.z },
+                yaw = me.heading or 0, bucket = me.bucket, behavior = { combatEnabled = false, voiceEnabled = true }, damagePolicy = 2 })
+            if not npc then log("npc create refused for %s", record); return end
+            local ready = Open77.npcs.whenReady(npc, 15000):await()
+            log("voice test npc=%s record=%s ready=%s", tostring(npc), record, tostring(ready ~= nil))
+            if mode == "voicecar" and car then
+                local st, r = Open77.vehicles.ai.attachDriver(car, { npcId = npc })
+                log("attachDriver -> %s %s", tostring(st and st.status or st), tostring(r)); Wait(3000)
+            end
+            for _, v in ipairs({ "greeting", "bump", "hurry_up", "fear_run", "vehicle_bump", "pedestrian_hit", "stlh_curious", "combat_ended", "phone_start" }) do
+                local ok, reason = Open77.npcs.speak(npc, v, { ignoreDistance = true })
+                log("speak %s -> %s %s", v, tostring(ok), tostring(reason))
+                Open77.chat.send(playerId, { author = "TEST", text = ("bark %s -> %s %s"):format(v, tostring(ok), tostring(reason or "")), color = { 200, 200, 200 } })
+                Wait(3500)
+            end
+            log("voice test done; npc stays 60 s")
+            Wait(60000)
+            stopCar(); if npc then Open77.npcs.remove(npc); npc = nil end
         elseif mode == "mapz" then
             local me = spawnNear(playerId, true)
             if not me then return end

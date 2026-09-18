@@ -1,0 +1,213 @@
+# rp_mecano — the garage job
+
+Repairs, towing, paint jobs, invoices, the impound lot and refuelling for the Night City RP
+build (Open77 `2.31.13+op77.76`). Server-authoritative: the server checks the job and the duty
+state (`rp_jobs`), the pockets (`rp_inventory`), the cash (`rp_economy`), the society
+(`rp_bank`) and the zone (`rp_zones`) on every command; the client only adds ALT+click entries
+that send a request.
+
+Every command needs the **`mecano` job, on duty** (`/agence` to sign, `/service` to clock in).
+Only **server vehicles** are seen (`/car`, the dealership, another resource's spawn): vanilla
+traffic has no canonical id and every command answers `No server vehicle within reach`.
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `/reparer` | Repairs the vehicle you sit in, or the nearest one within **4 m**. Needs a `toolkit` in the pockets (kept) and consumes **2 `component`**. A UI-kit progress bar of **15 s**, cancellable (X / Escape), movement and firing blocked. Everything is checked again when the bar ends (still on duty, still next to the car, still has the parts) before `Open77.vehicles.repair(id, "full")` and `setHealth(id, 1.0)`. A mint car or a wreck is refused; panels already torn off cannot come back (engine limit, the player is told). |
+| `/remorquer` | From the **driver's seat** of your truck: hooks the nearest **empty** server vehicle within **8 m**. Every **2 s** the towed car is moved **6 m behind** the truck (`Open77.vehicles.setTransform`, same heading) — there is no attach/tow native on op77.76, see below. `/remorquer` again releases. The tow also ends when you leave the wheel, clock out, disconnect, when the car is removed, or when somebody climbs into it. |
+| `/peindre <colour> [second]` | Paints the nearest vehicle within **6 m** (or the one you sit in). Colours: `black white grey silver chrome red crimson orange yellow gold green lime teal cyan blue navy purple pink magenta brown sand arasaka militech samurai` or `#RRGGBB`. The **driver** (else the first passenger) receives an invoice of **250 €$** through the invoice flow; the paint goes on and the **`paint_can`** is consumed **when they pay**. No one aboard, or the mechanic at the wheel: painted at once, on the house. |
+| `/facture <playerId> <amount> [reason]` | Hands an invoice to a player within **10 m**. The customer gets the platform **accept / decline prompt** (`open77_player_interactions`, kind `custom`) — or, when the prompt cannot be used (customer in a vehicle, too far, already reserved), a **chat consent**: `/facture ok` pays, `/facture non` refuses, 60 s to answer. On accept the cash is taken with `rp_economy:remove`: **70 %** to the mechanic, **30 %** to the `mecano` society (`rp_bank:societyAdd`). Short on cash → refused, both told. Cap **50 000 €$**. `/facture` alone shows the invoice waiting for you. |
+| `/fourriere` | Inside the **`mecano_shop`** zone (`rp_zones`): removes the nearest server vehicle within **8 m** with **nobody seated**, credits **100 €$** to the society and logs the record, the plate (state-bag key `plate`, `none` when the car has none) and the position in `rp_mecano_impound`. `/fourriere registre` prints the last five entries. |
+| `/plein` | Refuels the vehicle you sit in or the nearest within **4 m** through `exports.open77_fuel:refuel` (to the brim by default, `Config.fuel.litresPerCan` for a fixed amount) and consumes one **`chooh2`** can. Without `open77_fuel` the can stays and the player is told. |
+
+Every refusal is one chat line: not a mechanic, off duty, no toolkit / parts / can, nothing in
+reach, too far (with the distance), mint condition, wreck, somebody aboard, not in the garage
+zone, wallet or bank offline, customer short on eddies... From the server console every command
+answers `run it from the game`.
+
+**ALT+click** (`open77_contextmenu`), shown only to an on-duty mechanic (the server pushes the
+duty state, and checks again on every request): on a player **Hand an invoice (garage)** (a UI-kit
+form: amount + reason, then the same consent flow); on a vehicle **Repair**, **Paint job**
+(colour picker), **Hook / release tow**, **Refuel**, **Impound**.
+
+## Items
+
+Registered in `rp_inventory` through `exports.rp_inventory:define` on start and again whenever
+`rp_inventory` restarts (`shared/items.lua`):
+
+| id | label | kg | usable |
+|---|---|---|---|
+| `toolkit` | Mechanic's toolkit | 3.0 | no — required by `/reparer`, never consumed |
+| `paint_can` | Spray paint can | 1.0 | no — one per paint job |
+
+`component` (repair) and `chooh2` (refuel) are `rp_inventory`'s own items.
+
+## Exports (server, synchronous, never yield)
+
+```lua
+exports.rp_mecano:repair(vehicleId, byPlayerId)
+-- true | nil, "invalid_vehicle_id" | "vehicle_not_found" | "vehicle_destroyed" | "repair_failed"
+-- A full repair + health 1.0, no progress bar, no item cost: the caller decides those.
+-- Raises rp_mecano:repaired(vehicleId, byPlayerId or 0, "full").
+
+exports.rp_mecano:bill(fromPlayerId, toPlayerId, amount, reason)
+-- billId | nil, "invalid_player_id" | "invalid_from" | "invalid_to" | "self_bill" | "invalid_amount"
+--        | "amount_too_large" | "invalid_reason" | "player_not_found" | "mechanic_not_found" | "target_busy"
+-- Starts the consent flow (prompt, else chat) and returns at once; the outcome arrives on the
+-- rp_mecano:bill event. Money split as for /facture. No distance check for export callers.
+```
+
+Call them inside `pcall` from another resource. `rp_mecano` ships a client script, so a resource
+that also ships one may still declare `dependency "rp_mecano"`.
+
+## Events (host bus, `TriggerEvent`)
+
+| Event | Arguments | When |
+|---|---|---|
+| `rp_mecano:bill` | `billId, fromPlayerId, toPlayerId, amount, status` | Every settled invoice. `status`: `paid`, `declined:<reason>` (`declined`, `timeout`, `customer_left`, `mechanic_left`, the interaction's own reason...), `refused:insufficient_funds`, `refused:economy_offline`, `void:<why>` (a paint job whose car drove off or whose mechanic lost the can). |
+| `rp_mecano:repaired` | `vehicleId, byPlayerId, scope` | After `/reparer`, the ALT+click repair or the export. |
+| `rp_mecano:painted` | `vehicleId, byPlayerId, primary, secondary` | After a paint job went on. |
+| `rp_mecano:tow` | `vehicleId, mechanicId, hooked:boolean, reason` | Hook (`hooked`) and release (`released`, `left_wheel`, `vehicle_gone`, `truck_gone`, `someone_aboard`, `transform_refused`, `off_duty`, `disconnected`). |
+| `rp_mecano:impounded` | `vehicleId, byPlayerId, record, plate` | After the vehicle was removed and logged. |
+| `rp_mecano:refuelled` | `vehicleId, byPlayerId, litres` | After `/plein`. |
+
+Internal net events (`rp_mecano:duty`, `rp_mecano:whoami`, `rp_mecano:action`,
+`rp_mecano:billMenu`) are the client/server transport of the ALT+click entries, not an API.
+
+## Persistence
+
+Both tables are created inside `Open77.database.ready(...)` with `CREATE TABLE IF NOT EXISTS`
+(permission `database.access`) and written through with the callback forms — the exports never
+touch the database:
+
+```sql
+rp_mecano_impound (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    vehicle_id    BIGINT       NOT NULL,   -- the canonical vehicle id at the time
+    record        VARCHAR(256) NOT NULL,   -- Vehicle.* TweakDB record
+    plate         VARCHAR(16)  NULL,       -- state-bag `plate` key, NULL when none
+    x, y, z       DOUBLE       NOT NULL,   -- where it stood
+    by_identifier VARCHAR(64)  NOT NULL,   -- Open77.players.identifier of the mechanic
+    by_name       VARCHAR(80)  NOT NULL,
+    fee           INT          NOT NULL,   -- eddies credited to the society
+    at            BIGINT       NOT NULL    -- unix seconds
+)
+rp_mecano_invoices (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    from_identifier VARCHAR(64) NOT NULL,  -- the mechanic
+    to_identifier   VARCHAR(64) NOT NULL,  -- the customer
+    amount          INT         NOT NULL,
+    reason          VARCHAR(64) NOT NULL,
+    status          VARCHAR(48) NOT NULL,  -- paid | declined:<why> | refused:<why> | void:<why>
+    at              BIGINT      NOT NULL
+)
+```
+
+**No database** (`ready` answers `database_unavailable`, or nothing answers 15 s after start):
+both ledgers fall back to the resource's `Open77.kvp` store (`impound:<n>` / `invoice:<n>`,
+pipe-separated lines) and the log says `[rp_mecano] store=kvp reason=...`. Pending invoices and
+tows live in memory only and are dropped on disconnect and on restart.
+
+## Configuration (`shared/config.lua`)
+
+Everything is in `Config`: reaches, the 15 s / 2 components of a repair, the tow tick /
+distance, the colour table and the 250 €$ paint price, the invoice cap / timeout / 70 % share,
+the impound zone name / fee, the refuel amount. Positions:
+
+- `Config.spawn` — the freeroam spawn `381.36, -2401.79, 181.99`.
+- `Config.impound.zone = "mecano_shop"` — the `rp_zones` garage: centre **341, -2401, 180.3**,
+  radius 10 m, **40 m west of the spawn on the plaza road**, reachable on foot and by car (the
+  owner moves it by editing `rp_zones/shared/config.lua`; this resource only knows the name).
+  `Config.impound.fallbackCenter / fallbackRadius` copy that circle for a server without
+  `rp_zones`.
+- **`Config.impoundAnywhereForTesting`** (default `false`): when `true`, `/fourriere` also works
+  within **6 m** (`testingReach`) of the spawn plaza `381.36, -2401.79` or the employment agency
+  `396, -2388` (`testingSpots`), so a tester never has to drive to the garage.
+
+## Towing without an attach native
+
+The op77.76 catalogue has no server-side attach / tow / trailer native (`open77_search` for
+*tow*, *attach*, *trailer*, *rope*; `open77_fivem_equivalent AttachEntityToEntity` answers
+"not in the alias table"). The tow is therefore a **2 s tick**: read the truck's
+`getPosition` / `getHeading`, compute the point 6 m behind, `Open77.vehicles.setTransform` the
+towed car there with the truck's yaw. The tick is skipped while the truck has not moved 0.3 m,
+so a parked pair does not jitter. Yaw 0 faces +y on this engine; the rotation sign of the
+forward vector is not documented, so `Config.tow.yawSign` is only a starting guess and the
+resource **calibrates it once** against the truck's velocity (`getVelocity`, `reversing`) the
+first time the truck drives faster than 1.5 m/s — if the towed car ever appears in front of the
+truck it flips on the next tick and logs `tow: yaw sign flipped`. It is a teleport chain, not
+physics: the towed car has no wheels on the ground between ticks.
+
+## Manifest
+
+Permissions `world.vehicles` (every vehicle read and write), `database.access`,
+`network.events` (net events, toasts), `players.interactions.control` / `.read` (the consent
+flow, as the player-interactions guide requires). Dependencies — all ship a client half —
+`open77_uikit`, `open77_contextmenu`, `open77_player_interactions`, `open77_notifications`,
+`rp_jobs`, `rp_inventory`. `rp_economy`, `rp_bank`, `rp_identity` (names) are server-only and
+reached through `pcall`; `rp_zones` and `open77_fuel` are optional (fallbacks above).
+
+## Log (grep-able)
+
+```text
+[rp_mecano] started: job=mecano society=mecano repair=15000 ms / 2 components, tow every 2000 ms at 6 m, paint 250, impound zone=mecano_shop fee=100 testing=false
+[rp_mecano] store=sql tables=rp_mecano_impound,rp_mecano_invoices
+[rp_mecano] items registered: toolkit,paint_can (rejected: 0)
+[rp_mecano] player 1 repaired vehicle 12 (Vehicle.v_standard2_archer_hella_player, scope=full, 2.3 m)
+[rp_mecano] invoice #1: 1 -> player 2, 250 eddies, paint job red, mode=chat
+[rp_mecano] invoice #1 paid: 250 from player 2 to player 1 (mechanic 175, society 75, paint job red)
+[rp_mecano] player 1 painted vehicle 12 #C8102E / #C8102E
+[rp_mecano] player 1 tows vehicle 12 (Vehicle...) behind truck 13
+[rp_mecano] player 1 tow of vehicle 12 ended: released
+[rp_mecano] player 1 impounded vehicle 12 (Vehicle...) plate=none via zone
+[rp_mecano] impound row 1: vehicle 12 (Vehicle...) plate=none by <identifier>
+```
+
+## Test in 2 minutes
+
+Two clients at the freeroam spawn `381.36, -2401.79, 181.99`: **1** = mechanic, **2** =
+customer. `rp_jobs`, `rp_inventory`, `rp_economy`, `rp_bank`, `rp_zones`, `open77_uikit`,
+`open77_contextmenu`, `open77_player_interactions`, `open77_notifications` running (and
+`open77_fuel` for step 8). Start log: `[rp_mecano] started: ...`, `store=sql ...`,
+`items registered: toolkit,paint_can`.
+
+1. **Console:** `setjob 1 mecano 1` · `giveitem 1 toolkit 1` · `giveitem 1 component 4` ·
+   `giveitem 1 paint_can 2` · `giveitem 1 chooh2 1`. Player 2 keeps the default 500 €$ cash.
+2. Player 1: `/reparer` → `Clock in first: /service.` Then `/service` → clocked in.
+   Player 2: `/reparer` → `You are no mechanic, choom. ...`
+3. Player 2 spawns a server vehicle (`/car`) next to the spawn and bumps it into the concrete a
+   few times so the body takes damage. Player 1, 10 m away: `/reparer` → `No server vehicle
+   within reach...`; within 4 m: `/reparer` → bottom progress bar **Fixing the <car>** for 15 s
+   (press X: `Repair cancelled.`, nothing spent); let it finish → `<car> repaired (full). 2
+   components used.` `/inv` shows 2 components left. `/reparer` again → `... mint condition.`
+4. Player 2 sits at the wheel. Player 1 within 6 m: `/peindre red` → player 1 `Paint job red on
+   the <car>: 250 €$ invoiced to <name>. The paint goes on when they pay.`; player 2 gets the
+   toast **Garage invoice** and the chat line `... /facture ok to pay, /facture non to refuse
+   (60 s).` (chat mode: a seated customer cannot take the prompt). Player 2: `/facture ok` →
+   the car turns red, player 2 `Paid 250 €$ to <mechanic> ... Cash left: 250 €$.`, player 1
+   `... Your cut: 175 €$, garage: 75 €$.` and one paint can is gone. `/job` on player 1 shows
+   the society at 75 €$.
+5. Both on foot, 3 m apart. Player 1: `/facture 2 100 oil change` → player 2 sees the
+   platform **accept / decline** prompt (or `/interaction accept`) → `Paid 100 €$ ...`.
+   `/facture 2 100` again and player 2 **declines** → `<name> declined invoice #3 ...`.
+   `/facture 2 999999` → `... caps an invoice at 50 000 €$`. `/facture 2 400` with player 2
+   at 150 €$ cash, accepted → `<name> is short on eddies: invoice #4 of 400 €$ refused.`
+6. ALT+click player 2 → **Hand an invoice (garage)** → form amount 50, reason `tyres` → the
+   same flow. ALT+click the car → the five **Garage** entries (player 2 sees none).
+7. Player 1 spawns a second vehicle (the "truck"), sits at the wheel within 8 m of player 2's
+   empty car: `/remorquer` → `<car> hooked (x m). It follows 6 m behind your truck; /remorquer
+   again to release.` Drive around the plaza: the car re-appears 6 m behind every 2 s (log
+   `tow: yaw sign flipped` once if the starting guess was wrong). `/remorquer` → `Tow released.`
+   Step out during a tow → `You left the wheel: tow released.`
+8. Player 1 in a car: `/plein` → `<car> refuelled: N L in the tank. One CHOOH2 can used.`
+   (without `open77_fuel`: `No fuel system on this server ...`, can kept).
+9. Player 1 drives an empty car 40 m west to the garage ring at **341, -2401** (`/zone` →
+   `mecano_shop`), steps out, `/fourriere` → `<car> impounded (plate none, x m). Garage
+   +100 €$ (society 175 €$).` — the car is gone; `/fourriere registre` lists it; the row is in
+   `rp_mecano_impound`. From the spawn: `/fourriere` → `The impound lot is the garage (zone
+   mecano_shop, around 341, -2401)...` unless `Config.impoundAnywhereForTesting = true`, which
+   allows it within 6 m of the spawn or the agency.
+10. From another resource: `print(exports.rp_mecano:repair(vehicleId, 1))` → `true`;
+    `print(exports.rp_mecano:bill(1, 2, 30, "test"))` → a bill id, then the prompt on player 2
+    and `rp_mecano:bill(billId, 1, 2, 30, "paid")` on the bus.

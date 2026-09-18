@@ -523,6 +523,34 @@ function consume(playerId, itemId)
     return true
 end
 
+-- apply(playerId, delta, label) -> true | nil, reason
+-- Generic restore/drain for other resources' consumables (a bar drink, a ripper's sedative):
+-- delta = { hunger = +n, thirst = +n, fatigue = +n } (each optional, -100..100), label shown in
+-- the toast. Declared in the manifest through server_exports.
+function apply(playerId, delta, label)
+    playerId = tonumber(playerId)
+    if not playerId then return nil, "invalid_player" end
+    local st = players[playerId]
+    if not st then return nil, "player_not_found" end
+    if type(delta) ~= "table" then return nil, "invalid_delta" end
+    local def = { label = type(label) == "string" and label or "Consumed" }
+    local any = false
+    for _, need in ipairs(NEEDS) do
+        local v = tonumber(delta[need])
+        if v then
+            if v < -100 or v > 100 then return nil, "invalid_delta" end
+            def[need] = math.floor(v); any = true
+        end
+    end
+    if not any then return nil, "invalid_delta" end
+    local now = Open77.time.monotonic()
+    applyDelta(st, def)
+    notify(playerId, { type = "success", title = def.label, message = describeDelta(def) .. ".", icon = "USE", durationMs = 5000 })
+    applyEffects(playerId, st, now)
+    emitChanged(playerId, st, now)
+    return true
+end
+
 -- Commands -------------------------------------------------------------------
 
 RegisterCommand("needs", function(source)

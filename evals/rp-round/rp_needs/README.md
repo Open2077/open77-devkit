@@ -35,6 +35,14 @@ Call them inside `pcall`: a synchronous export raises when the resource is not
 running. Neither export yields, so both are safe on the synchronous path.
 `rp_inventory` calls `consume` from `/use`.
 
+```lua
+exports.rp_needs:apply(playerId, { thirst = 25, fatigue = -5 }, "Cold beer")  -- true | nil, reason
+```
+
+`apply` is the generic form for another resource's consumables (a bar drink, a ripper's
+sedative): each of `hunger`, `thirst`, `fatigue` is optional (-100..100), the label is shown
+in the toast, and the same effects/thresholds run as for a built-in item.
+
 ### Consumables
 
 | Item id | Effect |
