@@ -8,11 +8,17 @@
  *     failure is reported as a warning and the exact verdict is the server's
  *     own `--lint`, when that build has it);
  *   - an `Open77.*` call the catalogue does not know -- on this build it does
- *     not exist, whatever it looks like;
+ *     not exist, whatever it looks like. `X.await(...)` is the native `X`
+ *     called in its await form, and the global `MySQL` is `Open77.database`
+ *     (`conventions.ts`), so neither reads as unknown;
  *   - a client native in a server script, or the reverse; a shared script
  *     using a one-sided native;
  *   - a native whose permission the manifest does not declare;
- *   - a native newer than the served build, or in no published build.
+ *   - a native newer than the served build, or in no published build;
+ *   - when the resources the server loads are known (open77_workspace), a
+ *     command name another loaded resource already registers on the same
+ *     side -- the second registration is silent at runtime, so it is a
+ *     warning here.
  *
  * Findings are facts about the files and the catalogue; the tool never
  * rewrites anything.
@@ -24,6 +30,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import luaparse from "luaparse";
 import { opNumber } from "../index/builder.js";
+import { NAMESPACE_ALIASES, documentsAwaitForm, namespacesOf, resolveNamespaceAlias, stripAwaitForm } from "../index/conventions.js";
 import type { ApiCard, ManifestDirective } from "../index/types.js";
 import type { ServerContext } from "../server.js";
 
@@ -120,12 +127,18 @@ async function expandGlob(root: string, pattern: string): Promise<string[]> {
   return found.sort();
 }
 
-const RE_NATIVE = /\b((?:Open77|WebUI|Citizen|MySQL)(?:\.[A-Za-z_]\w*)+)\s*\(/g;
+// The heads a dotted native can start with: the catalogued namespaces' roots
+// and the globals that alias one of them (`MySQL` for `Open77.database`).
+const ALIAS_HEADS = NAMESPACE_ALIASES.map((a) => a.alias);
+const RE_NATIVE = new RegExp(`\\b((?:${["Open77", "WebUI", "Citizen", ...ALIAS_HEADS].join("|")})(?:\\.[A-Za-z_]\\w*)+)\\s*\\(`, "g");
 const RE_GLOBAL = /(?<![\w.:])([A-Z][A-Za-z0-9]*)\s*\(/g;
 // `Open77.vehicles.flags.locked`, `local send = Open77.chat.send`: a dotted
 // reference that is not a call. Resolved to the longest catalogued prefix, so a
 // constant table's member is checked against the table's card.
-const RE_NATIVE_REF = /(?<![\w.:])((?:Open77|WebUI)(?:\.[A-Za-z_]\w*)+)(?![\w.(]|\s*\()/g;
+const RE_NATIVE_REF = new RegExp(`(?<![\\w.:])((?:${["Open77", "WebUI", ...ALIAS_HEADS].join("|")})(?:\\.[A-Za-z_]\\w*)+)(?![\\w.(]|\\s*\\()`, "g");
+// `RegisterCommand("heal", ...)` / `Open77.runtime.registerCommand('heal', ...)`
+// with a literal name: what a collision scan can see without running anything.
+const RE_REGISTER_COMMAND = /\b(?:RegisterCommand|Open77\.runtime\.registerCommand)\s*\(\s*(['"])([^'"\n]+)\1/g;
 // What neither sandbox has (measured on op77.75: each is nil): the libraries
 // the runtimes never open and the base functions they retract.
 const RE_SANDBOX_LIBRARY = /(?<![\w.:])(os|io|debug|package)\s*[.[]/g;
@@ -133,7 +146,17 @@ const RE_SANDBOX_FUNCTION = /(?<![\w.:])(require|load|loadfile|dofile|collectgar
 // The client removes two more base functions and the raw coroutine constructors.
 const RE_CLIENT_SANDBOX = /(?<![\w.:])(getmetatable|setmetatable)\s*\(|\b(coroutine\.(?:create|resume|wrap)|string\.dump)\s*\(/g;
 
-export async function validateResource(dir: string, context: ServerContext): Promise<Finding[]> {
+export interface ValidateOptions {
+  /**
+   * Absolute directories of the other resources the server loads (what
+   * open77_workspace lists), for the command-name collision check. The
+   * validated directory itself is skipped. Without it the check is off: the
+   * validator has no other way to know what else the server runs.
+   */
+  loadedResources?: string[];
+}
+
+export async function validateResource(dir: string, context: ServerContext, options: ValidateOptions = {}): Promise<Finding[]> {
   const findings: Finding[] = [];
   const { index, resolved } = context;
   const served = opNumber(resolved.build);
@@ -201,7 +224,7 @@ export async function validateResource(dir: string, context: ServerContext): Pro
   }
   const globalsBySide = { client: new Set<string>(), server: new Set<string>() };
   for (const card of index.cards) if (card.namespace === "_G") globalsBySide[card.runtime].add(card.name);
-  const namespaces = new Set(index.cards.map((c) => c.namespace));
+  const namespaces = namespacesOf(index.cards);
   const usedPermissions = new Map<string, Set<string>>();
 
   for (const script of scripts) {
@@ -225,26 +248,34 @@ export async function validateResource(dir: string, context: ServerContext): Pro
     }
     for (let i = 0; i < lines.length; i += 1) {
       const line = lines[i]!;
-      const check = (qualified: string, isGlobal: boolean) => {
+      // `written` is the name as the script spells it; `qualified` is the card
+      // it resolves to once the namespace alias (`MySQL.` -> `Open77.database.`)
+      // and the `.await` sub-form are folded away. Messages show both when they
+      // differ, so the line is findable and the card is nameable.
+      const check = (written: string, isGlobal: boolean) => {
+        const aliased = resolveNamespaceAlias(written, namespaces);
+        const { qualified, awaited } = stripAwaitForm(aliased, (n) => byQualified.has(n));
+        const shown = qualified === written ? written : `${written} (${qualified})`;
         const cards = byQualified.get(qualified) ?? [];
         if (!cards.length) {
-          if (!isGlobal) findings.push({ severity: "error", file: script.file, line: i + 1, message: `${qualified} is not in the catalogue for ${resolved.build}: it does not exist on this build`, fix: `open77_search "${qualified.split(".").slice(-1)[0]}" for the real name` });
+          if (!isGlobal) findings.push({ severity: "error", file: script.file, line: i + 1, message: `${shown} is not in the catalogue for ${resolved.build}: it does not exist on this build`, fix: `open77_search "${qualified.split(".").slice(-1)[0]}" for the real name` });
           return;
         }
         const sides = new Set(cards.map((c) => c.runtime));
         const wanted: ("client" | "server")[] = script.side === "shared" ? ["client", "server"] : [script.side];
         const missing = wanted.filter((s) => !sides.has(s));
         if (missing.length && script.side !== "shared") {
-          findings.push({ severity: "error", file: script.file, line: i + 1, message: `${qualified} is a ${[...sides].join("/")} native used in a ${script.side} script`, fix: `move the call to a ${[...sides][0]}_script, or use the ${script.side} equivalent (open77_api ${qualified})` });
+          findings.push({ severity: "error", file: script.file, line: i + 1, message: `${shown} is a ${[...sides].join("/")} native used in a ${script.side} script`, fix: `move the call to a ${[...sides][0]}_script, or use the ${script.side} equivalent (open77_api ${qualified})` });
           return;
         }
-        if (missing.length) findings.push({ severity: "warning", file: script.file, line: i + 1, message: `${qualified} exists only on ${[...sides].join("/")}; a shared script runs on both`, fix: "guard with IsDuplicityVersion() or move to a one-sided script" });
+        if (missing.length) findings.push({ severity: "warning", file: script.file, line: i + 1, message: `${shown} exists only on ${[...sides].join("/")}; a shared script runs on both`, fix: "guard with IsDuplicityVersion() or move to a one-sided script" });
         for (const card of cards.filter((c) => wanted.includes(c.runtime))) {
-          if (!card.since) findings.push({ severity: "error", file: script.file, line: i + 1, message: `${qualified} (${card.runtime}) is in no published server build`, fix: "wait for a release or use another native" });
-          else if (opNumber(card.since) > served) findings.push({ severity: "error", file: script.file, line: i + 1, message: `${qualified} (${card.runtime}) needs ${card.since}; this build is ${resolved.build}`, fix: `open77_changes ${resolved.build} ${card.since} lists what the update brings` });
+          if (!card.since) findings.push({ severity: "error", file: script.file, line: i + 1, message: `${shown} (${card.runtime}) is in no published server build`, fix: "wait for a release or use another native" });
+          else if (opNumber(card.since) > served) findings.push({ severity: "error", file: script.file, line: i + 1, message: `${shown} (${card.runtime}) needs ${card.since}; this build is ${resolved.build}`, fix: `open77_changes ${resolved.build} ${card.since} lists what the update brings` });
+          if (awaited && !documentsAwaitForm(card)) findings.push({ severity: "warning", file: script.file, line: i + 1, message: `${written}: the ${card.runtime} card of ${qualified} documents no .await form on ${resolved.build}`, fix: `open77_api ${card.route_id} shows the forms it has; a native returning an Open77.Promise is awaited with :await() on the promise` });
           for (const permission of card.permissions) {
             if (!usedPermissions.has(permission)) usedPermissions.set(permission, new Set());
-            usedPermissions.get(permission)!.add(qualified);
+            usedPermissions.get(permission)!.add(written);
           }
         }
       };
@@ -254,17 +285,23 @@ export async function validateResource(dir: string, context: ServerContext): Pro
         if (globalsBySide.client.has(global) || globalsBySide.server.has(global)) check(global, true);
       }
       for (const match of line.matchAll(RE_NATIVE_REF)) {
-        const segments = match[1]!.split(".");
+        const written = match[1]!;
+        const aliased = resolveNamespaceAlias(written, namespaces);
+        const segments = aliased.split(".");
         // Longest catalogued prefix with at least a namespace and a member.
         let hit: string | null = null;
         for (let n = segments.length; n >= 3; n -= 1) {
           const candidate = segments.slice(0, n).join(".");
           if (byQualified.has(candidate)) { hit = candidate; break; }
         }
-        if (hit) check(hit, false);
+        // The alias only rewrites the head, so the written prefix is the written
+        // name minus the same tail the hit dropped.
+        if (hit) check(written.slice(0, written.length - (aliased.length - hit.length)), false);
         else if (segments.length >= 3 && namespaces.has(segments.slice(0, 2).join("."))) {
           // A member of a real namespace that no card describes: as unknown as a call would be.
-          findings.push({ severity: "error", file: script.file, line: i + 1, message: `${segments.slice(0, 3).join(".")} is not in the catalogue for ${resolved.build}: it does not exist on this build`, fix: `open77_namespace ${segments.slice(0, 2).join(".")} lists the members` });
+          const member = segments.slice(0, 3).join(".");
+          const shown = written.startsWith(member) ? member : `${written.split(".").slice(0, 2).join(".")} (${member})`;
+          findings.push({ severity: "error", file: script.file, line: i + 1, message: `${shown} is not in the catalogue for ${resolved.build}: it does not exist on this build`, fix: `open77_namespace ${segments.slice(0, 2).join(".")} lists the members` });
         }
       }
       for (const match of line.matchAll(RE_SANDBOX_LIBRARY)) {
@@ -287,6 +324,78 @@ export async function validateResource(dir: string, context: ServerContext): Pro
   }
   for (const permission of declared) {
     if (!usedPermissions.has(permission)) findings.push({ severity: "note", file: "open77.lua", message: `permission ${permission} is declared but no catalogued native in the scripts checks it (it may gate a service, an event or a WebUI feature)` });
+  }
+  findings.push(...(await commandCollisions(dir, options.loadedResources ?? [], index.manifestSchema.directives)));
+  return findings;
+}
+
+export interface RegisteredCommand {
+  name: string;
+  side: "client" | "server" | "shared";
+  file: string;
+  line: number;
+}
+
+/**
+ * Every `RegisterCommand("<literal>", ...)` in the scripts a resource's
+ * manifest lists, with the side the script runs on. Names built at run time
+ * (`RegisterCommand(prefix .. "x", ...)`) are invisible to this scan, which
+ * is why its findings are warnings.
+ */
+export async function registeredCommands(dir: string, directives: ManifestDirective[]): Promise<RegisteredCommand[]> {
+  const source = await readFile(path.join(dir, "open77.lua"), "utf8").catch(() => null);
+  if (source === null) return [];
+  const manifest = parseManifest(source, directives);
+  const found: RegisteredCommand[] = [];
+  for (const [key, side] of [["client_scripts", "client"], ["server_scripts", "server"], ["shared_scripts", "shared"]] as const) {
+    for (const pattern of manifest.lists[key] ?? []) {
+      for (const file of await expandGlob(dir, pattern)) {
+        if (!file.endsWith(".lua")) continue;
+        const code = await readFile(path.join(dir, file), "utf8").catch(() => null);
+        if (code === null) continue;
+        const stripped = code.replace(RE_COMMENT_BLOCK, (m) => m.replace(/[^\n]/g, " ")).replace(RE_COMMENT_LINE, "");
+        const lines = stripped.split("\n");
+        for (let i = 0; i < lines.length; i += 1) {
+          for (const match of lines[i]!.matchAll(RE_REGISTER_COMMAND)) found.push({ name: match[2]!.trim(), side, file, line: i + 1 });
+        }
+      }
+    }
+  }
+  return found;
+}
+
+const sameSide = (a: RegisteredCommand["side"], b: RegisteredCommand["side"]) => a === b || a === "shared" || b === "shared";
+
+/**
+ * A command the validated resource registers under a name another loaded
+ * resource already registers on the same side. The client and the server
+ * keep separate command registries, so a client `/heal` next to a server
+ * `/heal` is not a collision; two server `/heal` are, and the runtime does
+ * not say so -- the second handler simply never runs.
+ */
+export async function commandCollisions(dir: string, loadedResources: string[], directives: ManifestDirective[]): Promise<Finding[]> {
+  if (!loadedResources.length) return [];
+  const mine = await registeredCommands(dir, directives);
+  if (!mine.length) return [];
+  const self = path.resolve(dir).toLowerCase();
+  const findings: Finding[] = [];
+  for (const other of loadedResources) {
+    if (path.resolve(other).toLowerCase() === self) continue;
+    const theirs = await registeredCommands(other, directives);
+    if (!theirs.length) continue;
+    const label = path.basename(other);
+    for (const command of mine) {
+      for (const taken of theirs) {
+        if (taken.name !== command.name || !sameSide(taken.side, command.side)) continue;
+        findings.push({
+          severity: "warning",
+          file: command.file,
+          line: command.line,
+          message: `command /${command.name} is already registered by ${label} (${taken.file}:${taken.line}, ${taken.side} side); the runtime keeps one handler and never says which`,
+          fix: `rename the command, or drop the duplicate if ${label} is the owner`,
+        });
+      }
+    }
   }
   return findings;
 }

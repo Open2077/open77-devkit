@@ -60,7 +60,8 @@ export function registerLocalTools(server: McpServer, context: ServerContext, in
       title: "Validate a resource",
       description:
         "Static checks of one resource directory against the served build: manifest grammar, script files, Lua syntax (5.3-compatible parser; exact 5.4 via the server's --lint when present), " +
-        "unknown Open77.* natives, client natives in server scripts and the reverse, permissions used but not declared, natives newer than the build or unreleased. " +
+        "unknown Open77.* natives, client natives in server scripts and the reverse, permissions used but not declared, natives newer than the build or unreleased, " +
+        "and command names another resource of this server already registers (a warning; literal RegisterCommand names only). " +
         "Argument `resource`: a resource name from open77_workspace or an absolute path.",
       inputSchema: { resource: z.string().describe("Resource name under the resources root, or a directory path") },
       annotations: { readOnlyHint: true, openWorldHint: false },
@@ -68,7 +69,10 @@ export function registerLocalTools(server: McpServer, context: ServerContext, in
     async ({ resource }) => {
       const dir = await resolveResourceDir(resource, workspace);
       if (!dir) return text(`No resource ${resource}: not a directory and not under ${workspace.resourcesRoot ?? "an unknown resources root"}.`);
-      const findings = await validateResource(dir, context);
+      // The other resources the server can load, for the command-name
+      // collision check; a session with no server next to it has none.
+      const loadedResources = (await Promise.all(workspace.resources.map((name) => findResourceDir(workspace, name)))).filter((d): d is string => d !== null);
+      const findings = await validateResource(dir, context, { loadedResources });
       const runtime = await runtimeLint(workspace.serverBinary, dir);
       if (runtime) {
         // The runtime's syntax verdict is exact; drop the approximate parser's

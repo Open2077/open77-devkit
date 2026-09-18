@@ -42,7 +42,7 @@ the build you pass as `?build=2.31.13+op77.54`.
 | `open77_fivem_equivalent` | what to use on Open77, and what is deliberately absent |
 | `open77_manifest_schema`, `open77_server_config_schema` | `open77.lua` and `server.jsonc` |
 | `open77_changes`, `open77_build` | what a build adds; which build this session answers for |
-| `open77_workspace`, `open77_validate`, `open77_new_resource` | local only: detect the server, validate a resource (the server's own `--lint` verdict when the binary is next to you), scaffold one |
+| `open77_workspace`, `open77_validate`, `open77_new_resource` | local only: detect the server, validate a resource (the server's own `--lint` verdict when the binary is next to you; command names another loaded resource already registers), scaffold one |
 | `open77_server_status`, `open77_resources`, `open77_resource`, `open77_console_tail`, `open77_console_command`, `open77_tunables` | local only, through Warden: status, start/stop/restart/reload/validate, the log, the console, tunables |
 | `open77_workshop_search`, `open77_workshop_release`, `open77_workshop_plan`, `open77_workshop_install`, `open77_workshop_job` | local only, through Warden: browse the Workshop, plan, install with the human's consent, follow the job |
 
@@ -51,6 +51,26 @@ Resources: `open77://skill` (the method), `open77://guide/{slug}`, `open77://api
 
 Every answer states the build it answers for. A native newer than that build, or in no published
 build, is reported as **NOT AVAILABLE**, never silently served.
+
+## What's new
+
+**0.1.3** -- fixes measured by four MCP-only agents on 2026-09-18 against the index for
+2.31.13+op77.76:
+
+- `open77_validate` accepts the documented `.await` forms (`Open77.database.query.await(sql, params)`
+  and the other database methods) and the global `MySQL`, which is `Open77.database` on every build
+  that has the table; both still go through the permission check, so `database.access` is required
+  as before. A name whose card documents no `.await` form gets a warning instead of a false
+  "not in the catalogue". The alias table lives in `src/index/conventions.ts`, each entry pointing at
+  the guide section that documents it, and the test suite checks those sections still say so.
+- `open77_api client:<name>` works as the mirror of `server:<name>`; a prefix contradicting
+  `runtime` says so instead of "does not exist".
+- `open77_api server:exports` and `server:print` answer from the guides (`server-exports#publish-a-service`,
+  `server-api#logging`) until the index carries their cards; `open77_namespace _G` lists them as a footnote.
+- `open77_validate` warns when a literal `RegisterCommand("<name>")` reuses a name another resource
+  under the detected server already registers on the same side; the runtime keeps one handler
+  silently. Only when a server is detected (`open77_workspace`): a session with no server next to it
+  has nothing to compare against.
 
 ## Editor completion
 
