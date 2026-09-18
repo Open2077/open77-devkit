@@ -121,6 +121,23 @@ RpNomadeConfig.Truck = {
     -- nativePrompts: Load / Unload / Return as E prompts on the truck through open77_interactions.
     -- Switchable: turned off 2026-09-18 to isolate the Northside flat crash (reproduced without it).
     nativePrompts = true,
+    -- The bed: a loaded crate is attached to the truck (Open77.props.attach, parentType "vehicle",
+    -- root binding) so everybody sees the cargo. Offsets are metres in the VEHICLE frame: +x right,
+    -- +y forward (the cab), -y behind the cab, +z up; `yaw` degrees around z. The Mackinaw's bed
+    -- sits behind the cab, roughly x in [-0.6, 0.6], y in [-2.6, -1.0], z ~0.9: these are starting
+    -- guesses, not measurements. Tune them with a loaded truck in front of you: raise `z` if a crate
+    -- sinks into the bed floor, move `y` towards -1.0 if it hangs off the tailgate. Crate n takes
+    -- slot ((n - 1) % #slots) + 1; when there are more crates than slots the next layer stacks
+    -- `stackHeight` metres higher on the same slots.
+    bed = {
+        slots = {
+            { x = -0.55, y = -1.5, z = 0.9, yaw = 0.0 },
+            { x =  0.55, y = -1.5, z = 0.9, yaw = 0.0 },
+            { x = -0.55, y = -2.4, z = 0.9, yaw = 0.0 },
+            { x =  0.55, y = -2.4, z = 0.9, yaw = 0.0 },
+        },
+        stackHeight = 0.55,
+    },
 }
 
 RpNomadeConfig.Crate = {
@@ -134,15 +151,79 @@ RpNomadeConfig.Crate = {
     description = "Heavy. Get it to the truck.",
 }
 
--- How a carried crate is shown. "attach": the crate prop rides the carrier's hand bone
--- (Open77.props.attach, everyone sees it). "held": the prop is hidden and an item record is put
--- in the right hand through Open77.heldItems.hold (needs the bundled open77_helditems client).
+-- How a carried crate is shown. "attach": the crate prop rides the carrier (Open77.props.attach,
+-- everyone sees it). "held": the prop is hidden and an item record is put in the right hand through
+-- Open77.heldItems.hold (needs the bundled open77_helditems client).
+--
+-- The binding is the one of wiki/attachments.md: `bone` is a named slot of the player rig
+-- ("RightHand", "LeftHand", "Chest", "Head") or "" for the body root; `offset` is metres in that
+-- slot's OWN frame and `rotation` degrees (x roll, y pitch, z yaw). The root frame is the only one
+-- whose axes are known for sure: +y is where the player faces, +x their right, +z up, origin at the
+-- feet. A hand slot follows the arm swing, so the crate would swing with it; the root keeps the box
+-- level in front of the torso whatever the arms do, which is what a two-hand carry looks like.
+-- Numbers below are measured guesses for `crate.small`: the crate's pivot is ~0.45 m in front of
+-- the spine, its bottom ~0.85 m off the ground (forearm height). For `crate.cargo` (~0.9 m cube)
+-- try y = 0.6, z = 0.7. If the box sits in the body, raise `y`; if it floats, lower `z`.
+-- A slot the rig does not expose hides the crate (`bone_unavailable` on the client); "" always exists.
 RpNomadeConfig.Carry = {
     mode = "attach",
-    bone = "RightHand",
-    offset = { x = 0.0, y = 0.0, z = 0.0 },
+    bone = "",
+    offset = { x = 0.0, y = 0.45, z = 0.85 },
     rotation = { x = 0.0, y = 0.0, z = 0.0 },
     heldItem = { record = "Items.GenericCraftingMaterial1", slot = "WeaponRight" },
+    -- The carry pose: a synchronized RP animation (Open77.animations.play, permission
+    -- players.animations.control) looped for as long as the crate is held and stopped on load /
+    -- drop / cancel / disconnect / death. Profiles are tried in order at start; the first one the
+    -- server's open77_animations catalogue knows is used. No catalogue on 2.31 ships a box-carry
+    -- clip: `tablet2` (76-profile catalogue, two hands holding a tablet at chest height) and
+    -- `phone` (18-profile catalogue, `stand__2h_phone__03__shuffle__01`: both hands in front of
+    -- the chest, no tapping) are the closest two-hand holds. `clip` must belong to the profile.
+    -- RP animations are workspots: the platform cancels them as soon as the player walks more
+    -- than 0.5 m (or gets in a vehicle, or dies); locomotion is never frozen. `resume` replays the
+    -- pose once the carrier has stood still for `resumeAfterMs` (moved less than `stillDistance`
+    -- between two server ticks), so the box is held again at the truck. Set `enabled = false` to
+    -- carry with the crate only.
+    animation = {
+        enabled = true,
+        profiles = {
+            { profile = "tablet2" },
+            { profile = "phone", clip = "stand__2h_phone__03__shuffle__01" },
+        },
+        resume = true,
+        resumeAfterMs = 1500,
+        stillDistance = 0.15,
+    },
+    -- One-shot clips around every crate move, all server-driven so everybody sees them. Each step
+    -- plays a profile (tried in order, first known one wins; `clip` optional) for `ms`, and the
+    -- prop move (attach / detach / place) happens WHEN THE TIMER ENDS, never instantly. No
+    -- catalogue exposes clip lengths (Open77.animations: durationMs is a scheduling duration),
+    -- so `ms` is the visible length of the step: tune it to the clip. No shipped profile is a real
+    -- "lift a box" / "put a box down": the kneel-to-the-ground profiles (`scavenge`, 76-profile;
+    -- `examine`, 18-profile) stand in for bending to pick up and to put down, `give` (arms
+    -- extend to hand an item over) stands in for lifting into / taking out of the bed.
+    steps = {
+        pickup  = { profiles = { { profile = "scavenge" }, { profile = "examine" } }, ms = 2500 },
+        load    = { profiles = { { profile = "give" } }, ms = 2000 },
+        take    = { profiles = { { profile = "give" } }, ms = 2000 },   -- out of the bed, at delivery
+        carryMs = 1500,                                                -- carry loop between take and put-down
+        putdown = { profiles = { { profile = "scavenge" }, { profile = "examine" } }, ms = 2500 },
+        -- Delivered crates stay on the ground beside the truck (a row starting `groundGap` m away
+        -- from the truck on the player's side) for `groundTtlMs`, or until the run ends.
+        groundTtlMs = 30000,
+        groundGap = 1.2,
+        groundSpacing = 0.9,
+    },
+}
+
+-- Navigation: a map pin (Open77.blips, client, permission ui.vanilla.map) on the destination from
+-- acceptance, the vanilla GPS route (Open77.blips.setWaypoint) once every crate is in the truck
+-- (`gpsFrom = "accepted"` to route from acceptance), then a pin + route on the camp for the
+-- return leg after the delivery. Everything is removed on unload / cancel / return / disconnect.
+RpNomadeConfig.Navigation = {
+    enabled = true,
+    gpsFrom = "loaded",         -- "loaded" | "accepted"
+    destinationSprite = "objective",
+    campSprite = "quest",
 }
 
 -- The ambush: the FIRST time a loaded truck is inside this circle (and at least minTravel metres

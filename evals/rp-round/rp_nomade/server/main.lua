@@ -4,9 +4,11 @@
 -- (job, money, truck, crates, zones, ambush, pay) is re-derived here from the server's own reads.
 --
 -- Flow: contracts board (E, camp) -> UI-kit menu -> rental truck + N crate props at the camp
---       -> E on a crate: carried in the hand (Open77.props.attach) -> E on the truck: loaded
---       -> drive to the destination zone (rp_zones) -> E on the truck: 6 s bar per crate -> paid
---       -> E on the truck inside the camp: returned, deposit refunded.
+--       -> E on a crate: carried in front of the chest (Open77.props.attach) with a looped
+--          two-hand carry pose (Open77.animations.play) -> E on the truck: the crate is attached
+--          to the truck bed (one slot per crate) -> drive to the destination zone (rp_zones), the
+--          client draws the map pin and GPS route -> E on the truck: 6 s bar per crate, the crate
+--          leaves the bed -> paid -> E on the truck inside the camp: returned, deposit refunded.
 -- A loaded truck crossing the ambush circle once spawns hostile NPCs for three minutes.
 
 local C = RpNomadeConfig
@@ -58,6 +60,18 @@ end
 
 local function fmtMoney(n)
     return ("%d €$"):format(n)
+end
+
+local function compass(dx, dy)
+    local angle = math.deg(math.atan(dy, dx))   -- 0 = east, 90 = north
+    local names = { "east", "north-east", "north", "north-west", "west", "south-west", "south", "south-east" }
+    local index = math.floor(((angle + 360 + 22.5) % 360) / 45) + 1
+    return names[index] or "?"
+end
+
+-- "4012 m south" from `from` to `to`, for chat.
+local function bearing(from, to)
+    return ("%.0f m %s"):format(dist2(from, to), compass(to.x - from.x, to.y - from.y))
 end
 
 local function minutes(seconds)
@@ -298,6 +312,7 @@ local function snapshot(contract)
         truckId = contract.truckId,
         crates = crates,
         carrying = contract.carrying or 0,
+        busy = contract.busy or contract.unloading or false,
         loaded = contract.loaded,
         delivered = contract.delivered,
         total = contract.total,
@@ -363,19 +378,92 @@ local function spawnCrate(index, bucket)
     return nil, "no_crate_model"
 end
 
--- Put the crate in the carrier's hand. Returns a word for the log.
+---------------------------------------------------------------------------------------------------
+-- The carry pose: a looped RP animation while a crate is held (Open77.animations, permission
+-- players.animations.control). The platform cancels a workspot as soon as the carrier walks
+-- (> 0.5 m), so the tick replays it once they stand still again (Carry.animation.resume).
+---------------------------------------------------------------------------------------------------
+
+local carryPose = nil        -- { profile, clip } resolved at start from Carry.animation.profiles, or nil
+
+local function animationsApi()
+    return type(Open77.animations) == "table" and type(Open77.animations.play) == "function"
+end
+
+local function resolveCarryPose()
+    local anim = C.Carry.animation
+    if type(anim) ~= "table" or anim.enabled == false then return nil, "disabled" end
+    if not animationsApi() then return nil, "animations_api_unavailable" end
+    for _, candidate in ipairs(anim.profiles or {}) do
+        local ok, profile = pcall(Open77.animations.get, candidate.profile)
+        if ok and type(profile) == "table" then
+            local clip = candidate.clip
+            if clip then
+                local known = false
+                for _, name in ipairs(profile.clips or {}) do
+                    if name == clip then known = true break end
+                end
+                if not known then
+                    log("carry pose clip %s is not in profile %s; using its default clip %s", clip, candidate.profile, tostring(profile.clip))
+                    clip = nil
+                end
+            end
+            return { profile = candidate.profile, clip = clip or profile.clip }
+        end
+    end
+    return nil, "no_known_profile"
+end
+
+local function poseWord()
+    if not carryPose then return "pose=none" end
+    return ("pose=%s/%s"):format(carryPose.profile, tostring(carryPose.clip))
+end
+
+-- Start (or restart) the pose on the carrier. Returns the playback id, or nil and a reason.
+local function startPose(playerId, contract)
+    if not carryPose then return nil, "no_pose" end
+    local options = { loop = true }
+    if carryPose.clip then options.clip = carryPose.clip end
+    local ok, playback, reason = pcall(Open77.animations.play, playerId, carryPose.profile, options)
+    if ok and type(playback) == "table" and playback.playbackId then
+        contract.poseId = playback.playbackId
+        contract.poseEndedAt = nil
+        return playback.playbackId
+    end
+    if not ok then reason = playback end
+    contract.poseEndedAt = Open77.time.monotonic()
+    if not contract.poseWarned then
+        contract.poseWarned = true
+        log("carry pose %s refused for player %d: %s (the crate is carried without it)", carryPose.profile, playerId, tostring(reason))
+    end
+    return nil, reason
+end
+
+local function stopPose(playerId, contract, playerGone)
+    local id = contract.poseId
+    contract.poseId = nil
+    contract.poseEndedAt = nil
+    if not id or playerGone or not animationsApi() then return end
+    local ok, stopped, why = pcall(Open77.animations.stop, playerId, id)
+    if ok and not stopped and why ~= "stale_playback" then
+        log("carry pose stop refused for player %d: %s", playerId, tostring(why))
+    end
+end
+
+-- Put the crate in the carrier's hands. Returns a word for the log.
 local function carryCrate(playerId, contract, crate)
     if C.Carry.mode == "attach" then
+        local bone = C.Carry.bone or ""
         local ok, reason = Open77.props.attach(crate.propId, {
             parentType = "player",
             parentId = playerId,
-            bone = C.Carry.bone,
+            bone = bone,
             offset = C.Carry.offset,
             rotation = C.Carry.rotation,
         })
         if ok then
-            crate.attached = true
-            return "attached:" .. C.Carry.bone
+            crate.attached = "player"
+            return "attached:" .. (bone ~= "" and bone or "root")
         end
         log("attach of crate %s to player %d refused: %s (falling back to a hidden prop)", tostring(crate.propId), playerId, tostring(reason))
     end
@@ -395,7 +483,8 @@ local function carryCrate(playerId, contract, crate)
     return "hidden"
 end
 
--- Take the crate out of the hand. `restore` puts it back on the ground at its loading point.
+-- Take the crate out of the hands (or off the truck). `restore` puts it back on the ground at its
+-- loading point.
 local function releaseCrate(playerId, contract, crate, restore, playerGone)
     if crate.attached then
         Open77.props.detach(crate.propId)
@@ -416,6 +505,165 @@ local function releaseCrate(playerId, contract, crate, restore, playerGone)
         end
         crate.state = "ground"
     end
+end
+
+-- The bed slot of the n-th loaded crate: Truck.bed.slots wrap, each extra layer stacks higher.
+local function bedSlot(n)
+    local bed = C.Truck.bed
+    local slots = bed and bed.slots or nil
+    if type(slots) ~= "table" or #slots == 0 then return nil end
+    local slotIndex = ((n - 1) % #slots) + 1
+    local slot = slots[slotIndex]
+    local layer = math.floor((n - 1) / #slots)
+    return {
+        x = slot.x or 0.0,
+        y = slot.y or 0.0,
+        z = (slot.z or 0.0) + layer * (bed.stackHeight or 0.5),
+        yaw = slot.yaw or 0.0,
+    }, slotIndex
+end
+
+-- Put a crate in the truck bed (vehicle attachment, root binding, offset in the vehicle frame).
+-- Returns a word for the log. A refused attachment removes the prop, as before: the crate is
+-- still counted in the truck.
+local function stowCrate(playerId, contract, crate, n)
+    local slot, slotIndex = bedSlot(n)
+    if not slot or not contract.truckId then
+        Open77.props.remove(crate.propId)
+        crate.propId = nil
+        return "no bed slot, prop removed"
+    end
+    if crate.hidden then
+        local shown = Open77.props.update(crate.propId, { visible = true })
+        if shown then crate.hidden = nil end
+    end
+    local ok, reason = Open77.props.attach(crate.propId, {
+        parentType = "vehicle",
+        parentId = contract.truckId,
+        bone = "",
+        offset = { x = slot.x, y = slot.y, z = slot.z },
+        rotation = { x = 0.0, y = 0.0, z = slot.yaw },
+    })
+    if ok then
+        crate.attached = "truck"
+        crate.bedSlot = slotIndex
+        return ("bed slot %d, attached to truck %s"):format(slotIndex, tostring(contract.truckId))
+    end
+    log("attach of crate %s to truck %s refused: %s (prop removed, crate still counted)", tostring(crate.propId), tostring(contract.truckId), tostring(reason))
+    Open77.props.remove(crate.propId)
+    crate.propId = nil
+    return "bed attach refused, prop removed"
+end
+
+-- The first crate still in the bed, or nil.
+local function loadedCrate(contract)
+    for _, crate in ipairs(contract.crates) do
+        if crate.state == "loaded" then return crate end
+    end
+    return nil
+end
+
+---------------------------------------------------------------------------------------------------
+-- One-shot steps (Carry.steps): a clip played for `ms`, the prop move at the end of the timer.
+---------------------------------------------------------------------------------------------------
+
+local stepPoses = {}         -- [stepName] = { profile, clip } resolved at start, or false
+
+local function resolveStepPose(step)
+    if type(step) ~= "table" or not animationsApi() then return nil end
+    for _, candidate in ipairs(step.profiles or {}) do
+        local ok, profile = pcall(Open77.animations.get, candidate.profile)
+        if ok and type(profile) == "table" then
+            local clip = candidate.clip
+            if clip then
+                local known = false
+                for _, name in ipairs(profile.clips or {}) do
+                    if name == clip then known = true break end
+                end
+                if not known then clip = nil end
+            end
+            return { profile = candidate.profile, clip = clip or profile.clip }
+        end
+    end
+    return nil
+end
+
+local function stepMs(name)
+    local step = C.Carry.steps and C.Carry.steps[name]
+    local ms = step and step.ms or 0
+    if type(ms) ~= "number" or ms < 0 then ms = 0 end
+    return math.floor(ms)
+end
+
+-- Play the step's clip on the player (replacing the carry loop) and wait its length. Returns
+-- false when the contract ended or the player left meanwhile. Nothing here moves a prop.
+local function playStep(playerId, contract, name)
+    local ms = stepMs(name)
+    local pose = stepPoses[name]
+    local word = "none"
+    if pose and ms >= 1000 then
+        local options = { loop = false, durationMs = math.min(600000, ms) }
+        if pose.clip then options.clip = pose.clip end
+        local ok, playback, reason = pcall(Open77.animations.play, playerId, pose.profile, options)
+        if ok and type(playback) == "table" and playback.playbackId then
+            contract.stepId = playback.playbackId
+            word = pose.profile .. "/" .. tostring(pose.clip)
+        else
+            if not ok then reason = playback end
+            word = pose.profile .. " refused:" .. tostring(reason)
+        end
+    end
+    contract.busy = name
+    if ms > 0 then Wait(ms) end
+    contract.stepId = nil
+    local alive = contracts[playerId] == contract
+    if alive then contract.busy = nil end
+    return alive, word
+end
+
+-- Where the k-th delivered crate goes on the ground: a row beside the truck, on the player's side.
+local function groundSpot(playerId, contract, k)
+    local steps = C.Carry.steps or {}
+    local tp = truckPosition(contract)
+    local pp = Open77.players.position(playerId)
+    local origin = pp or tp or C.Camp.position
+    local dx, dy = 0.0, 1.0
+    if tp and pp then
+        dx, dy = pp.x - tp.x, pp.y - tp.y
+        local n = math.sqrt(dx * dx + dy * dy)
+        if n > 0.01 then dx, dy = dx / n, dy / n else dx, dy = 0.0, 1.0 end
+    end
+    local gap, spacing = steps.groundGap or 1.2, steps.groundSpacing or 0.9
+    local row, col = math.floor((k - 1) / 2), (k - 1) % 2
+    local along = gap + row * spacing
+    local side = (col == 0) and -spacing / 2 or spacing / 2
+    return {
+        x = origin.x + dx * along - dy * side,
+        y = origin.y + dy * along + dx * side,
+        z = origin.z,
+    }
+end
+
+-- The crate leaves the hands for the ground at `spot` and is removed after groundTtlMs (or with
+-- the contract, whichever comes first).
+local function groundCrate(playerId, contract, crate, spot)
+    releaseCrate(playerId, contract, crate, false)
+    if not crate.propId then return end
+    local moved, why = Open77.props.setTransform(crate.propId, { position = spot, yaw = 0.0 })
+    if not moved then log("crate %s could not be put on the ground: %s", tostring(crate.propId), tostring(why)) end
+    if crate.hidden then
+        Open77.props.update(crate.propId, { visible = true })
+        crate.hidden = nil
+    end
+    local propId = crate.propId
+    local ttl = (C.Carry.steps and C.Carry.steps.groundTtlMs) or 30000
+    CreateThread(function()
+        Wait(ttl)
+        if crate.propId == propId then
+            Open77.props.remove(propId)
+            crate.propId = nil
+        end
+    end)
 end
 
 local function removeAmbush(contract, why)
@@ -493,6 +741,8 @@ local function endContract(playerId, contract, status, playerGone)
     contracts[playerId] = nil
     contract.status = status
     contract.endedAtUnix = math.floor(Open77.time.unix())
+    stopPose(playerId, contract, playerGone)
+    -- Carried, standing and bed crates alike: nothing this contract minted outlives it.
     for _, crate in ipairs(contract.crates) do
         if crate.propId then
             releaseCrate(playerId, contract, crate, false, playerGone)
@@ -602,7 +852,8 @@ local function startContract(playerId, template)
         playerId, template.id, template.crates, template.destination, tostring(truckId), record, C.Truck.rental)
     say(playerId, ("Contract signed: %s. %d crates to the %s, %s per crate, %d minutes. Deposit %s taken for the truck."):format(
         template.label, template.crates, dest.label, fmtMoney(C.Contract.payPerCrate), minutes(C.Contract.timeLimitMs / 1000), fmtMoney(C.Truck.rental)))
-    say(playerId, "Pick up the crates at the loading bay (E), load them in the truck (E), then drive. Bring the truck back for the deposit.")
+    say(playerId, ("Pick up the crates at the loading bay (E), load them in the truck (E), then drive. The %s is pinned on your map, %s of the camp."):format(
+        dest.label, bearing(C.Camp.position, dest.position)))
     pushState(playerId, contract)
 end
 
@@ -789,6 +1040,10 @@ RegisterNetEvent("rp_nomade:pickup", function(index)
         say(playerId, "That run is over. Return the truck.")
         return
     end
+    if contract.busy then
+        say(playerId, "Finish what you are doing first.")
+        return
+    end
     if contract.carrying then
         say(playerId, "Your hands are full, choom. Load that crate first.")
         return
@@ -809,11 +1064,19 @@ RegisterNetEvent("rp_nomade:pickup", function(index)
         say(playerId, ("Get closer to the crate (%.0f m)."):format(d))
         return
     end
+    -- Bend down first; the crate only leaves the ground when the clip is over.
+    crate.state = "picking"
+    pushState(playerId, contract)
+    local alive, stepWord = playStep(playerId, contract, "pickup")
+    if not alive then return end
+    if crate.state ~= "picking" or not crate.propId then return end
     local how = carryCrate(playerId, contract, crate)
     contract.carrying = index
     crate.state = "carried"
-    log("player %d picked up crate %d/%d (%s)", playerId, index, contract.total, how)
-    say(playerId, ("Crate %d/%d on your shoulder. Get it to the truck and press E."):format(index, contract.total))
+    contract.poseWarned = nil
+    local poseId = startPose(playerId, contract)
+    log("player %d picked up crate %d/%d (pickup=%s %dms, %s %s%s)", playerId, index, contract.total, stepWord, stepMs("pickup"), how, poseWord(), poseId and "" or " not playing")
+    say(playerId, ("Crate %d/%d in your arms. Get it to the truck and press E."):format(index, contract.total))
     pushState(playerId, contract)
 end)
 
@@ -855,23 +1118,34 @@ RegisterNetEvent("rp_nomade:load", function(vehicleId)
         say(playerId, "That run is over. Return the truck.")
         return
     end
+    if contract.busy then
+        say(playerId, "Finish what you are doing first.")
+        return
+    end
     local index = contract.carrying
     if not index then
         say(playerId, "You are not carrying a crate. Pick one up at the loading bay.")
         return
     end
     local crate = contract.crates[index]
+    -- Lift it into the bed: the crate stays in the arms until the clip is over.
+    stopPose(playerId, contract)
+    local alive, stepWord = playStep(playerId, contract, "load")
+    if not alive then return end
+    if contract.carrying ~= index or crate.state ~= "carried" or not crate.propId then return end
     releaseCrate(playerId, contract, crate, false)
-    Open77.props.remove(crate.propId)
-    crate.propId = nil
-    crate.state = "loaded"
     contract.carrying = nil
     contract.loaded = contract.loaded + 1
-    log("player %d loaded crate %d/%d", playerId, contract.loaded, contract.total)
+    crate.state = "loaded"
+    local where = stowCrate(playerId, contract, crate, contract.loaded)
+    log("player %d loaded crate %d/%d (load=%s %dms, %s)", playerId, contract.loaded, contract.total, stepWord, stepMs("load"), where)
     local dest = C.Destinations[contract.destination]
     if contract.loaded >= contract.total then
-        say(playerId, ("All %d crates loaded. Drive to the %s and press E on the truck to unload. Watch the road."):format(
-            contract.total, dest and dest.label or contract.destination))
+        local from = truckPosition(contract) or Open77.players.position(playerId) or C.Camp.position
+        local label = dest and dest.label or contract.destination
+        local way = dest and (bearing(from, dest.position) .. " from here") or "somewhere the map does not know"
+        say(playerId, ("All %d crates loaded. The %s is %s: the GPS route is on your map. Press E on the truck there to unload. Watch the road."):format(
+            contract.total, label, way))
     else
         say(playerId, ("Crate %d/%d loaded. %d to go."):format(contract.loaded, contract.total, contract.total - contract.loaded))
     end
@@ -886,8 +1160,8 @@ RegisterNetEvent("rp_nomade:unload", function(vehicleId)
         say(playerId, "That run is over. Return the truck.")
         return
     end
-    if contract.unloading then
-        say(playerId, "Already unloading.")
+    if contract.unloading or contract.busy then
+        say(playerId, contract.unloading and "Already unloading." or "Finish what you are doing first.")
         return
     end
     if contract.loaded - contract.delivered <= 0 then
@@ -901,35 +1175,55 @@ RegisterNetEvent("rp_nomade:unload", function(vehicleId)
     end
     contract.unloading = true
     local batch = 0
-    while contract.loaded - contract.delivered > 0 do
-        if contracts[playerId] ~= contract or contract.status ~= "active" then break end
-        local promise, err = Open77.exports.call("open77_uikit", "progress", playerId, {
-            label = ("Unloading crate %d/%d"):format(contract.delivered + 1, contract.total),
-            duration = C.Contract.unloadMs,
-            position = "bottom",
-            cancellable = true,
-            disable = { move = true, combat = true },
-        })
-        if not promise then
-            say(playerId, "Unloading failed (open77_uikit: " .. tostring(err) .. ").")
-            break
-        end
-        local answer = promise:await()
-        if contracts[playerId] ~= contract then break end
-        if not answer or not answer.ok then
-            say(playerId, "Unloading stopped. The rest stays in the truck.")
-            break
-        end
-        -- Still at the warehouse, still next to the truck?
+    -- Per crate: take it out of the bed (clip), carry it a moment, put it down (clip) on the
+    -- ground beside the truck. Walking off (further than reach + 2 m) between two steps stops
+    -- the unloading; the crate in the arms is put down where the player stands.
+    local function nearTruck()
         local tp = truckPosition(contract)
         local pos = Open77.players.position(playerId)
-        if not tp or not pos or dist3(pos, tp) > C.Truck.reach + 2.0 then
+        return tp and pos and dist3(pos, tp) <= C.Truck.reach + 2.0
+    end
+    while contract.loaded - contract.delivered > 0 do
+        if contracts[playerId] ~= contract or contract.status ~= "active" then break end
+        local crate = loadedCrate(contract)
+        if not crate then break end
+        if not nearTruck() then
             say(playerId, "Stay next to the truck while unloading.")
             break
         end
+        local n = contract.delivered + 1
+        say(playerId, ("Unloading crate %d/%d..."):format(n, contract.total))
+        -- 1. out of the bed
+        local alive, takeWord = playStep(playerId, contract, "take")
+        if not alive then return end
+        if crate.state ~= "loaded" then break end
+        local slotIndex = crate.bedSlot
+        local how = "no prop"
+        if crate.propId then
+            releaseCrate(playerId, contract, crate, false)
+            how = carryCrate(playerId, contract, crate)
+        end
+        crate.state = "unloading"
+        crate.bedSlot = nil
+        log("player %d took crate %d/%d out of the bed (take=%s %dms, slot %s, %s)", playerId, n, contract.total, takeWord, stepMs("take"), tostring(slotIndex), how)
+        -- 2. a moment in the arms
+        contract.busy = "carry"
+        startPose(playerId, contract)
+        local carryMs = (C.Carry.steps and C.Carry.steps.carryMs) or 0
+        if carryMs > 0 then Wait(carryMs) end
+        if contracts[playerId] ~= contract then return end
+        contract.busy = nil
+        stopPose(playerId, contract)
+        -- 3. put it down
+        alive = playStep(playerId, contract, "putdown")
+        if not alive then return end
+        local spot = groundSpot(playerId, contract, n)
+        groundCrate(playerId, contract, crate, spot)
+        crate.state = "delivered"
         contract.delivered = contract.delivered + 1
         batch = batch + 1
-        log("player %d delivered crate %d/%d", playerId, contract.delivered, contract.total)
+        log("player %d delivered crate %d/%d (putdown %dms, on the ground at %.1f %.1f, bed slot %s cleared)", playerId, contract.delivered, contract.total, stepMs("putdown"), spot.x, spot.y, tostring(slotIndex))
+        pushState(playerId, contract)
     end
     contract.unloading = false
     if contracts[playerId] ~= contract then return end
@@ -942,6 +1236,10 @@ RegisterNetEvent("rp_nomade:return", function(vehicleId)
     local playerId = source
     local contract = truckIntent(playerId, vehicleId)
     if not contract then return end
+    if contract.busy or contract.unloading then
+        say(playerId, "Finish what you are doing first.")
+        return
+    end
     if contract.carrying then
         say(playerId, "Put the crate down first: load it, or /convoi annuler.")
         return
@@ -1004,7 +1302,24 @@ RegisterCommand("convoi", function(source, args)
             say(source, "No contract to cancel.")
             return
         end
+        if contract.busy or contract.unloading then
+            say(source, "Finish what you are doing first.")
+            return
+        end
         local label = contract.template.label
+        local carried = contract.carrying and contract.crates[contract.carrying]
+        if carried and carried.propId then
+            -- Put the crate down where the player stands before the run is torn down.
+            say(source, "Dropping the run. Put the crate down...")
+            stopPose(source, contract)
+            local alive = playStep(source, contract, "putdown")
+            if not alive then return end
+            local pos = Open77.players.position(source)
+            if pos then groundCrate(source, contract, carried, { x = pos.x, y = pos.y + 0.8, z = pos.z }) end
+            contract.carrying = nil
+            carried.state = "ground"
+            log("player %d put crate %d/%d down (cancel, putdown %dms)", source, carried.index, contract.total, stepMs("putdown"))
+        end
         endContract(source, contract, "cancelled")
         say(source, ("Contract '%s' dropped. The truck and the crates are gone; the deposit stays with the clan."):format(label))
         return
@@ -1044,13 +1359,6 @@ RegisterCommand("convois", function(source)
             fmtMoney(tonumber(row.society_cut) or 0), tostring(row.convoy), tostring(row.status), took, ago))
     end
 end, false)
-
-local function compass(dx, dy)
-    local angle = math.deg(math.atan(dy, dx))   -- 0 = east, 90 = north
-    local names = { "east", "north-east", "north", "north-west", "west", "south-west", "south", "south-east" }
-    local index = math.floor(((angle + 360 + 22.5) % 360) / 45) + 1
-    return names[index] or "?"
-end
 
 RegisterCommand("camp", function(source)
     if source == 0 then
@@ -1124,10 +1432,22 @@ AddEventHandler("onResourceStart", function(name)
         Open77.chat.addSuggestions(-1, SUGGESTIONS)
         defineItems()
         spawnCampProps()
-        log("started: %d templates, camp at %.1f %.1f %.1f, board at %.1f %.1f, ambush %s at %.1f %.1f r=%.0f, carry=%s",
+        local poseWhy
+        carryPose, poseWhy = resolveCarryPose()
+        if not carryPose then log("carry pose off: %s", tostring(poseWhy)) end
+        local stepWords = {}
+        for _, name in ipairs({ "pickup", "load", "take", "putdown" }) do
+            stepPoses[name] = resolveStepPose(C.Carry.steps and C.Carry.steps[name])
+            local pose = stepPoses[name]
+            stepWords[#stepWords + 1] = ("%s=%s/%dms"):format(name, pose and pose.profile or "none", stepMs(name))
+        end
+        log("crate steps: %s", table.concat(stepWords, " "))
+        local bedSlots = (C.Truck.bed and C.Truck.bed.slots) and #C.Truck.bed.slots or 0
+        log("started: %d templates, camp at %.1f %.1f %.1f, board at %.1f %.1f, ambush %s at %.1f %.1f r=%.0f, carry=%s bone=%s %s, bed slots=%d",
             #C.Templates, C.Camp.position.x, C.Camp.position.y, C.Camp.position.z,
             C.Camp.board.position.x, C.Camp.board.position.y,
-            C.Ambush.enabled and "on" or "off", C.Ambush.center.x, C.Ambush.center.y, C.Ambush.radius, C.Carry.mode)
+            C.Ambush.enabled and "on" or "off", C.Ambush.center.x, C.Ambush.center.y, C.Ambush.radius,
+            C.Carry.mode, (C.Carry.bone ~= nil and C.Carry.bone ~= "") and C.Carry.bone or "root", poseWord(), bedSlots)
         -- A database that never answers: fall back to kvp for the history after 15 s.
         CreateThread(function()
             Wait(15000)
@@ -1163,12 +1483,20 @@ AddEventHandler("onPlayerLifeStateChanged", function(playerId, revision, phase)
     local contract = id and contracts[id]
     if not contract or not contract.carrying then return end
     if tostring(phase):lower() == "alive" then return end
+    if contract.busy then return end   -- a step's own timer settles the crate
     local crate = contract.crates[contract.carrying]
-    releaseCrate(id, contract, crate, true)
     contract.carrying = nil
-    log("player %d dropped crate %d/%d (life phase %s), back at the loading bay", id, crate.index, contract.total, tostring(phase))
-    say(id, "You went down. The crate is back at the loading bay.")
-    pushState(id, contract)
+    stopPose(id, contract)
+    -- Host event handlers must not yield: the put-down runs in its own thread. The platform
+    -- cancels a downed player's animations anyway; the crate drops after the put-down time.
+    CreateThread(function()
+        local alive = playStep(id, contract, "putdown")
+        if not alive or crate.state ~= "carried" then return end
+        releaseCrate(id, contract, crate, true)
+        log("player %d dropped crate %d/%d (life phase %s), back at the loading bay", id, crate.index, contract.total, tostring(phase))
+        say(id, "You went down. The crate is back at the loading bay.")
+        pushState(id, contract)
+    end)
 end)
 
 AddEventHandler("onVehicleRemoved", function(vehicleId, reason)
@@ -1187,6 +1515,24 @@ AddEventHandler("open77:helditem:completed", function(player, requestId, operati
     if not pending then return end
     heldRequests[requestId] = nil
     log("player %s held item %s: %s%s", tostring(player), tostring(operation), accepted and "accepted" or "refused", accepted and "" or (" (" .. tostring(reason) .. ")"))
+end)
+
+-- The pose was cancelled by the platform (the carrier walked, got in the truck, died...): forget
+-- its id so the tick can replay it once they stand still again.
+AddEventHandler("onPlayerAnimationChanged", function(playerId, stateJson)
+    local id = tonumber(playerId)
+    local contract = id and contracts[id]
+    if not contract or not contract.poseId then return end
+    local state = stateJson
+    if type(state) == "string" then
+        local ok, decoded = pcall(json.decode, state)
+        state = ok and decoded or nil
+    end
+    if type(state) ~= "table" or state.playbackId ~= contract.poseId then return end
+    if state.active == false then
+        contract.poseId = nil
+        contract.poseEndedAt = Open77.time.monotonic()
+    end
 end)
 
 AddEventHandler("rp_zones:entered", function(playerId, name)
@@ -1251,6 +1597,21 @@ CreateThread(function()
                         and dist2(tp, contract.truckSpawn) >= C.Ambush.minTravel then
                         spawnAmbush(playerId, contract, tp)
                     end
+                end
+                -- Replay the carry pose once the carrier has stood still long enough (never on a
+                -- contract the lines above just ended).
+                local anim = C.Carry.animation
+                if contracts[playerId] == contract and contract.carrying and carryPose and not contract.busy
+                    and anim and anim.resume ~= false and not contract.poseId then
+                    local p = Open77.players.position(playerId)
+                    local last = contract.lastPos
+                    contract.lastPos = p
+                    if p and last and dist3(p, last) <= (anim.stillDistance or 0.15)
+                        and now - (contract.poseEndedAt or 0) >= (anim.resumeAfterMs or 1500) / 1000 then
+                        startPose(playerId, contract)
+                    end
+                else
+                    contract.lastPos = nil
                 end
                 -- A destination rp_zones does not know never raises rp_zones:entered / left:
                 -- keep its atDestination flag from the planar check instead.

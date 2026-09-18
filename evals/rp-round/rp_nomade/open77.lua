@@ -8,9 +8,11 @@ auto_start true
 --                   (client), Open77.notifications.send, Open77.heldItems.hold / release
 -- database.access : Open77.database.* (rp_nomade_contracts)
 -- world.vehicles  : Open77.vehicles.create / get / getPosition / remove (the rented truck)
--- world.props     : Open77.props.create / attach / detach / update / setTransform / remove (the crates)
+-- world.props     : Open77.props.create / attach / detach / update / setTransform / remove (the crates, carried then in the truck bed)
 -- world.npcs      : Open77.npcs.create / setAttitude / tasks.attack / remove (the ambush)
-permissions { "network.events", "database.access", "world.vehicles", "world.props", "world.npcs" }
+-- players.animations.control : Open77.animations.play / stop (the two-hand carry pose while a crate is held)
+-- ui.vanilla.map  : Open77.blips.create / setDescription / remove / setWaypoint / clearWaypoint (client: destination and camp pins + GPS route)
+permissions { "network.events", "database.access", "world.vehicles", "world.props", "world.npcs", "players.animations.control", "ui.vanilla.map" }
 
 -- Every dependency below ships a client half, so a manifest delivered to clients may depend on it.
 --   open77_uikit         : contracts menu (server twin `context`) and the unloading bar (server twin `progress`)

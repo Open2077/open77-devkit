@@ -33,3 +33,15 @@ RegisterCommand("wprobe", function(source, args)
     log("asking player %d for objects within %.0f m (filter %s)", playerId, radius, tostring(filter or "all"))
     TriggerClientEvent("rp_worldprobe:scan", playerId, radius, filter)
 end, true)
+
+-- `vwarp <vehicleId> <x> <y> <z> [yaw]` from the console: moves a server vehicle (lab helper,
+-- Open77.vehicles.setTransform revokes any physics lease so the driver's client re-syncs).
+RegisterCommand("vwarp", function(source, args)
+    local id = tonumber(args[1])
+    local x, y, z = tonumber(args[2]), tonumber(args[3]), tonumber(args[4])
+    if source ~= 0 or not id or not x or not y or not z then
+        return log("usage (console): vwarp <vehicleId> <x> <y> <z> [yaw]")
+    end
+    local ok, why = Open77.vehicles.setTransform(id, { x = x, y = y, z = z, yaw = tonumber(args[5]) or 0.0 })
+    log("vwarp %d -> %.1f %.1f %.1f: %s", id, x, y, z, ok and "ok" or ("refused: " .. tostring(why)))
+end)

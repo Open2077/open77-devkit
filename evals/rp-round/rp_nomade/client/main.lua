@@ -3,6 +3,8 @@
 -- * the contracts board: one open77_worldui POI (ring + map pin + E prompt) at the camp;
 -- * one POI per crate still on the ground, rebuilt from the server's snapshot;
 -- * a ring at the destination while a contract runs;
+-- * navigation (Open77.blips): a map pin on the destination from acceptance, the vanilla GPS
+--   route once every crate is in the truck, then a pin + route on the camp for the return leg;
 -- * three E prompts on the rented truck through open77_interactions (globalVehicle target):
 --   "Load the crate" / "Unload" / "Return the truck", each gated by a canInteract export that
 --   only reads the last snapshot the server pushed (rp_nomade:state).
@@ -15,6 +17,7 @@ local state = nil            -- last snapshot from the server; nil = no contract
 local boardHandle = nil
 local crateHandles = {}      -- [index] = worldui handle
 local destHandle = nil
+local nav = { phase = nil, blip = nil, waypoint = false }   -- Open77.blips pin + GPS route
 
 local NONE = {}
 local pending = NONE         -- latest snapshot waiting to be applied (false = clear)
@@ -50,17 +53,18 @@ local function isMyTruck(payload)
     return vid ~= nil and idKey(vid) == idKey(state.truckId)
 end
 
+-- `busy`: a crate step (bend, lift, put-down) or the unloading is in progress: no prompt then.
 exports("canLoad", function(payload)
-    return isMyTruck(payload) and state.status == "active" and (state.carrying or 0) > 0
+    return isMyTruck(payload) and state.status == "active" and not state.busy and (state.carrying or 0) > 0
 end)
 
 exports("canUnload", function(payload)
-    return isMyTruck(payload) and state.status == "active" and state.atDestination == true
+    return isMyTruck(payload) and state.status == "active" and not state.busy and state.atDestination == true
         and (state.loaded or 0) > (state.delivered or 0)
 end)
 
 exports("canReturn", function(payload)
-    return isMyTruck(payload) and state.atCamp == true and (state.carrying or 0) == 0
+    return isMyTruck(payload) and state.atCamp == true and not state.busy and (state.carrying or 0) == 0
         and (state.loaded or 0) == (state.delivered or 0)
 end)
 
@@ -132,6 +136,82 @@ local function createBoard()
     })
 end
 
+---------------------------------------------------------------------------------------------------
+-- Navigation: where to drive. Phase "destination" = cargo to deliver (pin from acceptance, GPS
+-- route once the truck is full, or from acceptance with Navigation.gpsFrom = "accepted");
+-- phase "return" = everything delivered, pin + route on the camp. Blips and the waypoint are
+-- this resource's: leaving the world or stopping the resource sweeps them, and every phase change
+-- below removes ours explicitly.
+---------------------------------------------------------------------------------------------------
+
+local function blipsApi()
+    return type(Open77.blips) == "table" and type(Open77.blips.create) == "function"
+end
+
+local function navClear()
+    if not blipsApi() then return end
+    if nav.blip then
+        Open77.blips.remove(nav.blip)
+        nav.blip = nil
+    end
+    if nav.waypoint then
+        Open77.blips.clearWaypoint()
+        nav.waypoint = false
+    end
+    nav.phase = nil
+end
+
+local function navPhase(snapshot)
+    local N = C.Navigation
+    if not N or N.enabled == false or not snapshot then return nil end
+    if snapshot.status == "delivered" then return "return" end
+    if snapshot.status ~= "active" then return nil end
+    if (snapshot.delivered or 0) < (snapshot.total or 0) then
+        local full = (snapshot.loaded or 0) >= (snapshot.total or 0)
+        if N.gpsFrom == "accepted" or full then return "destination" end
+        return "pinned"     -- pin only, no route yet
+    end
+    return nil
+end
+
+local function navApply(snapshot)
+    if not blipsApi() then return end
+    local phase = navPhase(snapshot)
+    if phase ~= nav.phase then navClear() end
+    if not phase then return end
+    local N = C.Navigation
+    local target, sprite, title, description
+    if phase == "return" then
+        target = C.Camp.position
+        sprite = N.campSprite or "quest"
+        title = "Aldecaldos camp"
+        description = "Bring the truck back inside the camp and press E on it for the deposit."
+    else
+        local dest = snapshot.destination or {}
+        target = { x = dest.x or 0.0, y = dest.y or 0.0, z = dest.z or 0.0 }
+        sprite = N.destinationSprite or "objective"
+        title = dest.label or "Convoy destination"
+        local left = (snapshot.total or 0) - (snapshot.delivered or 0)
+        description = ("Convoy: %d crate%s to deliver here. Park, get out, press E on the truck."):format(left, left == 1 and "" or "s")
+    end
+    if not nav.blip then
+        local blip, reason = Open77.blips.create({
+            position = target,
+            sprite = sprite,
+            title = title,
+            description = description,
+        })
+        if blip then nav.blip = blip else log("navigation pin refused: %s", tostring(reason)) end
+    elseif nav.phase == phase then
+        Open77.blips.setDescription(nav.blip, description)
+    end
+    if (phase == "destination" or phase == "return") and not nav.waypoint then
+        local ok, why = Open77.blips.setWaypoint(target)
+        if ok then nav.waypoint = true else log("GPS route refused: %s", tostring(why)) end
+    end
+    nav.phase = phase
+end
+
 -- Rebuild the crate POIs and the destination ring from a snapshot (or clear them).
 local function applyState(snapshot)
     state = snapshot or nil
@@ -182,6 +262,11 @@ local function applyState(snapshot)
         removePoi(destHandle)
         destHandle = nil
     end
+
+    -- Never let a blip refusal kill the snapshot worker below: a CreateThread loop that raises
+    -- is removed for the whole session.
+    local ok, err = pcall(navApply, state)
+    if not ok then log("navigation failed: %s", tostring(err)) end
 end
 
 -- One worker applies snapshots in order; the latest one wins when several arrive at once.
@@ -251,6 +336,7 @@ end)
 
 AddEventHandler("onClientResourceStop", function(name)
     if name ~= RESOURCE then return end
+    navClear()
     -- open77_worldui and open77_interactions sweep this owner's entries on stop; drop our references.
     boardHandle = nil
     crateHandles = {}
