@@ -107,6 +107,8 @@ Open77.props = Open77.props or {}
 Open77.puppets = Open77.puppets or {}
 ---@class Open77.reflex
 Open77.reflex = Open77.reflex or {}
+---@class Open77.remoteCamera
+Open77.remoteCamera = Open77.remoteCamera or {}
 ---@class Open77.resource
 Open77.resource = Open77.resource or {}
 ---@class Open77.runtime
@@ -5769,6 +5771,158 @@ function Open77.reflex.overdrive(kind, durationMs) end
 --- Reasons: permission_denied:player.reflex.overdrive, reflex_backend_unavailable
 ---@return any table table, or nil, reason
 function Open77.reflex.state() end
+
+--- Shows one source in a native HUD rectangle and returns the binding id.
+---
+--- Client-only; requires `camera.capture`. `rect` is `{x, y, width, height}` in viewport pixels -- a screen-space viewport, not a DOM element, so it does not track page layout. The returned binding id is opaque and allocated by the host for this resource generation. Multiple bindings may share one source, and capture is demanded only while at least one binding is visible; hiding the last visible binding stops the rendering without destroying the source. The id ends at `unbind()` or when the source is destroyed.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param cameraId string
+---@param rect table
+---@return any binding binding id (opaque string), or nil, reason
+function Open77.remoteCamera.bindHud(cameraId, rect) end
+
+--- This resource's bindings, optionally only those of one source.
+---
+--- Client-only; requires `camera.capture`. With no argument every binding this resource owns is listed; passing a camera id filters to that source. Owner-scoped like the rest of the namespace, so it cannot be used to read another resource's presentations. Rows are the same snapshots `getBinding()` returns.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param cameraId? string
+---@return any array array of binding snapshots
+function Open77.remoteCamera.bindings(cameraId) end
+
+--- Shows one source under a resource-owned transparent page and returns the binding id.
+---
+--- Client-only; requires `camera.capture`, and the WebUI layer keeps its own permission. `page` must belong to the calling resource; another resource's page is refused and the provider never accepts one on a caller's behalf. `rect` is `{x, y, width, height}` in viewport pixels -- the image is drawn by a native underlay behind that transparent region, and the resource still owns the page's layout. The engine's dynamic texture stays behind an Ink image: this is not an HTML video element, an image URL, a JavaScript-readable pixel stream or a transferable GPU texture, and no raw graphics pointer or unsynchronized resource lifetime crosses into Lua or JavaScript.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param cameraId string
+---@param page any
+---@param rect table
+---@return any binding binding id (opaque string), or nil, reason
+function Open77.remoteCamera.bindWebUI(cameraId, page, rect) end
+
+--- Shows one source on a depth-tested world panel and returns the binding id.
+---
+--- Client-only; requires `camera.capture`. `placement` is `{position, rotation, width, height, model, parent}` with physical dimensions in metres. `model` defaults to `surface`, a frameless display placed just in front of an existing prop; `panel` uses the stock authored housing. `worldModels()` describes the supported profiles, not installed slot availability. Unsupported models are refused rather than substituted. `parent` is `{type=..., id=...}` and makes position/rotation local to a `prop`, `localProp`, `player`, `vehicle` or `entity`; only canonical prop, player and vehicle parents are accepted over the network. Foreground geometry occludes the display. This is not material substitution, UV reuse or a texture painted onto an arbitrary mesh.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param cameraId string
+---@param placement table
+---@return any binding binding id (opaque string), or nil, reason
+function Open77.remoteCamera.bindWorld(cameraId, placement) end
+
+--- The effective admission limits and current usage, read-only.
+---
+--- Client-only; requires `camera.capture`. Reports the global and caller-scoped limits and usage, including allocations that are still retiring, so a caller can decide whether to request another source before it is refused with `camera_slots_exhausted`. There is no public setter: the budget is host/operator policy, and the provider service must not change it either.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@return any budget budget table
+function Open77.remoteCamera.budget() end
+
+--- Reports output, presentation support, admission limits and asset requirements.
+---
+--- Client-only; requires `camera.capture`. Reports the fixed output, supported presentation kinds, source and binding limits, expected slot templates, TweakDB availability and world readiness. Storage capacity is not the number of installed slot graphs; asset availability is resolved when a source or presentation is created. Read-only: admission limits are host/operator policy.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@return any capabilities capabilities table
+function Open77.remoteCamera.capabilities() end
+
+--- Queues one independent capture source and returns its opaque id.
+---
+--- Client-only; requires `camera.capture`. `view` is `{position={x,y,z}, rotation={yaw,pitch,roll}, fov, range}` in world metres and degrees: `position` is required, rotation defaults to zero, FOV to 60 (1..120) and range to 100 (1..500). The id belongs to the calling resource generation; it is neither an engine id nor a server camera id. Admission is asynchronous: `pending` does not mean active capture. Follow `open77:remoteCamera:stateChanged` or read `get()`. Failure is `nil, reason`; `camera_slots_exhausted` means the shared budget is full and `camera_record_unavailable` means the source record could not be prepared. Missing or incompatible packed assets can also fail later component configuration. Nothing renders until a visible binding demands it, and acceptance is not proof of a fresh frame.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param view table
+---@return any camera camera id (opaque string), or nil, reason
+function Open77.remoteCamera.create(view) end
+
+--- Retires a source and its bindings.
+---
+--- Client-only; requires `camera.capture`. Retirement is asynchronous: the id goes through `destroying` and ends with a terminal `removed` event, and the slot is not reusable until the native resources and bindings finish cleanup. After the terminal event the id is stale -- `get()` answers `nil, "stale_id"` -- and a caller never held the engine id, so it cannot reach the native object by mistake. Bindings are removed with the source; `unbind()` is how a caller retires one presentation and keeps the source.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param cameraId string
+---@return any true true, or false, reason
+function Open77.remoteCamera.destroy(cameraId) end
+
+--- Snapshot of one owned source: requested pose, asynchronous state and demand.
+---
+--- Client-only; requires `camera.capture`. The snapshot carries the requested pose as direct fields (`position` keyed `x`/`y`/`z`, `rotation` keyed `yaw`/`pitch`/`roll`, `fov`, `range`) plus `id`, `state`, `reason`, `width`, `height` and `captureEnabled`. States are `pending`, `active`, `failed` and `destroying`; `active` means the native object is established, not that a GPU frame is fresh and not that the remote world around the camera is complete. A terminal `removed` event invalidates the id, after which this returns `nil, "stale_id"`. Ids are opaque: no raw engine handle is exposed.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param cameraId string
+---@return any source source snapshot, or nil, reason
+function Open77.remoteCamera.get(cameraId) end
+
+--- Snapshot of one binding: source, kind, requested options, state and reason.
+---
+--- Client-only; requires `camera.capture`. The snapshot carries `id`, `cameraId`, `kind`, `state`, `reason` and `visible`, with the kind's requested options flattened onto the same row. Binding states are the source states plus `hidden` and `unavailable`; `unavailable` is not proof that the source is gone, only that this presentation cannot be materialised right now. `removed` is terminal and invalidates the id: a later call answers `nil, "stale_binding_id"`.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param bindingId string
+---@return any binding binding snapshot, or nil, reason
+function Open77.remoteCamera.getBinding(bindingId) end
+
+--- Every capture source this resource owns.
+---
+--- Client-only; requires `camera.capture`. Owner-scoped: another resource's sources are never listed, and neither are native objects the host holds for internal reasons. Rows are the same snapshots `get()` returns, including sources that are still retiring -- a retirement that has not completed keeps counting against the budget until it does.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@return any array array of source snapshots
+function Open77.remoteCamera.list() end
+
+--- Retires one presentation and keeps its source alive.
+---
+--- Client-only; requires `camera.capture`. Retirement is asynchronous: the binding enters `destroying`, then a terminal `removed` event invalidates its id. Its source and other bindings remain; rendering continues only while another binding demands it. Use `destroy()` to retire the source and all its presentations.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param bindingId string
+---@return any true true, or false, reason
+function Open77.remoteCamera.unbind(bindingId) end
+
+--- Applies a sparse pose, FOV or range patch to one owned source.
+---
+--- Client-only; requires `camera.capture`. Only the fields the caller names change, and `position`, `rotation`, `fov` and `range` are the same values and limits `create` accepts. The patch is sparse per field but not per axis: a named `position` or `rotation` replaces that value as a whole, so `{ rotation = { yaw = 90 } }` lands with pitch and roll at zero rather than keeping the previous pitch. Pass the full table whenever only one axis should differ. The logical id survives the patch, and so do its bindings. A native source may be rebuilt to apply a patch, and that happens asynchronously, so acceptance is not a smooth per-frame update and not a guarantee of a fresh GPU frame. Mutations return `true` or `false, reason`; a destroyed source answers with a stale-id refusal.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param cameraId string
+---@param patch table
+---@return any true true, or false, reason
+function Open77.remoteCamera.update(cameraId, patch) end
+
+--- Changes what a binding shows or where, without changing its identity.
+---
+--- Client-only; requires `camera.capture`. The patch is sparse and kind-appropriate: `cameraId` selects a source, `visible` sets requested visibility, rectangle fields move/size HUD and WebUI presentations, and `position`/`rotation`/`width`/`height`/`model`/`parent` update world panels. `parent = false` detaches. Position and rotation replace whole vectors: position requires all axes; omitted rotation axes become zero. Kind and WebUI page cannot change. Native changes may be asynchronous. Current limitations: switching an established HUD/WebUI source can leave the previous image mounted; world visibility gates capture demand but does not suppress the mesh's last or shared-source image.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@param bindingId string
+---@param patch table
+---@return any true true, or false, reason
+function Open77.remoteCamera.updateBinding(bindingId, patch) end
+
+--- Lists supported world-display profiles, dimensions and placement bases.
+---
+--- Client-only; requires `camera.capture`. Rows carry `id`, `defaultWidth`, `defaultHeight`, `frameless`, `sizing` and `basis`. Both built-in profiles default to 1.6 by 0.9 metres. `surface` is a frameless display with `sizing = "display_plane"` and entity-local basis right `+X`, up `+Z`, normal `-Y`, `yawOffset = 0`. `panel` uses the stock housing, `sizing = "mesh_bounds"` and authored mesh-face basis with `yawOffset = 90`; its in-plane axes are not advertised as known. Apply the selected profile's correction once. This catalogue does not scan packed assets: a supported profile may still fail creation if its slot graph is missing or incompatible.
+---
+--- Permissions: camera.capture
+--- Since: not in any published build
+---@return any array array of {id, defaultWidth, defaultHeight, frameless, sizing, basis={space, right, up, normal, yawOffset}}
+function Open77.remoteCamera.worldModels() end
 
 --- Generation number, incremented on every reload.
 ---

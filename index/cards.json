@@ -60209,5 +60209,493 @@
   "constant": false,
   "qualified": "Open77.map.setZoomLevel",
   "route_id": "Open77.map.setZoomLevel"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "bindHud",
+  "handler": "LuaRemoteCameraBindHud",
+  "summary": "Shows one source in a native HUD rectangle and returns the binding id.",
+  "description": "Client-only; requires `camera.capture`. `rect` is `{x, y, width, height}` in viewport pixels -- a screen-space viewport, not a DOM element, so it does not track page layout. The returned binding id is opaque and allocated by the host for this resource generation. Multiple bindings may share one source, and capture is demanded only while at least one binding is visible; hiding the last visible binding stops the rendering without destroying the source. The id ends at `unbind()` or when the source is destroyed.",
+  "params": [
+   {
+    "name": "cameraId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "rect",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "binding id (opaque string), or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local hud, reason = Open77.remoteCamera.bindHud(cam, {\n    x = 80, y = 100, width = 640, height = 360,\n})\nif hud then\n    -- The source keeps existing; only this presentation goes away\n    Open77.remoteCamera.updateBinding(hud, { visible = false })\nend",
+  "inferred": false,
+  "source_line": 23922,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.bindHud",
+  "route_id": "Open77.remoteCamera.bindHud"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "bindWebUI",
+  "handler": "LuaRemoteCameraBindWebUI",
+  "summary": "Shows one source under a resource-owned transparent page and returns the binding id.",
+  "description": "Client-only; requires `camera.capture`, and the WebUI layer keeps its own permission. `page` must belong to the calling resource; another resource's page is refused and the provider never accepts one on a caller's behalf. `rect` is `{x, y, width, height}` in viewport pixels -- the image is drawn by a native underlay behind that transparent region, and the resource still owns the page's layout. The engine's dynamic texture stays behind an Ink image: this is not an HTML video element, an image URL, a JavaScript-readable pixel stream or a transferable GPU texture, and no raw graphics pointer or unsynchronized resource lifetime crosses into Lua or JavaScript.",
+  "params": [
+   {
+    "name": "cameraId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "page",
+    "type": "userdata",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "rect",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "binding id (opaque string), or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local page = WebUI.create({\n    entry = \"web/monitor.html\",\n    layer = \"hud\",\n    transparent = true,\n    visible = true,\n})\nif page then\n    local underlay = Open77.remoteCamera.bindWebUI(cam, page, {\n        x = 80, y = 100, width = 640, height = 360,\n    })\n    print(underlay)\nend",
+  "inferred": false,
+  "source_line": 23924,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.bindWebUI",
+  "route_id": "Open77.remoteCamera.bindWebUI"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "bindWorld",
+  "handler": "LuaRemoteCameraBindWorld",
+  "summary": "Shows one source on a depth-tested world panel and returns the binding id.",
+  "description": "Client-only; requires `camera.capture`. `placement` is `{position, rotation, width, height, model, parent}` with physical dimensions in metres. `model` defaults to `surface`, a frameless display placed just in front of an existing prop; `panel` uses the stock authored housing. `worldModels()` describes the supported profiles, not installed slot availability. Unsupported models are refused rather than substituted. `parent` is `{type=..., id=...}` and makes position/rotation local to a `prop`, `localProp`, `player`, `vehicle` or `entity`; only canonical prop, player and vehicle parents are accepted over the network. Foreground geometry occludes the display. This is not material substitution, UV reuse or a texture painted onto an arbitrary mesh.",
+  "params": [
+   {
+    "name": "cameraId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "placement",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "binding id (opaque string), or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Frameless display standing three metres in front of the player\nlocal view = Open77.camera.view()\nif view then\n    local panel = Open77.remoteCamera.bindWorld(cam, {\n        position = { x = view.position.x + 3.0, y = view.position.y, z = view.position.z },\n        rotation = { yaw = 90, pitch = 0, roll = 0 },\n        width = 2.4,\n        height = 1.35,\n    })\n    print(panel)\nend",
+  "inferred": false,
+  "source_line": 23923,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.bindWorld",
+  "route_id": "Open77.remoteCamera.bindWorld"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "bindings",
+  "handler": "LuaRemoteCameraBindings",
+  "summary": "This resource's bindings, optionally only those of one source.",
+  "description": "Client-only; requires `camera.capture`. With no argument every binding this resource owns is listed; passing a camera id filters to that source. Owner-scoped like the rest of the namespace, so it cannot be used to read another resource's presentations. Rows are the same snapshots `getBinding()` returns.",
+  "params": [
+   {
+    "name": "cameraId",
+    "type": "string",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "array of binding snapshots"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- One source's presentations\nfor _, binding in ipairs(Open77.remoteCamera.bindings(cam) or {}) do\n    print(binding.id, binding.kind, binding.state)\nend",
+  "inferred": false,
+  "source_line": 23927,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.bindings",
+  "route_id": "Open77.remoteCamera.bindings"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "budget",
+  "handler": "LuaRemoteCameraBudget",
+  "summary": "The effective admission limits and current usage, read-only.",
+  "description": "Client-only; requires `camera.capture`. Reports the global and caller-scoped limits and usage, including allocations that are still retiring, so a caller can decide whether to request another source before it is refused with `camera_slots_exhausted`. There is no public setter: the budget is host/operator policy, and the provider service must not change it either.",
+  "params": [],
+  "returns": [
+   "budget table"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Read-only: the operator owns the ceiling, the caller only reads it\nprint(Open77.json.encode(Open77.remoteCamera.budget()))",
+  "inferred": false,
+  "source_line": 23920,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.budget",
+  "route_id": "Open77.remoteCamera.budget"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "capabilities",
+  "handler": "LuaRemoteCameraCapabilities",
+  "summary": "Reports output, presentation support, admission limits and asset requirements.",
+  "description": "Client-only; requires `camera.capture`. Reports the fixed output, supported presentation kinds, source and binding limits, expected slot templates, TweakDB availability and world readiness. Storage capacity is not the number of installed slot graphs; asset availability is resolved when a source or presentation is created. Read-only: admission limits are host/operator policy.",
+  "params": [],
+  "returns": [
+   "capabilities table"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local capabilities = Open77.remoteCamera.capabilities()\nprint(Open77.json.encode(capabilities))",
+  "inferred": false,
+  "source_line": 23919,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.capabilities",
+  "route_id": "Open77.remoteCamera.capabilities"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "create",
+  "handler": "LuaRemoteCameraCreate",
+  "summary": "Queues one independent capture source and returns its opaque id.",
+  "description": "Client-only; requires `camera.capture`. `view` is `{position={x,y,z}, rotation={yaw,pitch,roll}, fov, range}` in world metres and degrees: `position` is required, rotation defaults to zero, FOV to 60 (1..120) and range to 100 (1..500). The id belongs to the calling resource generation; it is neither an engine id nor a server camera id. Admission is asynchronous: `pending` does not mean active capture. Follow `open77:remoteCamera:stateChanged` or read `get()`. Failure is `nil, reason`; `camera_slots_exhausted` means the shared budget is full and `camera_record_unavailable` means the source record could not be prepared. Missing or incompatible packed assets can also fail later component configuration. Nothing renders until a visible binding demands it, and acceptance is not proof of a fresh frame.",
+  "params": [
+   {
+    "name": "view",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "camera id (opaque string), or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- One source in the loading bay, rendered without taking the player's view\nlocal cam, reason = Open77.remoteCamera.create({\n    position = { x = -699.094, y = 2164.29, z = 54.7051 },\n    rotation = { yaw = 135, pitch = 0, roll = 0 },\n    fov = 60,\n    range = 100,\n})\nif not cam then\n    Open77.log.warn(\"no source: \" .. tostring(reason))\nelse\n    Open77.log.info(\"source \" .. cam .. \" queued\")\nend",
+  "inferred": false,
+  "source_line": 23914,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.create",
+  "route_id": "Open77.remoteCamera.create"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "destroy",
+  "handler": "LuaRemoteCameraDestroy",
+  "summary": "Retires a source and its bindings.",
+  "description": "Client-only; requires `camera.capture`. Retirement is asynchronous: the id goes through `destroying` and ends with a terminal `removed` event, and the slot is not reusable until the native resources and bindings finish cleanup. After the terminal event the id is stale -- `get()` answers `nil, \"stale_id\"` -- and a caller never held the engine id, so it cannot reach the native object by mistake. Bindings are removed with the source; `unbind()` is how a caller retires one presentation and keeps the source.",
+  "params": [
+   {
+    "name": "cameraId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Bindings go with the source\nlocal ok, reason = Open77.remoteCamera.destroy(cam)\nif not ok then\n    Open77.log.warn(\"destroy refused: \" .. tostring(reason))\nend",
+  "inferred": false,
+  "source_line": 23918,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.destroy",
+  "route_id": "Open77.remoteCamera.destroy"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "get",
+  "handler": "LuaRemoteCameraGet",
+  "summary": "Snapshot of one owned source: requested pose, asynchronous state and demand.",
+  "description": "Client-only; requires `camera.capture`. The snapshot carries the requested pose as direct fields (`position` keyed `x`/`y`/`z`, `rotation` keyed `yaw`/`pitch`/`roll`, `fov`, `range`) plus `id`, `state`, `reason`, `width`, `height` and `captureEnabled`. States are `pending`, `active`, `failed` and `destroying`; `active` means the native object is established, not that a GPU frame is fresh and not that the remote world around the camera is complete. A terminal `removed` event invalidates the id, after which this returns `nil, \"stale_id\"`. Ids are opaque: no raw engine handle is exposed.",
+  "params": [
+   {
+    "name": "cameraId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "source snapshot, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- `pending` is queued, `active` is established -- neither is a fresh frame\nlocal source = Open77.remoteCamera.get(cam)\nif source then\n    print(source.state, source.width, source.height, source.captureEnabled)\nend",
+  "inferred": false,
+  "source_line": 23916,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.get",
+  "route_id": "Open77.remoteCamera.get"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "getBinding",
+  "handler": "LuaRemoteCameraGetBinding",
+  "summary": "Snapshot of one binding: source, kind, requested options, state and reason.",
+  "description": "Client-only; requires `camera.capture`. The snapshot carries `id`, `cameraId`, `kind`, `state`, `reason` and `visible`, with the kind's requested options flattened onto the same row. Binding states are the source states plus `hidden` and `unavailable`; `unavailable` is not proof that the source is gone, only that this presentation cannot be materialised right now. `removed` is terminal and invalidates the id: a later call answers `nil, \"stale_binding_id\"`.",
+  "params": [
+   {
+    "name": "bindingId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "binding snapshot, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local binding = Open77.remoteCamera.getBinding(panel)\nif binding then\n    print(binding.kind, binding.state, binding.visible)\nend",
+  "inferred": false,
+  "source_line": 23926,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.getBinding",
+  "route_id": "Open77.remoteCamera.getBinding"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "list",
+  "handler": "LuaRemoteCameraList",
+  "summary": "Every capture source this resource owns.",
+  "description": "Client-only; requires `camera.capture`. Owner-scoped: another resource's sources are never listed, and neither are native objects the host holds for internal reasons. Rows are the same snapshots `get()` returns, including sources that are still retiring -- a retirement that has not completed keeps counting against the budget until it does.",
+  "params": [],
+  "returns": [
+   "array of source snapshots"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Including sources still retiring\nfor _, source in ipairs(Open77.remoteCamera.list() or {}) do\n    print(source.id, source.state)\nend",
+  "inferred": false,
+  "source_line": 23917,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.list",
+  "route_id": "Open77.remoteCamera.list"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "unbind",
+  "handler": "LuaRemoteCameraUnbind",
+  "summary": "Retires one presentation and keeps its source alive.",
+  "description": "Client-only; requires `camera.capture`. Retirement is asynchronous: the binding enters `destroying`, then a terminal `removed` event invalidates its id. Its source and other bindings remain; rendering continues only while another binding demands it. Use `destroy()` to retire the source and all its presentations.",
+  "params": [
+   {
+    "name": "bindingId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Remove just this monitor; the camera keeps running\nlocal ok, reason = Open77.remoteCamera.unbind(panel)\nif not ok then\n    Open77.log.warn(\"unbind refused: \" .. tostring(reason))\nend",
+  "inferred": false,
+  "source_line": 23928,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.unbind",
+  "route_id": "Open77.remoteCamera.unbind"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "update",
+  "handler": "LuaRemoteCameraUpdate",
+  "summary": "Applies a sparse pose, FOV or range patch to one owned source.",
+  "description": "Client-only; requires `camera.capture`. Only the fields the caller names change, and `position`, `rotation`, `fov` and `range` are the same values and limits `create` accepts. The patch is sparse per field but not per axis: a named `position` or `rotation` replaces that value as a whole, so `{ rotation = { yaw = 90 } }` lands with pitch and roll at zero rather than keeping the previous pitch. Pass the full table whenever only one axis should differ. The logical id survives the patch, and so do its bindings. A native source may be rebuilt to apply a patch, and that happens asynchronously, so acceptance is not a smooth per-frame update and not a guarantee of a fresh GPU frame. Mutations return `true` or `false, reason`; a destroyed source answers with a stale-id refusal.",
+  "params": [
+   {
+    "name": "cameraId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "patch",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Sparse: the id and every binding survive the patch\nlocal ok, reason = Open77.remoteCamera.update(cam, { fov = 40, range = 60 })\nif not ok then\n    Open77.log.warn(\"update refused: \" .. tostring(reason))\nend",
+  "inferred": false,
+  "source_line": 23915,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.update",
+  "route_id": "Open77.remoteCamera.update"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "updateBinding",
+  "handler": "LuaRemoteCameraUpdateBinding",
+  "summary": "Changes what a binding shows or where, without changing its identity.",
+  "description": "Client-only; requires `camera.capture`. The patch is sparse and kind-appropriate: `cameraId` selects a source, `visible` sets requested visibility, rectangle fields move/size HUD and WebUI presentations, and `position`/`rotation`/`width`/`height`/`model`/`parent` update world panels. `parent = false` detaches. Position and rotation replace whole vectors: position requires all axes; omitted rotation axes become zero. Kind and WebUI page cannot change. Native changes may be asynchronous. Current limitations: switching an established HUD/WebUI source can leave the previous image mounted; world visibility gates capture demand but does not suppress the mesh's last or shared-source image.",
+  "params": [
+   {
+    "name": "bindingId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "patch",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Same panel, same id, new place\nlocal ok, reason = Open77.remoteCamera.updateBinding(panel, {\n    position = { x = 12.5, y = -4.0, z = 1.2 },\n    visible = true,\n})\nif not ok then\n    Open77.log.warn(\"binding refused: \" .. tostring(reason))\nend",
+  "inferred": false,
+  "source_line": 23925,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.updateBinding",
+  "route_id": "Open77.remoteCamera.updateBinding"
+ },
+ {
+  "namespace": "Open77.remoteCamera",
+  "name": "worldModels",
+  "handler": "LuaRemoteCameraWorldModels",
+  "summary": "Lists supported world-display profiles, dimensions and placement bases.",
+  "description": "Client-only; requires `camera.capture`. Rows carry `id`, `defaultWidth`, `defaultHeight`, `frameless`, `sizing` and `basis`. Both built-in profiles default to 1.6 by 0.9 metres. `surface` is a frameless display with `sizing = \"display_plane\"` and entity-local basis right `+X`, up `+Z`, normal `-Y`, `yawOffset = 0`. `panel` uses the stock housing, `sizing = \"mesh_bounds\"` and authored mesh-face basis with `yawOffset = 90`; its in-plane axes are not advertised as known. Apply the selected profile's correction once. This catalogue does not scan packed assets: a supported profile may still fail creation if its slot graph is missing or incompatible.",
+  "params": [],
+  "returns": [
+   "array of {id, defaultWidth, defaultHeight, frameless, sizing, basis={space, right, up, normal, yawOffset}}"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- `surface` is the frameless default; `panel` keeps the authored housing\nfor _, model in ipairs(Open77.remoteCamera.worldModels() or {}) do\n    print(model.id, model.defaultWidth, model.defaultHeight, model.frameless)\nend",
+  "inferred": false,
+  "source_line": 23921,
+  "permissions": [
+   "camera.capture"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.remoteCamera.worldModels",
+  "route_id": "Open77.remoteCamera.worldModels"
  }
 ]

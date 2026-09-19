@@ -183,6 +183,42 @@
    ]
   },
   {
+   "name": "camera.capture",
+   "runtimes": [
+    "client"
+   ],
+   "summary": "Enforced by the client; gates 15 natives in Open77.remoteCamera.",
+   "curated": false,
+   "natives": [
+    "Open77.remoteCamera.bindHud",
+    "Open77.remoteCamera.bindWebUI",
+    "Open77.remoteCamera.bindWorld",
+    "Open77.remoteCamera.bindings",
+    "Open77.remoteCamera.budget",
+    "Open77.remoteCamera.capabilities",
+    "Open77.remoteCamera.create",
+    "Open77.remoteCamera.destroy",
+    "Open77.remoteCamera.get",
+    "Open77.remoteCamera.getBinding",
+    "Open77.remoteCamera.list",
+    "Open77.remoteCamera.unbind",
+    "Open77.remoteCamera.update",
+    "Open77.remoteCamera.updateBinding",
+    "Open77.remoteCamera.worldModels"
+   ],
+   "guides": [],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 20760
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 20760
+    }
+   ]
+  },
+  {
    "name": "camera.preview",
    "runtimes": [
     "client"
