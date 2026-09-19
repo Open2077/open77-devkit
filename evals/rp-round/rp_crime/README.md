@@ -173,6 +173,46 @@ path. **No database** (`ready` answers `database_unavailable`, or nothing answer
 kept) and the log says `store=kvp reason=...`. Rows logged before the store answered are queued and
 flushed. Cooldowns, the wanted list, gutted crates and pending deals live in memory.
 
+## Staging: poses, props and durations (2026-09-18)
+
+Every action below plays a pose from the server's `open77_animations` catalogue
+(`Open77.animations.play`, permission `players.animations.control`), shows a curated prop
+attached to the body (`Open77.props.create` + `attach`, permission `world.props`) where one
+makes sense, and takes its time behind the UI-kit bar (X cancels; the bar keeps the player
+still on the client, the server never freezes anyone). Other players see all of it: poses
+and props are server-driven. Everything is in ``RpCrimeConfig.stage` (`shared/config.lua`)` and follows rp_nomade's carry-pose
+pattern: `pose.profiles` is a list tried in order through `Open77.animations.get` -- the
+best future name first (the 76-profile catalogue of the pending base PR), then what today's
+18-profile eval catalogue has -- and `prop.models` a list of aliases tried in order. A
+refusal (unknown profile, `player_in_vehicle`, `animation_owned`, an attach the client
+cannot bind) is logged once and never blocks the action. Hand-slot offsets are not measured
+on 2.31: if a prop sits wrong, move one axis of `offset` / `rotation` at a time.
+
+| Action | Pose today (future name) | Prop | Duration |
+|---|---|---|---|
+| `/braquer` | none: the iron stays on the vendor (a workspot would holster it) | `garbage.bag` loot bag in the left hand once the till is empty (`container.duffel` once it exists) | 20 s bar, then a 4 s gesture |
+| `/crocheter` | `examine` crouch at the lock, looped (`lockpick`) | none (`tool.lockpick` once it exists) | 12 s bar |
+| `/dealer` | the platform's `give` interaction animates both players | `crate.ammo_box` pack in the dealer's hand from the offer to the hand-over (`crime.drug_pack` once it exists) | the interaction (3 s) |
+| `/voler` | `examine` crouch at the crate, looped (`lockpick`) | none; then the parts (`crate.ammo_box`) held up 2.5 s (`give`) | 8 s bar |
+| `/receler`, E on Vik | `give` looped (`carry_putdown`) | `crate.ammo_box` in the right hand | 3 s bar |
+
+Log lines (grep `stage`, `gesture`, `hold`):
+
+```text
+[rp_crime] player 3 stage robbery: pose=none prop=none place=none 20000 ms -> ok
+[rp_crime] player 3 gesture loot: pose=none prop=garbage.bag@LeftHand 4000 ms
+[rp_crime] player 3 stage lockpick: pose=examine/kneel__rk_on_ground__01__inspect_ground__01 prop=none place=none 12000 ms -> ok
+[rp_crime] player 3 hold deal: pose=none prop=crate.ammo_box@RightHand
+[rp_crime] player 3 stage pry: pose=examine/kneel__rk_on_ground__01__inspect_ground__01 prop=none place=none 8000 ms -> ok
+[rp_crime] player 3 stage fence: pose=give/stand__2h_on_sides__01__to__stand__rh_item__01__turn0__01 prop=crate.ammo_box@RightHand place=none 3000 ms -> ok
+```
+
+`-> ok` means the bar ran to the end; `-> cancelled` the player pressed X;
+`-> failed:<reason>` the bar never showed (a plain wait kept the beat). A refused pose reads
+`stage <key>: pose <profile> refused for player N: <reason> (the action runs without it)`,
+an unknown list `stage <key>: no known profile among [...]`, a refused prop `stage
+<key>.prop: attach of <alias> to player N refused: <reason> (no prop shown)`.
+
 ## Log (grep-able)
 
 ```text

@@ -197,6 +197,40 @@ Wars, cooldowns and the buyer NPCs are in memory only: a resource stop ends ever
 [rp_gangs] war end zone=junkyard attacker=maelstrom defender=scavs score=6-4 winner=maelstrom (time)
 ```
 
+## Staging: poses, props and durations (2026-09-18)
+
+Every action below plays a pose from the server's `open77_animations` catalogue
+(`Open77.animations.play`, permission `players.animations.control`), shows a curated prop
+attached to the body (`Open77.props.create` + `attach`, permission `world.props`) where one
+makes sense, and takes its time behind the UI-kit bar (X cancels; the bar keeps the player
+still on the client, the server never freezes anyone). Other players see all of it: poses
+and props are server-driven. Everything is in ``Config.Stage` (`shared/config.lua`)` and follows rp_nomade's carry-pose
+pattern: `pose.profiles` is a list tried in order through `Open77.animations.get` -- the
+best future name first (the 76-profile catalogue of the pending base PR), then what today's
+18-profile eval catalogue has -- and `prop.models` a list of aliases tried in order. A
+refusal (unknown profile, `player_in_vehicle`, `animation_owned`, an attach the client
+cannot bind) is logged once and never blocks the action. Hand-slot offsets are not measured
+on 2.31: if a prop sits wrong, move one axis of `offset` / `rotation` at a time.
+
+| Action | Pose today (future name) | Prop | Duration |
+|---|---|---|---|
+| `/gang vendre`, E on the buyer | `give` looped (`carry_putdown`) | `crate.ammo_box` pack in the right hand (`crime.drug_pack` once it exists) | 3 s bar, then the pack moves |
+| ALT+click Rob | `examine` over the held victim, looped (`frisk`) | none | 4 s bar; the victim must still be held at the end |
+
+Log lines (grep `stage`, `gesture`, `hold`):
+
+```text
+[rp_gangs] player 3 stage deal: pose=give/stand__2h_on_sides__01__to__stand__rh_item__01__turn0__01 prop=crate.ammo_box@RightHand place=none 3000 ms -> ok
+[rp_gangs] player 3 stage rob: pose=examine/kneel__rk_on_ground__01__inspect_ground__01 prop=none place=none 4000 ms -> ok
+```
+
+`-> ok` means the bar ran to the end; `-> cancelled` the player pressed X;
+`-> failed:<reason>` the bar never showed (a plain wait kept the beat). A refused pose reads
+`stage <key>: pose <profile> refused for player N: <reason> (the action runs without it)`,
+an unknown list `stage <key>: no known profile among [...]`, a refused prop `stage
+<key>.prop: attach of <alias> to player N refused: <reason> (no prop shown)`.
+There is no `/tag` action in this resource (the `[GANG]` tag is the nameplate): nothing to stage there.
+
 ## Manifest
 
 Permissions: `network.events`, `database.access`, `world.npcs`, `world.props` (the crate beside

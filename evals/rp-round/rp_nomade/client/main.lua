@@ -174,9 +174,21 @@ local function navPhase(snapshot)
     return nil
 end
 
+local navApiWarned = false
 local function navApply(snapshot)
-    if not blipsApi() then return end
+    if not blipsApi() then
+        if not navApiWarned then
+            navApiWarned = true
+            log("navigation off: Open77.blips is not available on this client (permission ui.vanilla.map / API missing)")
+        end
+        return
+    end
     local phase = navPhase(snapshot)
+    if phase ~= nav.phase then
+        log("navigation phase %s -> %s (loaded=%s/%s delivered=%s status=%s)", tostring(nav.phase), tostring(phase),
+            tostring(snapshot and snapshot.loaded), tostring(snapshot and snapshot.total),
+            tostring(snapshot and snapshot.delivered), tostring(snapshot and snapshot.status))
+    end
     if phase ~= nav.phase then navClear() end
     if not phase then return end
     local N = C.Navigation

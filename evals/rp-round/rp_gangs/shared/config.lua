@@ -80,7 +80,7 @@ Config.buyer = {
     -- nativePrompt: the E prompt on the NPC goes through open77_interactions (a 250 ms world
     -- query on the client). Kept switchable: it was turned off on 2026-09-18 to isolate the
     -- Northside flat crash, which reproduced without it (platform loot bug, not this).
-    nativePrompt = true,
+    nativePrompt = false,
     record = "Character.cpz_maelstrom_grunt1_ranged1_lexington_wa", -- proven on 2.31; passive + silent below
     damagePolicy = 2,          -- numeric: 2 = invulnerable
     reach = 4.0,               -- server-measured distance to the buyer for a deal
@@ -119,3 +119,29 @@ Config.alertKinds = { robbery = "robbery", war = "gang_war", racket = "racket" }
 -- Chat author and colour of this resource's lines.
 Config.chatAuthor = "GANG"
 Config.chatColor = { 255, 128, 48 }
+
+-- Staging (2026-09-18 pass): a street deal and a robbery play a pose, show the goods and take
+-- their time behind a UI-kit bar, so the block sees it. Same rules as rp_mecano / rp_nomade:
+-- `pose.profiles` are open77_animations profiles tried in order through Open77.animations.get
+-- (best FUTURE name first, then what today's 18-profile eval catalogue has); `loop = true` is
+-- held for the bar and stopped by the server. Props are curated aliases (see `prop.catalog`)
+-- tried in order (future alias first), attached to a rig slot ("RightHand"); hand-slot axes
+-- are not measured on 2.31, start from zero and move one axis at a time. A workspot is
+-- cancelled when the player moves > 0.5 m; the bar keeps them still (client side).
+Config.Stage = {
+    enabled = true,
+    color = "#FF8030",
+    -- Selling to the buyer NPC: the pack held out for the bar's length, then the eddies.
+    deal = {
+        durationMs = 3000,
+        label = "Making the deal",
+        pose = { profiles = { { profile = "carry_putdown" }, { profile = "give" } }, loop = true },
+        prop = { models = { "crime.drug_pack", "crate.ammo_box" }, bone = "RightHand", offset = { x = 0.0, y = 0.0, z = 0.0 }, rotation = { x = 0.0, y = 0.0, z = 0.0 } },
+    },
+    -- Robbing a held player: the robber goes through the pockets (future `frisk`).
+    rob = {
+        durationMs = 4000,
+        label = "Turning the pockets out",
+        pose = { profiles = { { profile = "frisk" }, { profile = "examine" } }, loop = true },
+    },
+}

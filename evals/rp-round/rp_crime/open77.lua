@@ -17,6 +17,8 @@ dependency "open77_uikit >=1.0.0"
 dependency "open77_player_interactions >=1.0.0"
 dependency "open77_interactions >=0.1.0"  -- the eval server ships 0.1.0 (a >=0.2.0 pin is refused at start)
 dependency "open77_notifications"
+--   open77_props               : the client projection that draws the props attached to the hands
+dependency "open77_props >=0.1.0"
 
 -- RP resources whose exports this resource calls (always inside pcall). This manifest has
 -- no client_script, so it MAY depend on server-only resources; the dependency guarantees
@@ -35,7 +37,9 @@ permissions {
     "network.events",               -- RegisterNetEvent (chat:ready), Open77.notifications.send
     "database.access",              -- Open77.database.* (rp_crime_log)
     "world.vehicles",               -- Open77.vehicles.nearby / get / getPosition / isLockedForPlayer / setLocked / triggerHorn / getPlayerSeat
-    "world.props",                  -- Open77.props.all / get (the nomad crates, read only); create / remove (the fence's crates)
+    "world.props",                  -- Open77.props.all / get (the nomad crates, read only); create / remove (the fence's crates);
+                                    -- create / attach / remove (the loot bag, the pack and the parts shown in the hands)
+    "players.animations.control",   -- Open77.animations.play / stop (the lockpick crouch, the hand-overs; RpCrimeConfig.stage)
     "world.npcs",                   -- Open77.npcs.create / remove / speak / templates (the fence)
     "world.environment",            -- Open77.environment.getState (the fence's opening hours)
     "players.life.read",            -- Open77.players.isDead

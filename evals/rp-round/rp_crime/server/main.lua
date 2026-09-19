@@ -357,6 +357,268 @@ end)
 
 local shopCooldown = {}   -- shopId -> monotonic seconds when the shop can be hit again
 
+-- ---------------------------------------------------------------------------
+-- Staging: a pose, a prop in the hand (or at the feet) and a progress bar for
+-- every action that manipulates something, so nothing completes instantly and
+-- everybody around sees it. Pattern of rp_nomade's carry pose: profiles tried
+-- in order through Open77.animations.get, every native call inside pcall, a
+-- refusal logged once and never fatal. RP animations are workspots: the
+-- platform cancels one when the player moves more than 0.5 m, so the UI-kit bar
+-- keeps the player still (disable.move, client side); the server never freezes
+-- anyone. Everything comes from Config.Stage (shared/config.lua).
+-- ---------------------------------------------------------------------------
+
+local STAGE = RpCrimeConfig.stage or {}
+local STAGE_TAG = "[" .. GetCurrentResourceName() .. "]"
+local stageWarned = {}          -- "<what>" -> true once logged
+local stageResolved = {}        -- key -> { profile, clip } | false
+local stageActive = {}          -- playerId -> { key, playbackId, props = { ids } } while staged
+
+local function stageLog(fmt, ...)
+    print((STAGE_TAG .. " " .. fmt):format(...))
+end
+
+local function stageWarnOnce(what, fmt, ...)
+    if stageWarned[what] then return end
+    stageWarned[what] = true
+    stageLog(fmt, ...)
+end
+
+local function stageAnimationsApi()
+    return type(Open77.animations) == "table" and type(Open77.animations.play) == "function"
+end
+
+local function stagePropsApi()
+    return type(Open77.props) == "table" and type(Open77.props.attach) == "function"
+end
+
+-- First profile of `pose.profiles` the server's catalogue knows (memoised per key).
+local function stageResolvePose(key, pose)
+    if stageResolved[key] ~= nil then return stageResolved[key] or nil end
+    local found = false
+    if type(pose) == "table" and stageAnimationsApi() then
+        for _, candidate in ipairs(pose.profiles or {}) do
+            local ok, profile = pcall(Open77.animations.get, candidate.profile)
+            if ok and type(profile) == "table" then
+                local clip = candidate.clip
+                if clip then
+                    local known = false
+                    for _, name in ipairs(profile.clips or {}) do
+                        if name == clip then known = true break end
+                    end
+                    if not known then
+                        stageLog("stage %s: clip %s is not in profile %s, using %s", key, clip, candidate.profile, tostring(profile.clip))
+                        clip = nil
+                    end
+                end
+                found = { profile = candidate.profile, clip = clip or profile.clip }
+                break
+            end
+        end
+    end
+    stageResolved[key] = found
+    if not found then
+        local names = {}
+        for _, candidate in ipairs(type(pose) == "table" and pose.profiles or {}) do names[#names + 1] = tostring(candidate.profile) end
+        stageWarnOnce("pose:" .. key, "stage %s: no known profile among [%s], the action runs without a pose", key, table.concat(names, ", "))
+    end
+    return found or nil
+end
+
+local function stagePoseWord(key)
+    local r = stageResolved[key]
+    if not r then return "none" end
+    return r.profile .. "/" .. tostring(r.clip)
+end
+
+-- Start a pose on a player. A `loop` pose runs until stagePoseStop; a one-shot uses
+-- `durationMs` (the platform accepts 1 000..600 000 ms). Returns the playback id or nil.
+local function stagePoseStart(playerId, key, pose, durationMs)
+    if type(pose) ~= "table" then return nil end
+    local resolved = stageResolvePose(key, pose)
+    if not resolved then return nil end
+    local options = {}
+    if pose.loop == false then
+        options.loop = false
+        options.durationMs = math.floor(math.max(1000, math.min(600000, tonumber(durationMs) or tonumber(pose.durationMs) or 5000)))
+    else
+        options.loop = true
+    end
+    if resolved.clip then options.clip = resolved.clip end
+    local ok, playback, reason = pcall(Open77.animations.play, playerId, resolved.profile, options)
+    if ok and type(playback) == "table" and playback.playbackId then
+        return playback.playbackId
+    end
+    if not ok then reason = playback end
+    stageWarnOnce("play:" .. key .. ":" .. tostring(reason), "stage %s: pose %s refused for player %d: %s (the action runs without it)",
+        key, resolved.profile, playerId, tostring(reason))
+    return nil
+end
+
+local function stagePoseStop(playerId, playbackId)
+    if not playbackId or not stageAnimationsApi() then return end
+    local ok, stopped, why = pcall(Open77.animations.stop, playerId, playbackId)
+    if ok and not stopped and why ~= "stale_playback" then
+        stageLog("stage: pose stop refused for player %d: %s", playerId, tostring(why))
+    end
+end
+
+-- Spawn a curated prop and make it follow the player (a hand slot, or the root frame:
+-- +y where the player faces, +x their right, +z up, origin at the feet). Returns the
+-- prop id and the model, or nil.
+local function stagePropHold(playerId, key, prop)
+    if type(prop) ~= "table" or not stagePropsApi() then return nil end
+    local ok0, pos = pcall(Open77.players.position, playerId)
+    if not ok0 or type(pos) ~= "table" or type(pos.x) ~= "number" then return nil end
+    for _, model in ipairs(prop.models or {}) do
+        local okC, id, reason = pcall(Open77.props.create, {
+            model = model,
+            position = { x = pos.x, y = pos.y, z = pos.z or 0.0 },
+            yaw = 0.0,
+            bucket = pos.bucket or 0,
+        })
+        if not okC then id, reason = nil, id end
+        if id then
+            local okA, attached, why = pcall(Open77.props.attach, id, {
+                parentType = "player",
+                parentId = playerId,
+                bone = prop.bone or "",
+                offset = prop.offset or { x = 0.0, y = 0.0, z = 0.0 },
+                rotation = prop.rotation or { x = 0.0, y = 0.0, z = 0.0 },
+            })
+            if okA and attached then return id, model end
+            if not okA then why = attached end
+            pcall(Open77.props.remove, id)
+            stageWarnOnce("attach:" .. key .. ":" .. model, "stage %s: attach of %s to player %d refused: %s (no prop shown)",
+                key, model, playerId, tostring(why))
+            return nil
+        end
+        stageWarnOnce("prop:" .. key .. ":" .. model, "stage %s: prop %s refused: %s", key, model, tostring(reason))
+    end
+    return nil
+end
+
+local function stagePropDrop(propId)
+    if propId and stagePropsApi() then pcall(Open77.props.remove, propId) end
+end
+
+local function stageSlotWord(prop)
+    if type(prop) ~= "table" then return "root" end
+    return (prop.bone and prop.bone ~= "") and prop.bone or "root"
+end
+
+-- Everything a staged action put on a player is taken back.
+local function stageFinish(playerId, entry)
+    if not entry then return end
+    if stageActive[playerId] == entry then stageActive[playerId] = nil end
+    stagePoseStop(playerId, entry.playbackId)
+    entry.playbackId = nil
+    for _, id in ipairs(entry.props or {}) do stagePropDrop(id) end
+    entry.props = {}
+end
+
+-- Pose + props of `def` on a player, returned as an entry for stageFinish.
+local function stageBegin(playerId, key, def, durationMs)
+    local entry = { key = key, props = {}, words = {} }
+    stageActive[playerId] = entry
+    if STAGE.enabled == false or type(def) ~= "table" then return entry end
+    entry.playbackId = stagePoseStart(playerId, key, def.pose, durationMs)
+    if def.prop then
+        local id, model = stagePropHold(playerId, key .. ".prop", def.prop)
+        if id then
+            entry.props[#entry.props + 1] = id
+            entry.words.prop = model .. "@" .. stageSlotWord(def.prop)
+        end
+    end
+    if def.place then
+        local id, model = stagePropHold(playerId, key .. ".place", def.place)
+        if id then
+            entry.props[#entry.props + 1] = id
+            entry.words.place = model
+        end
+    end
+    return entry
+end
+
+-- The UI-kit bar (server twin). A plain wait keeps the beat when the kit is missing.
+local function stageBar(playerId, definition)
+    local promise, reason = Open77.exports.call("open77_uikit", "progress", playerId, definition)
+    if not promise then
+        if reason == "progress_active" or reason == "dialog_active" then return nil, reason end
+        stageWarnOnce("uikit:" .. tostring(reason), "stage: uikit progress unavailable (%s), plain wait instead", tostring(reason))
+        Wait(definition.duration)
+        return { ok = true, outcome = "ok", fallback = true }
+    end
+    local answer, err = promise:await()
+    if not answer then return nil, err end
+    return answer
+end
+
+-- Run a staged action on `playerId`: pose + props + bar, then everything is cleaned up.
+-- `key` names a Config.Stage entry; opts.label / opts.durationMs / opts.cancellable override
+-- it. Returns the bar's answer ({ ok, outcome }) or nil, reason when the bar never showed.
+-- Yields: capture `source` before calling.
+local function stage(playerId, key, opts)
+    opts = opts or {}
+    local def = type(STAGE[key]) == "table" and STAGE[key] or {}
+    local durationMs = math.floor(tonumber(opts.durationMs) or tonumber(def.durationMs) or 5000)
+    local entry = stageBegin(playerId, key, def, durationMs)
+    local answer, err = stageBar(playerId, {
+        label = opts.label or def.label or key,
+        duration = durationMs,
+        position = "bottom",
+        style = "bar",
+        color = def.color or STAGE.color,
+        cancellable = opts.cancellable ~= false,
+        cancelKey = "X",
+        disable = { move = true, combat = true },
+    })
+    stageFinish(playerId, entry)
+    stageLog("player %d stage %s: pose=%s prop=%s place=%s %d ms -> %s", playerId, key, stagePoseWord(key),
+        entry.words.prop or "none", entry.words.place or "none", durationMs,
+        answer and (answer.ok and "ok" or tostring(answer.outcome or "cancelled")) or ("failed:" .. tostring(err)))
+    return answer, err
+end
+
+-- A gesture without a bar (a hand-over, a wave, a sip): pose + props for `durationMs`,
+-- taken back by a timer. Never yields. Returns the entry.
+local function gesture(playerId, key, opts)
+    opts = opts or {}
+    local def = type(STAGE[key]) == "table" and STAGE[key] or {}
+    local durationMs = math.floor(tonumber(opts.durationMs) or tonumber(def.durationMs) or 3000)
+    local entry = stageBegin(playerId, key, def, durationMs)
+    SetTimeout(durationMs, function() stageFinish(playerId, entry) end)
+    stageLog("player %d gesture %s: pose=%s prop=%s %d ms", playerId, key, stagePoseWord(key), entry.words.prop or "none", durationMs)
+    return entry
+end
+
+-- A pose held until stageRelease (a cuffed suspect, a patient on the ground). Never yields.
+local function stageHold(playerId, key)
+    local def = type(STAGE[key]) == "table" and STAGE[key] or {}
+    local entry = stageBegin(playerId, key, def, nil)
+    stageLog("player %d hold %s: pose=%s prop=%s", playerId, key, stagePoseWord(key), entry.words.prop or "none")
+    return entry
+end
+
+local function stageRelease(playerId, entry)
+    stageFinish(playerId, entry or stageActive[playerId])
+end
+
+-- Disconnect: the pose died with the player, the props must not survive them.
+local function stageClear(playerId)
+    local entry = stageActive[playerId]
+    if not entry then return end
+    stageActive[playerId] = nil
+    for _, id in ipairs(entry.props or {}) do stagePropDrop(id) end
+end
+
+-- The old progress() contract on top of stage(): true | false, outcome | nil, reason.
+local function stageOutcome(answer, err)
+    if answer == nil then return nil, err end
+    if not answer.ok then return false, answer.outcome or "cancelled" end
+    return true
+end
+
 local function nearestShop(pos)
     local best, bestD
     for id, shop in pairs(Config.robbery.shops) do
@@ -415,7 +677,9 @@ RegisterCommand("braquer", function(source)
     log("robbery started shop=%s by player %d officers_on_duty=%d", shopId, source, #officers)
     say(source, ("You point your iron at %s. Keep it up while the till empties -- X bails out."):format(shop.vendor))
 
-    local ran, outcome = progress(source, "Emptying the till...", tunable("robbery.durationMs", Config.robbery.durationMs))
+    -- Staged bar without a pose: the weapon stays in the hands (Config.stage.robbery).
+    local answer, barWhy = stage(source, "robbery", { label = "Emptying the till...", durationMs = tunable("robbery.durationMs", Config.robbery.durationMs) })
+    local ran, outcome = stageOutcome(answer, barWhy)
     busy[source] = nil
     if ran == nil then
         log("robbery bar refused for player %d: %s", source, tostring(outcome))
@@ -447,6 +711,7 @@ RegisterCommand("braquer", function(source)
 
     say(source, ("%s empties the register: %d eddies in your pocket. Now run."):format(shop.vendor, amount))
     toast(source, "success", "Robbery", ("+%d eddies from %s"):format(amount, shop.label))
+    gesture(source, "loot")
 
     if #officers > 0 then
         local okR, added, rr = pcall(function()
@@ -501,7 +766,9 @@ RegisterCommand("crocheter", function(source)
 
     busy[source] = "theft"
     say(source, ("You slide the pick into the %s's lock. Keep still -- X gives up."):format(label))
-    local ran, outcome = progress(source, "Jimmying the lock...", tunable("theft.durationMs", Config.theft.durationMs))
+    -- Staged: crouched at the lock for the whole bar (Config.stage.lockpick).
+    local answer, barWhy = stage(source, "lockpick", { label = "Jimmying the lock...", durationMs = tunable("theft.durationMs", Config.theft.durationMs) })
+    local ran, outcome = stageOutcome(answer, barWhy)
     busy[source] = nil
     if ran == nil then
         log("theft bar refused for player %d: %s", source, tostring(outcome))
@@ -619,7 +886,7 @@ RegisterCommand("dealer", function(source, args)
     if not state then
         return say(source, DEAL_REASONS[reason] or ("No deal (" .. tostring(reason) .. ")."))
     end
-    pendingDeals[state.id] = { dealer = source, buyer = target, price = price }
+    pendingDeals[state.id] = { dealer = source, buyer = target, price = price, hold = stageHold(source, "deal") }
     log("deal offered dealer=%d buyer=%d price=%d interaction=%s", source, target, price, tostring(state.id))
     say(source, ("Offer made to %s: one drug pack for %d eddies. They have %d s to accept."):format(
         nameOf(target), price, math.floor(Config.deal.inviteTimeoutMs / 1000)))
@@ -633,6 +900,7 @@ AddEventHandler("onPlayerInteractionCompleted", function(state)
     local deal = pendingDeals[state.id]
     if not deal then return end
     pendingDeals[state.id] = nil
+    if deal.hold then stageRelease(deal.dealer, deal.hold); deal.hold = nil end
     local dealer = tonumber(state.actor) or deal.dealer
     local buyer = tonumber(state.target) or deal.buyer
     local item, price = Config.deal.item, deal.price
@@ -704,6 +972,7 @@ AddEventHandler("onPlayerInteractionCancelled", function(state)
     local deal = pendingDeals[state.id]
     if not deal then return end
     pendingDeals[state.id] = nil
+    if deal.hold then stageRelease(deal.dealer, deal.hold); deal.hold = nil end
     local reason = tostring(state.reason or "cancelled")
     local text = ({
         declined = "declined",
@@ -794,7 +1063,9 @@ RegisterCommand("voler", function(source)
 
     busy[source] = "crate"
     say(source, "You wedge a blade under the lid. Keep at it -- X drops it.")
-    local ran, outcome = progress(source, "Prying the crate open...", tunable("contraband.durationMs", Config.contraband.durationMs))
+    -- Staged: crouched at the crate for the whole bar (Config.stage.pry).
+    local answer, barWhy = stage(source, "pry", { label = "Prying the crate open...", durationMs = tunable("contraband.durationMs", Config.contraband.durationMs) })
+    local ran, outcome = stageOutcome(answer, barWhy)
     busy[source] = nil
     if ran == nil then
         log("crate bar refused for player %d: %s", source, tostring(outcome))
@@ -823,6 +1094,7 @@ RegisterCommand("voler", function(source)
         return say(source, "Could not pocket the parts (" .. tostring(reasonA) .. ").")
     end
     guttedCrates[propId] = true
+    gesture(source, "parts")
 
     say(source, ("You gut the crate: Stolen parts x%d in your pockets. Vik at the junkyard pays for those after dark (/receler)."):format(count))
     toast(source, "success", "Contraband", ("Stolen parts x%d"):format(count))
@@ -923,6 +1195,11 @@ local function sellToFence(playerId, via)
         fenceSpeak(Config.fence.greetingVoice)
         return say(playerId, ("%s looks you over: \"Nothing I want on you, choom. Bring parts, or a boxed implant.\""):format(Config.fence.name))
     end
+
+    -- Staged: the goods held out to Vik for the bar's length (Config.stage.fence).
+    local shown = stage(playerId, "fence", { label = "Showing the goods" })
+    if not shown or not shown.ok then return say(playerId, "You keep the goods. Vik shrugs.") end
+    if not canAct(playerId) then return end
 
     local paid, lines = 0, {}
     for _, s in ipairs(sales) do
@@ -1165,5 +1442,5 @@ end)
 
 AddEventHandler("onPlayerDisconnected", function(playerId)
     playerId = tonumber(playerId)
-    if playerId then busy[playerId] = nil end
+    if playerId then busy[playerId] = nil; stageClear(playerId) end
 end)

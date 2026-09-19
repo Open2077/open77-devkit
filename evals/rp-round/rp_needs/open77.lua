@@ -14,7 +14,12 @@ permissions {
     "players.stats.apply",  -- Open77.stats.setStaminaMax, Open77.stats.setHealth
     "players.life.read",    -- Open77.players.isDead
     "players.screenfx",     -- Open77.effects.screen / clearScreen (fatigue overlay)
+    "players.animations.control", -- Open77.animations.play / stop (the eat / drink / smoke gestures, NEEDS_STAGE)
+    "world.props",          -- Open77.props.create / attach / remove (the food shown in the hand while eating)
 }
+
+-- The client projection that draws the food in the hand (ships a client half).
+dependency "open77_props >=0.1.0"
 
 server_script "server/main.lua"
 

@@ -55,10 +55,11 @@ RpNomadeConfig.Destinations = {
     },
     afterlife_street = {
         label = "Watson, the Afterlife street",
-        -- The street outside the Afterlife ramp (probed, crosswalk); Kabuki's lanes are
-        -- pedestrian, no truck fits there (checked in game 18 Sept). Not an rp_zones zone:
-        -- planar check like the Drive-In.
-        position = { x = -1408.0, y = 960.0, z = 23.5 },
+        -- The street outside the Afterlife ramp, 20 m up from the garage lot: with the
+        -- point ON the lot ring the "Afterlife street lot" prompt beat the truck's Unload
+        -- prompt (bot run 19 Sept); here the truck's own card wins. Kabuki's lanes are
+        -- pedestrian, no truck fits there. Not an rp_zones zone: planar check.
+        position = { x = -1426.0, y = 974.0, z = 23.6 },
         radius = 25.0,
         zone = false,
     },
@@ -167,9 +168,18 @@ RpNomadeConfig.Crate = {
 -- A slot the rig does not expose hides the crate (`bone_unavailable` on the client); "" always exists.
 RpNomadeConfig.Carry = {
     mode = "attach",
-    bone = "",
-    offset = { x = 0.0, y = 0.45, z = 0.85 },
-    rotation = { x = 0.0, y = 0.0, z = 0.0 },
+    bone = "Chest",   -- base PR #39 measured: hands midpoint of the carry pose in the Chest slot frame
+    offset = { x = -0.135, y = -0.60, z = 0.008 },   -- tuned in game 2026-09-19 (crate.small, carry pose)
+    rotation = { x = 0.0, y = 90.0, z = 0.0 },       -- the crate mesh lies on its side in the Chest slot frame
+    -- What the carrier's OWN client draws while its camera is first-person (`firstPerson` of
+    -- Open77.props.attach, wiki/attachments.md). The numbers above are for the third-person rig
+    -- (F7 body, other players' proxies); on V's own rig the Chest slot sits under the camera and
+    -- the same offset puts the crate's lid over the whole screen (seen 2026-09-19). In the Chest
+    -- frame +x is up and -y forward, so this is the third-person spot 0.35 m lower and 0.15 m
+    -- further out: crate low in the view, top edge under the crosshair. A measured guess -- tune
+    -- with `carrytune <player> fpp x y z [rx ry rz]` from the console -- or `"hide"` to draw no
+    -- crate at all in first person.
+    firstPerson = { offset = { x = -0.485, y = -0.75, z = 0.008 }, rotation = { x = 0.0, y = 90.0, z = 0.0 } },
     heldItem = { record = "Items.GenericCraftingMaterial1", slot = "WeaponRight" },
     -- The carry pose: a synchronized RP animation (Open77.animations.play, permission
     -- players.animations.control) looped for as long as the crate is held and stopped on load /
@@ -186,6 +196,7 @@ RpNomadeConfig.Carry = {
     animation = {
         enabled = true,
         profiles = {
+            { profile = "carry" },      -- base PR #39: upper-body body-carry layer, locomotion kept
             { profile = "tablet2" },
             { profile = "phone", clip = "stand__2h_phone__03__shuffle__01" },
         },
@@ -202,11 +213,11 @@ RpNomadeConfig.Carry = {
     -- `examine`, 18-profile) stand in for bending to pick up and to put down, `give` (arms
     -- extend to hand an item over) stands in for lifting into / taking out of the bed.
     steps = {
-        pickup  = { profiles = { { profile = "scavenge" }, { profile = "examine" } }, ms = 2500 },
+        pickup  = { profiles = { { profile = "carry_pickup" }, { profile = "scavenge" }, { profile = "examine" } }, ms = 1400 },
         load    = { profiles = { { profile = "give" } }, ms = 2000 },
         take    = { profiles = { { profile = "give" } }, ms = 2000 },   -- out of the bed, at delivery
         carryMs = 1500,                                                -- carry loop between take and put-down
-        putdown = { profiles = { { profile = "scavenge" }, { profile = "examine" } }, ms = 2500 },
+        putdown = { profiles = { { profile = "carry_putdown" }, { profile = "scavenge" }, { profile = "examine" } }, ms = 2400 },
         -- Delivered crates stay on the ground beside the truck (a row starting `groundGap` m away
         -- from the truck on the player's side) for `groundTtlMs`, or until the run ends.
         groundTtlMs = 30000,

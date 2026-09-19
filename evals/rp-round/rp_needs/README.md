@@ -1,6 +1,6 @@
 # rp_needs
 
-Hunger, thirst and fatigue for a Night City RP server. Server-only resource
+Hunger, thirst and fatigue for a Night City RP server. The three values are **satiety** levels (100 = full, 0 = starving / parched / exhausted); the HUD labels them Food / Water / Energy. Below 0 food or water the body loses 1 HP every 10 s down to 10 HP until the player eats or drinks (`/needs`, the kiosks, `/setneeds` for admins). Server-only resource
 (no client script): the server owns the three values, persists them, applies
 the effects and pushes warnings to the player's biomonitor.
 
@@ -95,6 +95,42 @@ load or save that took that path. A server without any database logs
 [rp_needs] database not ready (database_connecting) -- using KVP fallback to load <identifier>
 [rp_needs] schema ready (rp_needs_state)
 ```
+
+## Staging: poses, props and durations (2026-09-18)
+
+Every action below plays a pose from the server's `open77_animations` catalogue
+(`Open77.animations.play`, permission `players.animations.control`), shows a curated prop
+attached to the body (`Open77.props.create` + `attach`, permission `world.props`) where one
+makes sense, and takes its time behind the UI-kit bar (X cancels; the bar keeps the player
+still on the client, the server never freezes anyone). Other players see all of it: poses
+and props are server-driven. Everything is in ``NEEDS_STAGE` and the `stage` field of `CONSUMABLES` in `server/main.lua` (this resource has no shared config)` and follows rp_nomade's carry-pose
+pattern: `pose.profiles` is a list tried in order through `Open77.animations.get` -- the
+best future name first (the 76-profile catalogue of the pending base PR), then what today's
+18-profile eval catalogue has -- and `prop.models` a list of aliases tried in order. A
+refusal (unknown profile, `player_in_vehicle`, `animation_owned`, an attach the client
+cannot bind) is logged once and never blocks the action. Hand-slot offsets are not measured
+on 2.31: if a prop sits wrong, move one axis of `offset` / `rotation` at a time.
+
+| Action | Pose today (future name) | Prop | Duration |
+|---|---|---|---|
+| water, NiCola | `drink` one-shot (`bottle` once it exists) | the profile's own can | 4 s, after rp_inventory's 3 s "Using" bar |
+| burrito | `think` one-shot, hand to the face (`takeout` once it exists -- it ships its own box, drop the `eat.prop` line then) | `food.street_food` in the right hand | 4 s |
+| cigarettes | `smoke` one-shot | the profile's own cigarette | 6 s |
+| synthcoke | `think` one-shot (`rubhands`) | none | 3 s |
+
+Log lines (grep `stage`, `gesture`, `hold`):
+
+```text
+[rp_needs] player 3 gesture drink: pose=drink/stand__rh_can__01__drink__01 prop=none 4000 ms
+[rp_needs] player 3 gesture eat: pose=think/stand__rh_on_chin__01__rub_chin__01 prop=food.street_food@RightHand 4000 ms
+[rp_needs] player 3 gesture smoke: pose=smoke/stand__rh_cigarette__01__smoke__01 prop=none 6000 ms
+```
+
+`-> ok` means the bar ran to the end; `-> cancelled` the player pressed X;
+`-> failed:<reason>` the bar never showed (a plain wait kept the beat). A refused pose reads
+`stage <key>: pose <profile> refused for player N: <reason> (the action runs without it)`,
+an unknown list `stage <key>: no known profile among [...]`, a refused prop `stage
+<key>.prop: attach of <alias> to player N refused: <reason> (no prop shown)`.
 
 ## Permissions
 

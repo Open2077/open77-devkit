@@ -463,3 +463,24 @@ bridge command and fixes a weak-ref leak in `world.nearby` (`ScopedParts`). Not 
 yet. RP side: `northside_container` became the No-Tell Motel room Venus (Kabuki); the flags are
 back to `true`. Lesson for the eval method: keep a config switch on every client-side world
 target so a crash can be bisected without a redeploy.
+
+## 2026-09-19 night: the convoy run proven by the bot on main, two platform defects isolated by A/B
+
+Stack = base `main` c77df814 (PR #30–#43). The nomad convoy was replayed entirely by the bot
+(console `aplay`/`vwarp`, chat box typing, E prompts): carry layer active while walking 19 m
+(`anim=idle_bodycarry_sync_upperbody`, `workspot=no`), crate in the truck bed, GPS route on the
+minimap, unload on the ground, pay, refund. Host telemetry after PR #41/#43: 0 `watcher pass cost`,
+server host 260–300 µs/frame (was 13 468), 77–84 Hz.
+
+Platform findings by in-game A/B (the only way they could be seen — every offline check was green):
+- The 26-clip layer bank (`cyberm_carry_{ma,wa}.anims`, PR #40) does not play in the engine: with
+  it installed, NO layer profile renders (not even `carry`); with the original 2-clip bank, `carry`
+  renders. The Mirror archive carrying the 26-clip bank had always been shadowed by
+  `Open77.archive` (alphabetical load order, first wins), so the bank was never exercised before.
+- `Open77.world.nearby(80, "puppet")` costs ~41 ms per call natively (`[open77_interactions] cost
+  30s: … resolve 41457/49771 (scan 41185/…)`), i.e. one `globalNpc` target = 80 ms/s and 50 ms
+  stalls; the Lua side of the resource is now 15 µs/frame without it.
+Method notes: `build-assets.ps1` needs the vanilla workspots extracted once per worktree
+(`cp77tools unbundle … --regex 'base.workspots.common.*\.workspot$'`), otherwise it fails after the
+20-minute prop conversion; the `open77_chat` MCP tool sends chat, not commands — type `/…` through
+the chat box (T, `type-text.ps1` from PowerShell; Git Bash mangles `/service` into a path).

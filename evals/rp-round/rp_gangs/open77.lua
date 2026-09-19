@@ -14,6 +14,8 @@ auto_start true
 dependency "open77_contextmenu"
 dependency "open77_interactions"
 dependency "open77_notifications"
+--   open77_props         : the client projection that draws the pack in the seller's hand
+dependency "open77_props >=0.1.0"
 
 -- rp_zones, rp_jobs, rp_inventory, rp_economy, rp_ncpd, rp_housing, rp_identity,
 -- rp_fixer and open77_rp_basics are server-only (or not guaranteed to run): they are
@@ -24,8 +26,9 @@ permissions {
     "network.events",           -- RegisterNetEvent / TriggerClientEvent / Open77.notifications.send (server), RegisterNetEvent / TriggerServerEvent (client)
     "database.access",          -- Open77.database.* (rp_gangs_members, rp_gangs_influence)
     "world.npcs",               -- Open77.npcs.create / remove / get / tasks.hold (the buyer NPC per territory)
-    "world.props",              -- Open77.props.create / remove (the crate beside every buyer)
+    "world.props",              -- Open77.props.create / remove (the crate beside every buyer); create / attach / remove (the pack in the seller's hand)
     "players.animations.read",  -- Open77.animations.current (hands-up check before a robbery)
+    "players.animations.control", -- Open77.animations.play / stop (the deal hand-over and the frisk poses; Config.Stage)
     "ui.nameplates",            -- Open77.nameplates.set / remove / clear (client): the [GANG] tag over a member's body
 }
 

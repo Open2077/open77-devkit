@@ -77,7 +77,7 @@ RpCrimeConfig = {
         -- nativePrompt: the E prompt on the NPC goes through open77_interactions (a 250 ms world
         -- query on the client). Kept switchable: it was turned off on 2026-09-18 to isolate the
         -- Northside flat crash, which reproduced without it (platform loot bug, not this).
-        nativePrompt = true,
+        nativePrompt = false,
         -- Inside the rp_zones `junkyard` zone (centre 1374.9, -1674.9, 49.3 r 90, AMM point):
         -- Vik stands between the wrecks, 9 m north-east of the centre.
         position = { x = 1381.0, y = -1668.0, z = 49.4 },
@@ -117,6 +117,63 @@ RpCrimeConfig = {
     -- Items declared in rp_inventory through exports.rp_inventory:define.
     items = {
         stolen_parts = { label = "Stolen parts", weight = 2.0, usable = false, illegal = true },
+    },
+
+    -- Staging (2026-09-18 pass): every crime that manipulates something plays a pose, shows
+    -- a prop and takes its time behind the UI-kit bar, so witnesses see it. Same rules as
+    -- rp_mecano / rp_nomade: `pose.profiles` are open77_animations profiles tried in order
+    -- through Open77.animations.get (best FUTURE name first -- a base PR is adding a lockpick
+    -- profile -- then what today's 18-profile eval catalogue has); `loop = true` is held for
+    -- the bar and stopped by the server, `loop = false` is a one-shot of `durationMs`. Props
+    -- are curated aliases (see `prop.catalog`) tried in order (future alias first), attached
+    -- to a rig slot ("RightHand", "LeftHand") or to the body root (`bone = ""`); hand-slot
+    -- axes are not measured on 2.31, start from zero and move one axis at a time. A workspot
+    -- is cancelled when the player moves > 0.5 m; the bar keeps them still (client side).
+    stage = {
+        enabled = true,
+        color = "#FF6040",
+        -- /braquer: the robber keeps the iron on the vendor, so NO pose (a workspot would
+        -- take the weapon out of the hands); the loot bag appears in the left hand once the
+        -- till is empty (one-shot, no bar).
+        robbery = {
+            durationMs = 20000,
+            label = "Emptying the till...",
+        },
+        loot = {
+            durationMs = 4000,
+            prop = { models = { "container.duffel", "garbage.bag" }, bone = "LeftHand", offset = { x = 0.0, y = 0.0, z = 0.0 }, rotation = { x = 0.0, y = 0.0, z = 0.0 } },
+        },
+        -- /crocheter: crouched at the door lock for the whole bar (future `lockpick`; the pick
+        -- itself is too small for a prop until a `tool.lockpick` alias exists).
+        lockpick = {
+            durationMs = 12000,
+            label = "Jimmying the lock...",
+            pose = { profiles = { { profile = "lockpick" }, { profile = "examine" } }, loop = true },
+        },
+        -- /dealer: the platform's `give` interaction animates both players; this only puts the
+        -- pack in the dealer's hand from the offer to the hand-over (prop only).
+        deal = {
+            prop = { models = { "crime.drug_pack", "crate.ammo_box" }, bone = "RightHand", offset = { x = 0.0, y = 0.0, z = 0.0 }, rotation = { x = 0.0, y = 0.0, z = 0.0 } },
+        },
+        -- /voler: crouched at the crate, blade under the lid, for the whole bar; then the parts
+        -- held up for a moment.
+        pry = {
+            durationMs = 8000,
+            label = "Prying the crate open...",
+            pose = { profiles = { { profile = "lockpick" }, { profile = "examine" } }, loop = true },
+        },
+        parts = {
+            durationMs = 2500,
+            pose = { profiles = { { profile = "give" } }, loop = false },
+            prop = { models = { "debris.scrap", "crate.ammo_box" }, bone = "RightHand", offset = { x = 0.0, y = 0.0, z = 0.0 }, rotation = { x = 0.0, y = 0.0, z = 0.0 } },
+        },
+        -- /receler: the goods held out to Vik behind a short bar.
+        fence = {
+            durationMs = 3000,
+            label = "Showing the goods",
+            pose = { profiles = { { profile = "carry_putdown" }, { profile = "give" } }, loop = true },
+            prop = { models = { "debris.scrap", "crate.ammo_box" }, bone = "RightHand", offset = { x = 0.0, y = 0.0, z = 0.0 }, rotation = { x = 0.0, y = 0.0, z = 0.0 } },
+        },
     },
 
     -- Persistence.

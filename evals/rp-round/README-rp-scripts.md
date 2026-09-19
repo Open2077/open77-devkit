@@ -298,6 +298,70 @@ jeu). Conséquences RP : `northside_container` est devenu la chambre Venus du No
 `nativePrompt(s)` dans les configs (remis à `true` une fois la piste écartée) ; éviter tout
 intérieur avec du décor lootable jusqu'au correctif base.
 
+### Passe « animations, props, durées » du 18 septembre au soir
+
+Verdict du owner en test : « pas d'anim, on ne voit pas l'objet dans les mains », les actions
+métier étaient instantanées. Depuis, **toute action qui manipule quelque chose joue une pose du
+catalogue `open77_animations` du serveur, montre un prop attaché au corps quand ça a un sens, et
+dure derrière la barre UI kit** (X annule ; la barre immobilise côté client, le serveur ne gèle
+jamais). Tout est piloté serveur (`Open77.animations.play/stop`, `Open77.props.create/attach/
+remove`), donc visible par les autres joueurs. Le motif est celui de la pose de portage de
+`rp_nomade` : dans chaque `shared/config.lua` un bloc `Stage` (`RpCrimeConfig.stage`,
+`RpPhoneConfig.anim` pour le téléphone ; `SHOP_STAGE` / `NEEDS_STAGE` / `MEDIC_STAGE` en tête du
+`server/main.lua` des trois ressources sans config partagée) avec, par action, une **liste de
+profils essayés dans l'ordre** via `Open77.animations.get` (le nom du futur catalogue à 76
+profils de la PR base d'abord — `repair`, `scavenge`, `laptop`, `bottle`, `takeout`, `call`,
+`handsback`, `carry_pickup`… — puis ce que le catalogue d'eval à 18 profils a aujourd'hui :
+`examine`, `give`, `phone`, `drink`, `handsup`, `wounded`, `think`, `smoke`), une liste d'alias de
+props (`tool.welder`, `container.gas_can`, `food.bourbon`, `medical.device`, `crate.ammo_box`,
+`military.case`, `electronics.monitor`, `garbage.bag`…) avec `bone` / `offset` / `rotation`, et
+une durée. Un refus (profil inconnu, `player_in_vehicle`, `animation_owned`, attache refusée) est
+loggé une fois et ne bloque jamais l'action. Dix-huit ressources touchées (`rp_mecano`,
+`rp_ferrailleur`, `rp_bar`, `rp_ripperdoc`, `rp_medic`, `rp_trauma`, `rp_ncpd`, `rp_netrunner`,
+`rp_crime`, `rp_gangs`, `rp_fixer`, `rp_delamain`, `rp_shops`, `rp_shop`, `rp_bank`, `rp_needs`,
+`rp_housing`, `rp_phone`), chacune validée (`open77_validate` + `--lint`) et documentée dans son
+README, section « Staging » (table action → pose → prop → durée, et les lignes de log
+`stage` / `gesture` / `hold` à attendre). Non vérifié sans le jeu : le rendu des attaches de main
+(axes des slots non mesurés sur 2.31, partir de zéro et bouger un axe à la fois), la pose
+`wounded` sur un corps gelé (rp_trauma), la pose `handsup` sur un suspect déjà tenu par le kit
+(`animation_owned` attendu et inoffensif), et le doublon de prop quand les profils futurs qui
+livrent leur propre objet (`laptop`, `takeout`, `repair`) arriveront — retirer alors la ligne
+`prop` concernée.
+
+### Nuit du 19 septembre : preuve bot du convoi nomade, couches d'animation, saccades
+
+Pile déployée = base `main` c77df814 (PR #30–#43 fusionnées : budget script, pile Lua, loot,
+couches d'animation `carry`/gestes, stutter du hôte de ressources, coût de `open77_interactions`,
+port en première personne, `firstPerson` sur `props.attach`), serveur + client + archives.
+Rejoué **par le bot** (`open77_client_launch` + console) : `/service`, `/convoi` → plateau →
+contrat « CHOOH2 barrels » → E caisse (clip `carry_pickup`, caisse à plat dans les mains) →
+19 m à pied avec la caisse (`anim=idle_bodycarry_sync_upperbody`, `workspot=no` pendant la
+marche) → E camion (caisse visible dans le plateau, slot 1 puis 2) → route GPS sur la minimap
+(phase `destination`, puis `return` avec « 9.4 km ») → E *Unload* (caisses posées au sol une par
+une) → +300 €$, +45 société → E *Return the truck* → caution remboursée, contrat #13 clos.
+Journal serveur : `picked up crate 1/2 … attached:Chest pose=carry`, `loaded crate … bed slot 1,
+attached to truck`, `delivered crate 1/2 (putdown 2400ms, on the ground …)`, `returned the truck,
+deposit refunded`.
+
+Trouvé et corrigé au passage : (1) le point de livraison « Afterlife street » était SUR l'anneau
+du garage → le prompt du garage volait le E du camion ; déplacé 20 m plus haut (`-1426, 974`).
+(2) La perte de PV « mystérieuse » de la soirée = `rp_needs` : nourriture/eau à 0 après des
+heures en ligne → 1 PV / 10 s jusqu'à 10 ; le HUD affichait « HUNGER 0 % », lu comme « pas
+faim » → étiquettes **Food / Water / Energy** (satiété). (3) Console lab `aplay <pid> <profil>`,
+`astop`, `vwarp <véhicule> x y z` dans `rp_worldprobe`, et il journalise chaque changement
+d'état d'animation.
+
+Côté plateforme, mesuré : plus aucun `watcher pass cost` (0 en 30 min), hôte serveur 260–300
+µs/frame (pics 1,2 ms) contre 13 468 µs avant, 77–84 Hz ; `open77_interactions` 15–19 µs/frame
+sans cible monde. **Encore ouvert** : (a) la requête monde native (`Open77.world.nearby`, 80 m,
+« puppet ») coûte 41 ms par appel → les prompts fence / acheteur de gang restent sur
+`nativePrompt = false` tant que base ne l'a pas réduite ; (b) la banque 26 clips des gestes
+(`smoke_walk`, `point`…) n'est pas chargée par le moteur (A/B : avec elle, aucune couche ne
+joue ; avec la banque 2 clips, `carry` joue) → l'archive installée garde la banque 2 clips, les
+gestes attendent le correctif de base ; (c) l'épingle/route GPS de la phase `destination` n'a été
+vue que sur la minimap en phase `return` (à confirmer sur la carte Open77) ; (d) la première
+personne (bras + `firstPerson` de la caisse) n'a pas été regardée par le bot.
+
 ## Carte de Night City
 
 Toutes les positions en mètres monde, relevées le 18 septembre (points marchés à pied par le bot,
