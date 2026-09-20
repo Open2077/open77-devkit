@@ -34,8 +34,13 @@ test("MCP distinguishes walking RP actions, native items and discovery-only clip
     assert.match(contact, /invalid_item_contact/);
     assert.match(contact, /not fields of the animation playback snapshot/);
     assert.match(contact, /visual validation is incomplete/);
+    assert.match(contact, /authored local up direction/);
+    assert.match(contact, /Smoking\s+items use the end nearest the mouth/);
+    assert.match(contact, /first-person holding pose still keeps the item visible/);
     const request = await ask("open77_api", { name: "client:Open77.animations.request" });
     assert.match(request, /itemContact is server-only, including false/);
+    const legacy = await ask("open77_api", { name: "Open77.animations.play", runtime: "client" });
+    assert.doesNotMatch(legacy, /itemContact/, "legacy play(entity, rawClip) has no RP item options");
     const attach = await ask("open77_api", { name: "server:Open77.props.attach" });
     assert.match(attach, /contact_requires_item/);
     const chain = await ask("open77_guide", { slug: "rp-animations#hold-drink-then-hold-again" });

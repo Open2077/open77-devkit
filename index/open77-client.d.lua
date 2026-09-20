@@ -1285,7 +1285,7 @@ function Open77.animations.list(query) end
 
 --- Plays a named animation on a body.
 ---
---- Does not work on the local player: their body cannot hold a workspot. Use `Open77.animations.playSelf` for that, which stands a double in for them. itemContact is server-only, including false; client requests return item_requires_server. See [item size and mouth contact](/docs/rp-animations#item-size-and-mouth-contact) for the experimental server adapter.
+--- Does not work on the local player: their body cannot hold a workspot. Use `Open77.animations.playSelf` for that, which stands a double in for them.
 ---
 --- Since: 2.31.0+op77.3
 --- Reasons: animations_unavailable_on_this_host, invalid_entity_id
