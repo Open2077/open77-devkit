@@ -1383,9 +1383,9 @@ function PlayEntitySound(target, soundEvent, unique, targetKind, duration, actio
 ---@return any a a table with `state` and `source`
 function Player(playerId) end
 
---- `boolean, reason?` — a full-screen post-process on ONE player.
+--- `boolean, reason?` â€” a full-screen post-process on ONE player.
 ---
---- `boolean, reason?` — a full-screen post-process on ONE player. Not replicated; permission `players.screenfx`. `name` false clears. See [Screen effects](effects.md#screen-effects).
+--- `boolean, reason?` â€” a full-screen post-process on ONE player. Not replicated; permission `players.screenfx`. `name` false clears. See [Screen effects](effects.md#screen-effects).
 ---
 --- Permissions: players.screenfx
 --- Since: 2.31.13+op77.67
@@ -1903,7 +1903,7 @@ function SetPlayerMaxStamina(playerId, maximum) end
 
 --- Select a server-owned NPC body for a connected player.
 ---
---- Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0–86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+--- Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0â€“86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.control
 --- Since: not in any published build
@@ -2797,6 +2797,7 @@ function Open77.animations.clips(query) end
 ---
 --- Requires players.animations.read. Returns the active state synchronously, or nil without an error when inactive. Fields include epoch, revision, playerId, playbackId, active, bucket, steps, loop, startedAtMs, serverTimeMs, cycle, step, elapsedMs and remainingMs. Timestamps are monotonic server time and step/cycle indices are zero-based. clientRequestId is internal correlation, not a cancellation token. State proves scheduling, not that a native clip rendered. Unlike client current(entity), this does not return a raw clip name. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
+--- Permissions: players.animations.read
 --- Since: 2.31.13+op77.48
 --- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
@@ -2817,7 +2818,7 @@ function Open77.animations.get(profileId) end
 
 --- Search the authoritative RP profile catalogue.
 ---
---- No capability is required. Returns profile definitions synchronously, not a Promise. Search is a case-insensitive substring across ID, label and category; the maximum query length is 128 characters. Empty search returns all 15 profiles and no match returns an empty array. Definitions include clip variants and rig metadata, which must not be mistaken for proof of native rendering. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
+--- Returns all supported profiles when the query is empty, or a case-insensitive substring match across ID, label and category (up to 128 characters). Definitions include kind, clip variants and rig metadata. Choose a kind=layer profile such as drink_walk to preserve locomotion; catalogue membership does not prove native rendering. No capability is required; returns definitions synchronously. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
 --- Since: 2.31.13+op77.48
 --- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
@@ -2828,8 +2829,9 @@ function Open77.animations.list(query) end
 
 --- Start a server-owned, synchronized RP action on a player.
 ---
---- Requires players.animations.control. The player must be ready, alive, on foot and have a known position. The calling resource VM generation owns the action; another resource cannot replace it. Options are clip, durationMs and loop only. loop defaults to true; omitted/zero duration is indefinite when looping. With loop=false the default is 5000 ms. Nonzero durations are integers from 1000 to 600000 ms; variants must belong to the profile. Returns authoritative acceptance, not proof of native mounting. The local view temporarily uses third person. Unlike the legacy client play(entity, rawClip), this method replicates a curated profile. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
+--- Requires players.animations.control. The calling resource generation owns the action; another resource cannot replace it. The player must be ready, alive, on foot and have a known position. Returns authoritative acceptance and playbackId, not proof of native presentation. Options are clip, durationMs, loop and item. The clip must belong to the selected profile. loop defaults to true. Looping profiles may use omitted/zero duration for indefinite playback; once profiles and loop=false use the measured clip duration when available, otherwise 5000 ms. Explicit nonzero durations must be integers from 1000 to 600000 ms. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
+--- Permissions: players.animations.control
 --- Since: 2.31.13+op77.48
 --- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
@@ -2843,6 +2845,7 @@ function Open77.animations.play(playerId, profileId, options) end
 ---
 --- Requires `players.animations.control`. Moves a player to an anchor, waits for placement, then starts a profile such as `chair`, `lean` or `lie`. Any catalogue profile accepts a pose. `position` is `{x, y, z}` or a three-element array; `yaw` is degrees about Z and defaults to 0. Options match `play`: `clip`, `durationMs`, `loop`. Anchors must be within 5 m; use `Open77.players.teleport` for longer moves. Returns accepted playback state with `anchor`; use `playbackId` with `stopAt`. The caller receives acceptance before clients receive the posture; playback timing starts on arrival. A 5-second anchor watchdog ends an unsuccessful placement with `anchor_unreached`. Observe `onPlayerAnimationChanged`; admission is not proof of rendered animation. Additional errors: `invalid_anchor`, `anchor_too_far`, `anchor_move_refused` (unready, dead or in a vehicle). Provided by the server runtime, without a resource-export dependency.
 ---
+--- Permissions: players.animations.control
 --- Since: 2.31.13+op77.73
 --- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
@@ -2856,8 +2859,9 @@ function Open77.animations.playAt(playerId, profileId, position, yaw, options) e
 
 --- Start a synchronized RP action on a player, addressed by clip name.
 ---
---- Requires players.animations.control and the same readiness, ownership and duration rules as play(); only the addressing differs. The owning profile is resolved from the generated catalogue, so the caller names the animation rather than the action that carries it. This is the closest honest analogue of FiveM's TaskPlayAnim. It is not 'play any clip': Cyberpunk plays a named clip only through a workspot bound into a device entity at asset-build time, so the addressable set is the 70 clips of the twelve shipped devices. A name outside it -- including a name from the 23,044-entry discovery inventory -- is refused with unknown_clip rather than started and ignored by the engine. Options are durationMs and loop only. blendIn, blendOut, upperBody, holdLastFrame, flags, dict and playbackRate are refused by name as unsupported_option:<key>, because an author porting a TaskPlayAnim call has to be able to see which concept is missing rather than assume a bad value. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
+--- Requires players.animations.control. Resolves an exact clip through the shipped profile catalogue; a missing clip returns unknown_clip. Discovery inventories are not allowlists. A clip shared with a workspot resolves to the stationary profile: use play/request with a layer profile ID to select walking behavior. Options are durationMs, loop and item; the clip is the argument. Unsupported upperBody, blendIn, blendOut, blendMs, holdLastFrame, flags, dict and playbackRate options return unsupported_option:<key>; upperBody does not convert arbitrary clips. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
+--- Permissions: players.animations.control
 --- Since: 2.31.13+op77.67
 --- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
@@ -2869,8 +2873,9 @@ function Open77.animations.playClip(playerId, clip, options) end
 
 --- Schedule a server-owned sequence of RP profiles for a player.
 ---
---- Requires players.animations.control and the same readiness and ownership checks as play(). Accepts 1–16 steps with profile, optional clip and durationMs. Each step defaults to 5000 ms and must last at least 1000 ms; the total cannot exceed 600000 ms. The only sequence option is loop, default false. Durations schedule server transitions and are not measured native clip lengths. Profile switches require workspot exit/re-entry and may not blend seamlessly. Server resource stop, player death, vehicle entry, movement or bucket changes cancel the action. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
+--- Requires players.animations.control and the same ownership/readiness checks as play(). Accepts 1–16 steps with profile, optional clip, durationMs and item. Each omitted duration uses the measured clip cycle when available, otherwise 5000 ms; steps must last 1000–600000 ms and the total cannot exceed 600000 ms. The sequence option loop defaults to false. A hold_item_walk → drink_walk → hold_item_walk chain preserves the prop ID while the item record stays the same. Each new play call gets a new playbackId; a sequence coordinates one player. Workspot transitions may require asynchronous exit/re-entry. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
+--- Permissions: players.animations.control
 --- Since: 2.31.13+op77.48
 --- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
@@ -2884,6 +2889,7 @@ function Open77.animations.sequence(playerId, steps, options) end
 ---
 --- Requires players.animations.control. Omitting playbackId stops the current action owned by this VM generation; an action owned by another resource is refused. Pass the recorded ID in delayed callbacks so an old timer cannot stop a newer action: stale IDs return stale_playback. Stopping an already inactive player succeeds. The authoritative onPlayerAnimationChanged event carries the player ID string and JSON state string; native detachment may finish asynchronously on clients. This is not the client-local stop(entity) method. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
+--- Permissions: players.animations.control
 --- Since: 2.31.13+op77.48
 --- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playerId integer
@@ -2896,6 +2902,7 @@ function Open77.animations.stop(playerId, playbackId) end
 ---
 --- Requires players.animations.control. Takes the playbackId that playAt (or play) returned and ends that action, tearing down its workspot device on every client; nothing else needs remembering, in particular not which player it belonged to. Refuses with animation_owned when another resource VM started it and invalid_playback for an empty or oversized handle. A handle whose action already ended succeeds, exactly as stop does on an idle player: once the entry is gone, 'already finished' and 'never existed' are the same answer, and the caller's intent -- nothing running under this handle -- holds either way. Resource stop, restart and disposal tear placed actions down without this call, as they do every other action the VM owns. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.
 ---
+--- Permissions: players.animations.control
 --- Since: 2.31.13+op77.73
 --- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, request_too_large, resource_stopping
 ---@param playbackId string
@@ -3473,7 +3480,7 @@ function Open77.cyberware.install(playerId, definition, grade, options) end
 
 --- Stage a temporary implant without overwriting paid state.
 ---
---- Requires players.cyberware.temporary. options.durationMs is1000..300000, default300000. Requires a ready bound character and registered definition/grade. pending→active only after native acknowledgement. Wait for the matching onCyberwareLeaseChanged state before admitting PvP. Owner stop, body/bucket change, expiry or disconnect releases the overlay; native restoration remains asynchronous.
+--- Requires players.cyberware.temporary. options.durationMs is1000..300000, default300000. Requires a ready bound character and registered definition/grade. pendingâ†’active only after native acknowledgement. Wait for the matching onCyberwareLeaseChanged state before admitting PvP. Owner stop, body/bucket change, expiry or disconnect releases the overlay; native restoration remains asynchronous.
 ---
 --- Since: 2.31.13+op77.63
 --- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, player_unavailable, request_too_large, resource_stopping
@@ -4108,7 +4115,7 @@ function Open77.environment.clearBucket(bucket) end
 
 --- The canonical clock and weather state, right now.
 ---
---- Requires `world.environment`. Carries `scope` and `bucket`, the clock as both `secondsOfDay` and `hour`/`minute`/`second`, `rate`, `frozen`/`timeFrozen`, `weather`/`weatherPreset`/`weatherPriority`, `transitionSeconds` and `weatherTransitionRemainingMs`, `weatherFrozen`/`randomWeather`/`nextWeatherInMs`, the `revision`/`weatherRevision`/`authorityEpoch` triple clients use to reject a stale snapshot, and `buckets` — every routing bucket currently holding an override. It is the same table every setter returns and the same payload `onEnvironmentChanged` carries.
+--- Requires `world.environment`. Carries `scope` and `bucket`, the clock as both `secondsOfDay` and `hour`/`minute`/`second`, `rate`, `frozen`/`timeFrozen`, `weather`/`weatherPreset`/`weatherPriority`, `transitionSeconds` and `weatherTransitionRemainingMs`, `weatherFrozen`/`randomWeather`/`nextWeatherInMs`, the `revision`/`weatherRevision`/`authorityEpoch` triple clients use to reject a stale snapshot, and `buckets` â€” every routing bucket currently holding an override. It is the same table every setter returns and the same payload `onEnvironmentChanged` carries.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.13+op77.67
@@ -4131,7 +4138,7 @@ function Open77.environment.publishChange(state) end
 
 --- Sets the authoritative time of day every player projects.
 ---
---- Requires `world.environment`. The host installs this facade in every VM; the authority itself is the bundled `open77_weather` resource, reached through a synchronous export call, because the only code able to move a sky is that resource's CLIENT projection. `bucket` is optional: omitted it moves the default environment, given it creates or updates that routing bucket's override, seeded from the default as it reads at that moment. Answers `environment_unavailable` when the authority is not running — which `resources.load` can cause silently. See [the guide](weather.md).
+--- Requires `world.environment`. The host installs this facade in every VM; the authority itself is the bundled `open77_weather` resource, reached through a synchronous export call, because the only code able to move a sky is that resource's CLIENT projection. `bucket` is optional: omitted it moves the default environment, given it creates or updates that routing bucket's override, seeded from the default as it reads at that moment. Answers `environment_unavailable` when the authority is not running â€” which `resources.load` can cause silently. See [the guide](weather.md).
 ---
 --- Permissions: world.environment
 --- Since: 2.31.13+op77.67
@@ -4157,7 +4164,7 @@ function Open77.environment.setTimeFrozen(frozen, bucket) end
 
 --- Sets how many game seconds pass per real second.
 ---
---- Requires `world.environment`. Accepts `0` to `120`; the shipped default is `8.0`, which MUST match the engine's own rate or the projection has to correct the clock continuously — and every correction is a `SetGameTimeByHMS` world time jump that makes the streamer re-resolve nodes and resurrect destroyed props (measured 25 Aug). Changing day length properly needs a native rate control, not this.
+--- Requires `world.environment`. Accepts `0` to `120`; the shipped default is `8.0`, which MUST match the engine's own rate or the projection has to correct the clock continuously â€” and every correction is a `SetGameTimeByHMS` world time jump that makes the streamer re-resolve nodes and resurrect destroyed props (measured 25 Aug). Changing day length properly needs a native rate control, not this.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.13+op77.67
@@ -4182,7 +4189,7 @@ function Open77.environment.setWeather(preset, transitionSeconds, bucket) end
 
 --- Pins the current preset by stopping the random scheduler.
 ---
---- Requires `world.environment`. The name means something different on each runtime, deliberately: on the CLIENT it is an unconditional lock against a vanilla controller submitting its own preset, and is not an operator choice; on the SERVER it means pin the preset — the weighted random draw stops, so the sky stays where it was put. It is the same switch `weather.random off` throws, and it is the half a competitive gamemode wants, because lighting is a fairness variable.
+--- Requires `world.environment`. The name means something different on each runtime, deliberately: on the CLIENT it is an unconditional lock against a vanilla controller submitting its own preset, and is not an operator choice; on the SERVER it means pin the preset â€” the weighted random draw stops, so the sky stays where it was put. It is the same switch `weather.random off` throws, and it is the half a competitive gamemode wants, because lighting is a fairness variable.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.13+op77.67
@@ -5933,7 +5940,7 @@ function Open77.perspective.setPolicy(policy, perspective) end
 
 --- Cancel an interaction owned by this resource.
 ---
---- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Custom reason accepts 1–64 ASCII alphanumeric/underscore characters; invalid reasons normalize to cancelled. Delayed callbacks should retain the interaction ID, never cancel whatever action happens to occupy the player later.
+--- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Custom reason accepts 1â€“64 ASCII alphanumeric/underscore characters; invalid reasons normalize to cancelled. Delayed callbacks should retain the interaction ID, never cancel whatever action happens to occupy the player later.
 ---
 --- Since: 2.31.13+op77.63
 --- Reasons: interactions_unavailable, invalid_json, invalid_operation, invalid_options, invalid_request, json_too_large, resource_stopping
@@ -5983,7 +5990,7 @@ function Open77.playerInteractions.list() end
 
 --- Reserve and coordinate a two-player interaction.
 ---
---- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Kinds: give, heal, carry, escort, custom. Options: durationMs (500–600000, default4000), startDistance (.25–10, default3), breakDistance (startDistance–20, default5), inviteTimeoutMs (1000–60000, default15000), consent (defaulttrue), optional actorAnimation/targetAnimation RP profiles for stationary kinds. Carry/escort reject profile overrides. Both players must be alive, on foot, near and in the same bucket. Acceptance is not proof of native playback; observe lifecycle events.
+--- Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Kinds: give, heal, carry, escort, custom. Options: durationMs (500â€“600000, default4000), startDistance (.25â€“10, default3), breakDistance (startDistanceâ€“20, default5), inviteTimeoutMs (1000â€“60000, default15000), consent (defaulttrue), optional actorAnimation/targetAnimation RP profiles for stationary kinds. Carry/escort reject profile overrides. Both players must be alive, on foot, near and in the same bucket. Acceptance is not proof of native playback; observe lifecycle events.
 ---
 --- Since: 2.31.13+op77.63
 --- Reasons: interactions_unavailable, invalid_json, invalid_operation, invalid_options, invalid_request, json_too_large, resource_stopping
@@ -6700,7 +6707,7 @@ function Open77.players.setMaxWanted(playerId, level) end
 
 --- Select a server-owned NPC body for a connected player.
 ---
---- Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0–86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
+--- Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0â€“86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.control
 --- Since: not in any published build
@@ -6957,7 +6964,7 @@ function Open77.props.all(bucket) end
 
 --- Set a synchronized prop binding.
 ---
---- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props and ownership of the prop. Parent must be alive/valid in the same bucket. Up to 32 bindings per parent. Optional expectedRevision enables compare-and-swap; stale updates reject. Idempotent identical attachment does not create a new revision.
+--- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each Â±20), rotation {x,y,z} in degrees (each Â±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props and ownership of the prop. Parent must be alive/valid in the same bucket. Up to 32 bindings per parent. Optional expectedRevision enables compare-and-swap; stale updates reject. Idempotent identical attachment does not create a new revision.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.63
@@ -7034,7 +7041,7 @@ function Open77.props.get(id) end
 
 --- Read a prop's current replicated binding.
 ---
---- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. Returns a copy, not a mutable reference. Nil can mean detached or absent; inspect the second result for a capability/validation failure.
+--- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each Â±20), rotation {x,y,z} in degrees (each Â±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. Returns a copy, not a mutable reference. Nil can mean detached or absent; inspect the second result for a capability/validation failure.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.63
@@ -7068,7 +7075,7 @@ function Open77.props.remove(id) end
 
 --- Change a binding's local offset and rotation.
 ---
---- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props and prop ownership. Omitted vectors retain their previous values. The current revision is used if expectedRevision is omitted; stale explicit revisions reject. A detached prop rejects with not_attached.
+--- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each Â±20), rotation {x,y,z} in degrees (each Â±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props and prop ownership. Omitted vectors retain their previous values. The current revision is used if expectedRevision is omitted; stale explicit revisions reject. A detached prop rejects with not_attached.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.63
@@ -8112,9 +8119,9 @@ function Open77.vehicles.ai.stop(vehicleId) end
 
 --- Turns a client's description of a vanilla car into a canonical vehicle.
 ---
---- Requires `world.vehicles` **and** `world.vehicles.adopt`, which is its own string because this is the one vehicle call that creates world state from something a client wrote. `playerId` must be the player the server believes sent the description — inside a net event handler that is `source`, and it must never be read out of the payload, because the placement checks are the entire defence. The description is what the client's `Open77.vehicles.adoptable()` hands back: `engineEntity`, `record`, `position`, and optionally `orientation`, `health`, `flags`, `primaryColor`, `secondaryColor`, `doors`, `windows`, `tires`, `brokenGlass`, `brokenLights` and `detachedParts`.
+--- Requires `world.vehicles` **and** `world.vehicles.adopt`, which is its own string because this is the one vehicle call that creates world state from something a client wrote. `playerId` must be the player the server believes sent the description â€” inside a net event handler that is `source`, and it must never be read out of the payload, because the placement checks are the entire defence. The description is what the client's `Open77.vehicles.adoptable()` hands back: `engineEntity`, `record`, `position`, and optionally `orientation`, `health`, `flags`, `primaryColor`, `secondaryColor`, `doors`, `windows`, `tires`, `brokenGlass`, `brokenLights` and `detachedParts`.
 ---
---- **Adoption takes the car's identity, not the engine's entity.** A traffic car is spawned, owned and despawned by REDengine population on one client, and the plugin has no notification it can rely on for a despawn it did not start — a canonical vehicle bound to such an entity would quietly become a ghost. So nothing is bound: the server creates an ordinary canonical vehicle from the description, with the same lifetime, the same reaper and the same projection path as one a garage spawned, and the client then hands its vanilla chassis back with `Open77.vehicles.releaseAdopted`.
+--- **Adoption takes the car's identity, not the engine's entity.** A traffic car is spawned, owned and despawned by REDengine population on one client, and the plugin has no notification it can rely on for a despawn it did not start â€” a canonical vehicle bound to such an entity would quietly become a ghost. So nothing is bound: the server creates an ordinary canonical vehicle from the description, with the same lifetime, the same reaper and the same projection path as one a garage spawned, and the client then hands its vanilla chassis back with `Open77.vehicles.releaseAdopted`.
 ---
 --- Refusals are `adopt_policy_closed` (the player's bucket is not open), `too_far`, `player_unavailable` (no position for them), `duplicate_adoption` (a car of the same record is already adopted within three metres of that spot, because traffic is spawned per client and two players on one corner each describe their own), `vehicle_limit`, and the `invalid_*` family. `already_adopted` is not a failure: it answers with the id of the vehicle the first proposal created, because a retry after a dropped acknowledgement is the ordinary way a client proposes the same chassis twice.
 ---
@@ -9002,7 +9009,7 @@ function Open77.vehicles.seats() end
 
 --- Opens or closes one routing bucket to vehicle adoption.
 ---
---- Requires `world.vehicles` and `world.vehicles.adopt`. `"none"` is the default and every bucket starts there: nothing is adoptable until a resource says so. `"driver"` accepts only a car the proposing player is standing at, within six metres — the car-theft shape, where you make canonical the car you are about to take and nothing else. `"any"` widens that to sixty metres; it does not remove the check. `options.bucket` selects the routing bucket (default `0`). The policy is server-side only: a client never learns it, and a proposal into a closed bucket is simply refused.
+--- Requires `world.vehicles` and `world.vehicles.adopt`. `"none"` is the default and every bucket starts there: nothing is adoptable until a resource says so. `"driver"` accepts only a car the proposing player is standing at, within six metres â€” the car-theft shape, where you make canonical the car you are about to take and nothing else. `"any"` widens that to sixty metres; it does not remove the check. `options.bucket` selects the routing bucket (default `0`). The policy is server-side only: a client never learns it, and a proposal into a closed bucket is simply refused.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67
@@ -9556,7 +9563,7 @@ function Open77.vehicles.stopEngine(id) end
 
 --- Seats a player through the vanilla entry animation.
 ---
---- Requires `world.vehicles`. The same authoritative reservation as `warpPlayerIntoVehicle`, taking the same `options` and answering with the same refusal reasons; the only difference is that the affected client is asked to reach the seat by mounting through the mounting facility and playing the authored entry, instead of being placed in the seat in one frame. It does **not** walk the player to the door: the approach is an NPC behaviour, and driving a network puppet through it crashed the observing client when it was measured, so the player is mounted where they stand and slides in. The animation is bounded — a client whose mounting relation does not become readable within three seconds warps instead — so the seat is always reached and `warpPlayerIntoVehicle` remains the path that never depends on an animation.
+--- Requires `world.vehicles`. The same authoritative reservation as `warpPlayerIntoVehicle`, taking the same `options` and answering with the same refusal reasons; the only difference is that the affected client is asked to reach the seat by mounting through the mounting facility and playing the authored entry, instead of being placed in the seat in one frame. It does **not** walk the player to the door: the approach is an NPC behaviour, and driving a network puppet through it crashed the observing client when it was measured, so the player is mounted where they stand and slides in. The animation is bounded â€” a client whose mounting relation does not become readable within three seconds warps instead â€” so the seat is always reached and `warpPlayerIntoVehicle` remains the path that never depends on an animation.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67
@@ -9583,7 +9590,7 @@ function Open77.vehicles.taskPlayerEnterVehicle(playerId, vehicleId, seat, optio
 
 --- Ejects a player from a network vehicle.
 ---
---- Requires `world.vehicles`. The FiveM-shaped name for the same durable forced exit as `forcePlayerOutOfVehicle`, and it is honest about not being the mirror image of `taskPlayerEnter`: **the leaving player's own exit is instant on this build.** That is a measurement, not an omission — driving the local player's authored exit workspot inside the mount release window faulted on the engine's release-dispatch thread and the workspot never started once, so the client does not attempt it. Every other player still sees this occupant's exit animated, because a remote proxy's exit has always been; only the ejected player's own screen skips it.
+--- Requires `world.vehicles`. The FiveM-shaped name for the same durable forced exit as `forcePlayerOutOfVehicle`, and it is honest about not being the mirror image of `taskPlayerEnter`: **the leaving player's own exit is instant on this build.** That is a measurement, not an omission â€” driving the local player's authored exit workspot inside the mount release window faulted on the engine's release-dispatch thread and the workspot never started once, so the client does not attempt it. Every other player still sees this occupant's exit animated, because a remote proxy's exit has always been; only the ejected player's own screen skips it.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67

@@ -321,7 +321,7 @@ export function createMcpServer(context: ServerContext): McpServer {
     {
       title: "Game data catalogues",
       description:
-        "Look up spawnable names. Arguments: `catalogue` (one of vehicles, weapons, items (clothing), npc-templates, props, vfx, sfx, " +
+        "Look up game-data names; animation inventories are discovery data, not playback allowlists. Arguments: `catalogue` (one of vehicles, weapons, items (clothing), npc-templates, props, vfx, sfx, " +
         "animations, animsets) and an optional `query`. Query matches the record/path/name; returns the fields the server itself " +
         "answers Open77.data.* from. Vehicle records a player may spawn end in `_player` (the others are quest/scene vehicles).",
       inputSchema: {
@@ -335,6 +335,9 @@ export function createMcpServer(context: ServerContext): McpServer {
     async ({ catalogue, query, limit, offset }) => {
       if (!index.catalogueNames.includes(catalogue)) return text(`Unknown catalogue ${catalogue}. Known: ${index.catalogueNames.join(", ")}`);
       const file = await loadCatalogue(index, catalogue);
+      const discovery = catalogue === "animations" || catalogue === "animsets"
+        ? "\nDiscovery inventory, not a playback allowlist. Use Open77.animations.list/get/clips for the installed profile catalogue; an unsupported clip returns unknown_clip. For walking actions choose a kind=layer profile ID; upperBody=true does not adapt arbitrary clips. Read open77_guide rp-animations. Public downloads: https://open2077.net/data/emote-animations.txt and https://open2077.net/data/rp-workspots.json."
+        : "";
       const max = limit ?? 25;
       const skip = offset ?? 0;
       const page = <T,>(all: T[]) => {
@@ -344,22 +347,22 @@ export function createMcpServer(context: ServerContext): McpServer {
         return { rows, note, total: all.length };
       };
       if (file.names) {
-        if (!query) return text(`${catalogue}: ${file.count} names for game build ${file.gameBuild}. Pass a query.`);
+        if (!query) return text(`${catalogue}: ${file.count} names for game build ${file.gameBuild}. Pass a query.${discovery}`);
         const words = query.toLowerCase().split(/\s+/).filter(Boolean);
         const { rows, note, total } = page(file.names.filter((n) => words.every((w) => n.toLowerCase().includes(w))));
-        return text([`${total} of ${file.count} ${catalogue} match "${query}" (game ${file.gameBuild})${skip ? `, from ${skip}` : ""}`, ...rows.map((h) => `- ${h}`)].join("\n") + note);
+        return text([`${total} of ${file.count} ${catalogue} match "${query}" (game ${file.gameBuild})${skip ? `, from ${skip}` : ""}`, ...rows.map((h) => `- ${h}`)].join("\n") + note + discovery);
       }
       const records = file.records ?? [];
       if (!query) {
         const keys = records[0] ? Object.keys(records[0]) : [];
-        return text(`${catalogue}: ${file.count} records for game build ${file.gameBuild}; fields: ${keys.join(", ")}. Pass a query.`);
+        return text(`${catalogue}: ${file.count} records for game build ${file.gameBuild}; fields: ${keys.join(", ")}. Pass a query.${discovery}`);
       }
       const words = query.toLowerCase().split(/\s+/).filter(Boolean);
       const { rows, note, total } = page(records.filter((r) => {
         const hay = Object.values(r).join(" ").toLowerCase();
         return words.every((w) => hay.includes(w));
       }));
-      return text([`${total} ${catalogue} match "${query}" (game ${file.gameBuild})${skip ? `, from ${skip}` : ""}`, ...rows.map((r) => `- ${JSON.stringify(r)}`)].join("\n") + note);
+      return text([`${total} ${catalogue} match "${query}" (game ${file.gameBuild})${skip ? `, from ${skip}` : ""}`, ...rows.map((r) => `- ${JSON.stringify(r)}`)].join("\n") + note + discovery);
     },
   );
 
@@ -683,6 +686,7 @@ export function instructions(context: ServerContext): string {
     `Open77 Devkit MCP (build ${context.resolved.build}). Open77 turns Cyberpunk 2077 into a server-driven multiplayer platform; gameplay is written as Lua resources with a client and a server side.`,
     "Read the resource open77://skill before writing a resource. Key rules: the server is authoritative; a native exists only if open77_api returns it for this build; declare in open77.lua exactly the permissions the natives you call require; never call a client native from a server script or the reverse; a call answers nil/false plus a reason string on failure — check it.",
     "Workflow: open77_search → open77_api → open77_guide for the how-to → open77_manifest_schema → write → validate (open77_validate when running locally) → reload on the server → read the log.",
+    "For RP jobs, inventory actions and walking animations, read open77_guide rp-animations, especially upper-body-actions-for-jobs-and-inventory, animation-owned-items-one-server-call and hold-drink-then-hold-again. Distinguish server animations.play from legacy client play(entity, rawClip). Confirm runtime support for item options separately from the native's original since build; first-person support is experimental. Game animation inventories are discovery lists, not playback allowlists.",
     "FiveM developers: the runtime shape (CreateThread, Wait, events, exports, RegisterCommand) is the same; use open77_fivem_equivalent for everything else. Open77 natives are not in your training data: look them up, do not guess.",
   ].join("\n");
 }

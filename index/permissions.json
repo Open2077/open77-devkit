@@ -4562,42 +4562,44 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 5 natives in Open77.markers.",
-   "curated": false,
+   "summary": "Enforced by the client; gates 6 natives in Open77.markers. shapes() is a permission-free catalogue.",
+   "curated": true,
    "natives": [
     "Open77.markers.clear",
     "Open77.markers.create",
+    "Open77.markers.get",
     "Open77.markers.list",
     "Open77.markers.remove",
     "Open77.markers.update"
    ],
    "guides": [
+    "markers.md",
     "world-queries.md"
    ],
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11001
+     "line": 11452
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11122
+     "line": 11472
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11147
+     "line": 11487
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11162
+     "line": 11500
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11175
+     "line": 11510
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 11185
+     "line": 11526
     }
    ]
   },

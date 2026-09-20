@@ -54,6 +54,18 @@ build, is reported as **NOT AVAILABLE**, never silently served.
 
 ## What's new
 
+**0.1.4** — refreshed RP animation guidance: walking upper-body profiles, native
+animation-owned items, custom item permissions, hold/drink transitions and timed
+sequences. `open77_data` identifies animation inventories as discovery data, with
+public downloads and guidance for finding playable profiles. API cards include
+the server animation permissions. Match the runtime and archives before using newer
+item options; the original native's `since` is not a per-option version guarantee.
+First-person presentation remains experimental. Includes the 0.1.3 fixes below.
+
+For RP jobs, start with `open77_guide rp-animations`, then
+`open77_api server:Open77.animations.play`. The public examples are at
+[open77-rp-examples/docs/held-actions.md](https://github.com/Open2077/open77-rp-examples/blob/main/docs/held-actions.md).
+
 **0.1.3** -- fixes measured by four MCP-only agents on 2026-09-18 against the index for
 2.31.13+op77.76:
 

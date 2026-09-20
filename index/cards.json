@@ -914,7 +914,7 @@
   "name": "GlobalState",
   "handler": "PushStateBag",
   "summary": "The server-wide state bag, read-only on the client.",
-  "description": "The FiveM spelling of `Open77.state.global`, mirroring what the server replicated. Reading a key the server never set, or that this client has not received yet, answers nil — check `Open77.state.ready()` before treating a nil as an absence. Writing is refused: the client never writes a bag, because a bag is shared state and a client that could write one could write another player's job or another vehicle's keys. Ask with `Open77.state.request`, which the server arbitrates and republishes.",
+  "description": "The FiveM spelling of `Open77.state.global`, mirroring what the server replicated. Reading a key the server never set, or that this client has not received yet, answers nil â€” check `Open77.state.ready()` before treating a nil as an absence. Writing is refused: the client never writes a bag, because a bag is shared state and a client that could write one could write another player's job or another vehicle's keys. Ask with `Open77.state.request`, which the server arbitrates and republishes.",
   "params": [],
   "returns": [
    "the global bag, indexable by key"
@@ -2426,7 +2426,7 @@
   "description": "Writes a resource-prefixed line to the Open77 log. Values are converted with bounded formatting; this does not send a chat message or write into a WebUI page.",
   "params": [
    {
-    "name": "…",
+    "name": "â€¦",
     "type": "any",
     "optional": false,
     "default": null
@@ -3700,7 +3700,7 @@
   "name": "current",
   "handler": "LuaAnimationCurrent",
   "summary": "The clip a body is currently playing.",
-  "description": "Returns false when it is playing nothing — which is a state, not an error.",
+  "description": "Returns false when it is playing nothing â€” which is a state, not an error.",
   "params": [
    {
     "name": "entity",
@@ -3764,7 +3764,7 @@
   "name": "list",
   "handler": "LuaAnimationServiceExport",
   "summary": "Find synchronized RP animation profiles in the local catalogue.",
-  "description": "Resolves to copied profile definitions containing id, label, category, default clip and allowed clips. The optional query is a case-insensitive substring across ID, label and category, up to 128 characters. An empty query returns all 15 profiles; no match returns an empty array. Catalogue membership and male/female rig bindings are not proof of native playback validation. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.",
+  "description": "Returns all supported profiles when the query is empty, or a case-insensitive substring match across ID, label and category (up to 128 characters). Definitions include kind, clip variants and rig metadata. Choose a kind=layer profile such as drink_walk to preserve locomotion; catalogue membership does not prove native rendering. Resolves asynchronously to copied definitions. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.",
   "params": [
    {
     "name": "query",
@@ -3874,7 +3874,7 @@
   "name": "request",
   "handler": "LuaAnimationServiceExport",
   "summary": "Request a synchronized RP action for the local player.",
-  "description": "The server validates the named profile and returns a playback state and playbackId; acceptance does not mean the native workspot has mounted. Options are clip, durationMs and loop only. The clip must belong to the profile. loop defaults to true; omitted or zero duration is indefinite when looping. With loop=false the default is 5000 ms. A nonzero duration must be an integer from 1000 to 600000 ms. Playback temporarily uses the F7 third-person body without changing the saved camera preference. Moving, combat and unsafe player states interrupt it. Use cancel(), not the legacy local stop(entity), for synchronized actions. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.",
+  "description": "Requests an action for the authenticated local player. Use cancel() for this synchronized action, not the legacy local stop(entity). Returns authoritative acceptance and playbackId, not proof of native presentation. Options are clip, durationMs, loop and item. The clip must belong to the selected profile. loop defaults to true. Looping profiles may use omitted/zero duration for indefinite playback; once profiles and loop=false use the measured clip duration when available, otherwise 5000 ms. Explicit nonzero durations must be integers from 1000 to 600000 ms. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.",
   "params": [
    {
     "name": "profileId",
@@ -3913,7 +3913,7 @@
   "name": "requestClip",
   "handler": "LuaAnimationServiceExport",
   "summary": "Request a synchronized RP action for the local player by clip name.",
-  "description": "The same request as request(), addressed by animation instead of by profile: the owning profile is resolved from the generated catalogue and the server re-validates it. This is the honest analogue of TaskPlayAnim -- a clip name and playback options -- and it is bounded the same way playback is. A name no shipped device carries is refused with unknown_clip before anything goes on the wire, rather than started and silently ignored by the engine. Options are durationMs and loop only; the clip is the argument. FiveM's blendIn, blendOut, upperBody, holdLastFrame and flags have no workspot equivalent and are refused by name as unsupported_option:<key>. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.",
+  "description": "Resolves an exact clip through the shipped profile catalogue; a missing clip returns unknown_clip. Discovery inventories are not allowlists. A clip shared with a workspot resolves to the stationary profile: use play/request with a layer profile ID to select walking behavior. Options are durationMs, loop and item; the clip is the argument. Unsupported upperBody, blendIn, blendOut, blendMs, holdLastFrame, flags, dict and playbackRate options return unsupported_option:<key>; upperBody does not convert arbitrary clips. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.",
   "params": [
    {
     "name": "clip",
@@ -3952,7 +3952,7 @@
   "name": "sequence",
   "handler": "LuaAnimationServiceExport",
   "summary": "Request an ordered RP sequence for the local player.",
-  "description": "Accepts 1–16 steps with profile, optional clip and durationMs. Each step defaults to 5000 ms, must last 1000–600000 ms, and the total cannot exceed 600000 ms. The only sequence option is loop, default false. These are server scheduling durations, not measured clip lengths. Profile changes use asynchronous workspot exit/re-entry, not guaranteed seamless blends. The result is authoritative acceptance, not a native rendering acknowledgement. Unlike the server method, this call takes no playerId. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.",
+  "description": "Takes no playerId; requests a sequence for the local player. Accepts 1–16 steps with profile, optional clip, durationMs and item. Each omitted duration uses the measured clip cycle when available, otherwise 5000 ms; steps must last 1000–600000 ms and the total cannot exceed 600000 ms. The sequence option loop defaults to false. A hold_item_walk → drink_walk → hold_item_walk chain preserves the prop ID while the item record stays the same. Each new play call gets a new playbackId; a sequence coordinates one player. Workspot transitions may require asynchronous exit/re-entry. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.",
   "params": [
    {
     "name": "steps",
@@ -7651,7 +7651,7 @@
    }
   ],
   "returns": [
-   "table { isPlayer, attached, id, engineId, position, orientation, forward, velocity, speed, groundSpeed, yaw, alive, health, grounded, crouched, sliding, vaulting, air, fall, landing, weapon…, inVehicle, seat, driver }",
+   "table { isPlayer, attached, id, engineId, position, orientation, forward, velocity, speed, groundSpeed, yaw, alive, health, grounded, crouched, sliding, vaulting, air, fall, landing, weaponâ€¦, inVehicle, seat, driver }",
    "reason, when the first is nil"
   ],
   "api_set": "game",
@@ -10013,7 +10013,7 @@
   "name": "getTime",
   "handler": "LuaEnvironmentTime",
   "summary": "Lit l'horloge REDengine locale.",
-  "description": "Primitive interne protégée par `world.environment`. Retourne un snapshot atomique de l'heure appliquée et de l'état de pause. Dans une session normale, utilisez l'export `open77_weather.getState` plutôt que cette valeur de projection.",
+  "description": "Primitive interne protÃ©gÃ©e par `world.environment`. Retourne un snapshot atomique de l'heure appliquÃ©e et de l'Ã©tat de pause. Dans une session normale, utilisez l'export `open77_weather.getState` plutÃ´t que cette valeur de projection.",
   "params": [],
   "returns": [
    "table { day, hour, minute, second, totalSeconds, frozen }, ou nil",
@@ -10041,7 +10041,7 @@
   "namespace": "Open77.environment",
   "name": "isWeatherFrozen",
   "handler": "LuaEnvironmentWeatherFrozen",
-  "summary": "Indique si la météo automatique vanilla est neutralisée.",
+  "summary": "Indique si la mÃ©tÃ©o automatique vanilla est neutralisÃ©e.",
   "description": "Demande `world.environment`.",
   "params": [],
   "returns": [
@@ -10071,7 +10071,7 @@
   "name": "setTime",
   "handler": "LuaEnvironmentSetTime",
   "summary": "Projette une heure serveur dans REDengine.",
-  "description": "Demande `world.environment`. `open77_weather` est normalement le seul propriétaire de cette permission. REDengine choisit la prochaine occurrence de l'heure demandée ; le package officiel filtre donc les petits reculs réseau pour éviter un saut d'un jour.",
+  "description": "Demande `world.environment`. `open77_weather` est normalement le seul propriÃ©taire de cette permission. REDengine choisit la prochaine occurrence de l'heure demandÃ©e ; le package officiel filtre donc les petits reculs rÃ©seau pour Ã©viter un saut d'un jour.",
   "params": [
    {
     "name": "hour",
@@ -10093,7 +10093,7 @@
    }
   ],
   "returns": [
-   "true en cas de succès, sinon false",
+   "true en cas de succÃ¨s, sinon false",
    "raison du refus"
   ],
   "api_set": "game",
@@ -10115,8 +10115,8 @@
   "namespace": "Open77.environment",
   "name": "setTimeFrozen",
   "handler": "LuaEnvironmentFreezeTime",
-  "summary": "Fige ou libère uniquement l'horloge du jeu.",
-  "description": "Ne fige pas la simulation. Demande `world.environment`; utilisé par la projection serveur pour neutraliser la vitesse vanilla.",
+  "summary": "Fige ou libÃ¨re uniquement l'horloge du jeu.",
+  "description": "Ne fige pas la simulation. Demande `world.environment`; utilisÃ© par la projection serveur pour neutraliser la vitesse vanilla.",
   "params": [
    {
     "name": "frozen",
@@ -10126,7 +10126,7 @@
    }
   ],
   "returns": [
-   "true en cas de succès, sinon false",
+   "true en cas de succÃ¨s, sinon false",
    "raison du refus"
   ],
   "api_set": "game",
@@ -10148,8 +10148,8 @@
   "namespace": "Open77.environment",
   "name": "setWeather",
   "handler": "LuaEnvironmentSetWeather",
-  "summary": "Applique un preset météo REDengine.",
-  "description": "Primitive interne demandant `world.environment`. Le second retour `applied=false` est aussi possible en cas de succès si le preset était déjà actif.",
+  "summary": "Applique un preset mÃ©tÃ©o REDengine.",
+  "description": "Primitive interne demandant `world.environment`. Le second retour `applied=false` est aussi possible en cas de succÃ¨s si le preset Ã©tait dÃ©jÃ  actif.",
   "params": [
    {
     "name": "preset",
@@ -10171,8 +10171,8 @@
    }
   ],
   "returns": [
-   "true en cas de succès, sinon false",
-   "applied si succès, sinon raison du refus"
+   "true en cas de succÃ¨s, sinon false",
+   "applied si succÃ¨s, sinon raison du refus"
   ],
   "api_set": "game",
   "runtime": "client",
@@ -10193,8 +10193,8 @@
   "namespace": "Open77.environment",
   "name": "setWeatherFrozen",
   "handler": "LuaEnvironmentFreezeWeather",
-  "summary": "Désactive ou réactive le contrôleur météo automatique vanilla.",
-  "description": "Demande `world.environment`. Figer conserve le preset courant et laisse le serveur décider du prochain événement.",
+  "summary": "DÃ©sactive ou rÃ©active le contrÃ´leur mÃ©tÃ©o automatique vanilla.",
+  "description": "Demande `world.environment`. Figer conserve le preset courant et laisse le serveur dÃ©cider du prochain Ã©vÃ©nement.",
   "params": [
    {
     "name": "frozen",
@@ -10204,7 +10204,7 @@
    }
   ],
   "returns": [
-   "true en cas de succès, sinon false",
+   "true en cas de succÃ¨s, sinon false",
    "raison du refus"
   ],
   "api_set": "game",
@@ -10702,7 +10702,7 @@
   "name": "on",
   "handler": "LuaAddEventHandler",
   "summary": "Listens for a local event.",
-  "description": "Same as the `AddEventHandler` global. Events emitted by the plugin — `open77:pauseKey`, `open77:menuStateChanged`, `open77:inspector:on` — arrive here.",
+  "description": "Same as the `AddEventHandler` global. Events emitted by the plugin â€” `open77:pauseKey`, `open77:menuStateChanged`, `open77:inspector:on` â€” arrive here.",
   "params": [
    {
     "name": "event",
@@ -10755,7 +10755,7 @@
     "default": null
    },
    {
-    "name": "…",
+    "name": "â€¦",
     "type": "any",
     "optional": true,
     "default": null
@@ -10790,7 +10790,7 @@
   "name": "callSync",
   "handler": "LuaCallExportSync",
   "summary": "Calls a function exported by another resource, inline on this thread.",
-  "description": "The non-sugar form of exports.resource:name(...). Runs the callee in its own VM before returning and yields its values directly. RAISES on failure instead of returning nil, reason — the one place Open77 departs from its own convention, so that ported FiveM code behaves the same; use pcall to handle failure. The callee must not yield (export_yielded), gets its own instruction budget (export_budget_exhausted fails only that call), and chains are capped at 8 frames (export_recursion_limit). Arguments and results are copied, never shared. A resource may call its own export.",
+  "description": "The non-sugar form of exports.resource:name(...). Runs the callee in its own VM before returning and yields its values directly. RAISES on failure instead of returning nil, reason â€” the one place Open77 departs from its own convention, so that ported FiveM code behaves the same; use pcall to handle failure. The callee must not yield (export_yielded), gets its own instruction budget (export_budget_exhausted fails only that call), and chains are capped at 8 frames (export_recursion_limit). Arguments and results are copied, never shared. A resource may call its own export.",
   "params": [
    {
     "name": "resource",
@@ -10805,7 +10805,7 @@
     "default": null
    },
    {
-    "name": "…",
+    "name": "â€¦",
     "type": "any",
     "optional": true,
     "default": null
@@ -12123,7 +12123,7 @@
   "name": "target",
   "handler": "LuaInspectorTarget",
   "summary": "What the aim ray is currently pointing at.",
-  "description": "Reads a snapshot, never a probe. The ray has to be cast on the game thread, and the plugin refreshes it at 10 Hz, so calling this costs nothing and cannot land a raycast on the wrong thread.\n\nAlways returns a table when a game is present. `valid` separates \"nothing in view\" from \"no game\" — the latter returns `nil, reason`.",
+  "description": "Reads a snapshot, never a probe. The ray has to be cast on the game thread, and the plugin refreshes it at 10 Hz, so calling this costs nothing and cannot land a raycast on the wrong thread.\n\nAlways returns a table when a game is present. `valid` separates \"nothing in view\" from \"no game\" â€” the latter returns `nil, reason`.",
   "params": [],
   "returns": [
    "table { valid, engineId, class, name, kind, position, distance }",
@@ -12708,8 +12708,8 @@
   "namespace": "Open77.loot",
   "name": "acceptPickup",
   "handler": "LuaLootAccept",
-  "summary": "Applique localement un pickup déjà accepté par le serveur.",
-  "description": "API interne appelée uniquement après `open77:loot:pickupResult`. Elle projette l'objet dans l'inventaire REDengine local; l'inventaire persistant reste une responsabilité serveur.",
+  "summary": "Applique localement un pickup dÃ©jÃ  acceptÃ© par le serveur.",
+  "description": "API interne appelÃ©e uniquement aprÃ¨s `open77:loot:pickupResult`. Elle projette l'objet dans l'inventaire REDengine local; l'inventaire persistant reste une responsabilitÃ© serveur.",
   "params": [
    {
     "name": "id",
@@ -12731,7 +12731,7 @@
    }
   ],
   "returns": [
-   "true en cas de succès",
+   "true en cas de succÃ¨s",
    "raison du refus"
   ],
   "api_set": "game",
@@ -12787,7 +12787,7 @@
    }
   ],
   "returns": [
-   "true en cas de succès",
+   "true en cas de succÃ¨s",
    "raison du refus"
   ],
   "api_set": "game",
@@ -12810,7 +12810,7 @@
   "name": "requestPickup",
   "handler": "LuaLootRequest",
   "summary": "Demande au serveur de ramasser un drop.",
-  "description": "Le serveur contrôle l'existence, le routing bucket et la distance calculée depuis son dernier snapshot du joueur.",
+  "description": "Le serveur contrÃ´le l'existence, le routing bucket et la distance calculÃ©e depuis son dernier snapshot du joueur.",
   "params": [
    {
     "name": "id",
@@ -12820,7 +12820,7 @@
    }
   ],
   "returns": [
-   "true si la requête réseau est partie",
+   "true si la requÃªte rÃ©seau est partie",
    "raison du refus local"
   ],
   "api_set": "network",
@@ -12842,8 +12842,8 @@
   "namespace": "Open77.loot",
   "name": "setAuthorityEnabled",
   "handler": "LuaLootAuthority",
-  "summary": "Active ou désactive la projection de loot autoritaire.",
-  "description": "Réservé à `open77_loot`. Quand il est actif, les choix, conteneurs et drops vanilla sont neutralisés et les objets physiques deviennent de simples représentations du registre serveur.",
+  "summary": "Active ou dÃ©sactive la projection de loot autoritaire.",
+  "description": "RÃ©servÃ© Ã  `open77_loot`. Quand il est actif, les choix, conteneurs et drops vanilla sont neutralisÃ©s et les objets physiques deviennent de simples reprÃ©sentations du registre serveur.",
   "params": [
    {
     "name": "enabled",
@@ -12853,7 +12853,7 @@
    }
   ],
   "returns": [
-   "true en cas de succès",
+   "true en cas de succÃ¨s",
    "raison du refus"
   ],
   "api_set": "game",
@@ -12875,8 +12875,8 @@
   "namespace": "Open77.loot",
   "name": "upsert",
   "handler": "LuaLootUpsert",
-  "summary": "Crée ou met à jour la projection locale d'un drop serveur.",
-  "description": "API interne de réplication. Demande la permission `world.loot`; un script gameplay ne doit pas inventer un drop côté client.",
+  "summary": "CrÃ©e ou met Ã  jour la projection locale d'un drop serveur.",
+  "description": "API interne de rÃ©plication. Demande la permission `world.loot`; un script gameplay ne doit pas inventer un drop cÃ´tÃ© client.",
   "params": [
    {
     "name": "drop",
@@ -12886,7 +12886,7 @@
    }
   ],
   "returns": [
-   "true en cas de succès",
+   "true en cas de succÃ¨s",
    "raison du refus"
   ],
   "api_set": "game",
@@ -13134,7 +13134,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- The race is over: remove every checkpoint marker\nAddEventHandler(\"race:finished\", function()\n    Open77.markers.clear()\nend)",
   "inferred": false,
-  "source_line": 23038,
+  "source_line": 24486,
   "permissions": [
    "world.markers"
   ],
@@ -13149,7 +13149,7 @@
   "name": "create",
   "handler": "LuaMarkerCreate",
   "summary": "Creates a resource-owned 3D world marker.",
-  "description": "Requires `world.markers`. Options require `position` and accept `shape`, `style`, `radius`, `maxDistance`, `minDistance`, and `visible`. The returned decimal-string handle preserves its full 64-bit identity.",
+  "description": "Requires `world.markers`. Options require `position` and accept `shape`, `style`, `radius`, `height`, `scale = {x,y,z}`, `rotation = {x,y,z}` in degrees, `color = {r,g,b,a}`, `maxDistance`, `minDistance`, and `visible`. Color channels are integers from 0 to 255; omitted alpha defaults to 180. Eight native mesh shapes are listed by `shapes()`. The returned decimal-string handle preserves its full 64-bit identity. Creation is asynchronous: inspect `get(id).failed` and `error` for loading failures. Markers are local, resource-owned and cleaned up when their resource stops; they do not provide collision or gameplay authority.",
   "params": [
    {
     "name": "options",
@@ -13167,7 +13167,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- A cylinder marker at the delivery point, visible within 80 m\nlocal marker = Open77.markers.create({\n    position = { x = -1442.2, y = 127.4, z = 18.0 },\n    shape = \"cylinder\",\n    radius = 1.5,\n    maxDistance = 80,\n})",
   "inferred": false,
-  "source_line": 23035,
+  "source_line": 24483,
   "permissions": [
    "world.markers"
   ],
@@ -13185,10 +13185,10 @@
   "name": "list",
   "handler": "LuaMarkerList",
   "summary": "Lists the calling resource's 3D markers.",
-  "description": "Requires `world.markers`. Each snapshot includes its requested definition and whether the native renderer currently presents it.",
+  "description": "Requires `world.markers`. Each snapshot includes its requested definition, effective color, and native loading state. `rendered` means attached and enabled, not necessarily on-screen or unoccluded. `failed` and optional `error` expose asynchronous asset or streaming failures.",
   "params": [],
   "returns": [
-   "array of { id, shape, style, radius, maxDistance, minDistance, visible, rendered, position }, or nil",
+   "array of { id, shape, style, radius, height, scale, rotation, color, customColor, maxDistance, minDistance, visible, rendered, failed, error?, position }, or nil",
    "reason"
   ],
   "api_set": "game",
@@ -13196,7 +13196,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Debug: are our markers actually rendered?\nfor _, marker in ipairs(Open77.markers.list() or {}) do\n    print(marker.id, marker.rendered)\nend",
   "inferred": false,
-  "source_line": 23039,
+  "source_line": 24487,
   "permissions": [
    "world.markers"
   ],
@@ -13232,7 +13232,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- The player reached the checkpoint: remove its marker\nOpen77.markers.remove(checkpointMarker)",
   "inferred": false,
-  "source_line": 23037,
+  "source_line": 24485,
   "permissions": [
    "world.markers"
   ],
@@ -13247,7 +13247,7 @@
   "name": "update",
   "handler": "LuaMarkerUpdate",
   "summary": "Patches a resource-owned 3D marker.",
-  "description": "Requires `world.markers`. Only supplied fields are changed, and ownership prevents mutation of another resource's marker.",
+  "description": "Requires `world.markers`. Only supplied fields are changed, and ownership prevents mutation of another resource's marker. Accepts the create options, including height, scale, rotation and RGBA color. `color = false` restores the named style palette; alpha zero hides the marker. Invalid patches are rejected atomically. Color and shape changes replace the native entity asynchronously while preserving the handle; avoid per-frame color updates.",
   "params": [
    {
     "name": "id",
@@ -13271,7 +13271,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Move the marker to the next checkpoint\nRegisterNetEvent(\"race:checkpoint\", function(position)\n    Open77.markers.update(checkpointMarker, { position = position })\nend)",
   "inferred": false,
-  "source_line": 23036,
+  "source_line": 24484,
   "permissions": [
    "world.markers"
   ],
@@ -14086,7 +14086,7 @@
   "description": "Reads a snapshot: refreshing is asynchronous, so call `refresh`, then `catalog` a beat later.",
   "params": [],
   "returns": [
-   "table { phase, generation, servers… }"
+   "table { phase, generation, serversâ€¦ }"
   ],
   "api_set": "network",
   "runtime": "client",
@@ -16600,7 +16600,7 @@
   "name": "attach",
   "handler": "LuaPropAttach",
   "summary": "Attach a resource-owned local prop to a rendered bone or vehicle.",
-  "description": "Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. This changes only this client's prop, not server authority. Physics uses a visual-only attachment host; arbitrary mesh paths without that host are refused.",
+  "description": "Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each Â±20), rotation {x,y,z} in degrees (each Â±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. This changes only this client's prop, not server authority. Physics uses a visual-only attachment host; arbitrary mesh paths without that host are refused.",
   "params": [
    {
     "name": "propId",
@@ -23942,7 +23942,7 @@
   "name": "show",
   "handler": "LuaWebPageVisibility",
   "summary": "Shows the surface.",
-  "description": "Avoid calling this right after `create` — see the race described in `Open77.webui.create`.",
+  "description": "Avoid calling this right after `create` â€” see the race described in `Open77.webui.create`.",
   "params": [],
   "returns": [
    "boolean"
@@ -28616,8 +28616,8 @@
   "namespace": "_G",
   "name": "PlayerScreenEffect",
   "handler": "PlayerScreenEffect",
-  "summary": "`boolean, reason?` — a full-screen post-process on ONE player.",
-  "description": "`boolean, reason?` — a full-screen post-process on ONE player. Not replicated; permission `players.screenfx`. `name` false clears. See [Screen effects](effects.md#screen-effects).",
+  "summary": "`boolean, reason?` â€” a full-screen post-process on ONE player.",
+  "description": "`boolean, reason?` â€” a full-screen post-process on ONE player. Not replicated; permission `players.screenfx`. `name` false clears. See [Screen effects](effects.md#screen-effects).",
   "params": [
    {
     "name": "playerId",
@@ -34008,7 +34008,9 @@
   "example": "local state, err = Open77.animations.current(playerId)\nif err then print(err); return end\nif state then print(state.playbackId, state.step, state.elapsedMs) end",
   "inferred": false,
   "source_line": 7804,
-  "permissions": [],
+  "permissions": [
+   "players.animations.read"
+  ],
   "reasons": [
    "animations_unavailable",
    "invalid_json",
@@ -34071,7 +34073,7 @@
   "name": "list",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Search the authoritative RP profile catalogue.",
-  "description": "No capability is required. Returns profile definitions synchronously, not a Promise. Search is a case-insensitive substring across ID, label and category; the maximum query length is 128 characters. Empty search returns all 15 profiles and no match returns an empty array. Definitions include clip variants and rig metadata, which must not be mistaken for proof of native rendering. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.",
+  "description": "Returns all supported profiles when the query is empty, or a case-insensitive substring match across ID, label and category (up to 128 characters). Definitions include kind, clip variants and rig metadata. Choose a kind=layer profile such as drink_walk to preserve locomotion; catalogue membership does not prove native rendering. No capability is required; returns definitions synchronously. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.",
   "params": [
    {
     "name": "query",
@@ -34112,7 +34114,7 @@
   "name": "play",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Start a server-owned, synchronized RP action on a player.",
-  "description": "Requires players.animations.control. The player must be ready, alive, on foot and have a known position. The calling resource VM generation owns the action; another resource cannot replace it. Options are clip, durationMs and loop only. loop defaults to true; omitted/zero duration is indefinite when looping. With loop=false the default is 5000 ms. Nonzero durations are integers from 1000 to 600000 ms; variants must belong to the profile. Returns authoritative acceptance, not proof of native mounting. The local view temporarily uses third person. Unlike the legacy client play(entity, rawClip), this method replicates a curated profile. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.",
+  "description": "Requires players.animations.control. The calling resource generation owns the action; another resource cannot replace it. The player must be ready, alive, on foot and have a known position. Returns authoritative acceptance and playbackId, not proof of native presentation. Options are clip, durationMs, loop and item. The clip must belong to the selected profile. loop defaults to true. Looping profiles may use omitted/zero duration for indefinite playback; once profiles and loop=false use the measured clip duration when available, otherwise 5000 ms. Explicit nonzero durations must be integers from 1000 to 600000 ms. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Provided directly by the server runtime; no animation resource export dependency is needed for this server call.",
   "params": [
    {
     "name": "playerId",
@@ -34143,7 +34145,9 @@
   "example": "-- open77.lua: permission 'players.animations.control'\nlocal playback, err = Open77.animations.play(playerId, 'smoke', {\n    durationMs = 15000, loop = false,\n})\nif not playback then print(err); return end\nprint(playback.playbackId)",
   "inferred": false,
   "source_line": 7781,
-  "permissions": [],
+  "permissions": [
+   "players.animations.control"
+  ],
   "reasons": [
    "animations_unavailable",
    "invalid_json",
@@ -34208,7 +34212,9 @@
   "example": "-- open77.lua: permission 'players.animations.control'\n-- Sit a player on a chair prop that has no device of its own: the pose is\n-- the chair's seat, the yaw is the direction the chair faces.\nlocal chair = { x = -1441.2, y = 129.6, z = 18.05 }\nlocal placed, err = Open77.animations.playAt(playerId, 'chair', chair, 90.0, {\n    durationMs = 30000, loop = false,\n})\nif not placed then print('cannot seat: ' .. tostring(err)); return end\nseated[playerId] = placed.playbackId   -- the handle stopAt() takes",
   "inferred": false,
   "source_line": 7784,
-  "permissions": [],
+  "permissions": [
+   "players.animations.control"
+  ],
   "reasons": [
    "animations_unavailable",
    "invalid_json",
@@ -34230,7 +34236,7 @@
   "name": "playClip",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Start a synchronized RP action on a player, addressed by clip name.",
-  "description": "Requires players.animations.control and the same readiness, ownership and duration rules as play(); only the addressing differs. The owning profile is resolved from the generated catalogue, so the caller names the animation rather than the action that carries it. This is the closest honest analogue of FiveM's TaskPlayAnim. It is not 'play any clip': Cyberpunk plays a named clip only through a workspot bound into a device entity at asset-build time, so the addressable set is the 70 clips of the twelve shipped devices. A name outside it -- including a name from the 23,044-entry discovery inventory -- is refused with unknown_clip rather than started and ignored by the engine. Options are durationMs and loop only. blendIn, blendOut, upperBody, holdLastFrame, flags, dict and playbackRate are refused by name as unsupported_option:<key>, because an author porting a TaskPlayAnim call has to be able to see which concept is missing rather than assume a bad value. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.",
+  "description": "Requires players.animations.control. Resolves an exact clip through the shipped profile catalogue; a missing clip returns unknown_clip. Discovery inventories are not allowlists. A clip shared with a workspot resolves to the stationary profile: use play/request with a layer profile ID to select walking behavior. Options are durationMs, loop and item; the clip is the argument. Unsupported upperBody, blendIn, blendOut, blendMs, holdLastFrame, flags, dict and playbackRate options return unsupported_option:<key>; upperBody does not convert arbitrary clips. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Provided directly by the server runtime; no animation resource export dependency is needed for this server call.",
   "params": [
    {
     "name": "playerId",
@@ -34261,7 +34267,9 @@
   "example": "-- open77.lua: permission 'players.animations.control'\nlocal playback, err = Open77.animations.playClip(\n    playerId, 'stand__dance__02__dancing__03', { durationMs = 15000, loop = false })\nif not playback then print(err); return end\nprint(playback.playbackId)",
   "inferred": false,
   "source_line": 7793,
-  "permissions": [],
+  "permissions": [
+   "players.animations.control"
+  ],
   "reasons": [
    "animations_unavailable",
    "invalid_json",
@@ -34283,7 +34291,7 @@
   "name": "sequence",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Schedule a server-owned sequence of RP profiles for a player.",
-  "description": "Requires players.animations.control and the same readiness and ownership checks as play(). Accepts 1–16 steps with profile, optional clip and durationMs. Each step defaults to 5000 ms and must last at least 1000 ms; the total cannot exceed 600000 ms. The only sequence option is loop, default false. Durations schedule server transitions and are not measured native clip lengths. Profile switches require workspot exit/re-entry and may not blend seamlessly. Server resource stop, player death, vehicle entry, movement or bucket changes cancel the action. Provided directly by the server runtime; no animation resource export dependency is needed for this server call.",
+  "description": "Requires players.animations.control and the same ownership/readiness checks as play(). Accepts 1–16 steps with profile, optional clip, durationMs and item. Each omitted duration uses the measured clip cycle when available, otherwise 5000 ms; steps must last 1000–600000 ms and the total cannot exceed 600000 ms. The sequence option loop defaults to false. A hold_item_walk → drink_walk → hold_item_walk chain preserves the prop ID while the item record stays the same. Each new play call gets a new playbackId; a sequence coordinates one player. Workspot transitions may require asynchronous exit/re-entry. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Provided directly by the server runtime; no animation resource export dependency is needed for this server call.",
   "params": [
    {
     "name": "playerId",
@@ -34314,7 +34322,9 @@
   "example": "local playback, err = Open77.animations.sequence(playerId, {\n    { profile = 'handsup', durationMs = 4000 },\n    { profile = 'clap', durationMs = 6000 },\n}, { loop = false })\nif not playback then print(err); return end\nprint(playback.playbackId)",
   "inferred": false,
   "source_line": 7798,
-  "permissions": [],
+  "permissions": [
+   "players.animations.control"
+  ],
   "reasons": [
    "animations_unavailable",
    "invalid_json",
@@ -34361,7 +34371,9 @@
   "example": "local playback, err = Open77.animations.play(playerId, 'smoke')\nif not playback then print(err); return end\nSetTimeout(10000, function()\n    local stopped, reason = Open77.animations.stop(playerId, playback.playbackId)\n    if not stopped then print(reason) end\nend)",
   "inferred": false,
   "source_line": 7801,
-  "permissions": [],
+  "permissions": [
+   "players.animations.control"
+  ],
   "reasons": [
    "animations_unavailable",
    "invalid_json",
@@ -34402,7 +34414,9 @@
   "example": "-- Let the player stand up again when they press the key, whoever sat them down\nRegisterCommand('standup', function(source)\n    local handle = seated[source]\n    if not handle then return end\n    local ok, err = Open77.animations.stopAt(handle)\n    if not ok then print(err) end\n    seated[source] = nil\nend, false)",
   "inferred": false,
   "source_line": 7790,
-  "permissions": [],
+  "permissions": [
+   "players.animations.control"
+  ],
   "reasons": [
    "animations_unavailable",
    "invalid_json",
@@ -36469,7 +36483,7 @@
   "name": "lease",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Stage a temporary implant without overwriting paid state.",
-  "description": "Requires players.cyberware.temporary. options.durationMs is1000..300000, default300000. Requires a ready bound character and registered definition/grade. pending→active only after native acknowledgement. Wait for the matching onCyberwareLeaseChanged state before admitting PvP. Owner stop, body/bucket change, expiry or disconnect releases the overlay; native restoration remains asynchronous.",
+  "description": "Requires players.cyberware.temporary. options.durationMs is1000..300000, default300000. Requires a ready bound character and registered definition/grade. pendingâ†’active only after native acknowledgement. Wait for the matching onCyberwareLeaseChanged state before admitting PvP. Owner stop, body/bucket change, expiry or disconnect releases the overlay; native restoration remains asynchronous.",
   "params": [
    {
     "name": "playerId",
@@ -38670,7 +38684,7 @@
   "name": "getState",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "The canonical clock and weather state, right now.",
-  "description": "Requires `world.environment`. Carries `scope` and `bucket`, the clock as both `secondsOfDay` and `hour`/`minute`/`second`, `rate`, `frozen`/`timeFrozen`, `weather`/`weatherPreset`/`weatherPriority`, `transitionSeconds` and `weatherTransitionRemainingMs`, `weatherFrozen`/`randomWeather`/`nextWeatherInMs`, the `revision`/`weatherRevision`/`authorityEpoch` triple clients use to reject a stale snapshot, and `buckets` — every routing bucket currently holding an override. It is the same table every setter returns and the same payload `onEnvironmentChanged` carries.",
+  "description": "Requires `world.environment`. Carries `scope` and `bucket`, the clock as both `secondsOfDay` and `hour`/`minute`/`second`, `rate`, `frozen`/`timeFrozen`, `weather`/`weatherPreset`/`weatherPriority`, `transitionSeconds` and `weatherTransitionRemainingMs`, `weatherFrozen`/`randomWeather`/`nextWeatherInMs`, the `revision`/`weatherRevision`/`authorityEpoch` triple clients use to reject a stale snapshot, and `buckets` â€” every routing bucket currently holding an override. It is the same table every setter returns and the same payload `onEnvironmentChanged` carries.",
   "params": [
    {
     "name": "bucket",
@@ -38743,7 +38757,7 @@
   "name": "setTime",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sets the authoritative time of day every player projects.",
-  "description": "Requires `world.environment`. The host installs this facade in every VM; the authority itself is the bundled `open77_weather` resource, reached through a synchronous export call, because the only code able to move a sky is that resource's CLIENT projection. `bucket` is optional: omitted it moves the default environment, given it creates or updates that routing bucket's override, seeded from the default as it reads at that moment. Answers `environment_unavailable` when the authority is not running — which `resources.load` can cause silently. See [the guide](weather.md).",
+  "description": "Requires `world.environment`. The host installs this facade in every VM; the authority itself is the bundled `open77_weather` resource, reached through a synchronous export call, because the only code able to move a sky is that resource's CLIENT projection. `bucket` is optional: omitted it moves the default environment, given it creates or updates that routing bucket's override, seeded from the default as it reads at that moment. Answers `environment_unavailable` when the authority is not running â€” which `resources.load` can cause silently. See [the guide](weather.md).",
   "params": [
    {
     "name": "hour",
@@ -38833,7 +38847,7 @@
   "name": "setTimeRate",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sets how many game seconds pass per real second.",
-  "description": "Requires `world.environment`. Accepts `0` to `120`; the shipped default is `8.0`, which MUST match the engine's own rate or the projection has to correct the clock continuously — and every correction is a `SetGameTimeByHMS` world time jump that makes the streamer re-resolve nodes and resurrect destroyed props (measured 25 Aug). Changing day length properly needs a native rate control, not this.",
+  "description": "Requires `world.environment`. Accepts `0` to `120`; the shipped default is `8.0`, which MUST match the engine's own rate or the projection has to correct the clock continuously â€” and every correction is a `SetGameTimeByHMS` world time jump that makes the streamer re-resolve nodes and resurrect destroyed props (measured 25 Aug). Changing day length properly needs a native rate control, not this.",
   "params": [
    {
     "name": "rate",
@@ -38917,7 +38931,7 @@
   "name": "setWeatherFrozen",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Pins the current preset by stopping the random scheduler.",
-  "description": "Requires `world.environment`. The name means something different on each runtime, deliberately: on the CLIENT it is an unconditional lock against a vanilla controller submitting its own preset, and is not an operator choice; on the SERVER it means pin the preset — the weighted random draw stops, so the sky stays where it was put. It is the same switch `weather.random off` throws, and it is the half a competitive gamemode wants, because lighting is a fairness variable.",
+  "description": "Requires `world.environment`. The name means something different on each runtime, deliberately: on the CLIENT it is an unconditional lock against a vanilla controller submitting its own preset, and is not an operator choice; on the SERVER it means pin the preset â€” the weighted random draw stops, so the sky stays where it was put. It is the same switch `weather.random off` throws, and it is the half a competitive gamemode wants, because lighting is a fairness variable.",
   "params": [
    {
     "name": "frozen",
@@ -44806,7 +44820,7 @@
   "name": "cancel",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Cancel an interaction owned by this resource.",
-  "description": "Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Custom reason accepts 1–64 ASCII alphanumeric/underscore characters; invalid reasons normalize to cancelled. Delayed callbacks should retain the interaction ID, never cancel whatever action happens to occupy the player later.",
+  "description": "Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Custom reason accepts 1â€“64 ASCII alphanumeric/underscore characters; invalid reasons normalize to cancelled. Delayed callbacks should retain the interaction ID, never cancel whatever action happens to occupy the player later.",
   "params": [
    {
     "name": "interactionId",
@@ -44995,7 +45009,7 @@
   "name": "request",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Reserve and coordinate a two-player interaction.",
-  "description": "Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Kinds: give, heal, carry, escort, custom. Options: durationMs (500–600000, default4000), startDistance (.25–10, default3), breakDistance (startDistance–20, default5), inviteTimeoutMs (1000–60000, default15000), consent (defaulttrue), optional actorAnimation/targetAnimation RP profiles for stationary kinds. Carry/escort reject profile overrides. Both players must be alive, on foot, near and in the same bucket. Acceptance is not proof of native playback; observe lifecycle events.",
+  "description": "Requires players.interactions.read (inspection) or players.interactions.control (creation/cancellation). Uses canonical player IDs. The coordinator reserves both players and cancels on death, disconnect, vehicle entry, bucket change, resource stop, timeout or presentation failure. Gameplay effects remain the resource's responsibility. See player-interactions.md. Kinds: give, heal, carry, escort, custom. Options: durationMs (500â€“600000, default4000), startDistance (.25â€“10, default3), breakDistance (startDistanceâ€“20, default5), inviteTimeoutMs (1000â€“60000, default15000), consent (defaulttrue), optional actorAnimation/targetAnimation RP profiles for stationary kinds. Carry/escort reject profile overrides. Both players must be alive, on foot, near and in the same bucket. Acceptance is not proof of native playback; observe lifecycle events.",
   "params": [
    {
     "name": "actorId",
@@ -47974,7 +47988,7 @@
   "name": "attach",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Set a synchronized prop binding.",
-  "description": "Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props and ownership of the prop. Parent must be alive/valid in the same bucket. Up to 32 bindings per parent. Optional expectedRevision enables compare-and-swap; stale updates reject. Idempotent identical attachment does not create a new revision.",
+  "description": "Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each Â±20), rotation {x,y,z} in degrees (each Â±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props and ownership of the prop. Parent must be alive/valid in the same bucket. Up to 32 bindings per parent. Optional expectedRevision enables compare-and-swap; stale updates reject. Idempotent identical attachment does not create a new revision.",
   "params": [
    {
     "name": "propId",
@@ -48248,7 +48262,7 @@
   "name": "getAttachment",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Read a prop's current replicated binding.",
-  "description": "Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. Returns a copy, not a mutable reference. Nil can mean detached or absent; inspect the second result for a capability/validation failure.",
+  "description": "Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each Â±20), rotation {x,y,z} in degrees (each Â±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. Returns a copy, not a mutable reference. Nil can mean detached or absent; inspect the second result for a capability/validation failure.",
   "params": [
    {
     "name": "propId",
@@ -48370,7 +48384,7 @@
   "name": "setAttachmentTransform",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Change a binding's local offset and rotation.",
-  "description": "Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props and prop ownership. Omitted vectors retain their previous values. The current revision is used if expectedRevision is omitted; stale explicit revisions reject. A detached prop rejects with not_attached.",
+  "description": "Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each Â±20), rotation {x,y,z} in degrees (each Â±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props and prop ownership. Omitted vectors retain their previous values. The current revision is used if expectedRevision is omitted; stale explicit revisions reject. A detached prop rejects with not_attached.",
   "params": [
    {
     "name": "propId",
@@ -51583,7 +51597,7 @@
   "name": "adopt",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Turns a client's description of a vanilla car into a canonical vehicle.",
-  "description": "Requires `world.vehicles` **and** `world.vehicles.adopt`, which is its own string because this is the one vehicle call that creates world state from something a client wrote. `playerId` must be the player the server believes sent the description — inside a net event handler that is `source`, and it must never be read out of the payload, because the placement checks are the entire defence. The description is what the client's `Open77.vehicles.adoptable()` hands back: `engineEntity`, `record`, `position`, and optionally `orientation`, `health`, `flags`, `primaryColor`, `secondaryColor`, `doors`, `windows`, `tires`, `brokenGlass`, `brokenLights` and `detachedParts`.\n\n**Adoption takes the car's identity, not the engine's entity.** A traffic car is spawned, owned and despawned by REDengine population on one client, and the plugin has no notification it can rely on for a despawn it did not start — a canonical vehicle bound to such an entity would quietly become a ghost. So nothing is bound: the server creates an ordinary canonical vehicle from the description, with the same lifetime, the same reaper and the same projection path as one a garage spawned, and the client then hands its vanilla chassis back with `Open77.vehicles.releaseAdopted`.\n\nRefusals are `adopt_policy_closed` (the player's bucket is not open), `too_far`, `player_unavailable` (no position for them), `duplicate_adoption` (a car of the same record is already adopted within three metres of that spot, because traffic is spawned per client and two players on one corner each describe their own), `vehicle_limit`, and the `invalid_*` family. `already_adopted` is not a failure: it answers with the id of the vehicle the first proposal created, because a retry after a dropped acknowledgement is the ordinary way a client proposes the same chassis twice.",
+  "description": "Requires `world.vehicles` **and** `world.vehicles.adopt`, which is its own string because this is the one vehicle call that creates world state from something a client wrote. `playerId` must be the player the server believes sent the description â€” inside a net event handler that is `source`, and it must never be read out of the payload, because the placement checks are the entire defence. The description is what the client's `Open77.vehicles.adoptable()` hands back: `engineEntity`, `record`, `position`, and optionally `orientation`, `health`, `flags`, `primaryColor`, `secondaryColor`, `doors`, `windows`, `tires`, `brokenGlass`, `brokenLights` and `detachedParts`.\n\n**Adoption takes the car's identity, not the engine's entity.** A traffic car is spawned, owned and despawned by REDengine population on one client, and the plugin has no notification it can rely on for a despawn it did not start â€” a canonical vehicle bound to such an entity would quietly become a ghost. So nothing is bound: the server creates an ordinary canonical vehicle from the description, with the same lifetime, the same reaper and the same projection path as one a garage spawned, and the client then hands its vanilla chassis back with `Open77.vehicles.releaseAdopted`.\n\nRefusals are `adopt_policy_closed` (the player's bucket is not open), `too_far`, `player_unavailable` (no position for them), `duplicate_adoption` (a car of the same record is already adopted within three metres of that spot, because traffic is spawned per client and two players on one corner each describe their own), `vehicle_limit`, and the `invalid_*` family. `already_adopted` is not a failure: it answers with the id of the vehicle the first proposal created, because a retry after a dropped acknowledgement is the ordinary way a client proposes the same chassis twice.",
   "params": [
    {
     "name": "playerId",
@@ -54424,7 +54438,7 @@
   "name": "setAdoptPolicy",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Opens or closes one routing bucket to vehicle adoption.",
-  "description": "Requires `world.vehicles` and `world.vehicles.adopt`. `\"none\"` is the default and every bucket starts there: nothing is adoptable until a resource says so. `\"driver\"` accepts only a car the proposing player is standing at, within six metres — the car-theft shape, where you make canonical the car you are about to take and nothing else. `\"any\"` widens that to sixty metres; it does not remove the check. `options.bucket` selects the routing bucket (default `0`). The policy is server-side only: a client never learns it, and a proposal into a closed bucket is simply refused.",
+  "description": "Requires `world.vehicles` and `world.vehicles.adopt`. `\"none\"` is the default and every bucket starts there: nothing is adoptable until a resource says so. `\"driver\"` accepts only a car the proposing player is standing at, within six metres â€” the car-theft shape, where you make canonical the car you are about to take and nothing else. `\"any\"` widens that to sixty metres; it does not remove the check. `options.bucket` selects the routing bucket (default `0`). The policy is server-side only: a client never learns it, and a proposal into a closed bucket is simply refused.",
   "params": [
    {
     "name": "policy",
@@ -56251,7 +56265,7 @@
   "name": "taskPlayerEnter",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Seats a player through the vanilla entry animation.",
-  "description": "Requires `world.vehicles`. The same authoritative reservation as `warpPlayerIntoVehicle`, taking the same `options` and answering with the same refusal reasons; the only difference is that the affected client is asked to reach the seat by mounting through the mounting facility and playing the authored entry, instead of being placed in the seat in one frame. It does **not** walk the player to the door: the approach is an NPC behaviour, and driving a network puppet through it crashed the observing client when it was measured, so the player is mounted where they stand and slides in. The animation is bounded — a client whose mounting relation does not become readable within three seconds warps instead — so the seat is always reached and `warpPlayerIntoVehicle` remains the path that never depends on an animation.",
+  "description": "Requires `world.vehicles`. The same authoritative reservation as `warpPlayerIntoVehicle`, taking the same `options` and answering with the same refusal reasons; the only difference is that the affected client is asked to reach the seat by mounting through the mounting facility and playing the authored entry, instead of being placed in the seat in one frame. It does **not** walk the player to the door: the approach is an NPC behaviour, and driving a network puppet through it crashed the observing client when it was measured, so the player is mounted where they stand and slides in. The animation is bounded â€” a client whose mounting relation does not become readable within three seconds warps instead â€” so the seat is always reached and `warpPlayerIntoVehicle` remains the path that never depends on an animation.",
   "params": [
    {
     "name": "playerId",
@@ -56351,7 +56365,7 @@
   "name": "taskPlayerLeave",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Ejects a player from a network vehicle.",
-  "description": "Requires `world.vehicles`. The FiveM-shaped name for the same durable forced exit as `forcePlayerOutOfVehicle`, and it is honest about not being the mirror image of `taskPlayerEnter`: **the leaving player's own exit is instant on this build.** That is a measurement, not an omission — driving the local player's authored exit workspot inside the mount release window faulted on the engine's release-dispatch thread and the workspot never started once, so the client does not attempt it. Every other player still sees this occupant's exit animated, because a remote proxy's exit has always been; only the ejected player's own screen skips it.",
+  "description": "Requires `world.vehicles`. The FiveM-shaped name for the same durable forced exit as `forcePlayerOutOfVehicle`, and it is honest about not being the mirror image of `taskPlayerEnter`: **the leaving player's own exit is instant on this build.** That is a measurement, not an omission â€” driving the local player's authored exit workspot inside the mount release window faulted on the engine's release-dispatch thread and the workspot never started once, so the client does not attempt it. Every other player still sees this occupant's exit animated, because a remote proxy's exit has always been; only the ejected player's own screen skips it.",
   "params": [
    {
     "name": "playerId",
@@ -59611,7 +59625,7 @@
   "name": "SetPlayerModel",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Select a server-owned NPC body for a connected player.",
-  "description": "Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0–86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "description": "Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0â€“86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
   "params": [
    {
     "name": "playerId",
@@ -59771,7 +59785,7 @@
   "name": "setModel",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Select a server-owned NPC body for a connected player.",
-  "description": "Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0–86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
+  "description": "Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0â€“86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.",
   "params": [
    {
     "name": "playerId",
@@ -60697,5 +60711,66 @@
   "constant": false,
   "qualified": "Open77.remoteCamera.worldModels",
   "route_id": "Open77.remoteCamera.worldModels"
+ },
+ {
+  "namespace": "Open77.markers",
+  "name": "get",
+  "handler": "LuaMarkerGet",
+  "summary": "Reads one 3D marker owned by the calling resource.",
+  "description": "Requires `world.markers`. Returns the same snapshot fields as `list()`, including height, scale, rotation, color, customColor, rendered, failed and optional error. Unknown or foreign handles return `nil, not_found`; a malformed handle returns `nil, invalid_marker_id`. A valid handle can still be loading: rendered does not certify on-screen visibility.",
+  "params": [
+   {
+    "name": "id",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "marker snapshot, or nil",
+   "reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local state, reason = Open77.markers.get(marker)\nif state and state.failed then\n    print(state.error)\nend",
+  "inferred": false,
+  "source_line": 24488,
+  "permissions": [
+   "world.markers"
+  ],
+  "reasons": [
+   "invalid_marker_id",
+   "markers_backend_unavailable",
+   "not_found",
+   "permission_denied:world.markers"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.markers.get",
+  "route_id": "Open77.markers.get"
+ },
+ {
+  "namespace": "Open77.markers",
+  "name": "shapes",
+  "handler": "LuaMarkerShapes",
+  "summary": "Lists the eight supported native 3D marker shapes.",
+  "description": "Returns ring, cylinder, checkpoint, arrow, chevron, cone, diamond and sphere. These are stable string identifiers, not numeric marker types from another game. Reading this static catalogue needs no permission; creating or inspecting markers requires `world.markers`.",
+  "params": [],
+  "returns": [
+   "array of shape names"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "for _, shape in ipairs(Open77.markers.shapes()) do\n    print(shape)\nend",
+  "inferred": false,
+  "source_line": 24489,
+  "permissions": [],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.markers.shapes",
+  "route_id": "Open77.markers.shapes"
  }
 ]

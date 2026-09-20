@@ -99,6 +99,20 @@ lists the three places Open77 deliberately answers differently.
 
 ## Testing
 
+For RP jobs and inventory actions, read `open77_guide rp-animations` before choosing
+an animation or spawning a prop. The sections `upper-body-actions-for-jobs-and-inventory`,
+`animation-owned-items-one-server-call` and `hold-drink-then-hold-again` cover native
+default items, item suppression/custom records, input transitions and timed sequences.
+Use the server `Open77.animations` API for authoritative actions. Inventory checks,
+consumption, needs and rewards remain the job resource's responsibility.
+
+Choose a `kind=layer` profile for walking/running. Workspots are stationary; an
+`upperBody=true` option does not adapt arbitrary clips. `open77_data animations`
+and the public discovery downloads are not allowlists: use the installed profile
+catalogue and handle `unknown_clip`. An API's `since` identifies the original native,
+not the first build supporting every newer option. Match client, server and archives
+before relying on native animation-owned items; first-person support remains experimental.
+
 When the local MCP is attached to a server (`open77_workspace` says so), validate, reload and read
 the log yourself. When it is not, give the owner the exact commands: `reload <resource>` at the
 server console, then what to look for in the log, and which in-game action proves the feature.

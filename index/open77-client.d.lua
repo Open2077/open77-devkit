@@ -458,7 +458,7 @@ function GetSoundState(id) end
 
 --- The server-wide state bag, read-only on the client.
 ---
---- The FiveM spelling of `Open77.state.global`, mirroring what the server replicated. Reading a key the server never set, or that this client has not received yet, answers nil — check `Open77.state.ready()` before treating a nil as an absence. Writing is refused: the client never writes a bag, because a bag is shared state and a client that could write one could write another player's job or another vehicle's keys. Ask with `Open77.state.request`, which the server arbitrates and republishes.
+--- The FiveM spelling of `Open77.state.global`, mirroring what the server replicated. Reading a key the server never set, or that this client has not received yet, answers nil â€” check `Open77.state.ready()` before treating a nil as an absence. Writing is refused: the client never writes a bag, because a bag is shared state and a client that could write one could write another player's job or another vehicle's keys. Ask with `Open77.state.request`, which the server arbitrates and republishes.
 ---
 --- Since: 2.31.13+op77.67
 ---@return any the the global bag, indexable by key
@@ -738,8 +738,8 @@ function PlaySound(id) end
 --- Writes a resource-prefixed line to the Open77 log. Values are converted with bounded formatting; this does not send a chat message or write into a WebUI page.
 ---
 --- Since: 2.31.0+op77.3
----@param _ any
-function print(_) end
+---@param ___ any
+function print(___) end
 
 --- Builds a quaternion: a plain { x, y, z, w } table with three rotation methods.
 ---
@@ -1253,7 +1253,7 @@ function Open77.animations.clips(query) end
 
 --- The clip a body is currently playing.
 ---
---- Returns false when it is playing nothing — which is a state, not an error.
+--- Returns false when it is playing nothing â€” which is a state, not an error.
 ---
 --- Since: 2.31.0+op77.3
 ---@param entity integer|string
@@ -1274,7 +1274,7 @@ function Open77.animations.get(profileId) end
 
 --- Find synchronized RP animation profiles in the local catalogue.
 ---
---- Resolves to copied profile definitions containing id, label, category, default clip and allowed clips. The optional query is a case-insensitive substring across ID, label and category, up to 128 characters. An empty query returns all 15 profiles; no match returns an empty array. Catalogue membership and male/female rig bindings are not proof of native playback validation. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
+--- Returns all supported profiles when the query is empty, or a case-insensitive substring match across ID, label and category (up to 128 characters). Definitions include kind, clip variants and rig metadata. Choose a kind=layer profile such as drink_walk to preserve locomotion; catalogue membership does not prove native rendering. Resolves asynchronously to copied definitions. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
 ---
 --- Since: 2.31.13+op77.48
 --- Reasons: open77_animations
@@ -1308,7 +1308,7 @@ function Open77.animations.playSelf(animation, thirdPerson) end
 
 --- Request a synchronized RP action for the local player.
 ---
---- The server validates the named profile and returns a playback state and playbackId; acceptance does not mean the native workspot has mounted. Options are clip, durationMs and loop only. The clip must belong to the profile. loop defaults to true; omitted or zero duration is indefinite when looping. With loop=false the default is 5000 ms. A nonzero duration must be an integer from 1000 to 600000 ms. Playback temporarily uses the F7 third-person body without changing the saved camera preference. Moving, combat and unsafe player states interrupt it. Use cancel(), not the legacy local stop(entity), for synchronized actions. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
+--- Requests an action for the authenticated local player. Use cancel() for this synchronized action, not the legacy local stop(entity). Returns authoritative acceptance and playbackId, not proof of native presentation. Options are clip, durationMs, loop and item. The clip must belong to the selected profile. loop defaults to true. Looping profiles may use omitted/zero duration for indefinite playback; once profiles and loop=false use the measured clip duration when available, otherwise 5000 ms. Explicit nonzero durations must be integers from 1000 to 600000 ms. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
 ---
 --- Since: 2.31.13+op77.48
 --- Reasons: open77_animations
@@ -1320,7 +1320,7 @@ function Open77.animations.request(profileId, options) end
 
 --- Request a synchronized RP action for the local player by clip name.
 ---
---- The same request as request(), addressed by animation instead of by profile: the owning profile is resolved from the generated catalogue and the server re-validates it. This is the honest analogue of TaskPlayAnim -- a clip name and playback options -- and it is bounded the same way playback is. A name no shipped device carries is refused with unknown_clip before anything goes on the wire, rather than started and silently ignored by the engine. Options are durationMs and loop only; the clip is the argument. FiveM's blendIn, blendOut, upperBody, holdLastFrame and flags have no workspot equivalent and are refused by name as unsupported_option:<key>. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
+--- Resolves an exact clip through the shipped profile catalogue; a missing clip returns unknown_clip. Discovery inventories are not allowlists. A clip shared with a workspot resolves to the stationary profile: use play/request with a layer profile ID to select walking behavior. Options are durationMs, loop and item; the clip is the argument. Unsupported upperBody, blendIn, blendOut, blendMs, holdLastFrame, flags, dict and playbackRate options return unsupported_option:<key>; upperBody does not convert arbitrary clips. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
 ---
 --- Since: 2.31.13+op77.67
 --- Reasons: open77_animations
@@ -1332,7 +1332,7 @@ function Open77.animations.requestClip(clip, options) end
 
 --- Request an ordered RP sequence for the local player.
 ---
---- Accepts 1–16 steps with profile, optional clip and durationMs. Each step defaults to 5000 ms, must last 1000–600000 ms, and the total cannot exceed 600000 ms. The only sequence option is loop, default false. These are server scheduling durations, not measured clip lengths. Profile changes use asynchronous workspot exit/re-entry, not guaranteed seamless blends. The result is authoritative acceptance, not a native rendering acknowledgement. Unlike the server method, this call takes no playerId. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
+--- Takes no playerId; requests a sequence for the local player. Accepts 1–16 steps with profile, optional clip, durationMs and item. Each omitted duration uses the measured clip cycle when available, otherwise 5000 ms; steps must last 1000–600000 ms and the total cannot exceed 600000 ms. The sequence option loop defaults to false. A hold_item_walk → drink_walk → hold_item_walk chain preserves the prop ID while the item record stays the same. Each new play call gets a new playbackId; a sequence coordinates one player. Workspot transitions may require asynchronous exit/re-entry. For a layer, item omitted uses its default native item; item=false suppresses the animation-owned item. A server may select an Items.* record with world.props. Custom records requested by clients return item_requires_server; workspots reject the item option with item_requires_layer. The native attachment supplies the grip; item does not accept offset or rotation. The runtime owns temporary-item cleanup; inventory, needs and job rewards remain resource-owned. Upper-body layers preserve walking and running; workspots cancel on movement. Requires matching client, server and animation archives. The item option requires native animation-item support; the native function's since field does not establish the first build supporting every option. First-person support is experimental and profile-dependent. See [RP animations](/docs/rp-animations#upper-body-actions-for-jobs-and-inventory). Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
 ---
 --- Since: 2.31.13+op77.48
 --- Reasons: open77_animations
@@ -2495,7 +2495,7 @@ function Open77.character.speed(entity) end
 ---
 --- Since: 2.31.0+op77.3
 ---@param entity? any
----@return any table table { isPlayer, attached, id, engineId, position, orientation, forward, velocity, speed, groundSpeed, yaw, alive, health, grounded, crouched, sliding, vaulting, air, fall, landing, weapon…, inVehicle, seat, driver }
+---@return any table table { isPlayer, attached, id, engineId, position, orientation, forward, velocity, speed, groundSpeed, yaw, alive, health, grounded, crouched, sliding, vaulting, air, fall, landing, weaponâ€¦, inVehicle, seat, driver }
 ---@return any reason reason, when the first is nil
 function Open77.character.state(entity) end
 
@@ -3234,7 +3234,7 @@ function Open77.elevators.request(id, floor, action) end
 
 --- Lit l'horloge REDengine locale.
 ---
---- Primitive interne protégée par `world.environment`. Retourne un snapshot atomique de l'heure appliquée et de l'état de pause. Dans une session normale, utilisez l'export `open77_weather.getState` plutôt que cette valeur de projection.
+--- Primitive interne protÃ©gÃ©e par `world.environment`. Retourne un snapshot atomique de l'heure appliquÃ©e et de l'Ã©tat de pause. Dans une session normale, utilisez l'export `open77_weather.getState` plutÃ´t que cette valeur de projection.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
@@ -3243,7 +3243,7 @@ function Open77.elevators.request(id, floor, action) end
 ---@return any raison raison si indisponible
 function Open77.environment.getTime() end
 
---- Indique si la météo automatique vanilla est neutralisée.
+--- Indique si la mÃ©tÃ©o automatique vanilla est neutralisÃ©e.
 ---
 --- Demande `world.environment`.
 ---
@@ -3256,49 +3256,49 @@ function Open77.environment.isWeatherFrozen() end
 
 --- Projette une heure serveur dans REDengine.
 ---
---- Demande `world.environment`. `open77_weather` est normalement le seul propriétaire de cette permission. REDengine choisit la prochaine occurrence de l'heure demandée ; le package officiel filtre donc les petits reculs réseau pour éviter un saut d'un jour.
+--- Demande `world.environment`. `open77_weather` est normalement le seul propriÃ©taire de cette permission. REDengine choisit la prochaine occurrence de l'heure demandÃ©e ; le package officiel filtre donc les petits reculs rÃ©seau pour Ã©viter un saut d'un jour.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
 ---@param hour any
 ---@param minute any
 ---@param second? any
----@return any true true en cas de succès, sinon false
+---@return any true true en cas de succÃ¨s, sinon false
 ---@return any raison raison du refus
 function Open77.environment.setTime(hour, minute, second) end
 
---- Fige ou libère uniquement l'horloge du jeu.
+--- Fige ou libÃ¨re uniquement l'horloge du jeu.
 ---
---- Ne fige pas la simulation. Demande `world.environment`; utilisé par la projection serveur pour neutraliser la vitesse vanilla.
+--- Ne fige pas la simulation. Demande `world.environment`; utilisÃ© par la projection serveur pour neutraliser la vitesse vanilla.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
 ---@param frozen boolean
----@return any true true en cas de succès, sinon false
+---@return any true true en cas de succÃ¨s, sinon false
 ---@return any raison raison du refus
 function Open77.environment.setTimeFrozen(frozen) end
 
---- Applique un preset météo REDengine.
+--- Applique un preset mÃ©tÃ©o REDengine.
 ---
---- Primitive interne demandant `world.environment`. Le second retour `applied=false` est aussi possible en cas de succès si le preset était déjà actif.
+--- Primitive interne demandant `world.environment`. Le second retour `applied=false` est aussi possible en cas de succÃ¨s si le preset Ã©tait dÃ©jÃ  actif.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
 ---@param preset string
 ---@param transitionSeconds? number
 ---@param priority? integer
----@return any true true en cas de succès, sinon false
----@return any applied applied si succès, sinon raison du refus
+---@return any true true en cas de succÃ¨s, sinon false
+---@return any applied applied si succÃ¨s, sinon raison du refus
 function Open77.environment.setWeather(preset, transitionSeconds, priority) end
 
---- Désactive ou réactive le contrôleur météo automatique vanilla.
+--- DÃ©sactive ou rÃ©active le contrÃ´leur mÃ©tÃ©o automatique vanilla.
 ---
---- Demande `world.environment`. Figer conserve le preset courant et laisse le serveur décider du prochain événement.
+--- Demande `world.environment`. Figer conserve le preset courant et laisse le serveur dÃ©cider du prochain Ã©vÃ©nement.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
 ---@param frozen boolean
----@return any true true en cas de succès, sinon false
+---@return any true true en cas de succÃ¨s, sinon false
 ---@return any raison raison du refus
 function Open77.environment.setWeatherFrozen(frozen) end
 
@@ -3446,7 +3446,7 @@ function Open77.events.off(handler) end
 
 --- Listens for a local event.
 ---
---- Same as the `AddEventHandler` global. Events emitted by the plugin — `open77:pauseKey`, `open77:menuStateChanged`, `open77:inspector:on` — arrive here.
+--- Same as the `AddEventHandler` global. Events emitted by the plugin â€” `open77:pauseKey`, `open77:menuStateChanged`, `open77:inspector:on` â€” arrive here.
 ---
 --- Since: 2.31.0+op77.3
 --- Reasons: invalid_event_or_handler_limit
@@ -3463,21 +3463,21 @@ function Open77.events.on(event, handler) end
 --- Reasons: export_arguments_not_serializable, export_not_found, export_request_limit, export_resource_unavailable, export_target_busy, resource_preparing
 ---@param resource string
 ---@param export string
----@param _? any
+---@param ___? any
 ---@return any promise promise, or nil
 ---@return any reason reason
-function Open77.exports.call(resource, export, _) end
+function Open77.exports.call(resource, export, ___) end
 
 --- Calls a function exported by another resource, inline on this thread.
 ---
---- The non-sugar form of exports.resource:name(...). Runs the callee in its own VM before returning and yields its values directly. RAISES on failure instead of returning nil, reason — the one place Open77 departs from its own convention, so that ported FiveM code behaves the same; use pcall to handle failure. The callee must not yield (export_yielded), gets its own instruction budget (export_budget_exhausted fails only that call), and chains are capped at 8 frames (export_recursion_limit). Arguments and results are copied, never shared. A resource may call its own export.
+--- The non-sugar form of exports.resource:name(...). Runs the callee in its own VM before returning and yields its values directly. RAISES on failure instead of returning nil, reason â€” the one place Open77 departs from its own convention, so that ported FiveM code behaves the same; use pcall to handle failure. The callee must not yield (export_yielded), gets its own instruction budget (export_budget_exhausted fails only that call), and chains are capped at 8 frames (export_recursion_limit). Arguments and results are copied, never shared. A resource may call its own export.
 ---
 --- Since: 2.31.13+op77.67
 ---@param resource string
 ---@param export string
----@param _? any
+---@param ___? any
 ---@return any whatever whatever the export returns
-function Open77.exports.callSync(resource, export, _) end
+function Open77.exports.callSync(resource, export, ___) end
 
 --- Requests cleanup of the calling resource's hacking presentation.
 ---
@@ -3905,7 +3905,7 @@ function Open77.inspector.outline(enabled) end
 ---
 --- Reads a snapshot, never a probe. The ray has to be cast on the game thread, and the plugin refreshes it at 10 Hz, so calling this costs nothing and cannot land a raycast on the wrong thread.
 ---
---- Always returns a table when a game is present. `valid` separates "nothing in view" from "no game" — the latter returns `nil, reason`.
+--- Always returns a table when a game is present. `valid` separates "nothing in view" from "no game" â€” the latter returns `nil, reason`.
 ---
 --- Since: 2.31.0+op77.3
 --- Reasons: game_unavailable_on_this_host
@@ -4084,16 +4084,16 @@ function Open77.log.info(message) end
 ---@param message any
 function Open77.log.warn(message) end
 
---- Applique localement un pickup déjà accepté par le serveur.
+--- Applique localement un pickup dÃ©jÃ  acceptÃ© par le serveur.
 ---
---- API interne appelée uniquement après `open77:loot:pickupResult`. Elle projette l'objet dans l'inventaire REDengine local; l'inventaire persistant reste une responsabilité serveur.
+--- API interne appelÃ©e uniquement aprÃ¨s `open77:loot:pickupResult`. Elle projette l'objet dans l'inventaire REDengine local; l'inventaire persistant reste une responsabilitÃ© serveur.
 ---
 --- Permissions: world.loot
 --- Since: 2.31.0+op77.3
 ---@param id integer
 ---@param item string
 ---@param quantity integer
----@return any true true en cas de succès
+---@return any true true en cas de succÃ¨s
 ---@return any raison raison du refus
 function Open77.loot.acceptPickup(id, item, quantity) end
 
@@ -4112,40 +4112,40 @@ function Open77.loot.clear() end
 --- Permissions: world.loot
 --- Since: 2.31.0+op77.3
 ---@param id integer
----@return any true true en cas de succès
+---@return any true true en cas de succÃ¨s
 ---@return any raison raison du refus
 function Open77.loot.remove(id) end
 
 --- Demande au serveur de ramasser un drop.
 ---
---- Le serveur contrôle l'existence, le routing bucket et la distance calculée depuis son dernier snapshot du joueur.
+--- Le serveur contrÃ´le l'existence, le routing bucket et la distance calculÃ©e depuis son dernier snapshot du joueur.
 ---
 --- Permissions: world.loot
 --- Since: 2.31.0+op77.3
 ---@param id integer
----@return any true true si la requête réseau est partie
+---@return any true true si la requÃªte rÃ©seau est partie
 ---@return any raison raison du refus local
 function Open77.loot.requestPickup(id) end
 
---- Active ou désactive la projection de loot autoritaire.
+--- Active ou dÃ©sactive la projection de loot autoritaire.
 ---
---- Réservé à `open77_loot`. Quand il est actif, les choix, conteneurs et drops vanilla sont neutralisés et les objets physiques deviennent de simples représentations du registre serveur.
+--- RÃ©servÃ© Ã  `open77_loot`. Quand il est actif, les choix, conteneurs et drops vanilla sont neutralisÃ©s et les objets physiques deviennent de simples reprÃ©sentations du registre serveur.
 ---
 --- Permissions: world.loot
 --- Since: 2.31.0+op77.3
 ---@param enabled boolean
----@return any true true en cas de succès
+---@return any true true en cas de succÃ¨s
 ---@return any raison raison du refus
 function Open77.loot.setAuthorityEnabled(enabled) end
 
---- Crée ou met à jour la projection locale d'un drop serveur.
+--- CrÃ©e ou met Ã  jour la projection locale d'un drop serveur.
 ---
---- API interne de réplication. Demande la permission `world.loot`; un script gameplay ne doit pas inventer un drop côté client.
+--- API interne de rÃ©plication. Demande la permission `world.loot`; un script gameplay ne doit pas inventer un drop cÃ´tÃ© client.
 ---
 --- Permissions: world.loot
 --- Since: 2.31.0+op77.3
 ---@param drop any
----@return any true true en cas de succès
+---@return any true true en cas de succÃ¨s
 ---@return any raison raison du refus
 function Open77.loot.upsert(drop) end
 
@@ -4362,7 +4362,7 @@ function Open77.markers.clear() end
 
 --- Creates a resource-owned 3D world marker.
 ---
---- Requires `world.markers`. Options require `position` and accept `shape`, `style`, `radius`, `maxDistance`, `minDistance`, and `visible`. The returned decimal-string handle preserves its full 64-bit identity.
+--- Requires `world.markers`. Options require `position` and accept `shape`, `style`, `radius`, `height`, `scale = {x,y,z}`, `rotation = {x,y,z}` in degrees, `color = {r,g,b,a}`, `maxDistance`, `minDistance`, and `visible`. Color channels are integers from 0 to 255; omitted alpha defaults to 180. Eight native mesh shapes are listed by `shapes()`. The returned decimal-string handle preserves its full 64-bit identity. Creation is asynchronous: inspect `get(id).failed` and `error` for loading failures. Markers are local, resource-owned and cleaned up when their resource stops; they do not provide collision or gameplay authority.
 ---
 --- Permissions: world.markers
 --- Since: 2.31.0+op77.3
@@ -4372,14 +4372,26 @@ function Open77.markers.clear() end
 ---@return any reason reason
 function Open77.markers.create(options) end
 
+--- Reads one 3D marker owned by the calling resource.
+---
+--- Requires `world.markers`. Returns the same snapshot fields as `list()`, including height, scale, rotation, color, customColor, rendered, failed and optional error. Unknown or foreign handles return `nil, not_found`; a malformed handle returns `nil, invalid_marker_id`. A valid handle can still be loading: rendered does not certify on-screen visibility.
+---
+--- Permissions: world.markers
+--- Since: not in any published build
+--- Reasons: invalid_marker_id, markers_backend_unavailable, not_found, permission_denied:world.markers
+---@param id string
+---@return any marker marker snapshot, or nil
+---@return any reason reason
+function Open77.markers.get(id) end
+
 --- Lists the calling resource's 3D markers.
 ---
---- Requires `world.markers`. Each snapshot includes its requested definition and whether the native renderer currently presents it.
+--- Requires `world.markers`. Each snapshot includes its requested definition, effective color, and native loading state. `rendered` means attached and enabled, not necessarily on-screen or unoccluded. `failed` and optional `error` expose asynchronous asset or streaming failures.
 ---
 --- Permissions: world.markers
 --- Since: 2.31.0+op77.3
 --- Reasons: markers_backend_unavailable, permission_denied:world.markers
----@return any array array of { id, shape, style, radius, maxDistance, minDistance, visible, rendered, position }, or nil
+---@return any array array of { id, shape, style, radius, height, scale, rotation, color, customColor, maxDistance, minDistance, visible, rendered, failed, error?, position }, or nil
 ---@return any reason reason
 function Open77.markers.list() end
 
@@ -4394,9 +4406,17 @@ function Open77.markers.list() end
 ---@return any reason reason
 function Open77.markers.remove(id) end
 
+--- Lists the eight supported native 3D marker shapes.
+---
+--- Returns ring, cylinder, checkpoint, arrow, chevron, cone, diamond and sphere. These are stable string identifiers, not numeric marker types from another game. Reading this static catalogue needs no permission; creating or inspecting markers requires `world.markers`.
+---
+--- Since: not in any published build
+---@return any array array of shape names
+function Open77.markers.shapes() end
+
 --- Patches a resource-owned 3D marker.
 ---
---- Requires `world.markers`. Only supplied fields are changed, and ownership prevents mutation of another resource's marker.
+--- Requires `world.markers`. Only supplied fields are changed, and ownership prevents mutation of another resource's marker. Accepts the create options, including height, scale, rotation and RGBA color. `color = false` restores the named style palette; alpha zero hides the marker. Invalid patches are rejected atomically. Color and shape changes replace the native entity asynchronously while preserving the handle; avoid per-frame color updates.
 ---
 --- Permissions: world.markers
 --- Since: 2.31.0+op77.3
@@ -4668,7 +4688,7 @@ function Open77.net.unregister(name) end
 --- Permissions: network.client
 --- Since: 2.31.0+op77.3
 --- Reasons: network_backend_unavailable, permission_denied:network.client
----@return any table table { phase, generation, servers… }
+---@return any table table { phase, generation, serversâ€¦ }
 function Open77.network.catalog() end
 
 --- Joins an Open77 server.
@@ -5560,7 +5580,7 @@ function Open77.Promise:status() end
 
 --- Attach a resource-owned local prop to a rendered bone or vehicle.
 ---
---- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. This changes only this client's prop, not server authority. Physics uses a visual-only attachment host; arbitrary mesh paths without that host are refused.
+--- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each Â±20), rotation {x,y,z} in degrees (each Â±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. This changes only this client's prop, not server authority. Physics uses a visual-only attachment host; arbitrary mesh paths without that host are refused.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.63
@@ -8084,7 +8104,7 @@ function WebUI.Page:setFocus(keyboard, cursor, keepInput) end
 
 --- Shows the surface.
 ---
---- Avoid calling this right after `create` — see the race described in `Open77.webui.create`.
+--- Avoid calling this right after `create` â€” see the race described in `Open77.webui.create`.
 ---
 --- Since: 2.31.0+op77.3
 ---@return any boolean boolean
