@@ -4933,10 +4933,11 @@ function Open77.motion.cancel(playerId, id) end
 
 --- Read an authoritative living-motion lease.
 ---
---- Requires players.motion.read. Returns {id,player,incarnation,bucket,directionX,directionY,distance,createdAt,expiresAt,phase,reason}, or nil. Times are server-monotonic milliseconds. pending awaits owner native ACK; active is not server-observed rendering. Acknowledged ownership lasts6s, including recovery; no generic teleport or map collision solution is provided.
+--- Requires players.motion.read. Returns the authoritative lease {id,player,incarnation,bucket,directionX,directionY,distance,createdAt,expiresAt,phase,reason,kind,push,lift}, or nil. Launch leases have kind="launch" and bounded push/lift values; ordinary knockdown retains its existing distance contract. The optional lifeRevision identifies the authoritative life generation when the server uses a generic body incarnation. Times are server-monotonic milliseconds. pending lasts until the controlling client acknowledges; active is an acknowledged motion lease, not proof of observer rendering. Use the exact id with cancel to end this resource's lease. No generic teleport or map collision solution is provided.
 ---
+--- Permissions: players.motion.read
 --- Since: 2.31.13+op77.63
---- Reasons: invalid_duration, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, motion_unavailable, resource_stopping
+--- Reasons: invalid_duration, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, motion_unavailable, permission_denied:players.motion.control, permission_denied:players.motion.read, resource_stopping
 ---@param playerId integer
 ---@return any motion motion table, or nil
 ---@return any nil nil, reason on rejection
@@ -4953,6 +4954,19 @@ function Open77.motion.current(playerId) end
 ---@return any ok {ok=true,id=string}
 ---@return any nil nil, reason on rejection
 function Open77.motion.knockdown(playerId, options) end
+
+--- Request a bounded server-authorized character launch.
+---
+--- Requires players.motion.control and a matching development server. options={x,y,push,lift}; XY must be finite and nonzero and is normalized. push is 0..20 m/s, lift is 0..14 m/s, and at least one must be positive. Requires a ready, alive, unmounted exact incarnation with no active motion or recovery protection. Returns {ok=true,id=string} for admission, or nil/reason; admission is not completed movement. onPlayerMotionChanged reports pending/active/ended, and the pending lease expires after two seconds without the owning client's acknowledgement. Real owners apply one native 3D impulse; updated headless bots publish a bounded ballistic fixture trajectory without REDengine terrain or collision simulation. Observers present the pose and follow owner snapshots. current(playerId) reads the lease, including kind, push and lift; cancel(playerId,id) ends this resource's lease. No damage or generic teleport authority is granted. Motion does not require an implant database; the server still requires canonical body readiness and matching life, incarnation and bucket.
+---
+--- Permissions: players.motion.control
+--- Since: not in any published build
+--- Reasons: invalid_duration, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, motion_unavailable, permission_denied:players.motion.control, permission_denied:players.motion.read, resource_stopping
+---@param playerId integer
+---@param options table
+---@return any ok {ok=true,id=string}
+---@return any nil nil, reason on rejection
+function Open77.motion.launch(playerId, options) end
 
 --- Asks one client a question and returns a promise for the answer.
 ---
@@ -6451,10 +6465,11 @@ function Open77.players.positions() end
 
 --- Puts a player's body on the ground for a bounded time; it gets up on its own.
 ---
---- Requires `players.motion.control`. FiveM's `SetPedToRagdoll`, composed on `Open77.motion.knockdown`: the engine's own knockdown status, a physical fall the observers replicate as a hit reaction. `options.direction` defaults to the body's own facing (from the last accepted transform; a player who never reported one falls north) and accepts a heading in degrees (0 = north) or `{ x, y }`; `options.distance` (0..6 m, default 0) turns the fall into a shove; `options.durationMs` counts from the moment the owning client reports the body down and is **clamped to the native 3000 ms** -- the effective number comes back as `durationMs`. `Open77.motion.cancel(id, result.id)` stands the body up early; `onPlayerMotionChanged` reports `ended` with `reason = "duration_elapsed"` when the clock fires. Refusals are the knockdown's: `motion_busy` (a motion is on the body, or the 1.5 s recovery after one), `body_unavailable` (not alive, on foot and ready -- a player mid-revive or respawn can never be knocked down, which is what keeps this away from the respawn ragdoll release), `invalid_direction`, `invalid_duration`; and `motion_unavailable` on a server without a database -- the motion lease is the cyberware store's, which exists only with `database.enabled`, so a bare development server answers that rather than a fall. The true physics ragdoll stays deliberately unbound; see the freeze page.
+--- Requires `players.motion.control`. FiveM's `SetPedToRagdoll`, composed on `Open77.motion.knockdown`: the engine's own knockdown status, a physical fall the observers replicate as a hit reaction. `options.direction` defaults to the body's own facing (from the last accepted transform; a player who never reported one falls north) and accepts a heading in degrees (0 = north) or `{ x, y }`; `options.distance` (0..6 m, default 0) turns the fall into a shove; `options.durationMs` counts from the moment the owning client reports the body down and is **clamped to the native 3000 ms** -- the effective number comes back as `durationMs`. `Open77.motion.cancel(id, result.id)` stands the body up early; `onPlayerMotionChanged` reports `ended` with `reason = "duration_elapsed"` when the clock fires. Refusals are the knockdown's: `motion_busy` (a motion is on the body, or the 1.5 s recovery after one), `body_unavailable` (not alive, on foot and ready -- a player mid-revive or respawn can never be knocked down, which is what keeps this away from the respawn ragdoll release), `invalid_direction`, `invalid_duration`; and `motion_unavailable` if the motion backend is unavailable. Motion leases do not require an implant database; canonical body readiness and matching life, incarnation and bucket remain required. The true physics ragdoll stays deliberately unbound; see the freeze page.
 ---
+--- Permissions: players.motion.control
 --- Since: 2.31.13+op77.73
---- Reasons: invalid_argument, invalid_direction, invalid_duration, invalid_json, invalid_operation, invalid_player, invalid_player_id, invalid_request, json_too_large, motion_unavailable, player_not_found, resource_stopping, sessions_unavailable
+--- Reasons: invalid_argument, invalid_direction, invalid_duration, invalid_json, invalid_operation, invalid_player, invalid_player_id, invalid_request, json_too_large, motion_unavailable, permission_denied:players.motion.control, permission_denied:players.motion.read, player_not_found, resource_stopping, sessions_unavailable
 ---@param playerId any
 ---@param options any
 ---@return any ok { ok = true, id = ..., durationMs = ... }, or nil

@@ -59,6 +59,8 @@ Open77.equipment = Open77.equipment or {}
 Open77.events = Open77.events or {}
 ---@class Open77.exports
 Open77.exports = Open77.exports or {}
+---@class Open77.gizmos
+Open77.gizmos = Open77.gizmos or {}
 ---@class Open77.hacking
 Open77.hacking = Open77.hacking or {}
 ---@class Open77.hud
@@ -1619,7 +1621,7 @@ function Open77.blips.clearWaypoint() end
 
 --- Creates a resource-owned vanilla map pin.
 ---
---- Requires `ui.vanilla.map`. Provide exactly one of `position` or `entity`. Set `routable = true` on a positional blip to use Cyberpunk's trusted custom-waypoint definition; its sprite becomes `CustomPositionVariant` and `track(id)` can then start native GPS routing. The returned 64-bit generation handle is a decimal string and is cleaned up automatically when the resource stops.
+--- Requires `ui.vanilla.map`. Provide exactly one of `position` or `entity`. Set `routable = true` on a positional blip to use Cyberpunk's trusted custom-waypoint definition; its sprite becomes `CustomPositionVariant` and `track(id)` can then start native GPS routing. The returned 64-bit generation handle is a decimal string and is cleaned up automatically when the resource stops. Experimental SVG icons and per-blip RGB/RGBA colors require the matching native client adapter. Declare SVG assets in the manifest; use icon = { asset, size } and color = "#RRGGBB" or "#RRGGBBAA". PNG blip icons are not supported by this adapter.
 ---
 --- Permissions: ui.vanilla.map
 --- Since: 2.31.0+op77.3
@@ -1674,6 +1676,19 @@ function Open77.blips.remove(id) end
 ---@return any reason reason
 function Open77.blips.setActive(id, active) end
 
+--- Sets an owned blip color or restores its source colors.
+---
+--- Experimental per-blip styling; requires the matching native client adapter. Accepts exactly #RRGGBB, #RRGGBBAA or false to clear the override. Works with native sprites and custom SVGs without changing other blips sharing the sprite. For SVGs it replaces RGB and multiplies each painted shape's source alpha. Clearing the icon does not clear this override; visual-only updates preserve native tracking.
+---
+--- Permissions: ui.vanilla.map
+--- Since: not in any published build
+--- Reasons: permission_denied:ui.vanilla.map, invalid_color:expected_#RRGGBB_or_#RRGGBBAA, native_unavailable
+---@param id any
+---@param color any
+---@return any boolean boolean
+---@return any reason reason
+function Open77.blips.setColor(id, color) end
+
 --- Sets the custom fullscreen-map description of an owned blip.
 ---
 --- Requires `ui.vanilla.map`. The description is displayed by Open77's fullscreen-map tooltip for the selected native mappin.
@@ -1686,12 +1701,13 @@ function Open77.blips.setActive(id, active) end
 ---@return any reason reason
 function Open77.blips.setDescription(id, description) end
 
---- Sets a declared PNG icon or restores the native sprite.
+--- Sets a declared SVG icon or restores the native sprite.
 ---
---- Accepts a path, a texture descriptor, `{ asset, size }`, or false. The native mappin remains underneath for map selection, routing, tooltips, and fallback.
+--- Experimental native SVG adapter; requires the matching OPEN//77 client and Cyberpunk 2077 2.31. Accepts a declared resource-relative .svg path, { asset, size }, or false to restore the native sprite. Size is 16–128 native Ink units (default 48). Color overrides remain when the icon is cleared. Visual-only edits preserve tracking; malformed or unsupported SVG leaves the existing icon unchanged. URLs and PNG/WebP are rejected.
 ---
 --- Permissions: ui.vanilla.map
 --- Since: 2.31.0+op77.3
+--- Reasons: permission_denied:ui.vanilla.map, asset_not_declared:..., blip_icon_requires_svg, invalid_icon_size, svg_element_unsupported, svg_attribute_unsupported, svg_geometry_outside_viewport, svg_complexity_limit, svg_polygon_limit, blip_visual_budget_exceeded, native_unavailable
 ---@param id any
 ---@param icon any
 ---@return any boolean boolean
@@ -1827,7 +1843,7 @@ function Open77.blips.untrack(id) end
 
 --- Updates several properties of an owned blip.
 ---
---- A replacement mappin is registered before the previous one is removed. `position` switches to positional mode; `entity` switches to attached mode.
+--- Updates mutable fields on an owned blip. Visual-only icon/color changes preserve its native identity and tracking selection. Structural changes register a replacement before removing the previous mappin. position switches to positional mode; entity switches to attached mode. routable cannot be changed. Invalid SVG or color replacements leave the existing visual unchanged.
 ---
 --- Permissions: ui.vanilla.map
 --- Since: 2.31.0+op77.3
@@ -3479,6 +3495,160 @@ function Open77.exports.call(resource, export, ___) end
 ---@return any whatever whatever the export returns
 function Open77.exports.callSync(resource, export, ___) end
 
+--- Acquires native input and begins editing an owned gizmo.
+---
+--- Client-only; requires gizmos.edit. Rechecks the streamed target and incarnation, captures its current transform as the cancellation baseline and resets history. Refuses another input owner, a background game, dead player, vehicle/workspot or unsupported target. The tool must be visible. Re-activating an already active handle is idempotent. Emits activated; focus loss, target loss, timeout and owner stop cancel it.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param handle string
+---@return any boolean boolean success
+---@return any string string reason on failure
+function Open77.gizmos.activate(handle) end
+
+--- Reads this resource's active gizmo, if any.
+---
+--- Client-only; requires gizmos.edit. Returns the active snapshot only when the calling resource generation owns it. Returns nil without an error when no tool is active or another resource owns the input lease. Only one gizmo can capture native cursor/keyboard input across all resources.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@return any table table active snapshot or nil
+---@return any string string reason on failure
+function Open77.gizmos.active() end
+
+--- Restores the activation baseline and ends editing.
+---
+--- Client-only; requires gizmos.edit. Attempts to restore the original native transform, ends an active drag, releases only the editor's own holds and emits cancel/deactivated. Own-player/vehicle cursor input returns immediately but movement remains briefly fenced while restoration is observed; a newer normal travel/server placement wins. Those asynchronous adapters later emit settled with nativeTransform or error. A missing or replaced target cannot be recreated; cleanup still runs. The owned handle remains until destroy or resource teardown. Escape during a drag cancels that drag first; a second Escape cancels the session. See gizmos.md for asynchronous restoration failures.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param handle string
+---@return any boolean boolean success
+---@return any string string reason on failure
+function Open77.gizmos.cancel(handle) end
+
+--- Queries which transforms a target adapter supports.
+---
+--- Client-only; requires gizmos.edit. Omit target for the virtual transform capabilities, or supply a typed target table with kind and id. Returns per-axis translate, rotate and scale booleans plus preview, commit and networked. The target must be attached. Native characters and props are yaw-only and native scaling is currently unsupported; virtual transforms support all axes. Never infer server authority from this query: commit=false on a network target means acceptance is a proposal, not a canonical mutation.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param target? table
+---@return any table table capabilities or nil
+---@return any string string reason on failure
+function Open77.gizmos.capabilities(target) end
+
+--- Accepts the current transform and ends editing.
+---
+--- Client-only; requires gizmos.edit. Emits commit with the accepted transform and returns cursor input. Virtual targets retain data; supported local entities retain their pose. A network target requests restoration and emits a proposal only: the server must validate an edit ticket, ACL, identity, bucket, revision and bounds before applying its own authoritative mutation API. Local puppet placement and own-player/vehicle restoration report their asynchronous result through settled (with nativeTransform) or error. commit is not that completion acknowledgement, and settled never acknowledges server acceptance. This call neither sends a commit to the server nor grants authority. See gizmos.md.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param handle string
+---@return any boolean boolean success
+---@return any string string reason on failure
+function Open77.gizmos.commit(handle) end
+
+--- Creates a resource-owned native 3D gizmo.
+---
+--- Client-only; requires gizmos.edit. Creates an inactive handle for a typed entity target or a virtual transform. It does not capture input until activate succeeds. Options include mode, space, axes, pivotOffset, snapping, bounds, size, timeoutMs and local preview. IDs and events are scoped to the exact resource VM and generation. Quotas are eight handles per owner and 64 globally. See gizmos.md for the full option schema, native capabilities, validation status and server-authority contract.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param options table
+---@return any string string handle or nil
+---@return any string string reason on failure
+function Open77.gizmos.create(options) end
+
+--- Cancels editing and releases the gizmo's input lease.
+---
+--- Client-only; requires gizmos.edit. This is an alias of cancel, not a hidden acceptance operation. Restores the activation baseline when the target still exists, releases owned native input/physics holds and emits cancel/deactivated. The handle remains available for querying or reactivation. Use commit to accept a result or destroy to remove the handle.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param handle string
+---@return any boolean boolean success
+---@return any string string reason on failure
+function Open77.gizmos.deactivate(handle) end
+
+--- Removes an owned gizmo, cancelling any active preview.
+---
+--- Client-only; requires gizmos.edit. Cancels and releases an active tool before removing its handle and emitting destroyed. It never deletes the target entity. A previously committed local transform is not rolled back merely by destroying its inactive handle. Resource stop/reload performs equivalent owned-handle cleanup automatically.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param handle string
+---@return any boolean boolean success
+---@return any string string reason on failure
+function Open77.gizmos.destroy(handle) end
+
+--- Reads one owned gizmo's complete snapshot.
+---
+--- Client-only; requires gizmos.edit. Returns the same typed snapshot shape delivered to open77:gizmo events: current and initial transforms, target, capabilities, phase, active/dragging flags, handle, hover, options, revision and history counts. nativeTransform is false until asynchronous native completion, then contains the observed pose without overwriting the proposed transform. Target IDs are decimal strings. It refuses foreign or stale handles; no native pointer or VM identity is exposed. See gizmos.md.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param handle string
+---@return any table table snapshot or nil
+---@return any string string reason on failure
+function Open77.gizmos.get(handle) end
+
+--- Lists this resource generation's gizmo snapshots.
+---
+--- Client-only; requires gizmos.edit. Returns an array of owned snapshots, including idle and terminal handles until destroyed. It never lists another resource or VM's tools. Stop/reload destroys all owned handles and restores active previews. Use this query to reconcile state after coalesced events; do not assume an event for every rendered frame.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@return any table table snapshot array or nil
+---@return any string string reason on failure
+function Open77.gizmos.list() end
+
+--- Reapplies an undone gizmo edit.
+---
+--- Client-only; requires gizmos.edit. Restores the next transform in the active tool's history and previews it through the target adapter. Refuses an active drag, inactive handle or empty redo history. Any new accepted edit truncates the redo branch. Emits redo and updates the snapshot's history counts.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param handle string
+---@return any boolean boolean success
+---@return any string string reason on failure
+function Open77.gizmos.redo(handle) end
+
+--- Applies a numeric transform edit to the active gizmo.
+---
+--- Client-only; requires gizmos.edit. Applies a sparse transform table containing position, rotation and/or scale, retaining unspecified fields. Vectors require x/y/z; rotation requires normalized x/y/z/w. Rejects non-finite values, unsupported target axes, bounds violations, inactive handles and active drags. A changed value is previewed locally, added to history and emitted as change. It is not an authoritative server mutation.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param handle string
+---@param transform table
+---@return any boolean boolean success
+---@return any string string reason on failure
+function Open77.gizmos.setTransform(handle, transform) end
+
+--- Undoes the last completed gizmo edit.
+---
+--- Client-only; requires gizmos.edit. Restores the preceding transform in the active tool's bounded history and previews it through the target adapter. A completed drag is one history entry; numeric setTransform edits also create entries. Refuses an active drag, inactive handle or empty undo history. Emits undo. History stores at most 32 undo steps and resets on activation.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param handle string
+---@return any boolean boolean success
+---@return any string string reason on failure
+function Open77.gizmos.undo(handle) end
+
+--- Reconfigures an owned gizmo without replacing its target.
+---
+--- Client-only; requires gizmos.edit. Applies a validated sparse patch of mode, space, axes, pivotOffset, snap, position/scale bounds, visible and size. Target, transform, preview and timeout are creation-time settings and cannot be changed here. Refuses changes during a drag, unsupported modes and hiding the active gizmo. Emits configured. Axis restrictions control pointer handles; target capabilities and bounds also constrain numeric edits.
+---
+--- Permissions: gizmos.edit
+--- Since: not in any published build
+---@param handle string
+---@param patch table
+---@return any boolean boolean success
+---@return any string string reason on failure
+function Open77.gizmos.update(handle, patch) end
+
 --- Requests cleanup of the calling resource's hacking presentation.
 ---
 --- Client-only; requires player.hacking.project. Clears only presentation owned by the calling resource and is harmless when it owns none. Resource stop invokes the same owned cleanup automatically. true acknowledges the cleanup request, not native completion; the native script retains its bounded expiry fallback if the bridge cannot accept a clear command. This does not cancel an authoritative upload, purge a status, refund costs or undo committed damage. Use the server hacking APIs for gameplay state changes.
@@ -4440,6 +4610,22 @@ function Open77.markers.update(id, patch) end
 ---@return any request request ID
 ---@return any nil nil, reason on rejection
 function Open77.motion.knockdown(entity, x, y, distance) end
+
+--- Queue an owned native character launch on an exact local body.
+---
+--- Requires player.motion.project and a matching development client. entity is a local registry handle (1 for the local player), not a network player ID. The finite nonzero XY direction is normalized; push is 0..20 m/s and lift is 0..14 m/s, with at least one positive. Returns a resource-owned request ID or nil/reason. The local owner must be ready, alive, unmounted and grounded; its request starts pending and activation requires observed movement after one queued native 3D impulse. On a remote body, only the reaction pose is presented; displacement follows owner snapshots. Use state(request) and stop(request) for this resource's request. This projection primitive does not grant server authority, damage or a teleport. Use the matching open77_cyberware projector for network lease and incarnation checks.
+---
+--- Permissions: player.motion.project
+--- Since: not in any published build
+--- Reasons: invalid_motion, motion_backend_unavailable, permission_denied:player.motion.project, resource_not_running
+---@param entity integer
+---@param x number
+---@param y number
+---@param push number
+---@param lift number
+---@return any request request ID
+---@return any nil nil, reason on rejection
+function Open77.motion.launch(entity, x, y, push, lift) end
 
 --- Read the phase of this resource's native reaction.
 ---
@@ -7588,6 +7774,17 @@ function Open77.weapons.all() end
 ---@return any reason reason
 function Open77.weapons.assign(record, slot, options) end
 
+--- Disables this resource's weapon tuning and restores its modifiers.
+---
+--- Requires a compatible development client exposing native weapon tuning with inventory-instance restoration. Client-only; requires `player.weapons.edit`. Disables the calling resource's profile and removes only the modifier handles it owns. Returns true when accepted, or nil/reason on failure; it is a successful no-op when this resource owns no profile and never clears another resource's tuning. If a holstered weapon's StatsObject is temporarily absent, exact handles remain queued against its inventory identity, even after the engine entity disappears. Drawing that same inventory item allows cleanup on its current entity; a different copy of the same record is not the same item. Read tuning().status and pendingModifiers to distinguish idle from restoring and wait for zero pending modifiers before reporting completion. Does not remove granted weapons, ammunition or components. Resource stop and failure also release the profile and retain deferred cleanup. The queue is bounded to 32 pending bindings; saturation refuses further changes with restore_queue_full.
+---
+--- Permissions: player.weapons.edit
+--- Since: not in any published build
+--- Reasons: permission_denied:player.weapons.edit, weapon_tuning_unavailable
+---@return any true true or nil
+---@return any reason reason on failure
+function Open77.weapons.clearTuning() end
+
 --- Lists every attachment slot of the weapon in a loadout slot, taken or empty.
 ---
 --- Requires `player.weapons.read`. Native-parity E3. Read off the live item -- `GetUsedSlotsOnItem` / `GetEmptySlotsOnItem` -- so the answer is the blueprint of the weapon actually there, not a table. One `open77:weapons:part` row per slot arrives before the completion: `(requestId, slot, attachmentSlot, attachmentSlotId, taken, base, record, tweakDbId)`, where `base == "true"` marks the weapon's own receiver, barrel or magazine and `record` names the installed part when `taken`. `attachmentSlot` is spelled from the 2.31 weapon-part vocabulary when the shipping build's reverse name table cannot; `attachmentSlotId` always travels. Refused by name: `invalid_weapon_slot` now, `weapon_slot_empty` from the bridge. See [Weapon Lua API](weapons-api.md#weapon-components-scopes-muzzles-and-mods).
@@ -7701,6 +7898,19 @@ function Open77.weapons.setAmmo(slot, amounts) end
 ---@return any reason reason
 function Open77.weapons.setComponent(slot, part, options) end
 
+--- Configures a resource-owned tuning profile for the local held weapon.
+---
+--- Requires a compatible development client exposing native weapon tuning with inventory-instance restoration. Client-only; requires `player.weapons.edit`. Accepts an exact `Items.*` record and a complete options table: omitted fields reset to their defaults. Supports reloadSpeed, fireRate, recoil, spread, damage, magazineCapacity, projectilesPerShot, aimSpeed, chargeSpeed, smartProjectileSpeed and the blastRadius/blastPush/blastLift/blastFalloff/blastCooldown weapon-impact controls. Unknown keys, nonnumeric or nonfinite values and out-of-range multipliers are refused. Returns true when accepted, or nil/reason; read tuning() to distinguish active, waiting_for_weapon and waiting_for_restore. Only one resource owns tuning at a time; another receives weapon_tuning_owned_by_another_resource. Does not equip a weapon, rewrite shared TweakDB records, change projectile types or override server damage policy. Supported inputs are bound-weapon entity hits, actual native impact positions from GameEffectExecutor_StimOnHit, and tracked-projectile collision/explosion callbacks. No synthetic crosshair raycast is substituted. Bare-terrain Comrade coverage remains unverified; generic hitscan ground detection and grenades without the bound weapon object are not promised. Vehicle impulses require a streamed, unfrozen vehicle whose current physics owner is this client. The local open77:weaponBlast(owner,record,sequence,x,y,z) event uses string arguments after cooldown acceptance; it grants no network character authority. Resources request character launches separately through server policy. Smart projectile speed applies only to smart weapons. Clearing, switching or stopping the resource removes its own modifiers, with deferred restoration when the engine temporarily retires a holstered weapon's stats.
+---
+--- Permissions: player.weapons.edit
+--- Since: not in any published build
+--- Reasons: invalid_weapon_tuning, invalid_weapon_tuning_field, invalid_weapon_tuning_range, permission_denied:player.weapons.edit, weapon_tuning_unavailable
+---@param record string
+---@param options table
+---@return any true true or nil
+---@return any reason reason on failure
+function Open77.weapons.setTuning(record, options) end
+
 --- Lists the three supported standard weapon slots.
 ---
 --- Requires `player.weapons.read`. Slot numbers are one-based and deliberately exclude QuickSlot grenades, WeaponHeavy items, and ArmsCW cyberware.
@@ -7735,6 +7945,17 @@ function Open77.weapons.snapshot() end
 ---@return any requestId requestId, or nil
 ---@return any reason reason
 function Open77.weapons.takeGadget(record, count) end
+
+--- Reads this resource's native weapon tuning state and diagnostics.
+---
+--- Requires a compatible development client exposing native weapon tuning with inventory-instance restoration. Client-only; requires `player.weapons.read`. Returns a table or nil/reason. status distinguishes idle, waiting_for_weapon, active, restoring, waiting_for_restore and native failure states; active reports whether the matching weapon is bound. An owned profile includes record, opaque string weaponEntity, modifiers, native stats and cumulative blasts, impulsesQueued, failures and foreignSkipped counters. projectileContacts counts supported tracked-projectile contacts only; trackedProjectiles is the number still being tracked. Native entity hits and GameEffectExecutor_StimOnHit do not increment projectileContacts, so an accepted blast can leave it at zero. Neither counter establishes a character launch or observed movement. pendingModifiers counts this resource's deferred cleanup. Idle/restoring results can omit bound-weapon fields. Counters describe queued work rather than measured movement, and a native statistic does not prove that every weapon's animation or projectile logic consumes it. Treat weaponEntity as an opaque string, never as a Lua number.
+---
+--- Permissions: player.weapons.read
+--- Since: not in any published build
+--- Reasons: invalid_weapon_tuning_state, permission_denied:player.weapons.read, weapon_tuning_unavailable
+---@return any state state table or nil
+---@return any reason reason on failure
+function Open77.weapons.tuning() end
 
 --- Alias of `Open77.weapons.remove`.
 ---
