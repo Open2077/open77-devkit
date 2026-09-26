@@ -270,7 +270,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "`Open77.players.identifier` / `name` / `identity`",
+   "open77": "Bare `open77`, `userId`, `name`, `fingerprint`, `license`, `steam` or `gog` value",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -278,7 +278,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "the three above as `\"type:value\"` strings",
+   "open77": "Available identifiers as `\"type:value\"` strings; table form: `Open77.players.identifiers`",
    "guideAnchor": "availability-at-a-glance"
   },
   {

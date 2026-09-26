@@ -26558,7 +26558,7 @@
   "name": "GetPlayerIdentifierByType",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "One identifier of a connected player, as a bare value.",
-  "description": "Recognised types, matched case-insensitively: open77 and userId both give the account GUID, name the display name, fingerprint the SHA-256 of the identity public key. Anything else answers nil, unknown_identifier_type, and a non-string type answers nil, invalid_identifier_type. The value is bare, without the \"type:\" prefix GetPlayerIdentifiers puts on it.",
+  "description": "Returns a bare string without a type prefix. Type names are case-insensitive: `open77` and `userId` return the installation identity GUID, `name` the display name, and `fingerprint` the SHA-256 of the identity public key. Since `2.31.13+op77.101`, `license` returns the permanent Open77 account GUID without dashes, `steam` the linked SteamID in lowercase hexadecimal, and `gog` the linked GOG ID in decimal. These ownership fields come from the verified Master ticket; when unavailable, the typed read returns `nil, \"identifier_not_linked\"`. Unsupported types return `nil, \"unknown_identifier_type\"`; non-string types return `nil, \"invalid_identifier_type\"`. Keep identifiers as strings and use `license` for account-level persistence across linked devices. See [account and store identifiers](/docs/connection-control#steam-gog-and-permanent-account-identifiers).",
   "params": [
    {
     "name": "playerId",
@@ -26597,7 +26597,7 @@
   "name": "GetPlayerIdentifiers",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Every identifier of a connected player, in FiveM's array-of-strings shape.",
-  "description": "Each entry is \"type:value\" -- open77:<account guid>, name:<display name>, fingerprint:<sha-256> -- so `for _, id in ipairs(GetPlayerIdentifiers(source))` ports unchanged. Entries the session does not carry are left out rather than emitted empty, and a player id that names nobody answers nil, player_not_found. There is no steam, license or discord entry: Open77 has one account identity, and inventing the others would let ported code believe it had verified something.",
+  "description": "Returns an array of `type:value` strings: `open77:<identity GUID>`, `name:<display name>` and `fingerprint:sha256:<hash>`. Since `2.31.13+op77.101`, the verified Master ticket also supplies `license:<account GUID without dashes>`, `steam:<lowercase hexadecimal SteamID>` and `gog:<decimal GOG ID>` when available. Missing identifiers are omitted; an unknown session returns `nil, \"player_not_found\"`. Iterate with `for _, id in ipairs(GetPlayerIdentifiers(playerId) or {}) do ... end`. One qualifying Steam or GOG account is sufficient for admission, so do not require both store IDs. No Discord identifier is exposed. For persistence, use the permanent Open77 `license` string. See [account and store identifiers](/docs/connection-control#steam-gog-and-permanent-account-identifiers).",
   "params": [
    {
     "name": "playerId",
@@ -26629,7 +26629,7 @@
   "name": "GetPlayerIdentity",
   "handler": "GetPlayerIdentity",
   "summary": "`{ userId, name, publicKey, fingerprint, joinedAt }` for an admitted player, or `nil`.",
-  "description": "`{ userId, name, publicKey, fingerprint, joinedAt }` for an admitted player, or `nil`.",
+  "description": "Alias of `Open77.players.identity`, with no permission required. Returns `{ userId, name, publicKey, fingerprint, joinedAt }` for an admitted player, or `nil`. Since `2.31.13+op77.101`, also includes `license`, `steam` and `gog` when supplied by the verified Master ticket. `license` is the permanent Open77 account GUID without dashes; `steam` is a lowercase hexadecimal SteamID; `gog` is a decimal GOG ID. Values are strings without type prefixes and unavailable fields are omitted. `userId` remains the installation identity GUID; use `license` for account-level persistence across linked devices. `joinedAt` is ISO 8601 UTC. See [account and store identifiers](/docs/connection-control#steam-gog-and-permanent-account-identifiers).",
   "params": [
    {
     "name": "playerId",
@@ -45950,7 +45950,7 @@
   "name": "identifiers",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Every identifier Open77 holds for a player, as a table.",
-  "description": "The table companion to the FiveM `GetPlayerIdentifiers` array. Carries `open77` and `userId` (the same account GUID under both spellings), `name`, `fingerprint` (the SHA-256 of the identity public key) and `joinedAt`. `endpoint` is present **only** when the resource holds `players.identity.sensitive` -- absent, not nil-filled, so a caller can tell \"you may not ask\" from \"there is nothing there\". There is deliberately no `discord`, `steam`, `license` or `xbl`: Open77 has exactly one durable identifier and does not invent the others.",
+  "description": "The table form of `GetPlayerIdentifiers`. Carries `open77` and `userId` (the same installation identity GUID), `name`, `fingerprint` and `joinedAt`. Since `2.31.13+op77.101`, also carries `license`, `steam` and `gog` from the verified Master ticket when available. `license` is the permanent Open77 account GUID without dashes, `steam` a lowercase hexadecimal SteamID and `gog` a decimal GOG ID. All values are strings without type prefixes; unavailable fields are omitted and read as `nil`. Account/store IDs need no permission; only `endpoint` requires `players.identity.sensitive`. Call in `onPlayerConnected` or later. Invalid IDs return `nil, \"invalid_player_id\"`; unknown sessions return `nil, \"player_not_found\"`. One qualifying store is sufficient, and a linked store ID alone is not a fresh ownership check. Use `license` for account-level persistence. No Discord identifier is exposed. See [account and store identifiers](/docs/connection-control#steam-gog-and-permanent-account-identifiers).",
   "params": [
    {
     "name": "playerId",
@@ -45984,7 +45984,7 @@
   "name": "identity",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "An admitted player's authenticated identity.",
-  "description": "No permission. `GetPlayerIdentity` is the same function. Returns `{ userId, name, publicKey, fingerprint, joinedAt }`; the fingerprint matches the one the client's `identity.dump` prints, which is what makes an out-of-band verification possible.",
+  "description": "No permission required. `GetPlayerIdentity` is the same function. Returns `{ userId, name, publicKey, fingerprint, joinedAt }` for an admitted player, or `nil`; the fingerprint matches the client identity dump. Since `2.31.13+op77.101`, also includes `license`, `steam` and `gog` when supplied by the verified Master ticket. `license` is the permanent Open77 account GUID without dashes, `steam` a lowercase hexadecimal SteamID and `gog` a decimal GOG ID. Keep these bare values as strings; unavailable fields are omitted. `userId` remains the installation identity GUID, while `license` is the account key across linked devices. See [account and store identifiers](/docs/connection-control#steam-gog-and-permanent-account-identifiers).",
   "params": [
    {
     "name": "playerId",
