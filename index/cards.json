@@ -61511,5 +61511,857 @@
   "constant": false,
   "qualified": "Open77.motion.launch",
   "route_id": "server:Open77.motion.launch"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "configure",
+  "handler": "LuaConsumable",
+  "summary": "Configures a grenade or healing kit.",
+  "description": "Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Set record, count (0..999), capacity (1..999), equipped and recharge. Unknown options or count above an explicit capacity are rejected. Omitted fields preserve state; capacity grows to fit count if omitted. The first managed write defaults to recharge=false. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "options",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local result, reason = Open77.consumables.configure(\"grenade\", { record = \"Items.GrenadeFragRegular\", count = 5, capacity = 5, equipped = true, recharge = false })\n    if not result then print(reason) end\nend)",
+  "inferred": false,
+  "source_line": 24651,
+  "permissions": [
+   "player.weapons.edit"
+  ],
+  "reasons": [
+   "consumables_unavailable",
+   "invalid_consumable_count",
+   "invalid_consumable_kind",
+   "invalid_consumable_options",
+   "invalid_consumable_recharge",
+   "invalid_consumable_record",
+   "invalid_consumable_request",
+   "invalid_consumable_state"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.configure",
+  "route_id": "Open77.consumables.configure"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "equip",
+  "handler": "LuaConsumable",
+  "summary": "Equips the selected consumable on its hotkey.",
+  "description": "Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Optionally selects a new record. Omitting record uses the retained type and preserves its charges. Fails with no_consumable_type if none is available. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "record",
+    "type": "string",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local result, reason = Open77.consumables.equip(\"healing\", \"Items.FirstAidWhiffV0\")\n    if not result then print(reason) end\nend)",
+  "inferred": false,
+  "source_line": 24651,
+  "permissions": [
+   "player.weapons.edit"
+  ],
+  "reasons": [
+   "consumables_unavailable",
+   "invalid_consumable_count",
+   "invalid_consumable_kind",
+   "invalid_consumable_options",
+   "invalid_consumable_recharge",
+   "invalid_consumable_record",
+   "invalid_consumable_request",
+   "invalid_consumable_state"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.equip",
+  "route_id": "Open77.consumables.equip"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "get",
+  "handler": "LuaConsumable",
+  "summary": "Reads cached consumable state.",
+  "description": "Client-only; requires `player.weapons.read`. Source is native_readback. Returns kind, record, tweakDbId, count, capacity, equipped, recharge, managed, sequence, reportedAgeMs and source. An unresolved native record name can be empty; use tweakDbId to identify it. Age measures time since observation, not a heartbeat. Use snapshot when fresh state is required. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "state table or nil",
+   "reason on failure"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local result, reason = Open77.consumables.get(\"healing\")\n    if not result then print(reason) end\nend)",
+  "inferred": false,
+  "source_line": 24651,
+  "permissions": [
+   "player.weapons.read"
+  ],
+  "reasons": [
+   "consumables_unavailable",
+   "invalid_consumable_count",
+   "invalid_consumable_kind",
+   "invalid_consumable_options",
+   "invalid_consumable_recharge",
+   "invalid_consumable_record",
+   "invalid_consumable_request",
+   "invalid_consumable_state"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.get",
+  "route_id": "Open77.consumables.get"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "reset",
+  "handler": "LuaConsumable",
+  "summary": "Releases managed consumable capacity and regeneration.",
+  "description": "Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Restores the captured native regeneration policy and removes this API's capacity modifiers. Preserves the selected item, clamps excess charges to restored capacity, and leaves unrelated inventory and modifiers intact. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local result, reason = Open77.consumables.reset(\"grenade\")\n    if not result then print(reason) end\nend)",
+  "inferred": false,
+  "source_line": 24651,
+  "permissions": [
+   "player.weapons.edit"
+  ],
+  "reasons": [
+   "consumables_unavailable",
+   "invalid_consumable_count",
+   "invalid_consumable_kind",
+   "invalid_consumable_options",
+   "invalid_consumable_recharge",
+   "invalid_consumable_record",
+   "invalid_consumable_request",
+   "invalid_consumable_state"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.reset",
+  "route_id": "Open77.consumables.reset"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "setCount",
+  "handler": "LuaConsumable",
+  "summary": "Sets usable consumable charges.",
+  "description": "Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Count is 0..999, not an inventory stack size. Zero retains the selected type without allowing a use. Capacity grows when needed. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "count",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local result, reason = Open77.consumables.setCount(\"grenade\", 5)\n    if not result then print(reason) end\nend)",
+  "inferred": false,
+  "source_line": 24651,
+  "permissions": [
+   "player.weapons.edit"
+  ],
+  "reasons": [
+   "consumables_unavailable",
+   "invalid_consumable_count",
+   "invalid_consumable_kind",
+   "invalid_consumable_options",
+   "invalid_consumable_recharge",
+   "invalid_consumable_record",
+   "invalid_consumable_request",
+   "invalid_consumable_state"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.setCount",
+  "route_id": "Open77.consumables.setCount"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "setRecharge",
+  "handler": "LuaConsumable",
+  "summary": "Controls native consumable regeneration.",
+  "description": "Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Accepts a strict boolean. False gives a finite charge supply; true enables native regeneration. Native capacity and regeneration modifiers are released on reset or player/session replacement. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "enabled",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local result, reason = Open77.consumables.setRecharge(\"healing\", false)\n    if not result then print(reason) end\nend)",
+  "inferred": false,
+  "source_line": 24651,
+  "permissions": [
+   "player.weapons.edit"
+  ],
+  "reasons": [
+   "consumables_unavailable",
+   "invalid_consumable_count",
+   "invalid_consumable_kind",
+   "invalid_consumable_options",
+   "invalid_consumable_recharge",
+   "invalid_consumable_record",
+   "invalid_consumable_request",
+   "invalid_consumable_state"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.setRecharge",
+  "route_id": "Open77.consumables.setRecharge"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "setType",
+  "handler": "LuaConsumable",
+  "summary": "Changes the selected consumable type.",
+  "description": "Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Preserves charges and equipped state. The record must resolve to the matching grenade, inhaler or injector type; an Items.* name alone is insufficient. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "record",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local result, reason = Open77.consumables.setType(\"healing\", \"Items.FirstAidWhiffV0\")\n    if not result then print(reason) end\nend)",
+  "inferred": false,
+  "source_line": 24651,
+  "permissions": [
+   "player.weapons.edit"
+  ],
+  "reasons": [
+   "consumables_unavailable",
+   "invalid_consumable_count",
+   "invalid_consumable_kind",
+   "invalid_consumable_options",
+   "invalid_consumable_recharge",
+   "invalid_consumable_record",
+   "invalid_consumable_request",
+   "invalid_consumable_state"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.setType",
+  "route_id": "Open77.consumables.setType"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "snapshot",
+  "handler": "LuaConsumable",
+  "summary": "Requests fresh native consumable state.",
+  "description": "Client-only; requires `player.weapons.read`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Asynchronous readback of the actual selected type, charges, capacity, equipment and regeneration. Use get for a synchronous cached observation. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local result, reason = Open77.consumables.snapshot(\"healing\")\n    if not result then print(reason) end\nend)",
+  "inferred": false,
+  "source_line": 24651,
+  "permissions": [
+   "player.weapons.read"
+  ],
+  "reasons": [
+   "consumables_unavailable",
+   "invalid_consumable_count",
+   "invalid_consumable_kind",
+   "invalid_consumable_options",
+   "invalid_consumable_recharge",
+   "invalid_consumable_record",
+   "invalid_consumable_request",
+   "invalid_consumable_state"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.snapshot",
+  "route_id": "Open77.consumables.snapshot"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "unequip",
+  "handler": "LuaConsumable",
+  "summary": "Clears the consumable hotkey and equipment slots.",
+  "description": "Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Preserves selected type and charges so equip can restore the kit. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local result, reason = Open77.consumables.unequip(\"grenade\")\n    if not result then print(reason) end\nend)",
+  "inferred": false,
+  "source_line": 24651,
+  "permissions": [
+   "player.weapons.edit"
+  ],
+  "reasons": [
+   "consumables_unavailable",
+   "invalid_consumable_count",
+   "invalid_consumable_kind",
+   "invalid_consumable_options",
+   "invalid_consumable_recharge",
+   "invalid_consumable_record",
+   "invalid_consumable_request",
+   "invalid_consumable_state"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.unequip",
+  "route_id": "Open77.consumables.unequip"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "configure",
+  "handler": "LuaResourceRuntime.ConsumablesBootstrap",
+  "summary": "Configures a grenade or healing kit.",
+  "description": "Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Set record, count (0..999), capacity (1..999), equipped and recharge. Unknown options or count above an explicit capacity are rejected. Omitted fields preserve state; capacity grows to fit count if omitted. The first managed write defaults to recharge=false. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "options",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Consumables.cs",
+  "example": "-- Call from your server's validated spawn/loadout handler.\nlocal result, reason = Open77.consumables.configure(playerId, \"grenade\", { record = \"Items.GrenadeFragRegular\", count = 5, capacity = 5, equipped = true, recharge = false })\nif not result then print(reason) end",
+  "inferred": false,
+  "source_line": 18,
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.configure",
+  "route_id": "server:Open77.consumables.configure"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "equip",
+  "handler": "LuaResourceRuntime.ConsumablesBootstrap",
+  "summary": "Equips the selected consumable on its hotkey.",
+  "description": "Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Optionally selects a new record. Omitting record uses the retained type and preserves its charges. Fails with no_consumable_type if none is available. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "record",
+    "type": "string",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Consumables.cs",
+  "example": "-- Call from your server's validated spawn/loadout handler.\nlocal result, reason = Open77.consumables.equip(playerId, \"healing\", \"Items.FirstAidWhiffV0\")\nif not result then print(reason) end",
+  "inferred": false,
+  "source_line": 43,
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.equip",
+  "route_id": "server:Open77.consumables.equip"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "get",
+  "handler": "LuaResourceRuntime.ConsumablesBootstrap",
+  "summary": "Reads cached consumable state.",
+  "description": "Server; requires `player.weapons.read`. Source is owner_report from the authenticated player's client; missing reports return consumable_unreported. Returns kind, record, tweakDbId, count, capacity, equipped, recharge, managed, sequence, reportedAgeMs and source. An unresolved native record name can be empty; use tweakDbId to identify it. Age measures time since observation, not a heartbeat. Use snapshot when fresh state is required. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "state table or nil",
+   "reason on failure"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Consumables.cs",
+  "example": "-- Call from your server's validated spawn/loadout handler.\nlocal result, reason = Open77.consumables.get(playerId, \"healing\")\nif not result then print(reason) end",
+  "inferred": false,
+  "source_line": 60,
+  "permissions": [
+   "player.weapons.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.get",
+  "route_id": "server:Open77.consumables.get"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "reset",
+  "handler": "LuaResourceRuntime.ConsumablesBootstrap",
+  "summary": "Releases managed consumable capacity and regeneration.",
+  "description": "Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Restores the captured native regeneration policy and removes this API's capacity modifiers. Preserves the selected item, clamps excess charges to restored capacity, and leaves unrelated inventory and modifiers intact. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Consumables.cs",
+  "example": "-- Call from your server's validated spawn/loadout handler.\nlocal result, reason = Open77.consumables.reset(playerId, \"grenade\")\nif not result then print(reason) end",
+  "inferred": false,
+  "source_line": 54,
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.reset",
+  "route_id": "server:Open77.consumables.reset"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "setCount",
+  "handler": "LuaResourceRuntime.ConsumablesBootstrap",
+  "summary": "Sets usable consumable charges.",
+  "description": "Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Count is 0..999, not an inventory stack size. Zero retains the selected type without allowing a use. Capacity grows when needed. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "count",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Consumables.cs",
+  "example": "-- Call from your server's validated spawn/loadout handler.\nlocal result, reason = Open77.consumables.setCount(playerId, \"grenade\", 5)\nif not result then print(reason) end",
+  "inferred": false,
+  "source_line": 35,
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.setCount",
+  "route_id": "server:Open77.consumables.setCount"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "setRecharge",
+  "handler": "LuaResourceRuntime.ConsumablesBootstrap",
+  "summary": "Controls native consumable regeneration.",
+  "description": "Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Accepts a strict boolean. False gives a finite charge supply; true enables native regeneration. Native capacity and regeneration modifiers are released on reset or player/session replacement. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "enabled",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Consumables.cs",
+  "example": "-- Call from your server's validated spawn/loadout handler.\nlocal result, reason = Open77.consumables.setRecharge(playerId, \"healing\", false)\nif not result then print(reason) end",
+  "inferred": false,
+  "source_line": 50,
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.setRecharge",
+  "route_id": "server:Open77.consumables.setRecharge"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "setType",
+  "handler": "LuaResourceRuntime.ConsumablesBootstrap",
+  "summary": "Changes the selected consumable type.",
+  "description": "Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Preserves charges and equipped state. The record must resolve to the matching grenade, inhaler or injector type; an Items.* name alone is insufficient. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "record",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Consumables.cs",
+  "example": "-- Call from your server's validated spawn/loadout handler.\nlocal result, reason = Open77.consumables.setType(playerId, \"healing\", \"Items.FirstAidWhiffV0\")\nif not result then print(reason) end",
+  "inferred": false,
+  "source_line": 39,
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.setType",
+  "route_id": "server:Open77.consumables.setType"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "snapshot",
+  "handler": "LuaResourceRuntime.ConsumablesBootstrap",
+  "summary": "Requests fresh native consumable state.",
+  "description": "Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Asynchronous readback of the actual selected type, charges, capacity, equipment and regeneration. Use get for a synchronous cached observation. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Consumables.cs",
+  "example": "-- Call from your server's validated spawn/loadout handler.\nlocal result, reason = Open77.consumables.snapshot(playerId, \"healing\")\nif not result then print(reason) end",
+  "inferred": false,
+  "source_line": 54,
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.snapshot",
+  "route_id": "server:Open77.consumables.snapshot"
+ },
+ {
+  "namespace": "Open77.consumables",
+  "name": "unequip",
+  "handler": "LuaResourceRuntime.ConsumablesBootstrap",
+  "summary": "Clears the consumable hotkey and equipment slots.",
+  "description": "Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Preserves selected type and charges so equip can restore the kit. See [Grenades and healing items](/docs/consumables-api).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "kind",
+    "type": "\"grenade\" or \"healing\"",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "requestId or nil",
+   "reason on immediate refusal"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Consumables.cs",
+  "example": "-- Call from your server's validated spawn/loadout handler.\nlocal result, reason = Open77.consumables.unequip(playerId, \"grenade\")\nif not result then print(reason) end",
+  "inferred": false,
+  "source_line": 47,
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.consumables.unequip",
+  "route_id": "server:Open77.consumables.unequip"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "isLocalPuppetVisible",
+  "handler": "LuaIsLocalPuppetVisible",
+  "summary": "Reads the combined local-avatar visibility request.",
+  "description": "Client-only; requires players.local.visibility and takes no arguments. False means at least one resource holds a hide. True means no resource requests hiding; it does not force third person or prove a body is rendered. Returns the current combined policy immediately, while rendering follows on the game tick. Returns nil, reason when unavailable or permission is denied; unexpected arguments return unexpected_arguments. See [Local player visibility](/docs/local-puppet-visibility).",
+  "params": [],
+  "returns": [
+   "boolean visible or nil",
+   "reason on failure"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local visible, reason = Open77.players.isLocalPuppetVisible()\n    if visible == nil then print(reason) else print(\"Local avatar visible:\", visible) end\nend)",
+  "inferred": false,
+  "source_line": 12316,
+  "permissions": [
+   "players.local.visibility"
+  ],
+  "reasons": [
+   "game_unavailable_on_this_host",
+   "permission_denied:players.local.visibility",
+   "unexpected_arguments"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.players.isLocalPuppetVisible",
+  "route_id": "Open77.players.isLocalPuppetVisible"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "setLocalPuppetVisible",
+  "handler": "LuaSetLocalPuppetVisible",
+  "summary": "Hides or restores the player's local avatar, including third person.",
+  "description": "Client-only; requires players.local.visibility. Accepts exactly one boolean from a running resource callback/thread. False holds the native body, held weapon and third-person double hidden while retaining the camera and movement. True releases only this resource's hold; any other hide still wins. Rendering follows on the game tick. Resource stop/reload releases its hold; death, player replacement and disconnect clear lifecycle requests. Does not affect collision, separate props, gameplay effects or what other players see. Use server players.setVisible independently for observer visibility. Errors include expected_boolean, resource_not_running, player_not_ready and visibility_owner_quota. Requires a compatible client; check function availability on older builds. See [Local player visibility](/docs/local-puppet-visibility).",
+  "params": [
+   {
+    "name": "visible",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean accepted",
+   "reason on failure"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "RegisterNetEvent(\"prophunt:localDisguise\", function(disguised)\n    local setVisible = Open77.players.setLocalPuppetVisible\n    if not setVisible then return end\n    local ok, reason = setVisible(not disguised)\n    if not ok then print(reason) end\nend)",
+  "inferred": false,
+  "source_line": 12315,
+  "permissions": [
+   "players.local.visibility"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.players.setLocalPuppetVisible",
+  "route_id": "Open77.players.setLocalPuppetVisible"
  }
 ]

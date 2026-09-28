@@ -37,6 +37,8 @@ Open77.character = Open77.character or {}
 Open77.chute = Open77.chute or {}
 ---@class Open77.clipboard
 Open77.clipboard = Open77.clipboard or {}
+---@class Open77.consumables
+Open77.consumables = Open77.consumables or {}
 ---@class Open77.cyberware
 Open77.cyberware = Open77.cyberware or {}
 ---@class Open77.dash
@@ -2590,6 +2592,119 @@ function Open77.chute.isArmed() end
 ---@return any true true on success, otherwise false
 ---@return any reason reason for the refusal
 function Open77.clipboard.setText(text) end
+
+--- Configures a grenade or healing kit.
+---
+--- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Set record, count (0..999), capacity (1..999), equipped and recharge. Unknown options or count above an explicit capacity are rejected. Omitted fields preserve state; capacity grows to fit count if omitted. The first managed write defaults to recharge=false. See [Grenades and healing items](/docs/consumables-api).
+---
+--- Permissions: player.weapons.edit
+--- Since: not in any published build
+--- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
+---@param kind any
+---@param options table
+---@return any requestId requestId or nil
+---@return any reason reason on immediate refusal
+function Open77.consumables.configure(kind, options) end
+
+--- Equips the selected consumable on its hotkey.
+---
+--- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Optionally selects a new record. Omitting record uses the retained type and preserves its charges. Fails with no_consumable_type if none is available. See [Grenades and healing items](/docs/consumables-api).
+---
+--- Permissions: player.weapons.edit
+--- Since: not in any published build
+--- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
+---@param kind any
+---@param record? string
+---@return any requestId requestId or nil
+---@return any reason reason on immediate refusal
+function Open77.consumables.equip(kind, record) end
+
+--- Reads cached consumable state.
+---
+--- Client-only; requires `player.weapons.read`. Source is native_readback. Returns kind, record, tweakDbId, count, capacity, equipped, recharge, managed, sequence, reportedAgeMs and source. An unresolved native record name can be empty; use tweakDbId to identify it. Age measures time since observation, not a heartbeat. Use snapshot when fresh state is required. See [Grenades and healing items](/docs/consumables-api).
+---
+--- Permissions: player.weapons.read
+--- Since: not in any published build
+--- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
+---@param kind any
+---@return any state state table or nil
+---@return any reason reason on failure
+function Open77.consumables.get(kind) end
+
+--- Releases managed consumable capacity and regeneration.
+---
+--- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Restores the captured native regeneration policy and removes this API's capacity modifiers. Preserves the selected item, clamps excess charges to restored capacity, and leaves unrelated inventory and modifiers intact. See [Grenades and healing items](/docs/consumables-api).
+---
+--- Permissions: player.weapons.edit
+--- Since: not in any published build
+--- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
+---@param kind any
+---@return any requestId requestId or nil
+---@return any reason reason on immediate refusal
+function Open77.consumables.reset(kind) end
+
+--- Sets usable consumable charges.
+---
+--- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Count is 0..999, not an inventory stack size. Zero retains the selected type without allowing a use. Capacity grows when needed. See [Grenades and healing items](/docs/consumables-api).
+---
+--- Permissions: player.weapons.edit
+--- Since: not in any published build
+--- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
+---@param kind any
+---@param count integer
+---@return any requestId requestId or nil
+---@return any reason reason on immediate refusal
+function Open77.consumables.setCount(kind, count) end
+
+--- Controls native consumable regeneration.
+---
+--- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Accepts a strict boolean. False gives a finite charge supply; true enables native regeneration. Native capacity and regeneration modifiers are released on reset or player/session replacement. See [Grenades and healing items](/docs/consumables-api).
+---
+--- Permissions: player.weapons.edit
+--- Since: not in any published build
+--- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
+---@param kind any
+---@param enabled boolean
+---@return any requestId requestId or nil
+---@return any reason reason on immediate refusal
+function Open77.consumables.setRecharge(kind, enabled) end
+
+--- Changes the selected consumable type.
+---
+--- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Preserves charges and equipped state. The record must resolve to the matching grenade, inhaler or injector type; an Items.* name alone is insufficient. See [Grenades and healing items](/docs/consumables-api).
+---
+--- Permissions: player.weapons.edit
+--- Since: not in any published build
+--- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
+---@param kind any
+---@param record string
+---@return any requestId requestId or nil
+---@return any reason reason on immediate refusal
+function Open77.consumables.setType(kind, record) end
+
+--- Requests fresh native consumable state.
+---
+--- Client-only; requires `player.weapons.read`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Asynchronous readback of the actual selected type, charges, capacity, equipment and regeneration. Use get for a synchronous cached observation. See [Grenades and healing items](/docs/consumables-api).
+---
+--- Permissions: player.weapons.read
+--- Since: not in any published build
+--- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
+---@param kind any
+---@return any requestId requestId or nil
+---@return any reason reason on immediate refusal
+function Open77.consumables.snapshot(kind) end
+
+--- Clears the consumable hotkey and equipment slots.
+---
+--- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Preserves selected type and charges so equip can restore the kit. See [Grenades and healing items](/docs/consumables-api).
+---
+--- Permissions: player.weapons.edit
+--- Since: not in any published build
+--- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
+---@param kind any
+---@return any requestId requestId or nil
+---@return any reason reason on immediate refusal
+function Open77.consumables.unequip(kind) end
 
 --- Answer the owned native second-jump intent with the server's decision.
 ---
@@ -5532,6 +5647,17 @@ function Open77.players.isInVehicle(playerId) end
 ---@return any boolean boolean, or nil, reason
 function Open77.players.isJumping(playerId) end
 
+--- Reads the combined local-avatar visibility request.
+---
+--- Client-only; requires players.local.visibility and takes no arguments. False means at least one resource holds a hide. True means no resource requests hiding; it does not force third person or prove a body is rendered. Returns the current combined policy immediately, while rendering follows on the game tick. Returns nil, reason when unavailable or permission is denied; unexpected arguments return unexpected_arguments. See [Local player visibility](/docs/local-puppet-visibility).
+---
+--- Permissions: players.local.visibility
+--- Since: not in any published build
+--- Reasons: game_unavailable_on_this_host, permission_denied:players.local.visibility, unexpected_arguments
+---@return any boolean boolean visible or nil
+---@return any reason reason on failure
+function Open77.players.isLocalPuppetVisible() end
+
 --- Check whether the model is ready on this client.
 ---
 --- Requires players.model.read. Omitted/nil playerId selects the local player; explicit IDs must be positive integers. False means no active ready model, including the original character; nil, reason indicates failure. This is local projection readiness, not an acknowledgement from every observer. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
@@ -5671,6 +5797,17 @@ function Open77.players.nearby(radius, options) end
 --- Since: 2.31.13+op77.63
 ---@return any true true, or false, reason
 function Open77.players.resetControls() end
+
+--- Hides or restores the player's local avatar, including third person.
+---
+--- Client-only; requires players.local.visibility. Accepts exactly one boolean from a running resource callback/thread. False holds the native body, held weapon and third-person double hidden while retaining the camera and movement. True releases only this resource's hold; any other hide still wins. Rendering follows on the game tick. Resource stop/reload releases its hold; death, player replacement and disconnect clear lifecycle requests. Does not affect collision, separate props, gameplay effects or what other players see. Use server players.setVisible independently for observer visibility. Errors include expected_boolean, resource_not_running, player_not_ready and visibility_owner_quota. Requires a compatible client; check function availability on older builds. See [Local player visibility](/docs/local-puppet-visibility).
+---
+--- Permissions: players.local.visibility
+--- Since: not in any published build
+---@param visible boolean
+---@return any boolean boolean accepted
+---@return any reason reason on failure
+function Open77.players.setLocalPuppetVisible(visible) end
 
 --- Turns NCPD dispatch on or off for this client.
 ---
