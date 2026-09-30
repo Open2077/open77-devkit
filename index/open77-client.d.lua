@@ -83,6 +83,8 @@ Open77.loot = Open77.loot or {}
 Open77.map = Open77.map or {}
 ---@class Open77.markers
 Open77.markers = Open77.markers or {}
+---@class Open77.media
+Open77.media = Open77.media or {}
 ---@class Open77.motion
 Open77.motion = Open77.motion or {}
 ---@class Open77.movement
@@ -95,6 +97,8 @@ Open77.net = Open77.net or {}
 Open77.network = Open77.network or {}
 ---@class Open77.npcs
 Open77.npcs = Open77.npcs or {}
+---@class Open77.pauseMenu
+Open77.pauseMenu = Open77.pauseMenu or {}
 ---@class Open77.perspective
 Open77.perspective = Open77.perspective or {}
 ---@class Open77.photoMode
@@ -103,6 +107,8 @@ Open77.photoMode = Open77.photoMode or {}
 Open77.playerInteractions = Open77.playerInteractions or {}
 ---@class Open77.players
 Open77.players = Open77.players or {}
+---@class Open77.prediction
+Open77.prediction = Open77.prediction or {}
 ---@class Open77.prevention
 Open77.prevention = Open77.prevention or {}
 ---@class Open77.props
@@ -439,14 +445,14 @@ function GetRegisteredCommands() end
 ---@return any reason reason
 function GetResourceKvp(key, default) end
 
---- State of a resource.
+--- State of a resource on this client: `discovered`, `starting`, `running`, `stopping`, `stopped`, `failed`, `blocked`, or `missing` for a name this host does not know. There is no `started`: a resource that is up reads `running`, so `== "started"` is never true.
 ---
---- Reads the lifecycle state currently known by the client resource host. This is a snapshot only: it does not start, stop, or wait for the target resource.
+--- Reads the lifecycle state currently known by the client resource host: `discovered`, `starting`, `running`, `stopping`, `stopped`, `failed`, `blocked`, or `missing` for a name this host does not know. There is no `started`: a resource that is up reads `running`, so `== "started"` is never true. A snapshot only: it does not start, stop, or wait for the target resource. `Open77.resource.state` is the same function.
 ---
 --- Since: 2.31.0+op77.3
 --- Reasons: missing
 ---@param resource string
----@return any string string
+---@return any one one of the eight state names
 function GetResourceState(resource) end
 
 --- GetSoundState: local package audio.
@@ -462,7 +468,7 @@ function GetSoundState(id) end
 
 --- The server-wide state bag, read-only on the client.
 ---
---- The FiveM spelling of `Open77.state.global`, mirroring what the server replicated. Reading a key the server never set, or that this client has not received yet, answers nil â€” check `Open77.state.ready()` before treating a nil as an absence. Writing is refused: the client never writes a bag, because a bag is shared state and a client that could write one could write another player's job or another vehicle's keys. Ask with `Open77.state.request`, which the server arbitrates and republishes.
+--- The FiveM spelling of `Open77.state.global`, mirroring what the server replicated. Reading a key the server never set, or that this client has not received yet, answers nil — check `Open77.state.ready()` before treating a nil as an absence. Writing is refused: the client never writes a bag, because a bag is shared state and a client that could write one could write another player's job or another vehicle's keys. Ask with `Open77.state.request`, which the server arbitrates and republishes.
 ---
 --- Since: 2.31.13+op77.67
 ---@return any the the global bag, indexable by key
@@ -742,8 +748,8 @@ function PlaySound(id) end
 --- Writes a resource-prefixed line to the Open77 log. Values are converted with bounded formatting; this does not send a chat message or write into a WebUI page.
 ---
 --- Since: 2.31.0+op77.3
----@param ___ any
-function print(___) end
+---@param _ any
+function print(_) end
 
 --- Builds a quaternion: a plain { x, y, z, w } table with three rotation methods.
 ---
@@ -919,7 +925,7 @@ function StopSound(id) end
 --- Dispatches an event only inside the client resource runtime. Arguments must fit the runtime's bounded script-value representation; use `TriggerServerEvent` for traffic that must cross the network.
 ---
 --- Since: 2.31.0+op77.3
---- Reasons: event_payload_not_serializable, reserved_animation_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_interaction_event, resource_preparing
+--- Reasons: event_payload_not_serializable, reserved_animation_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_interaction_event, reserved_player_model_event, resource_preparing
 ---@param event string
 ---@param ___? any
 ---@return any true true, or false, reason
@@ -1189,6 +1195,25 @@ function Open77.anchors.clear() end
 ---@return any reason reason
 function Open77.anchors.create(options) end
 
+--- Open77.anchors.frame() -> { { id, projected, onScreen, x, y, depth,
+---
+--- distance, resolved = {x, y, z} }, ... }
+---
+--- The per-frame half of `list()` and nothing else: what the plugin
+--- projected on its last frame, for a loop that reads it every cycle. The
+--- full row -- tag, render, entity, offset, surface, the distance band,
+--- the declared position -- is the resource's own configuration, which it
+--- wrote and does not need read back thirty times a second; `list()` still
+--- carries all of it. Two tables and one string per anchor rather than
+--- six and four, which at the 32-anchor quota is the difference between a
+--- frame read that costs a cycle a few dozen microseconds and one that
+--- costs it a hundred.
+---
+--- Since: not in any published build
+--- Reasons: anchors_backend_unavailable
+---@return any value value
+function Open77.anchors.frame() end
+
 --- Lists the calling resource's world anchors with their last projection.
 ---
 --- Each snapshot carries its requested definition plus `render` (echoing its style), `resolved` (where the anchor actually was on the last frame -- for an entity anchor the live transform plus the offset, not what was registered) and `screen` (`x`, `y` normalised to [0..1] with a top-left origin, and `depth` in metres in front of the camera), `distance`, `onScreen`, and `projected`. An invisible anchor is still projected and still listed, so this stays the way to decide which of a resource's world points deserve one of its 32 slots.
@@ -1257,7 +1282,7 @@ function Open77.animations.clips(query) end
 
 --- The clip a body is currently playing.
 ---
---- Returns false when it is playing nothing â€” which is a state, not an error.
+--- Returns false when it is playing nothing — which is a state, not an error.
 ---
 --- Since: 2.31.0+op77.3
 ---@param entity integer|string
@@ -1979,7 +2004,7 @@ function Open77.camera.configureThirdPerson(options) end
 ---
 --- Permissions: camera.script
 --- Since: 2.31.13+op77.67
---- Reasons: camera_unavailable_on_this_host, invalid_camera_fov, invalid_camera_look_at, invalid_camera_options, invalid_camera_position, invalid_camera_rotation, invalid_entity_id, permission_denied:camera.script
+--- Reasons: camera_unavailable_on_this_host, invalid_camera_body, invalid_camera_fov, invalid_camera_look_at, invalid_camera_options, invalid_camera_position, invalid_camera_rotation, invalid_entity_id, permission_denied:camera.script
 ---@param options table
 ---@return any camera camera id, or nil, reason
 function Open77.camera.create(options) end
@@ -2233,7 +2258,7 @@ function Open77.camera.view() end
 
 --- What the local player is aiming at, if it is a thing rather than scenery.
 ---
---- Requires **both** `player.aim.read` and `world.query`: where the player looks is about the player, what is there is a world entity read, and granting the first must not quietly hand out the second. Uses the engine's own look-at target, not a physics ray -- a physics ray answers with geometry and carries no entity reference. Returns `engineEntity`, `className`, `kind`, `family`, `position` and `distance`, plus `entity` and one of `playerId`/`vehicleId`/`npcId` when the thing is an Open77 body. `family` is the raw class family and `kind` is that refined by ownership, exactly as `Open77.camera.aimRay({ entities = true })` refines it, so a vanilla crowd ped reads `populationNpc` in both. Three outcomes, kept apart on purpose: a table, a BARE `nil` for "pointing at scenery or nothing", and `nil, reason` when the question could not be asked.
+--- Requires **both** `player.aim.read` and `world.query`: where the player looks is about the player, what is there is a world entity read, and granting the first must not quietly hand out the second. Uses the engine's own look-at target, not a physics ray -- a physics ray answers with geometry and carries no entity reference. Returns `engineEntity`, `className`, `kind`, `family`, `position` and `distance`, plus `entity` and one of `playerId`/`vehicleId`/`npcId` when the thing is an Open77 body, or canonical decimal-string `propId` for a replicated prop. `family` is the raw class family and `kind` is that refined by ownership, exactly as `Open77.camera.aimRay({ entities = true })` refines it, so a vanilla crowd ped reads `populationNpc` in both. Three outcomes, kept apart on purpose: a table, a BARE `nil` for "pointing at scenery or nothing", and `nil, reason` when the question could not be asked.
 ---
 --- Permissions: player.aim.read, world.query
 --- Since: 2.31.13+op77.67
@@ -2308,7 +2333,7 @@ function Open77.character.forward(entity) end
 
 --- Reads an entity's position and its own three axes, in world space.
 ---
---- Requires `world.transform`. Returns `{ position, forward, right, up }`, every axis normalised, in one engine pass. The axes are read from `entEntity.GetWorldForward/GetWorldRight/GetWorldUp` rather than rebuilt from the orientation quaternion, so `forward` is by construction the same value `Open77.character.state().forward` reports. `entity` takes the same two forms every `Open77.character` call takes.
+--- Requires `world.transform`. Returns `{ position, forward, right, up }`, every axis normalised, in one engine pass. The axes are read from `entEntity.GetWorldForward/GetWorldRight/GetWorldUp`, including pitch and roll. Accepts a receiver-local entity id, a canonical `{playerId}`, `{vehicleId}`, `{npcId}` or `{propId}` selector, or `{engineEntity, radius?}`. A prop id is canonical unsigned-64 decimal text. An engine id may be a lossless decimal/hex string or a Lua integer bit pattern. A canonical id on a decorated ray record takes precedence over `engineEntity`; an unavailable canonical parent never falls through to another identity.
 ---
 --- Permissions: world.transform
 --- Since: 2.31.13+op77.67
@@ -2449,7 +2474,7 @@ function Open77.character.isVaulting(entity) end
 
 --- Turns a point in an entity's own frame into world coordinates.
 ---
---- Requires `world.transform`. FiveM's `GetOffsetFromEntityInWorldCoords`. The offset is in the entity's frame: `+y` ahead, `+x` to its right, `+z` up, which is REDengine's convention. The vector may be passed alone -- `offsetToWorld(vector3(0, 2, 0))` means two metres in front of the local player -- because a target table always carries `engineEntity` and a vector never does. Pitch and roll are in the answer for a tilted entity, because they are in the engine's axes.
+--- Requires `world.transform`. FiveM's `GetOffsetFromEntityInWorldCoords`. The offset is in the entity's frame: `+y` ahead, `+x` to its right, `+z` up, which is REDengine's convention. Accepts the same target selectors as `frame`. The vector may be passed alone -- `offsetToWorld(vector3(0, 2, 0))` means two metres in front of the local player -- but an identity selector without a vector is refused. Pitch and roll are in the answer for a tilted entity, because they are in the engine's axes.
 ---
 --- Permissions: world.transform
 --- Since: 2.31.13+op77.67
@@ -2513,7 +2538,7 @@ function Open77.character.speed(entity) end
 ---
 --- Since: 2.31.0+op77.3
 ---@param entity? any
----@return any table table { isPlayer, attached, id, engineId, position, orientation, forward, velocity, speed, groundSpeed, yaw, alive, health, grounded, crouched, sliding, vaulting, air, fall, landing, weaponâ€¦, inVehicle, seat, driver }
+---@return any table table { isPlayer, attached, id, engineId, position, orientation, forward, velocity, speed, groundSpeed, yaw, alive, health, grounded, crouched, sliding, vaulting, air, fall, landing, weapon…, inVehicle, seat, driver }
 ---@return any reason reason, when the first is nil
 function Open77.character.state(entity) end
 
@@ -3365,7 +3390,7 @@ function Open77.elevators.request(id, floor, action) end
 
 --- Lit l'horloge REDengine locale.
 ---
---- Primitive interne protÃ©gÃ©e par `world.environment`. Retourne un snapshot atomique de l'heure appliquÃ©e et de l'Ã©tat de pause. Dans une session normale, utilisez l'export `open77_weather.getState` plutÃ´t que cette valeur de projection.
+--- Primitive interne protégée par `world.environment`. Retourne un snapshot atomique de l'heure appliquée et de l'état de pause. Dans une session normale, utilisez l'export `open77_weather.getState` plutôt que cette valeur de projection.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
@@ -3374,7 +3399,7 @@ function Open77.elevators.request(id, floor, action) end
 ---@return any raison raison si indisponible
 function Open77.environment.getTime() end
 
---- Indique si la mÃ©tÃ©o automatique vanilla est neutralisÃ©e.
+--- Indique si la météo automatique vanilla est neutralisée.
 ---
 --- Demande `world.environment`.
 ---
@@ -3387,49 +3412,49 @@ function Open77.environment.isWeatherFrozen() end
 
 --- Projette une heure serveur dans REDengine.
 ---
---- Demande `world.environment`. `open77_weather` est normalement le seul propriÃ©taire de cette permission. REDengine choisit la prochaine occurrence de l'heure demandÃ©e ; le package officiel filtre donc les petits reculs rÃ©seau pour Ã©viter un saut d'un jour.
+--- Demande `world.environment`. `open77_weather` est normalement le seul propriétaire de cette permission. REDengine choisit la prochaine occurrence de l'heure demandée ; le package officiel filtre donc les petits reculs réseau pour éviter un saut d'un jour.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
 ---@param hour any
 ---@param minute any
 ---@param second? any
----@return any true true en cas de succÃ¨s, sinon false
+---@return any true true en cas de succès, sinon false
 ---@return any raison raison du refus
 function Open77.environment.setTime(hour, minute, second) end
 
---- Fige ou libÃ¨re uniquement l'horloge du jeu.
+--- Fige ou libère uniquement l'horloge du jeu.
 ---
---- Ne fige pas la simulation. Demande `world.environment`; utilisÃ© par la projection serveur pour neutraliser la vitesse vanilla.
+--- Ne fige pas la simulation. Demande `world.environment`; utilisé par la projection serveur pour neutraliser la vitesse vanilla.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
 ---@param frozen boolean
----@return any true true en cas de succÃ¨s, sinon false
+---@return any true true en cas de succès, sinon false
 ---@return any raison raison du refus
 function Open77.environment.setTimeFrozen(frozen) end
 
---- Applique un preset mÃ©tÃ©o REDengine.
+--- Applique un preset météo REDengine.
 ---
---- Primitive interne demandant `world.environment`. Le second retour `applied=false` est aussi possible en cas de succÃ¨s si le preset Ã©tait dÃ©jÃ  actif.
+--- Primitive interne demandant `world.environment`. Le second retour `applied=false` est aussi possible en cas de succès si le preset était déjà actif.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
 ---@param preset string
 ---@param transitionSeconds? number
 ---@param priority? integer
----@return any true true en cas de succÃ¨s, sinon false
----@return any applied applied si succÃ¨s, sinon raison du refus
+---@return any true true en cas de succès, sinon false
+---@return any applied applied si succès, sinon raison du refus
 function Open77.environment.setWeather(preset, transitionSeconds, priority) end
 
---- DÃ©sactive ou rÃ©active le contrÃ´leur mÃ©tÃ©o automatique vanilla.
+--- Désactive ou réactive le contrôleur météo automatique vanilla.
 ---
---- Demande `world.environment`. Figer conserve le preset courant et laisse le serveur dÃ©cider du prochain Ã©vÃ©nement.
+--- Demande `world.environment`. Figer conserve le preset courant et laisse le serveur décider du prochain événement.
 ---
 --- Permissions: world.environment
 --- Since: 2.31.0+op77.3
 ---@param frozen boolean
----@return any true true en cas de succÃ¨s, sinon false
+---@return any true true en cas de succès, sinon false
 ---@return any raison raison du refus
 function Open77.environment.setWeatherFrozen(frozen) end
 
@@ -3560,7 +3585,7 @@ function Open77.equipment.visualSettled(slot, expected) end
 --- Emits an event on the resource-local client bus and invokes matching local handlers. It never sends a packet; use the network event API for server communication.
 ---
 --- Since: 2.31.0+op77.3
---- Reasons: event_payload_not_serializable, reserved_animation_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_interaction_event, resource_preparing
+--- Reasons: event_payload_not_serializable, reserved_animation_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_interaction_event, reserved_player_model_event, resource_preparing
 ---@param event string
 ---@param ___? any
 ---@return any true true, or false, reason
@@ -3577,7 +3602,7 @@ function Open77.events.off(handler) end
 
 --- Listens for a local event.
 ---
---- Same as the `AddEventHandler` global. Events emitted by the plugin â€” `open77:pauseKey`, `open77:menuStateChanged`, `open77:inspector:on` â€” arrive here.
+--- Same as the `AddEventHandler` global. Events emitted by the plugin — `open77:pauseKey`, `open77:menuStateChanged`, `open77:inspector:on` — arrive here.
 ---
 --- Since: 2.31.0+op77.3
 --- Reasons: invalid_event_or_handler_limit
@@ -3594,21 +3619,21 @@ function Open77.events.on(event, handler) end
 --- Reasons: export_arguments_not_serializable, export_not_found, export_request_limit, export_resource_unavailable, export_target_busy, resource_preparing
 ---@param resource string
 ---@param export string
----@param ___? any
+---@param _? any
 ---@return any promise promise, or nil
 ---@return any reason reason
-function Open77.exports.call(resource, export, ___) end
+function Open77.exports.call(resource, export, _) end
 
 --- Calls a function exported by another resource, inline on this thread.
 ---
---- The non-sugar form of exports.resource:name(...). Runs the callee in its own VM before returning and yields its values directly. RAISES on failure instead of returning nil, reason â€” the one place Open77 departs from its own convention, so that ported FiveM code behaves the same; use pcall to handle failure. The callee must not yield (export_yielded), gets its own instruction budget (export_budget_exhausted fails only that call), and chains are capped at 8 frames (export_recursion_limit). Arguments and results are copied, never shared. A resource may call its own export.
+--- The non-sugar form of exports.resource:name(...). Runs the callee in its own VM before returning and yields its values directly. RAISES on failure instead of returning nil, reason — the one place Open77 departs from its own convention, so that ported FiveM code behaves the same; use pcall to handle failure. The callee must not yield (export_yielded), gets its own instruction budget (export_budget_exhausted fails only that call), and chains are capped at 8 frames (export_recursion_limit). Arguments and results are copied, never shared. A resource may call its own export.
 ---
 --- Since: 2.31.13+op77.67
 ---@param resource string
 ---@param export string
----@param ___? any
+---@param _? any
 ---@return any whatever whatever the export returns
-function Open77.exports.callSync(resource, export, ___) end
+function Open77.exports.callSync(resource, export, _) end
 
 --- Acquires native input and begins editing an owned gizmo.
 ---
@@ -4190,7 +4215,7 @@ function Open77.inspector.outline(enabled) end
 ---
 --- Reads a snapshot, never a probe. The ray has to be cast on the game thread, and the plugin refreshes it at 10 Hz, so calling this costs nothing and cannot land a raycast on the wrong thread.
 ---
---- Always returns a table when a game is present. `valid` separates "nothing in view" from "no game" â€” the latter returns `nil, reason`.
+--- Always returns a table when a game is present. `valid` separates "nothing in view" from "no game" — the latter returns `nil, reason`.
 ---
 --- Since: 2.31.0+op77.3
 --- Reasons: game_unavailable_on_this_host
@@ -4369,16 +4394,16 @@ function Open77.log.info(message) end
 ---@param message any
 function Open77.log.warn(message) end
 
---- Applique localement un pickup dÃ©jÃ  acceptÃ© par le serveur.
+--- Applique localement un pickup déjà accepté par le serveur.
 ---
---- API interne appelÃ©e uniquement aprÃ¨s `open77:loot:pickupResult`. Elle projette l'objet dans l'inventaire REDengine local; l'inventaire persistant reste une responsabilitÃ© serveur.
+--- API interne appelée uniquement après `open77:loot:pickupResult`. Elle projette l'objet dans l'inventaire REDengine local; l'inventaire persistant reste une responsabilité serveur.
 ---
 --- Permissions: world.loot
 --- Since: 2.31.0+op77.3
 ---@param id integer
 ---@param item string
 ---@param quantity integer
----@return any true true en cas de succÃ¨s
+---@return any true true en cas de succès
 ---@return any raison raison du refus
 function Open77.loot.acceptPickup(id, item, quantity) end
 
@@ -4397,40 +4422,40 @@ function Open77.loot.clear() end
 --- Permissions: world.loot
 --- Since: 2.31.0+op77.3
 ---@param id integer
----@return any true true en cas de succÃ¨s
+---@return any true true en cas de succès
 ---@return any raison raison du refus
 function Open77.loot.remove(id) end
 
 --- Demande au serveur de ramasser un drop.
 ---
---- Le serveur contrÃ´le l'existence, le routing bucket et la distance calculÃ©e depuis son dernier snapshot du joueur.
+--- Le serveur contrôle l'existence, le routing bucket et la distance calculée depuis son dernier snapshot du joueur.
 ---
 --- Permissions: world.loot
 --- Since: 2.31.0+op77.3
 ---@param id integer
----@return any true true si la requÃªte rÃ©seau est partie
+---@return any true true si la requête réseau est partie
 ---@return any raison raison du refus local
 function Open77.loot.requestPickup(id) end
 
---- Active ou dÃ©sactive la projection de loot autoritaire.
+--- Active ou désactive la projection de loot autoritaire.
 ---
---- RÃ©servÃ© Ã  `open77_loot`. Quand il est actif, les choix, conteneurs et drops vanilla sont neutralisÃ©s et les objets physiques deviennent de simples reprÃ©sentations du registre serveur.
+--- Réservé à `open77_loot`. Quand il est actif, les choix, conteneurs et drops vanilla sont neutralisés et les objets physiques deviennent de simples représentations du registre serveur.
 ---
 --- Permissions: world.loot
 --- Since: 2.31.0+op77.3
 ---@param enabled boolean
----@return any true true en cas de succÃ¨s
+---@return any true true en cas de succès
 ---@return any raison raison du refus
 function Open77.loot.setAuthorityEnabled(enabled) end
 
---- CrÃ©e ou met Ã  jour la projection locale d'un drop serveur.
+--- Crée ou met à jour la projection locale d'un drop serveur.
 ---
---- API interne de rÃ©plication. Demande la permission `world.loot`; un script gameplay ne doit pas inventer un drop cÃ´tÃ© client.
+--- API interne de réplication. Demande la permission `world.loot`; un script gameplay ne doit pas inventer un drop côté client.
 ---
 --- Permissions: world.loot
 --- Since: 2.31.0+op77.3
 ---@param drop any
----@return any true true en cas de succÃ¨s
+---@return any true true en cas de succès
 ---@return any raison raison du refus
 function Open77.loot.upsert(drop) end
 
@@ -4711,6 +4736,61 @@ function Open77.markers.shapes() end
 ---@return any reason reason
 function Open77.markers.update(id, patch) end
 
+--- Creates a resource-owned world media screen.
+---
+--- Client-only; requires world.props and an available media backend. Binds a validated media definition to a prop or owned WebUI page. Returns the opaque screen ID as a string, or nil and a reason. The binding is local and owned by the calling resource; use the open77_media resource for its higher-level playback workflow.
+---
+--- Permissions: world.props
+--- Since: not in any published build
+--- Reasons: media_backend_unavailable, missing_prop_or_page, permission_denied:world.props
+---@param definition table
+---@return any screen screen ID or nil
+---@return any reason reason on failure
+function Open77.media.bind(definition) end
+
+--- Releases all media-screen bindings owned by this resource.
+---
+--- Client-only; requires world.props. Requests resource-scoped cleanup of every local media screen and returns true. Does not remove another resource's screens. Safe when no screens exist; backend cleanup also participates in resource teardown.
+---
+--- Permissions: world.props
+--- Since: not in any published build
+---@return any boolean boolean success
+---@return any reason reason on failure
+function Open77.media.clear() end
+
+--- Lists the calling resource's local media screens.
+---
+--- Client-only; requires world.props and an available media backend. Returns a snapshot array including screen IDs, definitions, drawn state, reason, distance, facing diagnostics and quad dimensions. This is local presentation state, not a server-global catalogue; other resource owners' screens are excluded.
+---
+--- Permissions: world.props
+--- Since: not in any published build
+---@return any screen screen snapshot array, or false
+---@return any reason reason on failure
+function Open77.media.list() end
+
+--- Removes an owned media-screen binding.
+---
+--- Client-only; requires world.props. Releases a screen by its opaque ID through the resource-scoped backend. Does not delete a shared prop or another resource's WebUI page. Returns false and a reason for invalid IDs, unavailable backends or refused ownership.
+---
+--- Permissions: world.props
+--- Since: not in any published build
+---@param id string
+---@return any boolean boolean success
+---@return any reason reason on failure
+function Open77.media.unbind(id) end
+
+--- Updates one of this resource's media screens.
+---
+--- Client-only; requires world.props. Reads the existing owned screen definition, applies and validates the supplied patch, then requests a backend update. An unknown or foreign ID fails with not_found; an invalid ID fails with invalid_screen_id. Other resources' bindings cannot be modified.
+---
+--- Permissions: world.props
+--- Since: not in any published build
+---@param id string
+---@param patch table
+---@return any boolean boolean success
+---@return any reason reason on failure
+function Open77.media.update(id, patch) end
+
 --- Queue an owned native reaction on an exact local body.
 ---
 --- Requires player.motion.project. entity is a local registry handle (1 for the owner), not a network player ID. Direction is normalized; distance is0..6 m and the local owner must be alive, ready, on foot and grounded. Returns an owned request ID. Owner phase starts pending, then active after two valid consecutive native-down observations within1.5s. Remote projection starts its native action immediately. No damage, teleport or server authority is granted.
@@ -4741,6 +4821,45 @@ function Open77.motion.knockdown(entity, x, y, distance) end
 ---@return any request request ID
 ---@return any nil nil, reason on rejection
 function Open77.motion.launch(entity, x, y, push, lift) end
+
+--- Predict a temporary reaction on a remote player proxy.
+---
+--- Requires `player.motion.project`. **Experimental.** Starts a presentation-only knockdown on a streamed remote player's proxy for a melee, Ground Slam or quickhack contact, before the server's verdict. `source` is `melee`, `slam` or `hack`; `entity` is the remote player's local registry ID, never the local player; `x`, `y` give the horizontal direction of the hit. The resource must first apply its gamemode's team, safe-zone and crowd-control policy. Native guards require an active session, a living attacker and victim, an available unseated body, no competing pose, known health above `expectedDamage` and no god mode. `expectedDamage` is a conservative lethal bound after gameplay multipliers; use zero only for an authoritative non-lethal or cosmetic configuration. At most 32 predictions are pending, each for 1500 ms. The authorized knockdown adopts the same native reaction; an unadopted prediction stops through the native get-up path on expiry or lifecycle change, or through `refutePrediction`. The call sends no network message and grants no damage, displacement or authority. The bundled `open77_cyberware` resource is the intended caller and applies the server's prediction policy first; see [Prediction](/docs/prediction).
+---
+--- Permissions: player.motion.project
+--- Since: not in any published build
+--- Reasons: invalid_prediction, invalid_prediction_source, permission_denied:player.motion.project, prediction_backend_unavailable, resource_not_running
+---@param source string
+---@param entity integer
+---@param x number
+---@param y number
+---@param expectedDamage number
+---@return any request request ID or nil
+---@return any reason reason on refusal
+function Open77.motion.predictAction(source, entity, x, y, expectedDamage) end
+
+--- Read bounded action-reaction prediction counters.
+---
+--- **Experimental.** Requires player.motion.project. Returns JSON with pending/capacity and melee, slam, hack counters (predicted, adopted, refuted, refused), last adoption/refutation times in milliseconds and lastPredictionQpc on the motion trace clock. Refused counts native admission attempts; the support resource separately counts earlier policy refusals. Counters are process-local and reading them sends no network traffic. See [Prediction](/docs/prediction) for the per-family counters of `Open77.prediction.stats`.
+---
+--- Permissions: player.motion.project
+--- Since: not in any published build
+--- Reasons: permission_denied:player.motion.project, prediction_backend_unavailable
+---@return any JSON JSON string or nil
+---@return any reason reason on refusal
+function Open77.motion.predictionStats() end
+
+--- Blend a refused presentation-only prediction back to the live pose.
+---
+--- **Experimental.** Requires player.motion.project. Call it when the server refuses the action a prediction was made for (a refused permit, a refused target, a knockdown the arbiter rejected). request is the ID predictAction returned. An unadopted prediction stops through a 150 ms graph exit instead of playing its whole fall; a prediction the authoritative lease already adopted is left alone and the call answers prediction_not_owned. A prediction that already timed out locally is still blended back while it is kept for a late verdict. This API sends no network message and changes no health, position or authority.
+---
+--- Permissions: player.motion.project
+--- Since: not in any published build
+--- Reasons: invalid_request, motion_backend_unavailable, permission_denied:player.motion.project
+---@param request integer
+---@return any true true on success
+---@return any nil nil and a reason on refusal (invalid_request, prediction_not_owned, native_cleanup_pending, permission_denied:player.motion.project, motion_backend_unavailable)
+function Open77.motion.refutePrediction(request) end
 
 --- Read the phase of this resource's native reaction.
 ---
@@ -4989,7 +5108,7 @@ function Open77.net.unregister(name) end
 --- Permissions: network.client
 --- Since: 2.31.0+op77.3
 --- Reasons: network_backend_unavailable, permission_denied:network.client
----@return any table table { phase, generation, serversâ€¦ }
+---@return any table table { phase, generation, servers… }
 function Open77.network.catalog() end
 
 --- Joins an Open77 server.
@@ -5121,6 +5240,49 @@ function Open77.npcs.isStreamedIn(id) end
 ---@return any reason reason: invalid_npc_id, invalid_timeout, permission_denied:npcs.read, promise_unavailable
 function Open77.npcs.whenReady(id, timeoutMs) end
 
+--- Reads the effective pause-menu branding and revision.
+---
+--- Read-only; no pause_menu.customize permission required. Returns revision, accentColor and logo, or nil without an error when knownRevision is unchanged. A local logo is returned as an image data URI, not a filesystem path; avoid logging or broadcasting it. See pause-menu.md.
+---
+--- Permissions: pause_menu.customize
+--- Since: not in any published build
+---@param knownRevision? integer
+---@return any table table or nil
+---@return any reason reason on failure
+function Open77.pauseMenu.getAppearance(knownRevision) end
+
+--- Releases this resource's pause-menu branding.
+---
+--- Requires pause_menu.customize. Removes both the accent and server-logo claim owned by the calling resource, including its manifest logo. Does not remove other resources' claims. The preceding resource's appearance or platform defaults become effective on the next menu refresh.
+---
+--- Permissions: pause_menu.customize
+--- Since: not in any published build
+---@return any true true or nil
+---@return any reason reason on failure
+function Open77.pauseMenu.resetAppearance() end
+
+--- Sets this resource's pause-menu accent.
+---
+--- Requires pause_menu.customize. Accepts a #RRGGBB color; nil or an empty string releases this resource's accent claim. The most recent active resource claim wins and stopping the resource restores the previous claim or the default cyan. Does not recolor the OPEN//77 logo. See pause-menu.md.
+---
+--- Permissions: pause_menu.customize
+--- Since: not in any published build
+---@param color any
+---@return any true true or nil
+---@return any reason reason on failure
+function Open77.pauseMenu.setAccentColor(color) end
+
+--- Adds a server logo beside the OPEN//77 pause-menu logo.
+---
+--- Requires pause_menu.customize. Accepts a supported image URL or a resource-relative image declared in files. nil or an empty string releases only this resource's logo claim. Branding never replaces the platform logo; stopping or reloading the owner restores the previous active claim. See pause-menu.md for formats, URL/path validation and manifest pause_menu_logo.
+---
+--- Permissions: pause_menu.customize
+--- Since: not in any published build
+---@param pathOrUrl any
+---@return any true true or nil
+---@return any reason reason on failure
+function Open77.pauseMenu.setLogo(pathOrUrl) end
+
 --- Applies a third-person policy received from the server.
 ---
 --- `disabled`, `allowed`, `default` or `forced`, with the pinned perspective for `forced` (a pin with nothing pinned is refused rather than quietly becoming first person). Requires the `perspective.policy` permission -- not because it exposes anything, since all of this is client-local presentation, but because it is the one call that can take the choice away from the player. It deliberately cannot express the bridge's fifth value, `lab`, which disengages the arbiter entirely: a server able to reach that could leave a client with nothing governing the camera. The bundled `open77_perspective` resource is the intended caller, on receipt of `open77:perspective:policy`.
@@ -5194,7 +5356,7 @@ function Open77.perspective.toggle() end
 
 --- Closes Cyberpunk's native photo mode.
 ---
---- Calls the native photo-mode deactivation routine. The operation is idempotent when photo mode is already inactive.
+--- Requests the native menu's confirmed exit and UI cleanup. Idempotent when inactive or already closing; a request during the intro is queued until the menu is ready. Success means accepted, not that the transition has finished: isActive() still reports native state and may briefly remain true. Reopening during an accepted close returns photo_mode_transition_pending. A missing active menu returns photo_mode_menu_unavailable; deploy the matching client REDscripts with the DLL.
 ---
 --- Since: 2.31.13+op77.38
 ---@return any true true on success, otherwise false
@@ -5489,6 +5651,18 @@ function Open77.players.fromEntity(entityId) end
 ---@return any integer integer mask, or nil, reason
 function Open77.players.getControlMask() end
 
+--- Reads local or remote vehicle drive-by state.
+---
+--- Client; requires players.read. Omit playerId or pass integer 0 for the local player. Returns enabled, available, active, phase, sequence, duration and elapsed; non-none phases also include canonical vehicle and seat. Phases are none, entering, active, exiting. active includes both transitions. duration/elapsed are seconds. Remote data must be fresh with an attached presented occupant body; unavailable data has phase none. Remote enabled reflects server policy, not another client's local resource restrictions. Returns nil, reason for unavailable players or invalid arguments. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by). Adds mode (passenger, car_driver, bike_driver) and driverYaw/driverPitch/driverRoll in degrees relative to the seated pose. Drivers use front_left and phase active with zero duration/elapsed. Only interpret mode while active; inactive data defaults to passenger with zero angles.
+---
+--- Permissions: players.read
+--- Since: not in any published build
+--- Reasons: expected_player_id, game_unavailable_on_this_host, permission_denied:players.read
+---@param playerId? integer
+---@return any state state table or nil
+---@return any reason reason on failure
+function Open77.players.getDriveByState(playerId) end
+
 --- Reads one replicated player health snapshot.
 ---
 --- Requires `players.life.read`. Omit `playerId` for the local player.
@@ -5546,7 +5720,7 @@ function Open77.players.getModel(playerId) end
 --- Permissions: vehicles.read
 --- Since: 2.31.7+op77.16
 ---@param playerId? any
----@return any table table { playerId, vehicleId, seat (canonical name: driver, passenger, rear_left, rear_right...), flags (integer bitfield), entering, exiting, forcedEntry, exitLocked, forcedExit (booleans); the client copy adds animatedEntry and occupants }, or nil when the player is not assigned to a vehicle
+---@return any table table { playerId, vehicleId, seat (the canonical name only: seat_front_left, seat_front_right, seat_back_left or seat_back_right -- never driver or passenger, which are accepted aliases, not reported ones), flags (integer bitfield), entering, exiting, forcedEntry, exitLocked, forcedExit (booleans); the client copy adds animatedEntry and occupants }, or nil when the player is not assigned to a vehicle
 function Open77.players.getVehicleSeat(playerId) end
 
 --- Graph-produced aiming state, including toggle aim.
@@ -5592,6 +5766,18 @@ function Open77.players.isDead(playerId) end
 ---@return any boolean boolean, or nil, reason
 function Open77.players.isDiving(playerId) end
 
+--- Reads the effective vehicle drive-by permission.
+---
+--- Client; requires players.read. Omit playerId or use 0 for the local player. Reads the enabled field of getDriveByState: local resource restrictions combine with server policy; remote reads report only server policy. True permits native vehicle combat but does not mean the player is currently in it. Returns nil, reason for an unavailable player or invalid arguments. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by).
+---
+--- Permissions: players.read
+--- Since: not in any published build
+--- Reasons: expected_player_id, game_unavailable_on_this_host, permission_denied:players.read
+---@param playerId? integer
+---@return any boolean boolean enabled or nil
+---@return any reason reason on failure
+function Open77.players.isDriveByEnabled(playerId) end
+
 --- Mounted in the driver seat.
 ---
 --- Requires players.read. Omit playerId to query the local network player. Remote players must be streamed and presentation-ready; swimming/diving are local-only and return nil, state_not_replicated remotely. Unavailable is not false. Read-only, without advancing replication counters. See player-utilities.md.
@@ -5624,6 +5810,18 @@ function Open77.players.isFalling(playerId) end
 ---@param playerId? integer
 ---@return any boolean boolean, or nil, reason
 function Open77.players.isGrounded(playerId) end
+
+--- Reports whether a player is entering, using or leaving window combat.
+---
+--- Client; requires players.read. Omit playerId or use 0 for the local player. True for entering, active or exiting; false for none or stale action data. Use getDriveByState().phase == "active" when only the combat loop is relevant. Returns nil, reason for an unavailable player or invalid arguments. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by).
+---
+--- Permissions: players.read
+--- Since: not in any published build
+--- Reasons: expected_player_id, game_unavailable_on_this_host, permission_denied:players.read
+---@param playerId? integer
+---@return any boolean boolean active or nil
+---@return any reason reason on failure
+function Open77.players.isInDriveBy(playerId) end
 
 --- Native vehicle mounting state.
 ---
@@ -5798,6 +5996,18 @@ function Open77.players.nearby(radius, options) end
 ---@return any true true, or false, reason
 function Open77.players.resetControls() end
 
+--- Allows or denies native vehicle drive-by for the local player.
+---
+--- Client-only; requires players.driveby. Call with exactly one boolean from a running resource callback/thread. False holds this resource's restriction; true releases only that restriction. Another resource or server denial still wins. Stopping or reloading the resource releases its hold; disconnect resets local holds. Disabling an active passenger requests native exit; it does not equip a weapon or force a pose. Errors include expected_boolean, resource_not_running and owner_limit. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by).
+---
+--- Permissions: players.driveby
+--- Since: not in any published build
+--- Reasons: permission_denied:players.driveby
+---@param enabled boolean
+---@return any boolean boolean accepted
+---@return any reason reason on failure
+function Open77.players.setLocalDriveByEnabled(enabled) end
+
 --- Hides or restores the player's local avatar, including third person.
 ---
 --- Client-only; requires players.local.visibility. Accepts exactly one boolean from a running resource callback/thread. False holds the native body, held weapon and third-person double hidden while retaining the camera and movement. True releases only this resource's hold; any other hide still wins. Rendering follows on the game tick. Resource stop/reload releases its hold; death, player replacement and disconnect clear lifecycle requests. Does not affect collision, separate props, gameplay effects or what other players see. Use server players.setVisible independently for observer visibility. Errors include expected_boolean, resource_not_running, player_not_ready and visibility_owner_quota. Requires a compatible client; check function availability on older builds. See [Local player visibility](/docs/local-puppet-visibility).
@@ -5808,6 +6018,28 @@ function Open77.players.resetControls() end
 ---@return any boolean boolean accepted
 ---@return any reason reason on failure
 function Open77.players.setLocalPuppetVisible(visible) end
+
+--- Sets the prediction policy this client applies before the server's verdict.
+---
+--- Requires `prediction.policy`. Sets the per-family switches and the round-trip ceiling this client applies to presentation-only predictions. It changes only what this client shows before the server's verdict, never the verdict. `policy` is `{ families = { [name] = boolean, ... }, maxPingMs = integer }`. A family absent from `families` is on, and a name this build does not know is ignored. `maxPingMs` is 0–5000 ms: a round trip above it starts no new prediction, 0 removes the ceiling, and an absent value keeps the compiled 250 ms default. `nil` restores the compiled defaults. The host releases the policy when the owning resource stops. Families: `melee`, `slam`, `hack`, `door`, `blast`, `carContact`, `playerContact`. The bundled `open77_prediction` resource calls this with the policy the server publishes; a gamemode narrows that policy with the resource's `restrict` export instead. See [Prediction](/docs/prediction).
+---
+--- Permissions: prediction.policy
+--- Since: not in any published build
+--- Reasons: invalid_ping_ceiling, invalid_prediction_family, invalid_prediction_policy, permission_denied:prediction.policy, prediction_backend_unavailable, resource_not_running
+---@param policy? any
+---@return any true true on success
+---@return any nil nil and a reason on refusal
+function Open77.prediction.setPolicy(policy) end
+
+--- Reads the live prediction policy, this client's round trip and per-family counters.
+---
+--- No permission. Returns `{ maxPingMs, ping, owner?, families }`: the ceiling in force, this client's measured round trip in milliseconds (0 or less while unknown), the resource whose policy is applied (absent under the compiled defaults), and one `{ enabled, predicted, adopted, refuted, skippedDisabled, skippedLatency }` table per family. `predicted` counts predictions that started, `adopted` those the server's own reaction took over or confirmed, `refuted` those it refused or never answered in time, and `skippedDisabled` / `skippedLatency` those the policy stopped before they started. Counters are per game process; reading them sends no network traffic. See [Prediction](/docs/prediction).
+---
+--- Since: not in any published build
+--- Reasons: prediction_backend_unavailable
+---@return any maxPingMs { maxPingMs, ping, owner?, families }
+---@return any nil nil and a reason on refusal
+function Open77.prediction.stats() end
 
 --- Turns NCPD dispatch on or off for this client.
 ---
@@ -5903,7 +6135,7 @@ function Open77.Promise:status() end
 
 --- Attach a resource-owned local prop to a rendered bone or vehicle.
 ---
---- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each Â±20), rotation {x,y,z} in degrees (each Â±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. This changes only this client's prop, not server authority. Physics uses a visual-only attachment host; arbitrary mesh paths without that host are refused.
+--- Binding fields: parentType ('player' or 'vehicle'), parentId (canonical network ID, not an engine handle), bone (named slot, empty for root), offset {x,y,z} in metres (each ±20), rotation {x,y,z} in degrees (each ±360, local Z-Y-X composition). Unknown fields and non-finite numbers reject. Missing streamed parents are hidden, then rebound when available. See attachments.md. Requires world.props. This changes only this client's prop, not server authority. Physics uses a visual-only attachment host; arbitrary mesh paths without that host are refused.
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.63
@@ -5989,6 +6221,18 @@ function Open77.props.nearest(position, radius) end
 ---@return any boolean boolean
 ---@return any reason reason
 function Open77.props.project(serverId, options) end
+
+--- Inspect a replicated prop by its server ID.
+---
+--- Requires world.props. Returns the current local projection snapshot, or nil if absent. Includes backend, rendered, failed and attachmentStatus. Native item projection reports rendered only after native attachment and visual spawning. hidden_first_person is explicitly not rendered. Read-only; does not create or take ownership of a server prop.
+---
+--- Permissions: world.props
+--- Since: not in any published build
+--- Reasons: invalid_argument, permission_denied:world.props, props_backend_unavailable
+---@param serverPropId any
+---@return any table table snapshot, or nil
+---@return any reason reason on failure
+function Open77.props.projected(serverPropId) end
 
 --- Removes a local prop this resource owns.
 ---
@@ -6317,14 +6561,14 @@ function Open77.resource.readFile(path) end
 ---@return any or or nil, reason
 function Open77.resource.readPackedFile(resource, path) end
 
---- State of a resource.
+--- State of a resource on this client: `discovered`, `starting`, `running`, `stopping`, `stopped`, `failed`, `blocked`, or `missing` for a name this host does not know. There is no `started`: a resource that is up reads `running`, so `== "started"` is never true.
 ---
---- Returns the lifecycle state known for a resource name, or for the current resource when omitted. It is an immediate snapshot and does not wait for dependencies or mutate lifecycle state.
+--- Returns the lifecycle state known for a resource name (the argument is required; `GetResourceState` is the same function): `discovered`, `starting`, `running`, `stopping`, `stopped`, `failed`, `blocked`, or `missing` for a name this host does not know. There is no `started`: a resource that is up reads `running`, so `== "started"` is never true. An immediate snapshot; it does not wait for dependencies or mutate lifecycle state.
 ---
 --- Since: 2.31.0+op77.3
 --- Reasons: missing
----@param resource? string
----@return any string string
+---@param resource string
+---@return any one one of the eight state names
 function Open77.resource.state(resource) end
 
 --- Version declared in `open77.lua`.
@@ -6597,6 +6841,16 @@ function Open77.session.locale() end
 --- Since: 2.31.13+op77.67
 ---@return any table table, or nil, reason
 function Open77.session.menuState() end
+
+--- Returns server selection to the desktop launcher.
+---
+--- Client-only; requires network.client. Requests the installed launcher's opening through the native backend. Returns false and a reason when the launcher cannot be opened or this host has no game backend. Use the connection workspace's normal return-to-launcher flow when also closing the game.
+---
+--- Permissions: network.client
+--- Since: not in any published build
+---@return any boolean boolean success
+---@return any reason reason on failure
+function Open77.session.openLauncher() end
 
 --- Opens the game's own settings screen without exposing the pause menu.
 ---
@@ -7170,7 +7424,7 @@ function Open77.vehicles.getPaint(id) end
 --- Permissions: vehicles.read
 --- Since: 2.31.7+op77.16
 ---@param playerId? any
----@return any table table { playerId, vehicleId, seat (canonical name: driver, passenger, rear_left, rear_right...), flags (integer bitfield), entering, exiting, forcedEntry, exitLocked, forcedExit (booleans); the client copy adds animatedEntry and occupants }, or nil when the player is not assigned to a vehicle
+---@return any table table { playerId, vehicleId, seat (the canonical name only: seat_front_left, seat_front_right, seat_back_left or seat_back_right -- never driver or passenger, which are accepted aliases, not reported ones), flags (integer bitfield), entering, exiting, forcedEntry, exitLocked, forcedExit (booleans); the client copy adds animatedEntry and occupants }, or nil when the player is not assigned to a vehicle
 function Open77.vehicles.getPlayerSeat(playerId) end
 
 --- Reads one weapon mount by its stable one-based index.
@@ -7897,6 +8151,18 @@ function Open77.weapons.activate(target, options) end
 ---@return any reason reason
 function Open77.weapons.all() end
 
+--- Applies a server-relayed weapon blast to the vehicles this client simulates.
+---
+--- Client-only; requires `player.weapons.edit`. Only the client that simulates a vehicle can move it: an impulse on another client's observer replica is overwritten by the owner's motion stream. A server resource that accepted a blast therefore finds the vehicles it reaches (`Open77.vehicles.nearby`) and their physics owner (`Open77.vehicles.owner`), and sends each owner the centre, its own copy of the approved profile and that owner's vehicle ids; the owner's client calls this. Accepts {x, y, z, radius (0-60, above zero), push (0-40), lift (0-40), falloff (0-4, default 1), vehicles (0-64 positive server vehicle ids), characters (optional boolean)}; at least one vehicle or characters = true is required, anything else returns nil, invalid_weapon_blast. With characters, every living, unseated network NPC this client presents inside the radius is also knocked down once with the native hit-reaction knockdown (the one remote player proxies play for a car impact), which throws the body a few metres and lets it get up; a copy whose native health has not been projected yet is skipped. The server sends the blast to every nearby player, so the authority copy and each observer copy fall together, and an observer copy that settles more than 1.5 m from its authority walks back to it once the reaction is over. A forced ragdoll with an impulse was measured to do nothing on a living network NPC and is not used. The blast is queued and applied on the game thread to each listed vehicle that this client simulates in its current authority epoch, from this client's own pose, with the same mass-scaled impulse and (1 - distance / radius)^falloff weight as a local blast. A listed vehicle whose authority grant is still in flight is retried for 0.75 s; one outside the radius on this client's pose is skipped. Never moves a vehicle another client simulates, a frozen vehicle or a character. Returns true when queued, or nil/reason (invalid_weapon_blast, weapon_blast_queue_full with 16 blasts pending). tuning() reports relayedBlasts, relayedImpulses, relayedExpired, relayedRefused and relayedCharacters, including when this resource owns no tuning profile.
+---
+--- Permissions: player.weapons.edit
+--- Since: not in any published build
+--- Reasons: invalid_weapon_blast, permission_denied:player.weapons.edit, weapon_blast_unavailable
+---@param blast table
+---@return any true true or nil
+---@return any reason reason on failure
+function Open77.weapons.applyBlast(blast) end
+
 --- Assigns an exact TweakDB weapon template to a standard loadout slot.
 ---
 --- Requires `player.weapons.edit`. `slot` is 1..3. Options are `active` (default false) and `addToInventory` (default true). The return value only confirms that the validated request was queued; listen for `open77:weapons:completed` for the state verified by REDscript.
@@ -8106,11 +8372,34 @@ function Open77.weapons.tuning() end
 ---@return any reason reason
 function Open77.weapons.unequip(slot) end
 
+--- Pushes the operator's ad-blocklist (hosts and URL tokens) to the browser host, which only ever adds them to its compiled list.
+---
+--- Client-only; requires `webui.policy`, a permission of its own because this is the one verb that widens what a page's browser refuses. `hosts` and `tokens` are arrays of at most 512 strings each (`hosts_out_of_range`, `hosts_must_be_strings`, and the same for `tokens`); `revision` is the operator's list revision the host will report back, `source` a label for its log. Answers `true` when the host accepted the push -- not when the rules are in force: read `Open77.webui.blocklistState()` afterwards, because a host older than the policy message accepts nothing and leaves no receipt. Refusals: `permission_denied:webui.policy`, `webui_policy_backend_unavailable`, `invalid_blocklist`, `invalid_hosts` / `invalid_tokens`, `blocklist_not_applied`. `open77_media` is the shipped caller: it applies the server's `open77:media:adblock` payload and reports the receipt back.
+---
+--- Permissions: webui.policy
+--- Since: not in any published build
+--- Reasons: invalid_blocklist, permission_denied:webui.policy, webui_policy_backend_unavailable
+---@param rules any
+---@return any true true, or false
+---@return any reason reason
+function Open77.webui.blocklist(rules) end
+
+--- The browser host's receipt for the blocklist in force: revision, rule counts and the rules it refused.
+---
+--- Client-only; requires `webui.policy`. Answers `{ revision, compiledRules, hostRules, tokenRules, refused = { ... } }`, or `nil, reason` when there is nothing to describe: `no_blocklist_receipt` before any push was applied (or on a host older than the policy message), `webui_policy_backend_unavailable`, `permission_denied:webui.policy`. Compare `revision` with the one you pushed: a smaller value means the rules you sent are not the ones in force.
+---
+--- Permissions: webui.policy
+--- Since: not in any published build
+--- Reasons: permission_denied:webui.policy, webui_policy_backend_unavailable
+---@return any table table, or nil
+---@return any reason reason
+function Open77.webui.blocklistState() end
+
 --- Creates a web surface.
 ---
---- Creates a WebUI asynchronously. For an initially visible surface, pass `visible = true`; calling `show()` immediately can race with creation. The page can then manage its own content visibility.
+--- Creates a WebUI asynchronously. The handle returns at once and the page is built later, so `page:send` before the page's ready event is dropped; send the first state from `page:on("ui:ready", ...)`. For an initially visible surface, pass `visible = true` and let the page show or hide its own content: showing a surface again after hiding it may not repaint reliably.
 ---
---- Layers: `hud`, `menu`, `modal` (`webui.modal`), `system` (`webui.system`), `debug` (`webui.debug`). An HTTP(S) `entry` does not require `web_files`; bundled entries must be declared. External scripts, media, requests and embeds follow browser CORS and TLS rules. Only the configured top-level entry origin receives the Lua bridge. See [remote WebUI](/docs/resource-runtime#remote-pages-external-content-and-hot-reload) for runtime requirements.
+--- Options, all optional: `entry` (default: the manifest's `web_ui_page`), `layer`, `zIndex`, `transparent`, `visible`, `width`/`height` (a logical reference size, fitted to the viewport), `fps` (clamped to 60), `policy` and `drawBounds`. Layers: `hud`, `menu`, `modal` (`webui.modal`), `system` (`webui.system`), `debug` (`webui.debug`); a layer sets composition order and takes no focus. `policy` is `strict` (default: only declared files) or `remote` (the page may fetch, embed and open sockets to any HTTP(S) host). An HTTP(S) `entry` does not require `web_files` and is always served as `remote`; bundled entries must be declared. External scripts, media, requests and embeds follow browser CORS and TLS rules. Only the top-level document of the entry origin receives the Lua bridge. An unknown `layer` or `policy` raises a Lua error. See [remote WebUI](/docs/resource-runtime#remote-pages-external-content-and-hot-reload) for runtime requirements.
 ---
 --- Since: 2.31.0+op77.3
 --- Reasons: invalid_webui_draw_bounds, invalid_webui_options
@@ -8260,7 +8549,7 @@ function Open77.world.population() end
 
 --- Traces a physics ray between two world points and returns the nearest blocking surface.
 ---
---- Runs `gameSpatialQueriesSystem::SyncRaycastByCollisionGroup`, the same native the combat and camera code use, against the `Static` and `Dynamic` collision groups and keeps the nearer hit. `options` may disable either group (`{ static = true, dynamic = false }`). The result is what the engine's trace publishes: position, surface normal, material name and distance. With `options.entities = true` it also carries `entity` when the ray stopped on an object rather than on world geometry: `engineEntity`, `className`, `kind`, `position`, `distance`, and one of `playerId`, `vehicleId` or `npcId` when Open77 owns the thing. Without that option the returned table is unchanged, so existing resources are unaffected. The entity is not read out of the trace, which carries none: the object standing at the hit point is found with the same object search `Open77.world.nearest` uses, so the search is centred on the local player and a hit more than 250 m away cannot be attributed. A hit on a wall, a road or a railing has no entity at all, which is the ordinary answer and not an error. Synchronous, on the game thread; requires the `world.query` permission.
+--- Runs `gameSpatialQueriesSystem::SyncRaycastByCollisionGroup`, the same native the combat and camera code use, against the `Static` and `Dynamic` collision groups and keeps the nearer hit. `options` may disable either group (`{ static = true, dynamic = false }`). The result is what the engine's trace publishes: position, surface normal, material name and distance. With `options.entities = true` it also carries `entity` when the ray stopped on an object rather than on world geometry: `engineEntity`, `className`, `kind`, `position`, `distance`, and one of `playerId`, `vehicleId`, `npcId` or canonical decimal-string `propId` when Open77 owns the thing. Without that option the returned table is unchanged, so existing resources are unaffected. The entity is not read out of the trace, which carries none: the object standing at the hit point is found with the same object search `Open77.world.nearest` uses, so the search is centred on the local player and a hit more than 250 m away cannot be attributed. A hit on a wall, a road or a railing has no entity at all, which is the ordinary answer and not an error. Synchronous, on the game thread; requires the `world.query` permission.
 ---
 --- Permissions: world.query
 --- Since: 2.31.9+op77.22
@@ -8440,7 +8729,7 @@ function WebUI.Page:send(event, payload) end
 
 --- Consume selected navigation keys while preserving gameplay input.
 ---
---- Call page:setConsumedKeys(keys) before page:setFocus(true,false,true). Client-local, per-surface policy: selected keys still reach the browser but not Cyberpunk Raw Input or Open77 pause/scoreboard shortcuts. Accepts a dense array of at most 32 case-insensitive names: escape/esc, enter, tab, backspace, space, up/down/left/right (arrow aliases accepted), home, end, pageup, pagedown, insert and delete. Invalid input leaves the existing list unchanged; {} clears it for future presses. Active only while this visible, presentation-enabled page owns keyboard focus. Repeats and releases remain consumed if the keydown handler hides/destroys the page or changes focus. No arbitrary gameplay keys or controller-menu interception. No extra permission; keep-input still requires webui.keep_input. Check method availability before using this mode. See webui-input.md for the complete lifecycle and error contract.
+--- Call page:setConsumedKeys(keys) before page:setFocus(true,false,true). Client-local, per-surface policy: selected keys still reach the browser but not Cyberpunk Raw Input or Open77 pause/scoreboard shortcuts. Accepts a dense array of at most 32 case-insensitive names: escape/esc, enter, tab, backspace, space, up/down/left/right (arrow aliases accepted), home, end, pageup, pagedown, insert and delete. Invalid input leaves the existing list unchanged; {} clears it for future presses. Active only while this visible, presentation-enabled page owns keyboard focus. Repeats and releases remain consumed if the keydown handler hides/destroys the page or changes focus. No arbitrary gameplay keys or controller-menu interception. No permission of its own; the keepInput argument of setFocus requires webui.keep_input. Check method availability before using this mode. See webui-input.md for the complete lifecycle and error contract.
 ---
 --- Since: not in any published build
 ---@param keys any
@@ -8452,6 +8741,7 @@ function WebUI.Page:setConsumedKeys(keys) end
 ---
 --- The FIRST argument is keyboard capture, not a general `focused` flag, and the second is the cursor: `page:setFocus(true, true)` takes both, `page:setFocus(false, true)` takes only the mouse. Keyboard capture is asked for separately so a page can take the mouse without depriving the game of the movement keys. The optional third argument keeps game input alive while the page holds focus and requires `webui.keep_input`; without that permission it fails with `permission_denied:webui.keep_input`.
 ---
+--- Permissions: webui.keep_input
 --- Since: 2.31.0+op77.3
 --- Reasons: permission_denied:webui.keep_input
 ---@param keyboard boolean
@@ -8462,7 +8752,7 @@ function WebUI.Page:setFocus(keyboard, cursor, keepInput) end
 
 --- Shows the surface.
 ---
---- Avoid calling this right after `create` â€” see the race described in `Open77.webui.create`.
+--- Avoid calling this right after `create` — see the race described in `Open77.webui.create`.
 ---
 --- Since: 2.31.0+op77.3
 ---@return any boolean boolean

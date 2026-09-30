@@ -1,17 +1,17 @@
 {
  "formatVersion": 1,
  "build": "2.31.13+op77.78",
- "generatedAt": "2026-09-28T09:50:04.255Z",
+ "generatedAt": "2026-09-30T09:44:56.663Z",
  "docsSyncedAt": "2026-09-24T12:33:14.568Z",
  "source": {
   "repository": "https://github.com/Open2077/open77-app",
-  "commit": "42dbb1657774ebac774a1c3e5c1231bfca37ef28"
+  "commit": "a15d04dbbeb7d3330f03585a1a198b1da559f078"
  },
  "counts": {
-  "cards": 1664,
+  "cards": 1716,
   "releases": 46,
-  "guides": 96,
-  "sections": 1328,
+  "guides": 98,
+  "sections": 1357,
   "fivem": 100,
   "catalogues": 9,
   "schemas": 2,
@@ -19,24 +19,24 @@
  },
  "files": {
   "cards.json": {
-   "sha256": "1b04f3cd208f1131c1fd48e8383288ff7b3682d84200b613bb67dc5a7c3b175c",
-   "bytes": 2348841
+   "sha256": "a54e043cc771620932542677d80509352e4c97a964ca198c2675d45ff636a113",
+   "bytes": 2480102
   },
   "events.json": {
-   "sha256": "93466e5119179014a5e0b3684778a9246b8986220369d2153b7f389202b91988",
-   "bytes": 318212
+   "sha256": "cadfb713a4b7bb5f8c3b69b2492b4b8d12c48dc9d28e45cbc7f8c92ee0b010c3",
+   "bytes": 368587
   },
   "permissions.json": {
-   "sha256": "37ad7d7211d0bb390f45c8c594ffaf0e9440edc65c25b75bfddaef8625f91265",
-   "bytes": 125646
+   "sha256": "7c687b72f9ea6d03f7ba275312653a6e571d50344fb2a7363bb3e5738dcebc19",
+   "bytes": 151102
   },
   "releases.json": {
    "sha256": "17a908bb37d0f2e6901e1797bde7b93e02d11fbab04d301fcbb9013e982be106",
    "bytes": 3884
   },
   "guides.json": {
-   "sha256": "8135789a6756d367d14e5a6f066e6e99e2f488417fb01b7378daf763f1e885a7",
-   "bytes": 1990236
+   "sha256": "95811987a4e00eea4642792f5d70c8fa98ab3085815477c672f403d4d89d82a5",
+   "bytes": 2060108
   },
   "fivem-map.json": {
    "sha256": "f88c88ee9c0fa42b67a5ddfebb2226cd35564d34d797741f0f398964104ca3fa",
@@ -83,16 +83,16 @@
    "bytes": 4078
   },
   "schemas/server-config.schema.json": {
-   "sha256": "db55637f43e51872762d8ad6dc6c54885258b8a854134fc9a79d436a6f31c4f5",
-   "bytes": 16614
+   "sha256": "df644b0808dfc185f2676a05d3c8a41d78688696cf7bd4a9a1e1d0046413ee4f",
+   "bytes": 26685
   },
   "open77-client.d.lua": {
-   "sha256": "ff7231427550d3ae37fbf90b329a4f2a05d55807118767a3fc1ffa223d3289f1",
-   "bytes": 532978
+   "sha256": "c3eee5e6eb7dacc87fe9bbb9f72e9dcce40782046d8ab8d54a6b817511ed0958",
+   "bytes": 558702
   },
   "open77-server.d.lua": {
-   "sha256": "144fbc6ce2551bf4ef23bc51fc752e8be20a9b6527890b8605e4b8793aa90a1a",
-   "bytes": 652776
+   "sha256": "f1e820d7a09f0993936313c3adc48537825809601e2d6efe38071e569b8aaf0e",
+   "bytes": 722176
   }
  }
 }

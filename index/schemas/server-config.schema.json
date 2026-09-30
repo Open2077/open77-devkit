@@ -8,6 +8,14 @@
   "properties": {
     "$schema": { "type": "string" },
     "schemaVersion": { "const": 1 },
+    "logging": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "verbose": { "type": "boolean", "default": false, "description": "Legacy switch: true selects trace, false selects info. An explicit logging.level takes priority. Also controlled with --verbose / --no-verbose." },
+        "level": { "type": ["string", "null"], "enum": ["trace", "debug", "info", "warn", "error", null], "default": null, "description": "Minimum server-console/Warden severity. Null uses the legacy verbose switch. --log-level or OP77_CONFIG__LOGGING__LEVEL also sets this field." }
+      }
+    },
     "identity": {
       "type": "object",
       "additionalProperties": false,
@@ -62,7 +70,7 @@
           "type": ["string", "null"],
           "description": "Public hostname or IP with port, e.g. play.example.net:11778."
         },
-        "maximumPlayers": { "type": "integer", "minimum": 1, "maximum": 1024 }
+        "maximumPlayers": { "type": "integer", "minimum": 1, "maximum": 4096 }
       }
     },
     "simulation": {
@@ -72,10 +80,42 @@
       "properties": {
         "tickRate": { "type": "integer", "minimum": 1, "maximum": 240 },
         "snapshotRate": { "type": "integer", "minimum": 1, "maximum": 240 },
+        "maximumAiVehiclesPerSimulator": { "type": "integer", "minimum": 1, "maximum": 128, "default": 128, "description": "Admission slots per native AI simulator, including pending traffic placements. Healthy existing owners are retained. The default is the server's own per-simulator ceiling of 128; the server has no total driver-job limit." },
         "expectedGameBuild": { "type": "integer", "minimum": 1 },
         "helloTimeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
         "playerInterestRadius": { "type": "number", "minimum": 0, "maximum": 100000 },
-        "playerInterestHysteresis": { "type": "number", "minimum": 0, "maximum": 10000 }
+        "playerInterestHysteresis": { "type": "number", "minimum": 0, "maximum": 10000 },
+        "playerInterestDeferredBootstrap": { "type": "boolean", "default": false, "description": "With a positive player interest radius, wait for placement before announcing nearby peers instead of seeding the full bucket on admission." }
+      }
+    },
+    "combat": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Server-wide combat policy for car impacts on players. Optional; every field defaults to the behaviour before it existed.",
+      "properties": {
+        "vehicleHitCreditsDriver": { "type": "boolean", "default": false, "description": "Credit the seated driver the server finds behind a car impact as the attacker, through the ordinary PvP policy (friendly fire, teams, combat scopes, god mode, resource arbiters, per-victim caps); death cause becomes vehicle. False keeps the impact the victim's own environment hit. The culprit is published to resources either way (open77:playerHitByVehicle)." },
+        "vehicleHitSpeedDamage": { "type": "boolean", "default": false, "description": "Price an identified car impact from the server-observed relative speed with the curve below. False keeps the flat 10 HP vanilla 2.31 applies." },
+        "vehicleHitDamageFloor": { "type": "number", "minimum": 0, "maximum": 300, "default": 10, "description": "Health points at and below vehicleHitDamageFloorSpeed." },
+        "vehicleHitDamageFloorSpeed": { "type": "number", "minimum": 0, "maximum": 200, "default": 5, "description": "Metres per second up to which the floor price applies." },
+        "vehicleHitDamageCap": { "type": "number", "minimum": 0, "maximum": 300, "default": 90, "description": "Health points at and above vehicleHitDamageCapSpeed (linear in between). Keep it below the maximum health pool if one impact from full health must never kill." },
+        "vehicleHitDamageCapSpeed": { "type": "number", "minimum": 0, "maximum": 200, "default": 30, "description": "Metres per second from which the cap applies; must exceed vehicleHitDamageFloorSpeed." },
+        "vehicleHitAudit": { "type": "boolean", "default": false, "description": "Log-only count of suspected car strikes nobody reported (a driven vehicle's server path crossing a living player at speed with no impact report). Changes no damage." },
+        "handheldDischarges": { "type": "boolean", "default": true, "description": "Admit handheld discharge declarations: the server binds each living body, sends its client the binding, and admits fire declarations against the drawn catalogued weapon and a per-class cadence. A receipt damages nothing by itself; platform-priced NPC hits require one, and handheldVehicleDamage consumes them. False: no binding is sent and platform-priced NPCs cannot be priced from a player's hit." },
+        "handheldVehicleDamage": { "type": "boolean", "default": false, "description": "Apply a handheld gun hit on a car another client simulates (or nobody does) to the canonical vehicle health, consuming one admitted discharge receipt per car. Requires handheldDischarges. Off until two-client live acceptance." }
+      }
+    },
+    "replication": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Protocol38 replication rollback switches. Optional; every field defaults to the shipped behaviour. Each switch takes one protocol38 mechanism back to what it replaced, without a rebuild. A field left out or null keeps the legacy environment variable where one exists (OP77_CONTACT_STEWARD, OP77_CONTACT_EPISODES, OP77_GNS_TRAFFIC_LANES: exactly 0 turns the switch off), then the default; an explicit value always wins over the environment. Read once at startup: restart to apply.",
+      "properties": {
+        "contactSteward": { "type": ["boolean", "null"], "default": true, "description": "Contact steward: an unattended car about to be struck is simulated by the approaching driver, so observers see it pushed. False: the struck car stays at owner 0 and moves on the striker's screen only. Legacy fallback: OP77_CONTACT_STEWARD=0." },
+        "contactEpisodes": { "type": ["boolean", "null"], "default": true, "description": "Cross-reporter contact episode arbitration: both owners' reports of one car/car crash become one event. False: every accepted report is its own event and the counterpart is delivered at once. Legacy fallback: OP77_CONTACT_EPISODES=0." },
+        "trafficLanes": { "type": ["boolean", "null"], "default": true, "description": "GNS traffic lanes (ordered, timed motion, voice) on connections opened afterwards. False: every new connection keeps the native single lane. Legacy fallback: OP77_GNS_TRAFFIC_LANES=0." },
+        "hitRewindStrict": { "type": ["boolean", "null"], "default": false, "description": "Strict hit rewind: a player hit must match the victim's rewound path; the newest pose is no longer an alternative. False keeps the rewind never stricter than the check it replaced." },
+        "timedMotionWindowMs": { "type": ["integer", "null"], "minimum": 5, "maximum": 100, "default": 20, "description": "Native send-queue allowance of a timed motion batch, in milliseconds. 15 is the rollback of the near-lane phase. Above the 40 ms reliable window, motion can delay reliable traffic by the difference." },
+        "timedVehicleValidationTicks": { "type": ["integer", "null"], "minimum": 1, "maximum": 30, "default": 6, "description": "Vehicle scopes are revalidated every this many server ticks, viewers sliced (5 Hz at the default 30 Hz tick). 1 restores per-tick validation." },
+        "timedStarvationShareMs": { "type": ["integer", "null"], "anyOf": [{ "const": 0 }, { "minimum": 10, "maximum": 1000 }], "default": 50, "description": "After this many milliseconds without a timed motion admission while reliable traffic holds the link, one timed batch may pass. 0 restores the strict reliable-always-first rule; otherwise 10 to 1000." }
       }
     },
     "voice": {
@@ -174,16 +214,16 @@
       "additionalProperties": false,
       "properties": {
         "enabled": { "type": "boolean" },
-          "connectionString": {
-            "type": "string",
-            "description": "MySQL connection string used by resources with the database.access permission."
-          },
-          "connectionStringEnvironmentVariable": {
-            "type": "string",
-            "minLength": 1,
-            "default": "OP77_DATABASE_CONNECTION",
-            "description": "Environment variable holding the MySqlConnector connection string. A nonblank explicit connectionString takes precedence. Read once at server startup."
-          },
+        "connectionString": {
+          "type": "string",
+          "description": "MySQL connection string used by resources with the database.access permission."
+        },
+        "connectionStringEnvironmentVariable": {
+          "type": "string",
+          "minLength": 1,
+          "default": "OP77_DATABASE_CONNECTION",
+          "description": "Environment variable holding the MySqlConnector connection string. A nonblank explicit connectionString takes precedence. Read once at server startup."
+        },
         "maxRows": { "type": "integer", "minimum": 1, "maximum": 1000000 }
       }
     },
@@ -219,6 +259,16 @@
         }
       }
     },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Independent read-only Prometheus endpoint at /metrics. Disabled by default; no Warden session or running capture required.",
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "listenUrl": { "type": "string", "format": "uri", "default": "http://127.0.0.1:11783", "description": "One HTTP origin with an IP literal or localhost. Remote binding requires a bearer token; terminate TLS at a reverse proxy." },
+        "tokenEnvironmentVariable": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$", "default": "OP77_METRICS_TOKEN", "description": "Environment variable containing a 32–256 character bearer token. Missing is permitted only on loopback. Never put the token itself in this file." }
+      }
+    },
     "warden": {
       "type": "object",
       "additionalProperties": false,
@@ -235,6 +285,32 @@
           "format": "uri",
           "description": "Absolute HTTP URL the admin panel binds, e.g. http://0.0.0.0:11780."
         }
+      }
+    },
+    "rcon": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Authenticated Open77 TCP RCON for dashboard backends, independent of the Warden HTTP listener. Secrets are read from environment variables.",
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "bindAddress": { "type": "string", "default": "127.0.0.1", "description": "IPv4 or IPv6 literal. Non-loopback plaintext requires allowInsecureRemote." },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535, "default": 11782 },
+        "passwordEnvironmentVariable": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,127}$", "default": "OP77_RCON_PASSWORD" },
+        "allowWardenAccounts": { "type": "boolean", "default": false },
+        "permissions": { "type": "array", "maxItems": 128, "items": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-z0-9.*_-]+$" }, "default": ["*"] },
+        "allowInsecureRemote": { "type": "boolean", "default": false },
+        "tlsCertificateFile": { "type": ["string", "null"], "description": "PFX/PKCS#12 certificate with private key; relative to the configuration directory." },
+        "tlsCertificatePasswordEnvironmentVariable": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,127}$", "default": "OP77_RCON_CERT_PASSWORD" },
+        "maxConnections": { "type": "integer", "minimum": 1, "maximum": 256, "default": 32 },
+        "maxConnectionsPerIp": { "type": "integer", "minimum": 1, "maximum": 256, "default": 8 },
+        "maxFrameBytes": { "type": "integer", "minimum": 65536, "maximum": 4194304, "default": 1048576 },
+        "maxInFlightRequests": { "type": "integer", "minimum": 1, "maximum": 32, "default": 8 },
+        "maxRequestsPerSecond": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 30 },
+        "authenticationTimeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 60, "default": 10 },
+        "requestTimeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 600, "default": 60 },
+        "idleTimeoutSeconds": { "type": "integer", "minimum": 10, "maximum": 86400, "default": 600 },
+        "sessionLifetimeSeconds": { "type": "integer", "minimum": 10, "maximum": 86400, "default": 3600 },
+        "maxUploadBytes": { "type": "integer", "minimum": 1, "maximum": 1073741824, "default": 67108864 }
       }
     },
     "convars": {
