@@ -63,8 +63,8 @@ item options; the original native's `since` is not a per-option version guarante
 First-person presentation remains experimental. Includes the 0.1.3 fixes below.
 
 For RP jobs, start with `open77_guide rp-animations`, then
-`open77_api server:Open77.animations.play`. The public examples are at
-[open77-rp-examples/docs/held-actions.md](https://github.com/Open2077/open77-rp-examples/blob/main/docs/held-actions.md).
+`open77_api server:Open77.animations.play`. Every official resource is public in [open77-resources](https://github.com/Open2077/open77-resources); the held-action examples are at
+[open77-resources/rp/docs/held-actions.md](https://github.com/Open2077/open77-resources/blob/main/rp/docs/held-actions.md).
 
 **0.1.3** -- fixes measured by four MCP-only agents on 2026-09-18 against the index for
 2.31.13+op77.76:
