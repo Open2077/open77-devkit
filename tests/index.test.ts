@@ -13,7 +13,9 @@ import { detectWorkspace } from "../src/workspace/detect.js";
 import { scaffold } from "../src/workspace/scaffold.js";
 import { parseManifest, validateResource } from "../src/workspace/validate.js";
 
-const INDEX_DIR = path.resolve("index");
+// The embedded snapshot by default; the Dev Index workflow points this at the
+// index it just built, so a new snapshot is tested before it is committed.
+const INDEX_DIR = path.resolve(process.env["OPEN77_INDEX_DIR"] ?? "index");
 
 async function context(build?: string): Promise<ServerContext> {
   const index = await loadIndex(INDEX_DIR);

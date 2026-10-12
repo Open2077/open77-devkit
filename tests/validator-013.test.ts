@@ -6,6 +6,12 @@
  *   - `server:exports` / `server:print` answered "missing" although the
  *     server-exports guide uses both;
  *   - a command name another loaded resource already registers went unnoticed.
+ *
+ * The guide-only answer for the server `exports` / `print` is a fallback: the
+ * catalogue published on 2026-09-30 (open77-app b7240927) carries real server
+ * cards for both, and on such an index the fallback is dormant. The tests
+ * below assert the answer on whatever index they run against, and exercise the
+ * fallback itself on a copy of that index with the two cards removed.
  */
 
 import assert from "node:assert/strict";
@@ -15,11 +21,16 @@ import path from "node:path";
 import { test } from "node:test";
 import { GUIDE_ONLY_GLOBALS, NAMESPACE_ALIASES, guideOnlyGlobals, resolveNamespaceAlias, stripAwaitForm } from "../src/index/conventions.js";
 import { loadIndex } from "../src/index/loader.js";
+import type { DevIndex } from "../src/index/types.js";
 import type { ServerContext } from "../src/server.js";
 import { detectWorkspace, findResourceDir } from "../src/workspace/detect.js";
 import { commandCollisions, registeredCommands, validateResource } from "../src/workspace/validate.js";
 
-const INDEX_DIR = path.resolve("index");
+// The Dev Index workflow runs the suite against the index it just built
+// (OPEN77_INDEX_DIR=index-build) before it commits that index as the embedded
+// snapshot; reading `index` unconditionally let a snapshot this file had never
+// seen land on main (2026-09-30) and fail every run after it.
+const INDEX_DIR = path.resolve(process.env["OPEN77_INDEX_DIR"] ?? "index");
 
 async function context(build?: string): Promise<ServerContext> {
   const index = await loadIndex(INDEX_DIR);
@@ -29,6 +40,24 @@ async function context(build?: string): Promise<ServerContext> {
     packageVersion: "test",
     skillPath: path.resolve("skill/SKILL.md"),
   };
+}
+
+/** Whether the index carries a real `_G` card for a guide-only global. */
+function carded(index: DevIndex, runtime: "client" | "server", name: string): boolean {
+  return index.cards.some((c) => c.namespace === "_G" && c.runtime === runtime && c.name === name);
+}
+
+/** The same index without the cards the guide-only table stands in for: an index from before the catalogue carded them. */
+function withoutGuideOnlyCards(index: DevIndex): DevIndex {
+  const covered = new Set(GUIDE_ONLY_GLOBALS.map((g) => `${g.runtime}:${g.name}`));
+  return { ...index, cards: index.cards.filter((c) => !(c.namespace === "_G" && covered.has(`${c.runtime}:${c.name}`))) };
+}
+
+function sectionOf(index: DevIndex, ref: string): string {
+  const [slug, anchor] = ref.split("#");
+  const section = index.guides.find((g) => g.slug === slug)?.sections.find((s) => s.anchor === anchor);
+  assert.ok(section, `${ref} is a section of the index`);
+  return section.text;
 }
 
 async function mcpClient(ctx: ServerContext) {
@@ -67,13 +96,7 @@ const BANK_SERVER = [
 
 test("the conventions table is backed by the index it is used with", async () => {
   const ctx = await context();
-  const bySlug = new Map(ctx.index.guides.map((g) => [g.slug, g]));
-  const sectionText = (ref: string) => {
-    const [slug, anchor] = ref.split("#");
-    const section = bySlug.get(slug!)?.sections.find((s) => s.anchor === anchor);
-    assert.ok(section, `${ref} is a section of the embedded index`);
-    return section.text;
-  };
+  const sectionText = (ref: string) => sectionOf(ctx.index, ref);
   for (const alias of NAMESPACE_ALIASES) {
     const text = sectionText(alias.guide);
     assert.ok(text.includes(`\`${alias.alias}\``), `${alias.guide} names ${alias.alias}`);
@@ -84,9 +107,15 @@ test("the conventions table is backed by the index it is used with", async () =>
     assert.ok(global.guides.length, `${global.name} points at a guide`);
     assert.ok(sectionText(global.guides[0]!).includes(global.name), `${global.guides[0]} mentions ${global.name}`);
   }
-  // Dormant as soon as a card exists: the client `exports` has one.
+  // Dormant as soon as a card exists: the client `exports` has one, and so do
+  // the server `exports` and `print` on a catalogue from 2026-09-30 or later.
   assert.ok(!guideOnlyGlobals(ctx.index, "client").some((g) => g.name === "exports"));
-  assert.deepEqual(guideOnlyGlobals(ctx.index, "server").map((g) => g.name).sort(), ["exports", "print"]);
+  for (const global of GUIDE_ONLY_GLOBALS) {
+    const active = guideOnlyGlobals(ctx.index, global.runtime).some((g) => g.name === global.name);
+    assert.equal(active, !carded(ctx.index, global.runtime, global.name), `${global.runtime} ${global.name} is answered from the guides only while no card exists`);
+  }
+  // Without those cards, both server globals come back from the guides.
+  assert.deepEqual(guideOnlyGlobals(withoutGuideOnlyCards(ctx.index), "server").map((g) => g.name).sort(), ["exports", "print"]);
 
   const namespaces = new Set(ctx.index.cards.map((c) => c.namespace));
   assert.equal(resolveNamespaceAlias("MySQL.query.await", namespaces), "Open77.database.query.await");
@@ -156,14 +185,48 @@ test("open77_api takes client: as the mirror of server:", async () => {
   }
 });
 
-test("open77_api answers server:exports and server:print from the guides", async () => {
+test("open77_api answers server:exports and server:print, never as missing", async () => {
+  // Content-agnostic: a real card or the guide-backed fallback, whichever the
+  // index carries. The card's parameter types are the website's to word
+  // (`name: string (export name, 1-64 characters)` since 2026-09-30).
   const ctx = await context();
   const { ask, close } = await mcpClient(ctx);
   try {
     const exportsCard = await ask("open77_api", { name: "server:exports" });
+    assert.match(exportsCard, /^# server exports\(name: string\b[^\n]*\bfunction\)/);
+    assert.doesNotMatch(exportsCard, /No native named/);
+    assert.equal(exportsCard.match(/^# server exports\(/gm)?.length, 1, "one server answer: a card, or the guides when there is none, never both");
+    const printCard = await ask("open77_api", { name: "server:print" });
+    assert.match(printCard, /^# server print\(/);
+    assert.equal(printCard.match(/^# server print\(/gm)?.length, 1);
+    // The bare name renders the client card and the server answer together.
+    const bare = await ask("open77_api", { name: "exports" });
+    assert.match(bare, /^# client exports\(/);
+    assert.match(bare, /\n# server exports\(name: string\b/);
+    assert.doesNotMatch(await ask("open77_api", { name: "exports", runtime: "client" }), /\n# server exports/);
+    // The listing says the two exist, as cards or in the guide-only footnote.
+    const listing = await ask("open77_namespace", { namespace: "_G", runtime: "server" });
+    assert.match(listing, /server exports\(name: string\b/);
+    assert.match(listing, /server print\(/);
+    const pending = GUIDE_ONLY_GLOBALS.filter((g) => g.runtime === "server" && !carded(ctx.index, g.runtime, g.name));
+    if (pending.length) assert.match(listing, /documented in the guides only/);
+    else assert.doesNotMatch(listing, /documented in the guides only/, "no footnote once every server global has a card");
+    assert.doesNotMatch(await ask("open77_namespace", { namespace: "_G", runtime: "client" }), /documented in the guides only/);
+  } finally {
+    await close();
+  }
+});
+
+test("without a server card, exports and print are answered from the guides", async () => {
+  const ctx = await context();
+  const index = withoutGuideOnlyCards(ctx.index);
+  const { ask, close } = await mcpClient({ ...ctx, index });
+  try {
+    const exportsCard = await ask("open77_api", { name: "server:exports" });
     assert.match(exportsCard, /^# server exports\(name: string, fn: function\)/);
+    assert.match(exportsCard, /no card on this index/);
     assert.match(exportsCard, /server-exports#publish-a-service/);
-    assert.match(exportsCard, /exports\('add', function\(playerId, points\)/, "the guide's worked example is inlined");
+    assert.ok(exportsCard.includes(sectionOf(index, "server-exports#publish-a-service")), "the guide's worked example is inlined");
     const printCard = await ask("open77_api", { name: "server:print" });
     assert.match(printCard, /^# server print\(/);
     assert.match(printCard, /server-api#logging/);

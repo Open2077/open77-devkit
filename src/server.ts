@@ -166,8 +166,9 @@ export function createMcpServer(context: ServerContext): McpServer {
       const { bare, side } = splitRoute(name);
       if (side && runtime && side !== runtime) return text(`${name} names the ${side} side but runtime=${runtime} was passed; drop one of them.`);
       const cards = findCards(name, runtime);
-      // `exports` and `print` on the server are documented by guide table
-      // rows and have no card yet: a real answer, not "missing".
+      // `exports` and `print` on the server were documented by guide table
+      // rows only until the 2026-09-30 catalogue carded them; an index
+      // without those cards still gets a real answer, not "missing".
       const fromGuides = guideOnlyGlobals(index, runtime ?? side).filter((g) => g.name === bare && !cards.some((c) => c.runtime === g.runtime));
       if (!cards.length && !fromGuides.length) {
         const near = search.search(name, { kinds: ["card"], limit: 5 }).map((h) => h.title);
