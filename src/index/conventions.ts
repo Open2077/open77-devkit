@@ -13,7 +13,9 @@
  *     params)` is the same native as `Open77.database.query`, called without a
  *     callback from a managed coroutine (the guide's "Await form" column);
  *   - a global documented by a guide table row that the generator did not
- *     turn into a card: the server `exports(name, fn)` and `print(...)`.
+ *     turn into a card: the server `exports(name, fn)` and `print(...)`
+ *     (carded since the 2026-09-30 catalogue, so dormant on any index built
+ *     from it; kept for indexes that predate it).
  *
  * Each table entry names the guide section that documents it, and every
  * entry is applied only when the index it is used with still carries the
