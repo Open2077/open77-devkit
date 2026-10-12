@@ -121,6 +121,8 @@ Open77.reflex = Open77.reflex or {}
 Open77.remoteCamera = Open77.remoteCamera or {}
 ---@class Open77.resource
 Open77.resource = Open77.resource or {}
+---@class Open77.rtti
+Open77.rtti = Open77.rtti or {}
 ---@class Open77.runtime
 Open77.runtime = Open77.runtime or {}
 ---@class Open77.screen
@@ -925,7 +927,7 @@ function StopSound(id) end
 --- Dispatches an event only inside the client resource runtime. Arguments must fit the runtime's bounded script-value representation; use `TriggerServerEvent` for traffic that must cross the network.
 ---
 --- Since: 2.31.0+op77.3
---- Reasons: event_payload_not_serializable, reserved_animation_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_interaction_event, reserved_player_model_event, resource_preparing
+--- Reasons: event_payload_not_serializable, reserved_animation_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_interaction_event, reserved_loading_screen_event, reserved_player_model_event, resource_preparing
 ---@param event string
 ---@param ___? any
 ---@return any true true, or false, reason
@@ -1301,6 +1303,17 @@ function Open77.animations.current(entity) end
 ---@return any nil nil, reason if dispatch fails; await() returns nil, reason if rejected
 function Open77.animations.get(profileId) end
 
+--- Check whether a player is pointing in their camera direction.
+---
+--- Defaults to the local player, or accepts a visible player's network ID. Resolves to true while that player's active synchronized action is the looping camera_point profile and this client has not failed to present it, and to false otherwise, including when the player has no active action. It reads the state this client last received and does not ask the server. Do not use a client observation to grant authoritative rewards. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
+---
+--- Since: not in any published build
+--- Reasons: open77_animations
+---@param playerId? integer
+---@return any Open77 Open77.Promise resolving to true while the player is pointing, otherwise false
+---@return any nil nil, reason if dispatch fails; await() returns nil, reason if rejected
+function Open77.animations.isPointing(playerId) end
+
 --- Find synchronized RP animation profiles in the local catalogue.
 ---
 --- Returns all supported profiles when the query is empty, or a case-insensitive substring match across ID, label and category (up to 128 characters). Definitions include kind, clip variants and rig metadata. Choose a kind=layer profile such as drink_walk to preserve locomotion; catalogue membership does not prove native rendering. Resolves asynchronously to copied definitions. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
@@ -1370,6 +1383,17 @@ function Open77.animations.requestClip(clip, options) end
 ---@return any Open77 Open77.Promise resolving to the server-accepted playback state
 ---@return any nil nil, reason if dispatch fails; await() returns nil, reason if rejected
 function Open77.animations.sequence(steps, options) end
+
+--- Start or stop camera-directed finger pointing for the local player.
+---
+--- true requests the looping camera_point profile for the local player on behalf of the calling resource. It is an upper-body layer on the right arm, so walking continues, and every client aims that arm along the player's replicated camera direction. It resolves to the server-accepted playback state. Repeating true while this resource's pointing action is active resolves to that state without restarting it. Any other active animation, including a pointing action another resource started, rejects with animation_busy; a pending animation request rejects with request_pending; a call before the local player is ready rejects with player_not_ready; and a request the server has not answered within 10 seconds rejects with request_timeout. false stops pointing: it abandons this resource's pending pointing request, whose await then returns nil, cancelled, and cancels the active pointing action this resource started. It resolves to true when cancellation is queued or nothing is pointing, and never stops a different animation; a pointing action owned by another resource, or by an earlier generation of this one, rejects with not_owner. A non-boolean argument rejects with invalid_enabled. The local player's pointing stops when they sprint, slide, vault, swim, leave the ground, are knocked down, draw a weapon, attack or block in melee, or mount a vehicle; that failure reaches onAnimationPlaybackFailed with the reason interrupted. When the owning resource stops or restarts, the service cancels its pointing action. Call true and false from the press and release handlers of an input rather than back to back. Requires matching client, server and animation archives that include the camera_point layer. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
+---
+--- Since: not in any published build
+--- Reasons: open77_animations
+---@param enabled boolean
+---@return any Open77 Open77.Promise resolving to the server-accepted playback state when starting, or true when stopping
+---@return any nil nil, reason if dispatch fails; await() returns nil, reason if rejected or timed out
+function Open77.animations.setPointing(enabled) end
 
 --- Read the last active RP state visible to this client.
 ---
@@ -3585,7 +3609,7 @@ function Open77.equipment.visualSettled(slot, expected) end
 --- Emits an event on the resource-local client bus and invokes matching local handlers. It never sends a packet; use the network event API for server communication.
 ---
 --- Since: 2.31.0+op77.3
---- Reasons: event_payload_not_serializable, reserved_animation_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_interaction_event, reserved_player_model_event, resource_preparing
+--- Reasons: event_payload_not_serializable, reserved_animation_event, reserved_cyberware_event, reserved_dash_event, reserved_effect_event, reserved_hacking_event, reserved_interaction_event, reserved_loading_screen_event, reserved_player_model_event, resource_preparing
 ---@param event string
 ---@param ___? any
 ---@return any true true, or false, reason
@@ -6579,6 +6603,62 @@ function Open77.resource.state(resource) end
 ---@return any string string
 function Open77.resource.version() end
 
+--- Invokes a reflected game function using supported Lua values.
+---
+--- Client-only; requires `rtti.native`. Call from a running resource callback or thread; candidate loading and stop handlers return resource_not_active. Instance is an owned ref for a method and nil for a static function. Supply every parameter, including optional ones. Supports scalars, enums, 64-bit IDs and strong IScriptable handles; out parameters, arrays, arbitrary structs, script_ref and weak handles are refused. Signatures are limited to 15 parameters. Returned refs remain pinned until release or owner stop/reload. SDK calls participate in installed hooks; other engine entry points and worker-thread calls are outside hook coverage.
+---
+--- Permissions: rtti.native
+--- Since: not in any published build
+---@param class any
+---@param fn string
+---@param instance any
+---@param ___ any
+---@return any result result (nil for void or a null handle), or nil, reason on failure
+function Open77.rtti.call(class, fn, instance, ___) end
+
+--- Registers a synchronous hook for supported SDK calls to a game function.
+---
+--- Client-only; requires `rtti.native`. Requires a running resource. handler(ctx, ...args) receives ctx.name, ctx.instance and ctx.callOriginal. The continuation accepts replacement arguments, is valid only during the callback and may be called once. Return a replacement or call through; nil passes through for value-returning functions and skips an uncalled void original. Errors preserve an already-completed original result. Same-function recursion bypasses hooks. Callbacks cannot yield and obey Lua execution quotas. Borrowed instance/argument/original-result refs expire after dispatch. Hooks are removed on owner stop/reload. Coverage is game-thread SDK CStack Execute calls, including rtti.call; it does not cover every internal VM/native invocation.
+---
+--- Permissions: rtti.native
+--- Since: not in any published build
+---@param class any
+---@param fn string
+---@param handler function
+---@return any hook hook id, or nil, reason
+function Open77.rtti.hook(class, fn, handler) end
+
+--- Releases a pinned RTTI object reference.
+---
+--- Client-only; requires `rtti.native`. Accepts the opaque ref userdata returned by rtti.call or borrowed during a hook. Releasing an expired ref is harmless and returns true. Later calls with it fail with ref_released. Owned call results are also released on resource stop/reload; Lua garbage collection alone does not release them. Hook-borrowed refs expire at dispatch end even when the Lua userdata is retained.
+---
+--- Permissions: rtti.native
+--- Since: not in any published build
+---@param ref any
+---@return any true true, or nil, reason
+function Open77.rtti.release(ref) end
+
+--- Reads the RTTI signature of a native or scripted game function.
+---
+--- Client-only; requires `rtti.native`. Use nil or an empty class for a global and its decorated name. Methods accept decorated names or unambiguous short names. Returns a table with name, static, returnType and params ({name, type}). Metadata may describe unsupported types; resolve alone does not prove callability. Errors include function_not_found, ambiguous_function and rtti_unavailable.
+---
+--- Permissions: rtti.native
+--- Since: not in any published build
+---@param class any
+---@param fn string
+---@return any signature signature table, or nil, reason
+function Open77.rtti.resolve(class, fn) end
+
+--- Removes a hook owned by the calling resource.
+---
+--- Client-only; requires `rtti.native`. Returns true only when this resource removes its hook. Unknown IDs and another resource's IDs return false. Removing a hook during dispatch takes effect for later calls; the current dispatch retains its callback snapshot. Stop/reload automatically removes the owner's hooks.
+---
+--- Permissions: rtti.native
+--- Since: not in any published build
+---@param id integer
+---@return any boolean boolean; or nil, reason when permission is denied
+function Open77.rtti.unhook(id) end
+
 --- Every client command registered across every running resource.
 ---
 --- Client-only. Returns an array of `{ name, resource, restricted, help?, parameters? }`. Only serialisable metadata crosses; handlers stay in their owner's state, exactly as `Open77.input.mappings` does for key binds. This is what the chat composer reads to merge client commands into its completion list -- it skips the restricted ones, which cannot run. `GetRegisteredCommands` is the same function under the FiveM name.
@@ -6694,6 +6774,24 @@ function Open77.screen.fadeOut(options) end
 --- Since: 2.31.13+op77.67
 ---@return any faded faded, or nil, reason
 function Open77.screen.isFaded() end
+
+--- Whether the native loading-screen lifecycle is active.
+---
+--- Client-only; requires screen.read. Observes native opening through delayed hide, including long-distance teleport loads. Returns nil, reason until the guarded observer is available. This is separate from quest fades, background streaming and the Open77 connection cover. See loading-screens.md for events and a complete WebUI example.
+---
+--- Permissions: screen.read
+--- Since: not in any published build
+---@return any active active, or nil, reason
+function Open77.screen.isLoading() end
+
+--- Read native loading state, cycle ID, kind and real progress.
+---
+--- Client-only; requires screen.read. Returns active, id (opaque string), revision, kind, progressKnown, progress (nil until reported) and elapsedMs. Subscribe to open77:loadingScreen:started/changed/finished; each event receives one snapshot. Register handlers then query initial state to handle a resource starting mid-load. Progress 100% never implies native hide. The state persists across resource reloads, and network messages cannot forge these events. See loading-screens.md.
+---
+--- Permissions: screen.read
+--- Since: not in any published build
+---@return any state state, or nil, reason
+function Open77.screen.loadingState() end
 
 --- A head-and-shoulders picture of a body: a scripted camera cut in front of the face, one frame captured through it, the view handed straight back.
 ---
@@ -7319,6 +7417,17 @@ function Open77.vehicles.aimed() end
 ---@return any array array of vehicle snapshots
 function Open77.vehicles.all() end
 
+--- Requests cancellation of an active local seat transition.
+---
+--- Requires vehicles.control. transitionId is the string returned by seatSwitchState or its Started event. A stale ID cannot cancel a later transition. Cancellation releases the destination and restores the source; true means submitted to the server.
+---
+--- Permissions: vehicles.control
+--- Since: not in any published build
+---@param transitionId string
+---@return any true true when submitted, otherwise false
+---@return any reason reason
+function Open77.vehicles.cancelSeatSwitch(transitionId) end
+
 --- Drops every performance ceiling, instance and record class alike.
 ---
 --- Requires `vehicles.performance`. Intended for a gamemode teardown so a stopped resource cannot leave cars governed.
@@ -7427,6 +7536,28 @@ function Open77.vehicles.getPaint(id) end
 ---@return any table table { playerId, vehicleId, seat (the canonical name only: seat_front_left, seat_front_right, seat_back_left or seat_back_right -- never driver or passenger, which are accepted aliases, not reported ones), flags (integer bitfield), entering, exiting, forcedEntry, exitLocked, forcedExit (booleans); the client copy adds animatedEntry and occupants }, or nil when the player is not assigned to a vehicle
 function Open77.vehicles.getPlayerSeat(playerId) end
 
+--- Reads normalized vehicle steering input.
+---
+--- Client-only; requires vehicles.read. Pass a network vehicle ID. Returns the same -1..1 steering input as vehicles.get(id).steering, not the interior wheel angle or rolling tire phase. Returns nil, reason for invalid/missing vehicles or permission denial. See the vehicle steering guide.
+---
+--- Permissions: vehicles.read
+--- Since: not in any published build
+---@param vehicleId any
+---@return any number number input
+---@return any reason reason on failure
+function Open77.vehicles.getSteeringInput(vehicleId) end
+
+--- Reads the actual rendered steering-wheel angle in degrees.
+---
+--- Client-only; requires vehicles.read and a streamed vehicle. Reads native steering_wheel and Base slots using the loaded authored rig, removing chassis orientation, column tilt and mesh offsets. Supports locally driven and replicated cars with the required slots and steering_wheel_turn bone. Unsupported rigs, including bikes without a readable wheel, return nil instead of an inferred angle. No first-frame neutral calibration. This is the visible client pose, subject to normal presentation delay, not a server-authoritative angle. Errors: invalid_vehicle_id, vehicle_not_found, vehicle_not_streamed, steering_wheel_unsupported, steering_angle_unavailable, permission_denied:vehicles.read.
+---
+--- Permissions: vehicles.read
+--- Since: not in any published build
+---@param vehicleId any
+---@return any number number degrees
+---@return any reason reason on failure
+function Open77.vehicles.getSteeringWheelAngle(vehicleId) end
+
 --- Reads one weapon mount by its stable one-based index.
 ---
 --- Requires `vehicles.read`. Client-side, synchronous and read-only. The index comes from weapon.index, not weaponId or slotId. An unattached declared mount is returned with attached=false; invalid indices are rejected.
@@ -7531,6 +7662,16 @@ function Open77.vehicles.honk(id, durationMs) end
 ---@param vehicleId integer
 ---@return any boolean boolean, or nil, reason
 function Open77.vehicles.isArmed(vehicleId) end
+
+--- Reads the effective local automatic driver-takeover policy.
+---
+--- Requires vehicles.read. Combines client resource vetoes and the authoritative server policy. A true result permits the normal vanilla takeover when its native conditions are met. Returns nil and a reason if no active session can be queried.
+---
+--- Permissions: vehicles.read
+--- Since: not in any published build
+---@return any boolean boolean, or nil
+---@return any reason reason
+function Open77.vehicles.isAutoSeatSwitchEnabled() end
 
 --- Reads a canonical vehicle door, trunk, or hood state.
 ---
@@ -7653,6 +7794,27 @@ function Open77.vehicles.releaseAdopted(engineEntity) end
 ---@return any reason reason: permission_denied:vehicles.read, invalid_vehicle_id, invalid_seat, vehicle_not_found
 function Open77.vehicles.seatFree(id, seat) end
 
+--- Reads the local canonical seat transition and automatic policy.
+---
+--- Requires vehicles.read. Returns active and autoSwitchEnabled, plus vehicleId/fromSeat while seated and id/toSeat while switching. IDs are strings. The canonical source stays occupied until native completion. Query on resource start to recover a transition already in progress; nil plus reason means the session or backend is unavailable.
+---
+--- Permissions: vehicles.read
+--- Since: not in any published build
+---@return any state state table, or nil
+---@return any reason reason
+function Open77.vehicles.seatSwitchState() end
+
+--- Controls this client resource's automatic driver-takeover veto.
+---
+--- Requires vehicles.control. false blocks automatic front-passenger takeover of an empty driver seat. true releases only this resource's veto; another resource or the server can still disable takeover. Explicit switches remain available. The claim is released when its resource stops.
+---
+--- Permissions: vehicles.control
+--- Since: not in any published build
+---@param enabled boolean
+---@return any true true, otherwise false
+---@return any reason reason
+function Open77.vehicles.setAutoSeatSwitchEnabled(enabled) end
+
 --- Locks or releases a stopped vehicle's driving inputs.
 ---
 --- Requires `vehicles.performance`. While locked, the native drive update consumes zero acceleration, zero brake/reverse and no burnout. Releasing restores REDengine's current input snapshot on the next frame; the API never teleports or clamps velocity. Use it for authoritative starting grids after the vehicle is stationary. Like the performance governor, this is client-side gamemode enforcement, not an anti-cheat boundary.
@@ -7700,6 +7862,17 @@ function Open77.vehicles.setPerformance(vehicleId, profile) end
 ---@return any true true on success, otherwise false
 ---@return any reason reason
 function Open77.vehicles.setPerformanceClass(record, profile) end
+
+--- Requests an animated move to another seat for the local player.
+---
+--- Requires vehicles.control and protocol 1.44. Submits a server-authorized in-cabin move. A true return means queued; use open77:vehicleSeatSwitchDecision and the Started/Completed/Failed events for its outcome. Both source and destination stay reserved until completion. Refuses occupied or unsupported seats, exit locks and overlapping requests.
+---
+--- Permissions: vehicles.control
+--- Since: not in any published build
+---@param seat any
+---@return any true true when submitted, otherwise false
+---@return any reason reason
+function Open77.vehicles.switchSeat(seat) end
 
 --- Presents an authorized replicated occupant with the staged entry path.
 ---

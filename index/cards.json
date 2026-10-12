@@ -2359,7 +2359,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Tell the rest of this resource that the menu closed\nTriggerEvent(\"shop:closed\")\nAddEventHandler(\"shop:closed\", function() FreezePosition(false) end)",
   "inferred": false,
-  "source_line": 24470,
+  "source_line": 25380,
   "permissions": [],
   "reasons": [
    "event_payload_not_serializable",
@@ -2369,6 +2369,7 @@
    "reserved_effect_event",
    "reserved_hacking_event",
    "reserved_interaction_event",
+   "reserved_loading_screen_event",
    "reserved_player_model_event",
    "resource_preparing"
   ],
@@ -11239,7 +11240,7 @@
   "source": "ResourceHost.cpp",
   "example": "-- Tell the rest of this resource that the shop closed\nOpen77.events.emit(\"shop:closed\")",
   "inferred": false,
-  "source_line": 24646,
+  "source_line": 25556,
   "permissions": [],
   "reasons": [
    "event_payload_not_serializable",
@@ -11249,6 +11250,7 @@
    "reserved_effect_event",
    "reserved_hacking_event",
    "reserved_interaction_event",
+   "reserved_loading_screen_event",
    "reserved_player_model_event",
    "resource_preparing"
   ],
@@ -28089,6 +28091,12 @@
     "type": "string",
     "optional": false,
     "default": null
+   },
+   {
+    "name": "authorityPolicy",
+    "type": "string",
+    "optional": false,
+    "default": null
    }
   ],
   "returns": [],
@@ -28097,7 +28105,7 @@
   "source": "LuaResourceRuntime.cs",
   "example": "-- The raw positional spawn. Ten of the seventeen arguments are only the\n-- defaults the table form would have filled in, which is why nobody writes\n-- this by hand twice: Open77.npcs.create{ record = ..., position = ... }.\nlocal npcId, reason = CreateNpc(\n    \"Character.Judy\", -1442.2, 127.4, 18.0, 180.0, 0,  -- record, x, y, z, yaw, bucket\n    nil, nil,                                          -- appearance, loadoutJson\n    0, 2,                                              -- aiMode = tasks, damagePolicy = invulnerable\n    100.0, 100.0, 180.0, 40.0,                         -- health, maxHealth, streaming radius/hysteresis\n    false, true, nil)                                  -- despawnWhenUnobserved, persistent, behaviorJson\nif not npcId then return print(\"spawn refused: \" .. tostring(reason)) end\nprint((\"shopkeeper %d is up\"):format(npcId))",
   "inferred": false,
-  "source_line": 1076,
+  "source_line": 1089,
   "permissions": [
    "world.npcs"
   ],
@@ -47131,7 +47139,7 @@
   "name": "create",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Creates an authoritative NPC.",
-  "description": "Requires `world.npcs`. Build one from `record = \"Character.*\"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved` and `persistent`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `\"invulnerable\"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md).",
+  "description": "Requires `world.npcs`. Build one from `record = \"Character.*\"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved`, `persistent` and `authorityPolicy`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `\"invulnerable\"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. `authorityPolicy` is `\"nearest\"` (default) or `\"balanced\"` (the client simulating the fewest NPCs, with a tenure-gated rebalance); anything else returns `nil, \"npc_authority_policy_invalid\"`. `behavior.observerReplay = true` makes clients that do not simulate the NPC replay the simulator's motion on the shared server clock. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md).",
   "params": [
    {
     "name": "def",
@@ -47149,11 +47157,12 @@
   "source": "LuaResourceRuntime.cs",
   "example": "-- A shopkeeper standing behind the counter, who never fights back\nlocal shopkeeper, reason = Open77.npcs.create({\n    record = \"Character.Judy\",\n    position = { x = -1442.2, y = 127.4, z = 18.0 },\n    yaw = 180.0,\n    damagePolicy = Open77.npcs.damage.invulnerable,   -- an integer (2), never the string\n    persistent = true,\n})\nif not shopkeeper then print(\"could not spawn the shopkeeper: \" .. reason) end",
   "inferred": false,
-  "source_line": 9230,
+  "source_line": 9266,
   "permissions": [
    "world.npcs"
   ],
   "reasons": [
+   "npc_authority_policy_invalid",
    "npc_record_invalid",
    "npc_template_invalid",
    "npcs_unavailable",
@@ -49613,7 +49622,7 @@
   "name": "workspot",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Puts an NPC into an authored workspot scenario.",
-  "description": "Requires `world.npcs`. FullBody channel, the same one `playAnimation` uses, so a workspot and an animation cannot run on one body at once.\n\n`reference` is either a **catalogue profile id** (`smoke`, `sit`, `phone`, `dance`, `meditate`, ... -- see `Open77.npcs.tasks.workspots`), which brings its own shipped device entity and its own validated clip set, or a **raw clip name** played through the generic device. The catalogue profile is the supported form; a raw clip is an escape hatch whose animset the generic device may not carry.\n\n`durationMs` ends the scenario by **succeeding**, not by timing out: a scenario that ran its course is not a failure, and `timeoutMs` stays free to mean \"no client ever picked the command up\". `loop = true` has no end and runs until cancelled.",
+  "description": "Requires `world.npcs`. FullBody channel, the same one `playAnimation` uses, so a workspot and an animation cannot run on one body at once.\n\n`reference` is either a **catalogue profile id** (`smoke`, `sit`, `phone`, `dance`, `meditate`, ... -- see `Open77.npcs.tasks.workspots`), which brings its own shipped device entity and its own validated clip set, or a **raw clip name** played through the generic device. The catalogue profile is the supported form; a raw clip is an escape hatch whose animset the generic device may not carry. Ambient profiles do not appear in `Open77.animations.list()` or `tasks.workspots()` but resolve directly by id.\n\n`options.anchor = { x, y, z, yaw? }` positions a catalogue profile's workspot at world coordinates. Coordinates must be finite; yaw is degrees about Z, defaults to 0, and must be within -360..360. Anchored workspots play on every client, remain `Executing` without an authority and work on Frozen NPCs. An anchor with a raw clip returns `npc_task_invalid_workspot`; invalid anchor values return `npc_task_invalid_anchor`.\n\n`durationMs` ends the scenario by **succeeding**, not by timing out: a scenario that ran its course is not a failure, and `timeoutMs` stays free to mean \"no client ever picked the command up\". `loop = true` has no end and runs until cancelled.",
   "params": [
    {
     "name": "id",
@@ -49629,21 +49638,21 @@
    },
    {
     "name": "options",
-    "type": "table { durationMs?, loop?, clip?, priority?, timeoutMs? }",
+    "type": "table { durationMs?, loop?, clip?, anchor?: { x, y, z, yaw? }, priority?, timeoutMs? }",
     "optional": true,
     "default": null
    }
   ],
   "returns": [
    "task id, or nil",
-   "reason (`npc_task_invalid_workspot`, `npc_task_invalid_duration`)"
+   "reason (`npc_task_invalid_workspot`, `npc_task_invalid_anchor`, `npc_task_invalid_duration`)"
   ],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "-- The mechanic leans on the car for a minute\nOpen77.npcs.tasks.workspot(mechanicId, \"smoke\", { durationMs = 60000 })",
   "inferred": false,
-  "source_line": 9469,
+  "source_line": 9526,
   "permissions": [
    "world.npcs"
   ],
@@ -49655,6 +49664,7 @@
    "invalid_query",
    "invalid_request",
    "json_too_large",
+   "npc_task_invalid_anchor",
    "npc_task_invalid_duration",
    "npc_task_invalid_workspot",
    "permission_denied:players.animations.control",
@@ -64850,5 +64860,798 @@
   "constant": false,
   "qualified": "promise.new",
   "route_id": "server:promise.new"
+ },
+ {
+  "namespace": "Open77.screen",
+  "name": "isLoading",
+  "handler": "LuaScreenIsLoading",
+  "summary": "Whether the native loading-screen lifecycle is active.",
+  "description": "Client-only; requires screen.read. Observes native opening through delayed hide, including long-distance teleport loads. Returns nil, reason until the guarded observer is available. This is separate from quest fades, background streaming and the Open77 connection cover. See loading-screens.md for events and a complete WebUI example.",
+  "params": [],
+  "returns": [
+   "active, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local active, err = Open77.screen.isLoading()\nif active ~= nil then print('Native loading:', active) else print(err) end",
+  "inferred": false,
+  "source_line": 25418,
+  "permissions": [
+   "screen.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.screen.isLoading",
+  "route_id": "Open77.screen.isLoading"
+ },
+ {
+  "namespace": "Open77.screen",
+  "name": "loadingState",
+  "handler": "LuaScreenLoadingState",
+  "summary": "Read native loading state, cycle ID, kind and real progress.",
+  "description": "Client-only; requires screen.read. Returns active, id (opaque string), revision, kind, progressKnown, progress (nil until reported) and elapsedMs. Subscribe to open77:loadingScreen:started/changed/finished; each event receives one snapshot. Register handlers then query initial state to handle a resource starting mid-load. Progress 100% never implies native hide. The state persists across resource reloads, and network messages cannot forge these events. See loading-screens.md.",
+  "params": [],
+  "returns": [
+   "state, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local function apply(s)\n    if s then print('Loading:', s.active, s.kind, s.progress) end\nend\nAddEventHandler('open77:loadingScreen:changed', apply)\napply(Open77.screen.loadingState())",
+  "inferred": false,
+  "source_line": 25419,
+  "permissions": [
+   "screen.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.screen.loadingState",
+  "route_id": "Open77.screen.loadingState"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "cancelSeatSwitch",
+  "handler": "LuaVehicleCancelSeatSwitch",
+  "summary": "Requests cancellation of an active local seat transition.",
+  "description": "Requires vehicles.control. transitionId is the string returned by seatSwitchState or its Started event. A stale ID cannot cancel a later transition. Cancellation releases the destination and restores the source; true means submitted to the server.",
+  "params": [
+   {
+    "name": "transitionId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true when submitted, otherwise false",
+   "reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local s = Open77.vehicles.seatSwitchState()\nif s and s.active then Open77.vehicles.cancelSeatSwitch(s.id) end",
+  "inferred": false,
+  "source_line": 25244,
+  "permissions": [
+   "vehicles.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.cancelSeatSwitch",
+  "route_id": "Open77.vehicles.cancelSeatSwitch"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "isAutoSeatSwitchEnabled",
+  "handler": "LuaVehicleAutoSeatSwitchEnabled",
+  "summary": "Reads the effective local automatic driver-takeover policy.",
+  "description": "Requires vehicles.read. Combines client resource vetoes and the authoritative server policy. A true result permits the normal vanilla takeover when its native conditions are met. Returns nil and a reason if no active session can be queried.",
+  "params": [],
+  "returns": [
+   "boolean, or nil",
+   "reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local enabled, reason = Open77.vehicles.isAutoSeatSwitchEnabled()",
+  "inferred": false,
+  "source_line": 25247,
+  "permissions": [
+   "vehicles.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.isAutoSeatSwitchEnabled",
+  "route_id": "Open77.vehicles.isAutoSeatSwitchEnabled"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "seatSwitchState",
+  "handler": "LuaVehicleSeatSwitchState",
+  "summary": "Reads the local canonical seat transition and automatic policy.",
+  "description": "Requires vehicles.read. Returns active and autoSwitchEnabled, plus vehicleId/fromSeat while seated and id/toSeat while switching. IDs are strings. The canonical source stays occupied until native completion. Query on resource start to recover a transition already in progress; nil plus reason means the session or backend is unavailable.",
+  "params": [],
+  "returns": [
+   "state table, or nil",
+   "reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local state, reason = Open77.vehicles.seatSwitchState()",
+  "inferred": false,
+  "source_line": 25245,
+  "permissions": [
+   "vehicles.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.seatSwitchState",
+  "route_id": "Open77.vehicles.seatSwitchState"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setAutoSeatSwitchEnabled",
+  "handler": "LuaVehicleSetAutoSeatSwitchEnabled",
+  "summary": "Controls this client resource's automatic driver-takeover veto.",
+  "description": "Requires vehicles.control. false blocks automatic front-passenger takeover of an empty driver seat. true releases only this resource's veto; another resource or the server can still disable takeover. Explicit switches remain available. The claim is released when its resource stops.",
+  "params": [
+   {
+    "name": "enabled",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, otherwise false",
+   "reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "Open77.vehicles.setAutoSeatSwitchEnabled(false)",
+  "inferred": false,
+  "source_line": 25246,
+  "permissions": [
+   "vehicles.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.setAutoSeatSwitchEnabled",
+  "route_id": "Open77.vehicles.setAutoSeatSwitchEnabled"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "switchSeat",
+  "handler": "LuaVehicleSwitchSeat",
+  "summary": "Requests an animated move to another seat for the local player.",
+  "description": "Requires vehicles.control and protocol 1.44. Submits a server-authorized in-cabin move. A true return means queued; use open77:vehicleSeatSwitchDecision and the Started/Completed/Failed events for its outcome. Both source and destination stay reserved until completion. Refuses occupied or unsupported seats, exit locks and overlapping requests.",
+  "params": [
+   {
+    "name": "seat",
+    "type": "string|integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true when submitted, otherwise false",
+   "reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local ok, reason = Open77.vehicles.switchSeat('rearRight')",
+  "inferred": false,
+  "source_line": 25243,
+  "permissions": [
+   "vehicles.control"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.switchSeat",
+  "route_id": "Open77.vehicles.switchSeat"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "cancelPlayerSeatSwitch",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Cancels exactly one player seat-transition token.",
+  "description": "Requires world.vehicles. Releases the destination and retains the source. A stale token is refused with stale_transition and cannot affect a newer request.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "transitionId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true or false",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local s = Open77.vehicles.getPlayerSeatSwitch(playerId)\nif s then Open77.vehicles.cancelPlayerSeatSwitch(playerId, s.id) end",
+  "inferred": false,
+  "source_line": 9014,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.cancelPlayerSeatSwitch",
+  "route_id": "server:Open77.vehicles.cancelPlayerSeatSwitch"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "getPlayerSeatSwitch",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads a player's active authoritative seat transition.",
+  "description": "Requires world.vehicles. Returns id (string), playerId, vehicleId, fromSeat, toSeat and automatic. Returns nil when no transition is active; invalid players and missing permission return false plus reason.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "transition table, nil when idle, or false on refusal",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local state = Open77.vehicles.getPlayerSeatSwitch(playerId)",
+  "inferred": false,
+  "source_line": 9014,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.getPlayerSeatSwitch",
+  "route_id": "server:Open77.vehicles.getPlayerSeatSwitch"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "isPlayerAutoSeatSwitchEnabled",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads the player's effective server takeover policy.",
+  "description": "Requires world.vehicles. False while any server resource holds an automatic takeover veto. Client resources can independently veto their local automatic behavior.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean",
+   "reason on refusal"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local enabled = Open77.vehicles.isPlayerAutoSeatSwitchEnabled(playerId)",
+  "inferred": false,
+  "source_line": 9014,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.isPlayerAutoSeatSwitchEnabled",
+  "route_id": "server:Open77.vehicles.isPlayerAutoSeatSwitchEnabled"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setPlayerAutoSeatSwitchEnabled",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Controls a resource-owned automatic takeover policy.",
+  "description": "Requires world.vehicles. false adds this resource's veto for the player; true removes only its own veto. Explicit seat requests remain available. Policies are released on resource stop and player disconnect.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "enabled",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true or false",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "Open77.vehicles.setPlayerAutoSeatSwitchEnabled(playerId, false)",
+  "inferred": false,
+  "source_line": 9014,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.setPlayerAutoSeatSwitchEnabled",
+  "route_id": "server:Open77.vehicles.setPlayerAutoSeatSwitchEnabled"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "switchPlayerSeat",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reserves an animated seat change for a seated player.",
+  "description": "Requires world.vehicles and protocol 1.44. Both seats are held until native completion. Returns true and a string transition ID on reservation, or false and a reason. Completion/failure is reported by onPlayerVehicleSeatSwitchCompleted/Failed. Does not board on-foot players or evict occupants. Explicit requests remain allowed when automatic takeover is disabled.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "seat",
+    "type": "string|integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true or false",
+   "transitionId on acceptance, otherwise reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, id = Open77.vehicles.switchPlayerSeat(playerId, 'rearRight')",
+  "inferred": false,
+  "source_line": 9014,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.switchPlayerSeat",
+  "route_id": "server:Open77.vehicles.switchPlayerSeat"
+ },
+ {
+  "namespace": "Open77.rtti",
+  "name": "call",
+  "handler": "LuaRttiCall",
+  "summary": "Invokes a reflected game function using supported Lua values.",
+  "description": "Client-only; requires `rtti.native`. Call from a running resource callback or thread; candidate loading and stop handlers return resource_not_active. Instance is an owned ref for a method and nil for a static function. Supply every parameter, including optional ones. Supports scalars, enums, 64-bit IDs and strong IScriptable handles; out parameters, arrays, arbitrary structs, script_ref and weak handles are refused. Signatures are limited to 15 parameters. Returned refs remain pinned until release or owner stop/reload. SDK calls participate in installed hooks; other engine entry points and worker-thread calls are outside hook coverage.",
+  "params": [
+   {
+    "name": "class",
+    "type": "string|nil",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "fn",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "instance",
+    "type": "userdata|nil",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "...",
+    "type": "any",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "result (nil for void or a null handle), or nil, reason on failure"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "AddEventHandler(\"example:rtti\", function()\n    local value, reason = Open77.rtti.call(nil, \"AbsF\", nil, -3.5)\n    if reason then print(reason) else print(value) end\nend)",
+  "inferred": false,
+  "source_line": 26202,
+  "permissions": [
+   "rtti.native"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.rtti.call",
+  "route_id": "Open77.rtti.call"
+ },
+ {
+  "namespace": "Open77.rtti",
+  "name": "hook",
+  "handler": "LuaRttiHook",
+  "summary": "Registers a synchronous hook for supported SDK calls to a game function.",
+  "description": "Client-only; requires `rtti.native`. Requires a running resource. handler(ctx, ...args) receives ctx.name, ctx.instance and ctx.callOriginal. The continuation accepts replacement arguments, is valid only during the callback and may be called once. Return a replacement or call through; nil passes through for value-returning functions and skips an uncalled void original. Errors preserve an already-completed original result. Same-function recursion bypasses hooks. Callbacks cannot yield and obey Lua execution quotas. Borrowed instance/argument/original-result refs expire after dispatch. Hooks are removed on owner stop/reload. Coverage is game-thread SDK CStack Execute calls, including rtti.call; it does not cover every internal VM/native invocation.",
+  "params": [
+   {
+    "name": "class",
+    "type": "string|nil",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "fn",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "handler",
+    "type": "function",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "hook id, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "AddEventHandler(\"example:hook\", function()\n    local id = assert(Open77.rtti.hook(nil, \"AbsF\", function(ctx, value)\n        return ctx.callOriginal(value) + 10\n    end))\n    assert(Open77.rtti.call(nil, \"AbsF\", nil, -3) == 13)\n    Open77.rtti.unhook(id)\nend)",
+  "inferred": false,
+  "source_line": 26203,
+  "permissions": [
+   "rtti.native"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.rtti.hook",
+  "route_id": "Open77.rtti.hook"
+ },
+ {
+  "namespace": "Open77.rtti",
+  "name": "release",
+  "handler": "LuaRttiRelease",
+  "summary": "Releases a pinned RTTI object reference.",
+  "description": "Client-only; requires `rtti.native`. Accepts the opaque ref userdata returned by rtti.call or borrowed during a hook. Releasing an expired ref is harmless and returns true. Later calls with it fail with ref_released. Owned call results are also released on resource stop/reload; Lua garbage collection alone does not release them. Hook-borrowed refs expire at dispatch end even when the Lua userdata is retained.",
+  "params": [
+   {
+    "name": "ref",
+    "type": "userdata",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "AddEventHandler(\"example:release\", function()\n    local ref = assert(Open77.rtti.call(nil, \"CompareBuilder::Make;\", nil))\n    Open77.rtti.release(ref)\nend)",
+  "inferred": false,
+  "source_line": 26205,
+  "permissions": [
+   "rtti.native"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.rtti.release",
+  "route_id": "Open77.rtti.release"
+ },
+ {
+  "namespace": "Open77.rtti",
+  "name": "resolve",
+  "handler": "LuaRttiResolve",
+  "summary": "Reads the RTTI signature of a native or scripted game function.",
+  "description": "Client-only; requires `rtti.native`. Use nil or an empty class for a global and its decorated name. Methods accept decorated names or unambiguous short names. Returns a table with name, static, returnType and params ({name, type}). Metadata may describe unsupported types; resolve alone does not prove callability. Errors include function_not_found, ambiguous_function and rtti_unavailable.",
+  "params": [
+   {
+    "name": "class",
+    "type": "string|nil",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "fn",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "signature table, or nil, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local signature, reason = Open77.rtti.resolve(nil, \"AbsF\")\nif signature then print(signature.name, signature.returnType) else print(reason) end",
+  "inferred": false,
+  "source_line": 26201,
+  "permissions": [
+   "rtti.native"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.rtti.resolve",
+  "route_id": "Open77.rtti.resolve"
+ },
+ {
+  "namespace": "Open77.rtti",
+  "name": "unhook",
+  "handler": "LuaRttiUnhook",
+  "summary": "Removes a hook owned by the calling resource.",
+  "description": "Client-only; requires `rtti.native`. Returns true only when this resource removes its hook. Unknown IDs and another resource's IDs return false. Removing a hook during dispatch takes effect for later calls; the current dispatch retains its callback snapshot. Stop/reload automatically removes the owner's hooks.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean; or nil, reason when permission is denied"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "AddEventHandler(\"example:remove-hook\", function()\n    local id = assert(Open77.rtti.hook(nil, \"AbsF\", function(ctx) return ctx.callOriginal() end))\n    assert(Open77.rtti.unhook(id))\n    assert(not Open77.rtti.unhook(id))\nend)",
+  "inferred": false,
+  "source_line": 26204,
+  "permissions": [
+   "rtti.native"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.rtti.unhook",
+  "route_id": "Open77.rtti.unhook"
+ },
+ {
+  "namespace": "Open77.animations",
+  "name": "isPointing",
+  "handler": "LuaAnimationServiceExport",
+  "summary": "Check whether a player is pointing in their camera direction.",
+  "description": "Defaults to the local player, or accepts a visible player's network ID. Resolves to true while that player's active synchronized action is the looping camera_point profile and this client has not failed to present it, and to false otherwise, including when the player has no active action. It reads the state this client last received and does not ask the server. Do not use a client observation to grant authoritative rewards. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": true,
+    "default": "local player"
+   }
+  ],
+  "returns": [
+   "Open77.Promise resolving to true while the player is pointing, otherwise false",
+   "nil, reason if dispatch fails; await() returns nil, reason if rejected"
+  ],
+  "api_set": "network",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "CreateThread(function()\n    local pending, err = Open77.animations.isPointing()\n    if not pending then print(err); return end\n    local active, rejected = pending:await()\n    if rejected then print(rejected); return end\n    print('pointing: ' .. tostring(active))\nend)",
+  "inferred": false,
+  "source_line": 25627,
+  "permissions": [],
+  "reasons": [
+   "open77_animations"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.animations.isPointing",
+  "route_id": "Open77.animations.isPointing"
+ },
+ {
+  "namespace": "Open77.animations",
+  "name": "setPointing",
+  "handler": "LuaAnimationServiceExport",
+  "summary": "Start or stop camera-directed finger pointing for the local player.",
+  "description": "true requests the looping camera_point profile for the local player on behalf of the calling resource. It is an upper-body layer on the right arm, so walking continues, and every client aims that arm along the player's replicated camera direction. It resolves to the server-accepted playback state. Repeating true while this resource's pointing action is active resolves to that state without restarting it. Any other active animation, including a pointing action another resource started, rejects with animation_busy; a pending animation request rejects with request_pending; a call before the local player is ready rejects with player_not_ready; and a request the server has not answered within 10 seconds rejects with request_timeout. false stops pointing: it abandons this resource's pending pointing request, whose await then returns nil, cancelled, and cancels the active pointing action this resource started. It resolves to true when cancellation is queued or nothing is pointing, and never stops a different animation; a pointing action owned by another resource, or by an earlier generation of this one, rejects with not_owner. A non-boolean argument rejects with invalid_enabled. The local player's pointing stops when they sprint, slide, vault, swim, leave the ground, are knocked down, draw a weapon, attack or block in melee, or mount a vehicle; that failure reaches onAnimationPlaybackFailed with the reason interrupted. When the owning resource stops or restarts, the service cancels its pointing action. Call true and false from the press and release handlers of an input rather than back to back. Requires matching client, server and animation archives that include the camera_point layer. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.",
+  "params": [
+   {
+    "name": "enabled",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "Open77.Promise resolving to the server-accepted playback state when starting, or true when stopping",
+   "nil, reason if dispatch fails; await() returns nil, reason if rejected or timed out"
+  ],
+  "api_set": "network",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Hold B to point; release to stop\nRegisterKeyMapping('point', 'Point with your finger', 'B',\n    function()\n        local pending, err = Open77.animations.setPointing(true)\n        if not pending then print(err); return end\n        CreateThread(function()\n            local playback, rejected = pending:await()\n            if not playback then print(rejected) end\n        end)\n    end,\n    function()\n        local pending, err = Open77.animations.setPointing(false)\n        if not pending then print(err) end\n    end)",
+  "inferred": false,
+  "source_line": 25627,
+  "permissions": [],
+  "reasons": [
+   "open77_animations"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.animations.setPointing",
+  "route_id": "Open77.animations.setPointing"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "getSteeringInput",
+  "handler": "LuaVehicleGetSteeringInput",
+  "summary": "Reads normalized vehicle steering input.",
+  "description": "Client-only; requires vehicles.read. Pass a network vehicle ID. Returns the same -1..1 steering input as vehicles.get(id).steering, not the interior wheel angle or rolling tire phase. Returns nil, reason for invalid/missing vehicles or permission denial. See the vehicle steering guide.",
+  "params": [
+   {
+    "name": "vehicleId",
+    "type": "integer|string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "number input",
+   "reason on failure"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local input, reason = Open77.vehicles.getSteeringInput(vehicleId)\nif input ~= nil then print(input) end",
+  "inferred": false,
+  "source_line": 25974,
+  "permissions": [
+   "vehicles.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.getSteeringInput",
+  "route_id": "Open77.vehicles.getSteeringInput"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "getSteeringWheelAngle",
+  "handler": "LuaVehicleGetSteeringWheelAngle",
+  "summary": "Reads the actual rendered steering-wheel angle in degrees.",
+  "description": "Client-only; requires vehicles.read and a streamed vehicle. Reads native steering_wheel and Base slots using the loaded authored rig, removing chassis orientation, column tilt and mesh offsets. Supports locally driven and replicated cars with the required slots and steering_wheel_turn bone. Unsupported rigs, including bikes without a readable wheel, return nil instead of an inferred angle. No first-frame neutral calibration. This is the visible client pose, subject to normal presentation delay, not a server-authoritative angle. Errors: invalid_vehicle_id, vehicle_not_found, vehicle_not_streamed, steering_wheel_unsupported, steering_angle_unavailable, permission_denied:vehicles.read.",
+  "params": [
+   {
+    "name": "vehicleId",
+    "type": "integer|string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "number degrees",
+   "reason on failure"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local degrees, reason = Open77.vehicles.getSteeringWheelAngle(vehicleId)\nif degrees ~= nil then\n    print((\"Steering wheel: %.1f degrees\"):format(degrees))\nend",
+  "inferred": false,
+  "source_line": 25975,
+  "permissions": [
+   "vehicles.read"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.getSteeringWheelAngle",
+  "route_id": "Open77.vehicles.getSteeringWheelAngle"
+ },
+ {
+  "namespace": "Open77.npcs.tasks",
+  "name": "traffic",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Puts an NPC into the game's own pedestrian traffic.",
+  "description": "Requires `world.npcs`. Movement channel. The NPC's simulating client puts it into the game's pedestrian traffic (`ReactionSystem.TryAndJoinTraffic`) and keeps it there; the game picks the lanes, the exits and the turns, so there is no destination, route or radius. `speed` is `\"walk\"` (the default) or `\"run\"`; `sprint` is refused with `npc_task_invalid_speed`. `threat = { x, y, z }` is the game's own crowd fear: the NPC stays in traffic and runs away from that point, and no workspot visit happens while it is set; a bad point is refused with `npc_task_invalid_point`. `visits` (boolean, default `true`) says whether the game may send the NPC to its crowd workspots; a non-boolean is refused with `npc_task_invalid_parameters`, and it is ignored while `threat` is set. Options also take `priority` and `timeoutMs` (default 0, no timeout). The task never succeeds while the NPC walks or runs: it runs until it is cancelled or replaced, or the client reports `failure` with a reason (`traffic_unavailable` when the body could not be put into traffic). When the NPC enters a crowd workspot the client ends it with `success` and reason `\"workspot\"`, with the body's placement, and `onNpcTaskState(npcId, taskId, \"success\", \"workspot\")` reaches the resources. Once in traffic the NPC is driven by the game's crowd AI and does not execute other movement commands: to change speed, threat or visits, cancel the active traffic task and enqueue the new one in the same call, which keeps the NPC in traffic; enqueued alone it queues behind the old one. With `behavior.observerReplay` the other clients replay the simulator's motion instead of running their own traffic AI.",
+  "params": [
+   {
+    "name": "id",
+    "type": "NPC id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "options",
+    "type": "table { speed?, threat?, visits?, priority?, timeoutMs? }",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "task id, or nil",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- A walker joins the pedestrian crowd, then runs away from a point while staying in it\nlocal walk = Open77.npcs.tasks.traffic(walkerId, { speed = \"walk\" })\nOpen77.npcs.tasks.cancel(walkerId, walk)\nOpen77.npcs.tasks.traffic(walkerId, { speed = \"run\", threat = { x = -1442.2, y = 127.4, z = 18.0 } })",
+  "inferred": false,
+  "source_line": 9429,
+  "permissions": [
+   "world.npcs"
+  ],
+  "reasons": [
+   "npc_task_invalid_point",
+   "permission_denied:world.npcs"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.npcs.tasks.traffic",
+  "route_id": "server:Open77.npcs.tasks.traffic"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setLaunchVelocity",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Starts a car nobody has simulated yet moving.",
+  "description": "Requires `world.vehicles`. Sets the canonical linear velocity (m/s, world axes) of a car that has never had a physics owner, so the create every projection receives carries it and the first client to simulate the car writes it into the chassis when it takes over -- the same body write the client uses to keep a car's momentum across an ownership change. The drivetrain `speed` reading is not touched. Refused once any client has simulated the car, even after its ownership was revoked (`vehicle_simulated`; its velocity is then its simulator's report). Viewers that already stream the car receive the velocity at once. A frozen car is refused (`vehicle_frozen`; it is pinned at rest, so thaw it first). Each component is bounded to ±250. A client that only takes the car over more than 6 s after receiving its create starts it from rest.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "velocity",
+    "type": "{ x, y, z? }",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_argument, vehicle_not_found, vehicle_frozen, vehicle_simulated"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- Ambient traffic: the car joins its lane already rolling at 10 m/s\nlocal id = assert(Open77.vehicles.create({ record = record, position = point, yaw = yaw }))\nlocal forward = { x = -math.sin(math.rad(yaw)), y = math.cos(math.rad(yaw)) }\nOpen77.vehicles.setLaunchVelocity(id, { x = forward.x * 10, y = forward.y * 10 })",
+  "inferred": false,
+  "source_line": 9035,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.setLaunchVelocity",
+  "route_id": "server:Open77.vehicles.setLaunchVelocity"
  }
 ]

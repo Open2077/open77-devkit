@@ -16770,6 +16770,717 @@
    "documented": true,
    "inCode": true,
    "lifecycle": true
+  },
+  {
+   "name": "onPlayerVehicleSeatSwitchCompleted",
+   "sides": [
+    "server"
+   ],
+   "payload": "(playerId, vehicleId, transitionId, fromSeat, toSeat, reason)",
+   "guides": [
+    {
+     "file": "vehicle-seat-switching.md",
+     "anchor": "server-api"
+    },
+    {
+     "file": "vehicle-seat-switching.md",
+     "anchor": "events-and-failures"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "animated-changes-inside-a-car"
+    }
+   ],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
+     "line": 1861
+    },
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Runtime/ResourceEventBus.cs",
+     "line": 89
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": true
+  },
+  {
+   "name": "onPlayerVehicleSeatSwitchFailed",
+   "sides": [
+    "server"
+   ],
+   "payload": "(playerId, vehicleId, transitionId, fromSeat, toSeat, reason)",
+   "guides": [
+    {
+     "file": "vehicle-seat-switching.md",
+     "anchor": "events-and-failures"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "animated-changes-inside-a-car"
+    }
+   ],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
+     "line": 1862
+    },
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Runtime/ResourceEventBus.cs",
+     "line": 89
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": true
+  },
+  {
+   "name": "onPlayerVehicleSeatSwitchStarted",
+   "sides": [
+    "server"
+   ],
+   "payload": "(playerId, vehicleId, transitionId, fromSeat, toSeat, reason)",
+   "guides": [
+    {
+     "file": "vehicle-seat-switching.md",
+     "anchor": "events-and-failures"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "animated-changes-inside-a-car"
+    }
+   ],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
+     "line": 1860
+    },
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Runtime/ResourceEventBus.cs",
+     "line": 89
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": true
+  },
+  {
+   "name": "open77:loadingScreen:changed",
+   "sides": [],
+   "payload": "(state)",
+   "guides": [
+    {
+     "file": "loading-screens.md",
+     "anchor": "events"
+    },
+    {
+     "file": "loading-screens.md",
+     "anchor": "hide-your-own-webui-while-loading"
+    },
+    {
+     "file": "loading-screens.md",
+     "anchor": "2-forward-the-loading-state-to-your-page"
+    }
+   ],
+   "sources": [],
+   "documented": true,
+   "inCode": false,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:loadingScreen:finished",
+   "sides": [],
+   "payload": "(state)",
+   "guides": [
+    {
+     "file": "loading-screens.md",
+     "anchor": "events"
+    }
+   ],
+   "sources": [],
+   "documented": true,
+   "inCode": false,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:loadingScreen:started",
+   "sides": [],
+   "payload": "(state)",
+   "guides": [
+    {
+     "file": "loading-screens.md",
+     "anchor": "events"
+    }
+   ],
+   "sources": [],
+   "documented": true,
+   "inCode": false,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:vehicleSeatSwitchCompleted",
+   "sides": [],
+   "payload": "(vehicleId, transitionId, fromSeat, toSeat, reason)",
+   "guides": [
+    {
+     "file": "vehicle-seat-switching.md",
+     "anchor": "client-api"
+    },
+    {
+     "file": "vehicle-seat-switching.md",
+     "anchor": "events-and-failures"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "animated-changes-inside-a-car"
+    }
+   ],
+   "sources": [],
+   "documented": true,
+   "inCode": false,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:vehicleSeatSwitchDecision",
+   "sides": [],
+   "payload": "(vehicleId, transitionId, seat, status, reason)",
+   "guides": [
+    {
+     "file": "vehicle-seat-switching.md",
+     "anchor": "client-api"
+    },
+    {
+     "file": "vehicle-seat-switching.md",
+     "anchor": "events-and-failures"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "animated-changes-inside-a-car"
+    }
+   ],
+   "sources": [],
+   "documented": true,
+   "inCode": false,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:vehicleSeatSwitchFailed",
+   "sides": [],
+   "payload": "(vehicleId, transitionId, fromSeat, toSeat, reason)",
+   "guides": [
+    {
+     "file": "vehicle-seat-switching.md",
+     "anchor": "events-and-failures"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "animated-changes-inside-a-car"
+    }
+   ],
+   "sources": [],
+   "documented": true,
+   "inCode": false,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:vehicleSeatSwitchStarted",
+   "sides": [],
+   "payload": "(vehicleId, transitionId, fromSeat, toSeat, reason)",
+   "guides": [
+    {
+     "file": "vehicle-seat-switching.md",
+     "anchor": "events-and-failures"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "animated-changes-inside-a-car"
+    }
+   ],
+   "sources": [],
+   "documented": true,
+   "inCode": false,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:actions:cancel",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_actions/client/main.lua",
+     "line": 140
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/main.lua",
+     "line": 455
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:actions:carry",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_actions/client/main.lua",
+     "line": 161
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/carry.lua",
+     "line": 379
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/carry.lua",
+     "line": 388
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/main.lua",
+     "line": 477
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:actions:end",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_actions/client/main.lua",
+     "line": 146
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/engine.lua",
+     "line": 715
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:actions:intent",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_actions/client/main.lua",
+     "line": 309
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/main.lua",
+     "line": 440
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:actions:present",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_actions/client/main.lua",
+     "line": 122
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/engine.lua",
+     "line": 690
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/main.lua",
+     "line": 470
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:actions:putdown",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_actions/client/main.lua",
+     "line": 318
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/main.lua",
+     "line": 448
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:actions:refused",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_actions/client/main.lua",
+     "line": 179
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/main.lua",
+     "line": 429
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:actions:sync",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_actions/client/main.lua",
+     "line": 334
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/main.lua",
+     "line": 484
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:actions:targets",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_actions/client/main.lua",
+     "line": 197
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_actions/server/main.lua",
+     "line": 90
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:privacy:request",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 903
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_shell/client/main.lua",
+     "line": 80
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:privacy:set",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 923
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_shell/client/main.lua",
+     "line": 81
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_shell/client/main.lua",
+     "line": 544
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:privacy:state",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 13
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_shell/client/main.lua",
+     "line": 78
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:seating:refused",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_seating/client/main.lua",
+     "line": 74
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/core.lua",
+     "line": 377
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/main.lua",
+     "line": 268
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:seating:seats",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_seating/client/main.lua",
+     "line": 95
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/core.lua",
+     "line": 635
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/core.lua",
+     "line": 647
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/core.lua",
+     "line": 652
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:seating:sit",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_seating/client/main.lua",
+     "line": 150
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/main.lua",
+     "line": 272
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:seating:stand",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_seating/client/main.lua",
+     "line": 159
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/main.lua",
+     "line": 280
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:seating:state",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_seating/client/main.lua",
+     "line": 80
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/core.lua",
+     "line": 328
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/core.lua",
+     "line": 373
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/main.lua",
+     "line": 291
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:seating:sync",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_seating/client/main.lua",
+     "line": 174
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_seating/server/main.lua",
+     "line": 286
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
   }
  ],
  "reservedPrefixes": [
@@ -17355,6 +18066,21 @@
      "side": "server",
      "file": "server/src/Open77.Server.Scripting/Runtime/ResourceEventBus.cs",
      "line": 201
+    }
+   ]
+  },
+  {
+   "prefix": "open77:loadingScreen:",
+   "sources": [
+    {
+     "side": "client",
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 21095
+    },
+    {
+     "side": "client",
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 26761
     }
    ]
   }

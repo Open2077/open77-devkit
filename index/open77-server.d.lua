@@ -327,7 +327,8 @@ function CreateLootDrop(item, quantity, x, y, z, bucket, pickupRadius, label, mo
 ---@param despawnWhenUnobserved? boolean
 ---@param persistent? boolean
 ---@param behaviorJson string
-function CreateNpc(template, x, y, z, yaw, bucket, appearance, loadoutJson, aiMode, damagePolicy, health, maxHealth, streamingRadius, streamingHysteresis, despawnWhenUnobserved, persistent, behaviorJson) end
+---@param authorityPolicy string
+function CreateNpc(template, x, y, z, yaw, bucket, appearance, loadoutJson, aiMode, damagePolicy, health, maxHealth, streamingRadius, streamingHysteresis, despawnWhenUnobserved, persistent, behaviorJson, authorityPolicy) end
 
 --- Places a replicated prop from a catalogue model and answers its id as a decimal string.
 ---
@@ -5803,6 +5804,19 @@ function Open77.npcs.tasks.setDriverAbility(id, ability) end
 ---@return any reason reason
 function Open77.npcs.tasks.stopDriving(id) end
 
+--- Puts an NPC into the game's own pedestrian traffic.
+---
+--- Requires `world.npcs`. Movement channel. The NPC's simulating client puts it into the game's pedestrian traffic (`ReactionSystem.TryAndJoinTraffic`) and keeps it there; the game picks the lanes, the exits and the turns, so there is no destination, route or radius. `speed` is `"walk"` (the default) or `"run"`; `sprint` is refused with `npc_task_invalid_speed`. `threat = { x, y, z }` is the game's own crowd fear: the NPC stays in traffic and runs away from that point, and no workspot visit happens while it is set; a bad point is refused with `npc_task_invalid_point`. `visits` (boolean, default `true`) says whether the game may send the NPC to its crowd workspots; a non-boolean is refused with `npc_task_invalid_parameters`, and it is ignored while `threat` is set. Options also take `priority` and `timeoutMs` (default 0, no timeout). The task never succeeds while the NPC walks or runs: it runs until it is cancelled or replaced, or the client reports `failure` with a reason (`traffic_unavailable` when the body could not be put into traffic). When the NPC enters a crowd workspot the client ends it with `success` and reason `"workspot"`, with the body's placement, and `onNpcTaskState(npcId, taskId, "success", "workspot")` reaches the resources. Once in traffic the NPC is driven by the game's crowd AI and does not execute other movement commands: to change speed, threat or visits, cancel the active traffic task and enqueue the new one in the same call, which keeps the NPC in traffic; enqueued alone it queues behind the old one. With `behavior.observerReplay` the other clients replay the simulator's motion instead of running their own traffic AI.
+---
+--- Permissions: world.npcs
+--- Since: not in any published build
+--- Reasons: npc_task_invalid_point, permission_denied:world.npcs
+---@param id any
+---@param options? any
+---@return any task task id, or nil
+---@return any reason reason
+function Open77.npcs.tasks.traffic(id, options) end
+
 --- Makes an NPC wait for a fixed time.
 ---
 --- Requires `world.npcs`. Action channel by default. `timeoutMs` defaults to the duration plus one second, so a wait cannot outlive itself.
@@ -5834,18 +5848,20 @@ function Open77.npcs.tasks.wander(id, options) end
 ---
 --- Requires `world.npcs`. FullBody channel, the same one `playAnimation` uses, so a workspot and an animation cannot run on one body at once.
 ---
---- `reference` is either a **catalogue profile id** (`smoke`, `sit`, `phone`, `dance`, `meditate`, ... -- see `Open77.npcs.tasks.workspots`), which brings its own shipped device entity and its own validated clip set, or a **raw clip name** played through the generic device. The catalogue profile is the supported form; a raw clip is an escape hatch whose animset the generic device may not carry.
+--- `reference` is either a **catalogue profile id** (`smoke`, `sit`, `phone`, `dance`, `meditate`, ... -- see `Open77.npcs.tasks.workspots`), which brings its own shipped device entity and its own validated clip set, or a **raw clip name** played through the generic device. The catalogue profile is the supported form; a raw clip is an escape hatch whose animset the generic device may not carry. Ambient profiles do not appear in `Open77.animations.list()` or `tasks.workspots()` but resolve directly by id.
+---
+--- `options.anchor = { x, y, z, yaw? }` positions a catalogue profile's workspot at world coordinates. Coordinates must be finite; yaw is degrees about Z, defaults to 0, and must be within -360..360. Anchored workspots play on every client, remain `Executing` without an authority and work on Frozen NPCs. An anchor with a raw clip returns `npc_task_invalid_workspot`; invalid anchor values return `npc_task_invalid_anchor`.
 ---
 --- `durationMs` ends the scenario by **succeeding**, not by timing out: a scenario that ran its course is not a failure, and `timeoutMs` stays free to mean "no client ever picked the command up". `loop = true` has no end and runs until cancelled.
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.67
---- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, npc_task_invalid_duration, npc_task_invalid_workspot, permission_denied:players.animations.control, permission_denied:players.animations.read, permission_denied:world.npcs, permission_denied:world.props, request_too_large, resource_stopping
+--- Reasons: animations_unavailable, invalid_json, invalid_options, invalid_player, invalid_query, invalid_request, json_too_large, npc_task_invalid_anchor, npc_task_invalid_duration, npc_task_invalid_workspot, permission_denied:players.animations.control, permission_denied:players.animations.read, permission_denied:world.npcs, permission_denied:world.props, request_too_large, resource_stopping
 ---@param id any
 ---@param reference any
 ---@param options? any
 ---@return any task task id, or nil
----@return any reason reason (`npc_task_invalid_workspot`, `npc_task_invalid_duration`)
+---@return any reason reason (`npc_task_invalid_workspot`, `npc_task_invalid_anchor`, `npc_task_invalid_duration`)
 function Open77.npcs.tasks.workspot(id, reference, options) end
 
 --- The vanilla scenario catalogue a workspot task can name.
@@ -5895,11 +5911,11 @@ function Open77.npcs.capacity() end
 
 --- Creates an authoritative NPC.
 ---
---- Requires `world.npcs`. Build one from `record = "Character.*"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved` and `persistent`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `"invulnerable"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md).
+--- Requires `world.npcs`. Build one from `record = "Character.*"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved`, `persistent` and `authorityPolicy`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `"invulnerable"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. `authorityPolicy` is `"nearest"` (default) or `"balanced"` (the client simulating the fewest NPCs, with a tenure-gated rebalance); anything else returns `nil, "npc_authority_policy_invalid"`. `behavior.observerReplay = true` makes clients that do not simulate the NPC replay the simulator's motion on the shared server clock. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md).
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.45
---- Reasons: npc_record_invalid, npc_template_invalid, npcs_unavailable, permission_denied:world.npcs
+--- Reasons: npc_authority_policy_invalid, npc_record_invalid, npc_template_invalid, npcs_unavailable, permission_denied:world.npcs
 ---@param def table
 ---@return any NPC NPC id, or nil
 ---@return any reason reason
@@ -8737,6 +8753,18 @@ function Open77.vehicles.breakLight(id, index) end
 ---@return any boolean boolean success
 function Open77.vehicles.breakTire(id, index) end
 
+--- Cancels exactly one player seat-transition token.
+---
+--- Requires world.vehicles. Releases the destination and retains the source. A stale token is refused with stale_transition and cannot affect a newer request.
+---
+--- Permissions: world.vehicles
+--- Since: not in any published build
+---@param playerId integer
+---@param transitionId string
+---@return any true true or false
+---@return any reason reason
+function Open77.vehicles.cancelPlayerSeatSwitch(playerId, transitionId) end
+
 --- Hands the lights back the record's own colour.
 ---
 --- Requires `world.vehicles`. Exactly `setLightsHue(id, nil)`.
@@ -9065,6 +9093,17 @@ function Open77.vehicles.getPerformance(id) end
 ---@return any seat seat assignment table { playerId, vehicleId, seat, flags, entering, exiting, forcedEntry, exitLocked, forcedExit }, or a single nil
 function Open77.vehicles.getPlayerSeat(playerId) end
 
+--- Reads a player's active authoritative seat transition.
+---
+--- Requires world.vehicles. Returns id (string), playerId, vehicleId, fromSeat, toSeat and automatic. Returns nil when no transition is active; invalid players and missing permission return false plus reason.
+---
+--- Permissions: world.vehicles
+--- Since: not in any published build
+---@param playerId integer
+---@return any transition transition table, nil when idle, or false on refusal
+---@return any reason reason
+function Open77.vehicles.getPlayerSeatSwitch(playerId) end
+
 --- The vehicle's canonical position as a vector3.
 ---
 --- Requires `world.vehicles`. A plain `{ x, y, z }` table, which is what an Open77 vector3 is, so `#(a - b)` works on it without a conversion. The same point `Open77.vehicles.get(id).position` carries, and the same one `x`/`y`/`z` have always carried. **Only server-spawned vehicles are in the registry.** A player standing next to a vanilla traffic car is standing next to something REDengine population spawned on their own client: it has no canonical id and this call cannot see it. Adopting vanilla traffic is a separate capability that does not exist yet.
@@ -9233,6 +9272,17 @@ function Open77.vehicles.isLockedForPlayer(id, playerId) end
 ---@param part any
 ---@return any boolean boolean, or `nil`
 function Open77.vehicles.isPartDetached(id, part) end
+
+--- Reads the player's effective server takeover policy.
+---
+--- Requires world.vehicles. False while any server resource holds an automatic takeover veto. Client resources can independently veto their local automatic behavior.
+---
+--- Permissions: world.vehicles
+--- Since: not in any published build
+---@param playerId integer
+---@return any boolean boolean
+---@return any reason reason on refusal
+function Open77.vehicles.isPlayerAutoSeatSwitchEnabled(playerId) end
 
 --- Reports whether a player's canonical seat has exit lock enabled.
 ---
@@ -9787,6 +9837,18 @@ function Open77.vehicles.setHealth(id, health) end
 ---@return any reason reason: invalid_argument, vehicle_not_found
 function Open77.vehicles.setHighBeams(id, on) end
 
+--- Starts a car nobody has simulated yet moving.
+---
+--- Requires `world.vehicles`. Sets the canonical linear velocity (m/s, world axes) of a car that has never had a physics owner, so the create every projection receives carries it and the first client to simulate the car writes it into the chassis when it takes over -- the same body write the client uses to keep a car's momentum across an ownership change. The drivetrain `speed` reading is not touched. Refused once any client has simulated the car, even after its ownership was revoked (`vehicle_simulated`; its velocity is then its simulator's report). Viewers that already stream the car receive the velocity at once. A frozen car is refused (`vehicle_frozen`; it is pinned at rest, so thaw it first). Each component is bounded to ±250. A client that only takes the car over more than 6 s after receiving its create starts it from rest.
+---
+--- Permissions: world.vehicles
+--- Since: not in any published build
+---@param id any
+---@param velocity any
+---@return any true true, or false
+---@return any reason reason: invalid_argument, vehicle_not_found, vehicle_frozen, vehicle_simulated
+function Open77.vehicles.setLaunchVelocity(id, velocity) end
+
 --- Sets or clears one broken-light bit.
 ---
 --- Requires `world.vehicles`. The light index must be in 0..31.
@@ -9922,6 +9984,18 @@ function Open77.vehicles.setPerformance(id, profile) end
 ---@return any true true, or false
 ---@return any reason reason: invalid_argument, vehicle_not_found, vehicles_unavailable, permission_denied:world.vehicles
 function Open77.vehicles.setPersistent(id, persistent) end
+
+--- Controls a resource-owned automatic takeover policy.
+---
+--- Requires world.vehicles. false adds this resource's veto for the player; true removes only its own veto. Explicit seat requests remain available. Policies are released on resource stop and player disconnect.
+---
+--- Permissions: world.vehicles
+--- Since: not in any published build
+---@param playerId integer
+---@param enabled boolean
+---@return any true true or false
+---@return any reason reason
+function Open77.vehicles.setPlayerAutoSeatSwitchEnabled(playerId, enabled) end
 
 --- Prevents or permits a player-controlled vehicle exit.
 ---
@@ -10100,6 +10174,18 @@ function Open77.vehicles.startEngine(id) end
 ---@return any true true, or false
 ---@return any reason reason
 function Open77.vehicles.stopEngine(id) end
+
+--- Reserves an animated seat change for a seated player.
+---
+--- Requires world.vehicles and protocol 1.44. Both seats are held until native completion. Returns true and a string transition ID on reservation, or false and a reason. Completion/failure is reported by onPlayerVehicleSeatSwitchCompleted/Failed. Does not board on-foot players or evict occupants. Explicit requests remain allowed when automatic takeover is disabled.
+---
+--- Permissions: world.vehicles
+--- Since: not in any published build
+---@param playerId integer
+---@param seat any
+---@return any true true or false
+---@return any transitionId transitionId on acceptance, otherwise reason
+function Open77.vehicles.switchPlayerSeat(playerId, seat) end
 
 --- Seats a player through the vanilla entry animation.
 ---

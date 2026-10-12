@@ -4589,10 +4589,14 @@
    "summary": "Enforced by the client; gates 2 natives in Open77.vehicles.",
    "curated": false,
    "natives": [
+    "Open77.vehicles.cancelSeatSwitch",
     "Open77.vehicles.honk",
+    "Open77.vehicles.setAutoSeatSwitchEnabled",
+    "Open77.vehicles.switchSeat",
     "Open77.vehicles.triggerHorn"
    ],
    "guides": [
+    "vehicle-seat-switching.md",
     "vehicles.md"
    ],
    "sources": [
@@ -4711,6 +4715,7 @@
     "Open77.vehicles.getWeaponType",
     "Open77.vehicles.getWeapons",
     "Open77.vehicles.isArmed",
+    "Open77.vehicles.isAutoSeatSwitchEnabled",
     "Open77.vehicles.isDoorOpen",
     "Open77.vehicles.isLocked",
     "Open77.vehicles.isWeaponActive",
@@ -4720,10 +4725,12 @@
     "Open77.vehicles.occupantInSeat",
     "Open77.vehicles.ratedTopSpeed",
     "Open77.vehicles.seatFree",
+    "Open77.vehicles.seatSwitchState",
     "Open77.vehicles.whenStreamed"
    ],
    "guides": [
     "vehicle-paint.md",
+    "vehicle-seat-switching.md",
     "vehicle-weapons.md",
     "vehicles.md"
    ],
@@ -6228,6 +6235,7 @@
     "server:Open77.vehicles.breakGlass",
     "server:Open77.vehicles.breakLight",
     "server:Open77.vehicles.breakTire",
+    "server:Open77.vehicles.cancelPlayerSeatSwitch",
     "server:Open77.vehicles.clearLightsHue",
     "server:Open77.vehicles.clearLockedForPlayer",
     "server:Open77.vehicles.clearPerformance",
@@ -6252,6 +6260,7 @@
     "server:Open77.vehicles.getLightsHue",
     "server:Open77.vehicles.getPerformance",
     "server:Open77.vehicles.getPlayerSeat",
+    "server:Open77.vehicles.getPlayerSeatSwitch",
     "server:Open77.vehicles.getPosition",
     "server:Open77.vehicles.getProperties",
     "server:Open77.vehicles.getSpeed",
@@ -6263,6 +6272,7 @@
     "server:Open77.vehicles.isEngineOn",
     "server:Open77.vehicles.isFrozen",
     "server:Open77.vehicles.isLockedForPlayer",
+    "server:Open77.vehicles.isPlayerAutoSeatSwitchEnabled",
     "server:Open77.vehicles.isSirenOn",
     "server:Open77.vehicles.isVisibleTo",
     "server:Open77.vehicles.lock",
@@ -6317,6 +6327,7 @@
     "server:Open77.vehicles.setPartDetached",
     "server:Open77.vehicles.setPerformance",
     "server:Open77.vehicles.setPersistent",
+    "server:Open77.vehicles.setPlayerAutoSeatSwitchEnabled",
     "server:Open77.vehicles.setPlayerExitLocked",
     "server:Open77.vehicles.setProperties",
     "server:Open77.vehicles.setSiren",
@@ -6329,6 +6340,7 @@
     "server:Open77.vehicles.setWindowOpen",
     "server:Open77.vehicles.startEngine",
     "server:Open77.vehicles.stopEngine",
+    "server:Open77.vehicles.switchPlayerSeat",
     "server:Open77.vehicles.taskPlayerEnter",
     "server:Open77.vehicles.taskPlayerLeave",
     "server:Open77.vehicles.triggerHorn",
@@ -6352,6 +6364,7 @@
     "effects.md",
     "vehicle-ai.md",
     "vehicle-paint.md",
+    "vehicle-seat-switching.md",
     "vehicles.md"
    ],
    "sources": [
@@ -6478,6 +6491,125 @@
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Vehicles.cs",
      "line": 707
+    }
+   ]
+  },
+  {
+   "name": "screen.read",
+   "runtimes": [
+    "client"
+   ],
+   "summary": "Enforced by the client; gates 2 natives in Open77.screen.",
+   "curated": false,
+   "natives": [
+    "Open77.screen.isLoading",
+    "Open77.screen.loadingState"
+   ],
+   "guides": [
+    "loading-screens.md"
+   ],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 19242
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 19242
+    }
+   ]
+  },
+  {
+   "name": "pause_menu.render",
+   "runtimes": [
+    "client"
+   ],
+   "summary": "Enforced by the client; gates 0 natives.",
+   "curated": false,
+   "natives": [],
+   "guides": [],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 20457
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 20457
+    }
+   ]
+  },
+  {
+   "name": "players.driveby",
+   "runtimes": [
+    "client",
+    "server"
+   ],
+   "summary": "Enforced by the client and server; gates 2 natives in Open77.players.",
+   "curated": false,
+   "natives": [
+    "Open77.players.setLocalDriveByEnabled",
+    "server:Open77.players.setDriveByEnabled"
+   ],
+   "guides": [
+    "drive-by.md"
+   ],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 13039
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 13040
+    },
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.DriveBy.cs",
+     "line": 29
+    }
+   ]
+  },
+  {
+   "name": "rtti.native",
+   "runtimes": [
+    "client"
+   ],
+   "summary": "Enforced by the client; gates 5 natives in Open77.rtti.",
+   "curated": false,
+   "natives": [
+    "Open77.rtti.call",
+    "Open77.rtti.hook",
+    "Open77.rtti.release",
+    "Open77.rtti.resolve",
+    "Open77.rtti.unhook"
+   ],
+   "guides": [
+    "rtti.md"
+   ],
+   "sources": [
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 6947
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 6966
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 7002
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 7038
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 7099
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 7111
     }
    ]
   }
