@@ -96,10 +96,11 @@ the Lua language server in VS Code or Cursor completes `Open77.*` from the same 
 ## Where the knowledge comes from
 
 The index is built from the public documentation content of
-[open77-app](https://github.com/Open2077/open77-app) (`content/api`, `content/docs`), which is
-synced from the platform wiki, itself generated from the client and server source. Nothing here is
+[open77-app](https://github.com/Open2077/open77-app): `content/api` and `content/docs`, which are
+synced from the platform wiki, itself generated from the client and server source, plus the site's
+own guides in `content/guides` (the RP job pages, the runtime and operator pages). Nothing here is
 hand-written knowledge: cards, permissions, reasons, `since`, events and catalogues are extracted
-from code; guides are chunked as published.
+from code; guides are chunked as published. A wiki guide keeps its name over a site guide.
 
 Index builds are published to `https://cdn.open2077.net/dev-index/<build>/` with a hashed manifest.
 The package ships a snapshot of the latest index and refreshes from the CDN at most once a day,
