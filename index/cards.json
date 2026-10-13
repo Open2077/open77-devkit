@@ -12999,7 +12999,7 @@
   "name": "setActionBlocked",
   "handler": "LuaSetActionBlocked",
   "summary": "Blocks or releases one curated input action for the calling resource.",
-  "description": "Requires `input.actions`. The vocabulary is curated rather than an engine enum dump, because Cyberpunk has no single input-blocking lever: five unrelated mechanisms serve five families of action and a large minority of actions cannot be refused at all. Blockable today: `Movement`, `Map`, `Hub`, `FastTravel`, `Attack`. An action outside the vocabulary is refused with `unknown_action`; one this engine cannot refuse with `action_not_blockable`; one Open77 already blocks unconditionally (`PhotoMode`, `Scanner`, `Quickhack`, `CallVehicle`, `Journal`) with `action_already_enforced`. Nothing is accepted and silently ignored. Claims are owned by the calling resource: two resources may block the same action, `blocked=false` removes only the caller's claim, and everything a resource holds is released when it stops. See `wiki/input-blocking.md` and `docs/research/input-action-blocking.md`.",
+  "description": "Requires `input.actions`. The vocabulary is curated rather than an engine enum dump, because Cyberpunk has no single input-blocking lever: five unrelated mechanisms serve five families of action and a large minority of actions cannot be refused at all. Blockable today: `Movement`, `Map`, `Hub`, `FastTravel`, `Attack` (firing only), `Melee` (every melee swing, fists included), `Jump`, `Sprint` (walk mode alone does not cap sprinting) and `WeaponWheel`; `Open77.input.blockableActions()` reports how sure each one is. An action outside the vocabulary is refused with `unknown_action`; one this engine cannot refuse with `action_not_blockable`; one Open77 already blocks unconditionally (`PhotoMode`, `Scanner`, `Quickhack`, `CallVehicle`, `Journal`) with `action_already_enforced`. Nothing is accepted and silently ignored. Claims are owned by the calling resource: two resources may block the same action, `blocked=false` removes only the caller's claim, and everything a resource holds is released when it stops. See `wiki/input-blocking.md` and `docs/research/input-action-blocking.md`.",
   "params": [
    {
     "name": "action",
@@ -15378,7 +15378,7 @@
   "name": "setWalkMode",
   "handler": "LuaSetWalkMode",
   "summary": "Asks the local player to walk at a bounded speed, as a lease this resource owns.",
-  "description": "Requires `players.controls`. Every resource holds its own request and the slowest live request wins; `false` releases only this resource's request and never touches another's. `speed` is metres per second between 0.5 and 2.5, default 1.5. Read the applied state back with `getWalkMode`.",
+  "description": "Requires `players.controls`. Every resource holds its own request and the slowest live request wins; `false` releases only this resource's request and never touches another's. `speed` is metres per second between 0.5 and 2.5, default 1.5. Read the applied state back with `getWalkMode`. Walk mode slows walking and jogging but lets the player sprint out of it: to hold a player to the pace, also block `Sprint` with `Open77.input.setActionBlocked` (that call needs the `input.actions` permission), which also stops this lease from lifting on sprint intent.",
   "params": [
    {
     "name": "enabled",
