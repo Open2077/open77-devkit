@@ -1,6 +1,7 @@
 /**
  * Builds a Dev Index directory from the public documentation content of
- * `Open2077/open77-app` (`content/api` + `content/docs`).
+ * `Open2077/open77-app` (`content/api` + `content/docs`, and the site's own
+ * guides in `content/guides`).
  *
  * Nothing here invents a fact: cards, events, permissions, releases,
  * catalogues and schemas are copied verbatim from the content; the guides are
@@ -220,10 +221,32 @@ export async function buildIndex(options: BuildOptions): Promise<IndexManifest> 
     const markdown = await readFile(path.join(docs, name), "utf8");
     guides.push(chunkGuide(name, markdown, cardIndex));
   }
+  // The site's own guides (the RP job pages, build-a-job, the runtime and
+  // operator pages) are written for the website, not synced from the wiki, but
+  // they are public documentation too: an agent asked about the CHOOH2 job or
+  // the readiness gate found nothing before. A name the wiki already uses keeps
+  // the wiki's guide. Content older than the folder has none.
+  const siteGuides = path.join(contentDir, "guides");
+  const wikiFiles = new Set(guides.map((g) => g.file));
+  let siteNames: string[] = [];
+  try {
+    siteNames = (await readdir(siteGuides)).filter((f) => f.endsWith(".md")).sort();
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
+  counts.siteGuides = 0;
+  for (const name of siteNames) {
+    if (wikiFiles.has(name)) {
+      log(`site guide ${name} skipped: content/docs has a guide with that name`);
+      continue;
+    }
+    guides.push(chunkGuide(name, await readFile(path.join(siteGuides, name), "utf8"), cardIndex));
+    counts.siteGuides++;
+  }
   counts.guides = guides.length;
   counts.sections = guides.reduce((n, g) => n + g.sections.length, 0);
   await write("guides.json", JSON.stringify(guides));
-  log(`guides: ${guides.length} (${counts.sections} sections)`);
+  log(`guides: ${guides.length}, ${counts.siteGuides} from the site (${counts.sections} sections)`);
 
   const fivemGuide = guides.find((g) => g.file === "fivem-compatibility.md");
   const fivem = fivemGuide ? parseFivemGuide(await readFile(path.join(docs, fivemGuide.file), "utf8")) : [];

@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { copyFile, mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { chunkGuide, opNumber, parseFivemGuide } from "../src/index/builder.js";
+import { buildIndex, chunkGuide, opNumber, parseFivemGuide } from "../src/index/builder.js";
 import { loadIndex } from "../src/index/loader.js";
 import { IndexSearch } from "../src/index/search.js";
 import type { ApiCard } from "../src/index/types.js";
@@ -30,6 +30,37 @@ async function context(build?: string): Promise<ServerContext> {
 test("opNumber reads the op77 build number", () => {
   assert.equal(opNumber("2.31.13+op77.69"), 69);
   assert.equal(opNumber("nonsense"), -1);
+});
+
+test("buildIndex adds the site guides, and a wiki guide keeps its name", async () => {
+  // The RP job pages live in the app's content/guides, which the index did
+  // not read: an agent asked about CHOOH2 found nothing (2026-10-13).
+  const root = await mkdtemp(path.join(os.tmpdir(), "open77-build-"));
+  try {
+    const content = path.join(root, "content");
+    for (const dir of ["api/catalogues", "api/schemas", "docs", "guides"]) await mkdir(path.join(content, dir), { recursive: true });
+    await copyFile(path.join(INDEX_DIR, "cards.json"), path.join(content, "api", "api.json"));
+    for (const name of ["events.json", "permissions.json", "releases.json"]) await copyFile(path.join(INDEX_DIR, name), path.join(content, "api", name));
+    await copyFile(path.join(INDEX_DIR, "catalogues", "sfx.json"), path.join(content, "api", "catalogues", "sfx.json"));
+    await copyFile(path.join(INDEX_DIR, "schemas", "manifest.schema.json"), path.join(content, "api", "schemas", "manifest.schema.json"));
+    await writeFile(path.join(content, "docs", "_manifest.json"), JSON.stringify({ syncedAt: "2026-10-13T00:00:00.000Z" }));
+    await writeFile(path.join(content, "docs", "actions.md"), "# Actions\n\nFrom the wiki.\n");
+    await writeFile(path.join(content, "guides", "actions.md"), "# Actions, site copy\n\nShadowed.\n");
+    await writeFile(path.join(content, "guides", "rp-job-chooh2.md"), "# CHOOH2\n\nCorn to fuel.\n\n## Refinery\n\nOne timed operation.\n");
+
+    const manifest = await buildIndex({ contentDir: content, outDir: path.join(root, "out") });
+    assert.equal(manifest.counts["siteGuides"], 1);
+    const guides = JSON.parse(await readFile(path.join(root, "out", "guides.json"), "utf8")) as { slug: string; title: string; sections: { anchor: string }[] }[];
+    assert.deepEqual(guides.map((g) => g.slug), ["actions", "rp-job-chooh2"]);
+    assert.equal(guides[0]!.title, "Actions", "the wiki guide wins a name clash");
+    assert.deepEqual(guides[1]!.sections.map((s) => s.anchor), ["chooh2", "refinery"]);
+
+    await rm(path.join(content, "guides"), { recursive: true });
+    const older = await buildIndex({ contentDir: content, outDir: path.join(root, "out-older") });
+    assert.equal(older.counts["siteGuides"], 0, "content without a guides folder still builds");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("chunkGuide splits by heading, dedupes anchors and finds natives", () => {
