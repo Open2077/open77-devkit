@@ -47139,7 +47139,7 @@
   "name": "create",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Creates an authoritative NPC.",
-  "description": "Requires `world.npcs`. Build one from `record = \"Character.*\"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved`, `persistent` and `authorityPolicy`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `\"invulnerable\"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. `authorityPolicy` is `\"nearest\"` (default) or `\"balanced\"` (the client simulating the fewest NPCs, with a tenure-gated rebalance); anything else returns `nil, \"npc_authority_policy_invalid\"`. `behavior.observerReplay = true` makes clients that do not simulate the NPC replay the simulator's motion on the shared server clock. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md).",
+  "description": "Requires `world.npcs`. Build one from `record = \"Character.*\"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved`, `persistent` and `authorityPolicy`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `\"invulnerable\"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. `authorityPolicy` is `\"nearest\"` (default) or `\"balanced\"` (the client simulating the fewest NPCs, with a tenure-gated rebalance); anything else returns `nil, \"npc_authority_policy_invalid\"`. `behavior.observerReplay = true` makes clients that do not simulate the NPC replay the simulator's motion on the shared server clock. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md). Stable 147 also accepts body and equipment from a saved player look; body.family selects the matching Open77 player template. Do not combine it with a legacy template or an unrelated record. See [Character previews](character-previews.md).",
   "params": [
    {
     "name": "def",
@@ -48016,7 +48016,7 @@
   "name": "setLoadout",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Convenience patch for an NPC's loadout.",
-  "description": "Requires `world.npcs`. Exactly `update(id, { loadout = loadout })`.",
+  "description": "Requires `world.npcs`. Exactly `update(id, { loadout = loadout })`. Stable 147 supports player body snapshots in the NPC loadout. update(id, {body=...}) replaces the body while retaining other loadout data. Weapon-only loadout changes preserve the body and equipment. The complete loadout remains limited to 8 KiB. See [Character previews](character-previews.md#networked-npc).",
   "params": [
    {
     "name": "id",
@@ -48378,7 +48378,7 @@
   "name": "update",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Patches an NPC's canonical state.",
-  "description": "Requires `world.npcs`. Sparse: appearance, loadout, behavior, AI mode, damage policy, health and ragdoll can all be patched in one call, and everything omitted is left alone. The convenience setters below are thin wrappers over this.",
+  "description": "Requires `world.npcs`. Sparse: appearance, loadout, behavior, AI mode, damage policy, health and ragdoll can all be patched in one call, and everything omitted is left alone. The convenience setters below are thin wrappers over this. Stable 147 supports player body snapshots in the NPC loadout. update(id, {body=...}) replaces the body while retaining other loadout data. Weapon-only loadout changes preserve the body and equipment. The complete loadout remains limited to 8 KiB. See [Character previews](character-previews.md#networked-npc).",
   "params": [
    {
     "name": "id",
@@ -58392,7 +58392,7 @@
   "name": "getProperties",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Everything a garage has to store to put this exact car back.",
-  "description": "Requires `world.vehicles`. Answers one plain table -- strings, numbers, booleans and tables, so it survives `json.encode` and a database column unchanged -- or `nil, \"vehicle_not_found\"`. This is the Cyberpunk counterpart of the `GetVehicleProperties` helper every FiveM framework ships, and `setProperties` is its other half: **`setProperties(id, getProperties(id))` leaves the vehicle observably unchanged**, and the same table applied to a fresh vehicle of the same record reproduces it.\n\nThe shape is `{ version = 1, record, appearance, paint = { applied, primary = {r,g,b}, secondary = {r,g,b}, lightsHue? }, health, engineOn, lights = \"off\"|\"on\"|\"high\", siren, locked, drivable, invulnerable, immortal, doors, windows, damage = { body = {30 cells}, glass, lights, tires, detachedParts, destroyed, exploded }, performance? }`.\n\n**Deliberately not where the car was standing.** Position, heading, velocity, occupants, routing bucket and revision are not properties of the car, and a table that carried them would tempt a caller into teleporting by accident; `setTransform` and `setBucket` still own those.\n\n**What Cyberpunk does not have is the real story here.** Vehicle visual customisation on build 2.31 is one struct, `GenericTemplatePersistentData` -- primary RGB, secondary RGB and a lights hue -- plus the entity appearance variant. There are no mod slots, no wheel types, no neon, no window tint and no numbered extras: not unimplemented, absent, with no RTTI type for any of them. `Open77.vehicles.unsupportedProperties` names every FiveM property that therefore has no counterpart, and `setProperties` refuses such a key by name rather than dropping it.",
+  "description": "Requires `world.vehicles`. Answers one plain table -- strings, numbers, booleans and tables, so it survives `json.encode` and a database column unchanged -- or `nil, \"vehicle_not_found\"`. This is the Cyberpunk counterpart of the `GetVehicleProperties` helper every FiveM framework ships, and `setProperties` is its other half: **`setProperties(id, getProperties(id))` leaves the vehicle observably unchanged**, and the same table applied to a fresh vehicle of the same record reproduces it.\n\nThe shape is `{ version = 1, record, appearance, paint = { applied, primary = {r,g,b}, secondary = {r,g,b}, lightsHue? }, health, engineOn, lights = \"off\"|\"on\"|\"high\", siren, locked, drivable, invulnerable, immortal, doors, windows, damage = { body = {30 cells}, glass, lights, tires, detachedParts, destroyed, exploded }, performance? }`.\n\n**Deliberately not where the car was standing.** Position, heading, velocity, occupants, routing bucket and revision are not properties of the car, and a table that carried them would tempt a caller into teleporting by accident; `setTransform` and `setBucket` still own those.\n\n**What Cyberpunk does not have is the real story here.** Vehicle visual customisation on build 2.31 is one struct, `GenericTemplatePersistentData` -- primary RGB, secondary RGB and a lights hue -- plus the entity appearance variant. There are no mod slots, no wheel types, no neon, no window tint and no numbered extras: not unimplemented, absent, with no RTTI type for any of them. `Open77.vehicles.unsupportedProperties` names every FiveM property that therefore has no counterpart, and `setProperties` refuses such a key by name rather than dropping it. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.",
   "params": [
    {
     "name": "id",
@@ -60341,7 +60341,7 @@
   "name": "setEngine",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Starts or stops a vehicle's engine.",
-  "description": "Requires `world.vehicles`. Writes only the `engineOn` bit and leaves every other durable flag exactly as it was, which `Open77.vehicles.update` cannot do without a read-modify-write of the whole bitfield. The server retains a ten-second hold against conflicting owner reports, releasing each held bit when the owner reports the requested value. Separately, VehicleState carries an explicit electrical intent revision, mask and value: even a same-value setter is a new command, while ordinary owner-report echoes are observations, not commands. Owners initialize canonical control once per native/authority incarnation; subsequent explicit intents accumulate by mask and failed native calls retry. Local engine/light readbacks update the owner baseline only outside buffered or unapplied intent. Revoke/park authors explicit electrical OFF; a driver exit can retain coast/contact authority and is not itself always a revoke.",
+  "description": "Requires `world.vehicles`. Updates ignition while preserving unrelated flags. Stopping ignition also cancels engineHold. The server retains a ten-second hold against conflicting owner reports, releasing each held bit when the owner reports the requested value. Separately, VehicleState carries an explicit electrical intent revision, mask and value: even a same-value setter is a new command, while ordinary owner-report echoes are observations, not commands. Owners initialize canonical control once per native/authority incarnation; subsequent explicit intents accumulate by mask and failed native calls retry. Local engine/light readbacks update the owner baseline only outside buffered or unapplied intent. Revoke/park authors explicit electrical OFF unless engineHold is enabled; a driver exit can retain coast/contact authority and is not itself always a revoke.",
   "params": [
    {
     "name": "id",
@@ -60776,7 +60776,7 @@
   "name": "setLights",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sets a vehicle's headlight mode.",
-  "description": "Requires `world.vehicles`. One call for the whole mode, because `lightsOn` and `highBeams` are NOT independent on this build: the client maps the pair to a single native LightMode and 'high beams with no side lights' is not a state REDengine can express. Accepts `\"off\"`, `\"on\"`, `\"high\"` (aliases `highBeams`, `high_beams`, `full`) or a boolean. Carries the same explicit revision/mask/value command and separate server ten-second hold as `setEngine`, including same-value commands and native-call retries.",
+  "description": "Requires `world.vehicles`. One call for the whole mode, because `lightsOn` and `highBeams` are NOT independent on this build: the client maps the pair to a single native LightMode and 'high beams with no side lights' is not a state REDengine can express. Accepts `\"off\"`, `\"on\"`, `\"high\"` (aliases `highBeams`, `high_beams`, `full`) or a boolean. Carries the same explicit revision/mask/value command and separate server ten-second hold as `setEngine`, including same-value commands and native-call retries. The Stable 147 client fixes application to the driver and late-joining observers. The setter acknowledges canonical state; native application is asynchronous. It does not start ignition.",
   "params": [
    {
     "name": "id",
@@ -61253,7 +61253,7 @@
   "name": "setProperties",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Applies a stored property table to a vehicle.",
-  "description": "Requires `world.vehicles`, plus `world.vehicles.appearance` if -- and only if -- the table CHANGES the appearance variant. Restating the variant a car already wears is free, which is what keeps the round trip working for a resource that never changes a look.\n\n**`version` decides how absence is read, and it is the only thing that does.** A table carrying `version = 1` -- which is every table `getProperties` hands back -- is a COMPLETE description, so an absent optional field means \"this car has none\": no lights hue, no performance ceiling. A table without `version` is a PATCH, so an absent field is left exactly as it was, and `setProperties(id, { paint = { primary = \"#FF0000\" } })` is a repaint and nothing else.\n\n**A property with no Cyberpunk counterpart is refused by name**, as `unsupported_property:modEngine` or `unsupported_property:paint.neonColor` -- the offending key alphabetically first, so the refusal is reproducible whatever `pairs` decides that run. Pass `{ ignoreUnsupported = true }` to skip them instead, in which case the third return value lists what was skipped. Refusing is deliberate: a garage that silently loses two thirds of its table is worse than one that fails loudly on day one. `Open77.vehicles.unsupportedProperties` maps every such name to the reason.\n\n`record` is checked, never applied: REDengine cannot change a spawned entity's record, so a Quadra table handed to a Thorton answers `record_mismatch` rather than half-restoring. Detached parts are one-way on a live projection, so a table asking for fewer than the car has already lost answers `detached_parts_not_reattachable`; respawn and apply the table to the new car.\n\n**The order of application is deliberate.** Health, paint, doors, windows and the durable damage go in ONE `update`, so no viewer ever sees a half-restored car. The electrical bits then go through `setEngine`, `setLights`, `setSiren` and `setDrivable`, because those are what record the server intent that stops the physics owner's next durable report from undoing them -- writing them as raw flags would look like it worked and quietly revert about half a second later. The visual template and the performance ceiling follow on their own durable channels.",
+  "description": "Requires `world.vehicles`, plus `world.vehicles.appearance` if -- and only if -- the table CHANGES the appearance variant. Restating the variant a car already wears is free, which is what keeps the round trip working for a resource that never changes a look.\n\n**`version` decides how absence is read, and it is the only thing that does.** A table carrying `version = 1` -- which is every table `getProperties` hands back -- is a COMPLETE description, so an absent optional field means \"this car has none\": no lights hue, no performance ceiling. A table without `version` is a PATCH, so an absent field is left exactly as it was, and `setProperties(id, { paint = { primary = \"#FF0000\" } })` is a repaint and nothing else.\n\n**A property with no Cyberpunk counterpart is refused by name**, as `unsupported_property:modEngine` or `unsupported_property:paint.neonColor` -- the offending key alphabetically first, so the refusal is reproducible whatever `pairs` decides that run. Pass `{ ignoreUnsupported = true }` to skip them instead, in which case the third return value lists what was skipped. Refusing is deliberate: a garage that silently loses two thirds of its table is worse than one that fails loudly on day one. `Open77.vehicles.unsupportedProperties` maps every such name to the reason.\n\n`record` is checked, never applied: REDengine cannot change a spawned entity's record, so a Quadra table handed to a Thorton answers `record_mismatch` rather than half-restoring. Detached parts are one-way on a live projection, so a table asking for fewer than the car has already lost answers `detached_parts_not_reattachable`; respawn and apply the table to the new car.\n\n**The order of application is deliberate.** Health, paint, doors, windows and the durable damage go in ONE `update`, so no viewer ever sees a half-restored car. The electrical bits then go through `setEngine`, `setLights`, `setSiren` and `setDrivable`, because those are what record the server intent that stops the physics owner's next durable report from undoing them -- writing them as raw flags would look like it worked and quietly revert about half a second later. The visual template and the performance ceiling follow on their own durable channels. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.",
   "params": [
    {
     "name": "id",
@@ -65653,5 +65653,517 @@
   "constant": false,
   "qualified": "Open77.vehicles.setLaunchVelocity",
   "route_id": "server:Open77.vehicles.setLaunchVelocity"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setEngineHold",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Keep an empty vehicle engine running on every client.",
+  "description": "Requires matching Stable 147 client/server (protocol 1.48). Enabling starts ignition. The hold survives driver exit, parking, owner changes and stream-in. Clearing it keeps current ignition; setEngine(id, false), zero health, destruction or undriveable state cancel it. No restart timer is needed. getProperties/setProperties include engineHold. See [Vehicles](vehicles.md#keep-an-empty-vehicle-running).",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "hold",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true on success, otherwise false",
+   "reason on failure"
+  ],
+  "api_set": "server",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Vehicles.cs",
+  "example": "local ok, reason = Open77.vehicles.setEngineHold(vehicleId, true)",
+  "inferred": false,
+  "source_line": 806,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.147",
+  "constant": false,
+  "qualified": "Open77.vehicles.setEngineHold",
+  "route_id": "server:Open77.vehicles.setEngineHold"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "isEngineHeld",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Read the canonical engine-hold flag.",
+  "description": "Returns the server-owned hold, default false, rather than native ignition readiness. Requires world.vehicles and Stable 147 or later. An unknown vehicle returns nil, vehicle_not_found.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean, or nil",
+   "reason on failure"
+  ],
+  "api_set": "server",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Vehicles.cs",
+  "example": "local held, reason = Open77.vehicles.isEngineHeld(vehicleId)",
+  "inferred": false,
+  "source_line": 810,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.147",
+  "constant": false,
+  "qualified": "Open77.vehicles.isEngineHeld",
+  "route_id": "server:Open77.vehicles.isEngineHeld"
+ },
+ {
+  "namespace": "Open77.puppets",
+  "name": "createLocal",
+  "handler": "LuaPuppetsCreateLocal",
+  "summary": "Create a local character-selection mannequin.",
+  "description": "Requires puppets.present and a loaded world. options contains body={family,groups}, position={x,y,z}, optional equipment and yaw in degrees (default 0). Keep face morphs in the captured body. The encoded options must fit in 8 KiB. Creation returns a resource-owned preview handle immediately; poll getLocal for readiness. Limits: 32 per resource, 128 per client, 30-second preparation timeout. Previews are local, idle and removed on resource stop/reload or world teardown. See [Character previews](character-previews.md).",
+  "params": [
+   {
+    "name": "options",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "integer preview handle, or nil",
+   "reason on failure"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local preview, reason = Open77.puppets.createLocal({\n    body = savedLook.body, equipment = savedLook.equipment,\n    position = { x = -699, y = 2164, z = 53.1 }, yaw = 90,\n})",
+  "inferred": false,
+  "source_line": 17283,
+  "permissions": [
+   "puppets.present"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.147",
+  "constant": false,
+  "qualified": "Open77.puppets.createLocal",
+  "route_id": "Open77.puppets.createLocal"
+ },
+ {
+  "namespace": "Open77.puppets",
+  "name": "getLocal",
+  "handler": "LuaPuppetsGetLocal",
+  "summary": "Read a local mannequin preparation state.",
+  "description": "Requires puppets.present. Accepts a preview handle owned by this resource generation, not a player ID or server NPC ID. Returns id, entity, ready, status and reason. status is spawning, preparing, ready or failed. Use entity for camera/scene integration only after ready is true. See [Character previews](character-previews.md).",
+  "params": [
+   {
+    "name": "handle",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "table, or nil",
+   "reason on failure"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local state, reason = Open77.puppets.getLocal(preview)\nif state and state.ready then print(state.entity) end",
+  "inferred": false,
+  "source_line": 17320,
+  "permissions": [
+   "puppets.present"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.147",
+  "constant": false,
+  "qualified": "Open77.puppets.getLocal",
+  "route_id": "Open77.puppets.getLocal"
+ },
+ {
+  "namespace": "Open77.puppets",
+  "name": "removeLocal",
+  "handler": "LuaPuppetsRemoveLocal",
+  "summary": "Remove a local mannequin or cancel its pending spawn.",
+  "description": "Requires puppets.present and a handle owned by this resource generation. Remove the old preview before changing a selection, outfit or placement. Resource stop/reload and world teardown also clean up previews. Unknown and foreign handles are refused. See [Character previews](character-previews.md).",
+  "params": [
+   {
+    "name": "handle",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean removed",
+   "reason on failure"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local removed, reason = Open77.puppets.removeLocal(preview)",
+  "inferred": false,
+  "source_line": 17340,
+  "permissions": [
+   "puppets.present"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.147",
+  "constant": false,
+  "qualified": "Open77.puppets.removeLocal",
+  "route_id": "Open77.puppets.removeLocal"
+ },
+ {
+  "namespace": "Open77.npcs",
+  "name": "setBody",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Replace a player-shaped NPC body.",
+  "description": "Requires world.npcs and a body snapshot from appearance.captureBody. Replaces the complete body while preserving other loadout fields. The body family must match the NPC template; recreate the NPC to change family. Unrelated Character records cannot project player body groups. NPC ownership and the complete loadout 8 KiB limit apply. See [Character previews](character-previews.md#networked-npc).",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "body",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean accepted",
+   "reason on failure"
+  ],
+  "api_set": "server",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, reason = Open77.npcs.setBody(npcId, savedLook.body)",
+  "inferred": false,
+  "source_line": 9465,
+  "permissions": [
+   "world.npcs"
+  ],
+  "reasons": [
+   "npc_body_invalid",
+   "npc_body_record_mismatch"
+  ],
+  "since": "2.31.21+op77.147",
+  "constant": false,
+  "qualified": "Open77.npcs.setBody",
+  "route_id": "server:Open77.npcs.setBody"
+ },
+ {
+  "namespace": "Open77.npcs",
+  "name": "getBody",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Read the stored player body of an NPC.",
+  "description": "Requires world.npcs. Returns the stored body snapshot or nil when the NPC is unknown, owned by another resource, or has no player body. This describes canonical data, not native rendering readiness. See [Character previews](character-previews.md#networked-npc).",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "table body, or nil"
+  ],
+  "api_set": "server",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local body = Open77.npcs.getBody(npcId)",
+  "inferred": false,
+  "source_line": 9469,
+  "permissions": [
+   "world.npcs"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.147",
+  "constant": false,
+  "qualified": "Open77.npcs.getBody",
+  "route_id": "server:Open77.npcs.getBody"
+ },
+ {
+  "namespace": "Open77.locomotion",
+  "name": "register",
+  "handler": "LuaLocomotionRegister",
+  "summary": "Register a custom locomotion package.",
+  "description": "Requires locomotion.register. Reads a version 1 package metadata file relative to this resource. The shared registration script runs on both runtimes. The client validates the graph and mounted native assets; registration does not assign a style. Stable 147 supports 1,024 registered packages across resources/reload generations; existing standalone packages stay compatible. See [Custom locomotion](custom-locomotion.md#registration).",
+  "params": [
+   {
+    "name": "path",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "style ID string, or nil",
+   "reason on failure"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "scripting/src/LocomotionBindings.inl",
+  "example": "local style, reason = Open77.locomotion.register('package.json')",
+  "inferred": false,
+  "source_line": 160,
+  "permissions": [
+   "locomotion.register"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.145",
+  "constant": false,
+  "qualified": "Open77.locomotion.register",
+  "route_id": "Open77.locomotion.register"
+ },
+ {
+  "namespace": "Open77.locomotion",
+  "name": "register",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Register a custom locomotion package.",
+  "description": "Requires locomotion.register. Reads a version 1 package metadata file relative to this resource. The shared registration script runs on both runtimes. The client validates the graph and mounted native assets; registration does not assign a style. Stable 147 supports 1,024 registered packages across resources/reload generations; existing standalone packages stay compatible. See [Custom locomotion](custom-locomotion.md#registration).",
+  "params": [
+   {
+    "name": "path",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "style ID string, or nil",
+   "reason on failure"
+  ],
+  "api_set": "server",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local style, reason = Open77.locomotion.register('package.json')",
+  "inferred": false,
+  "source_line": 8851,
+  "permissions": [
+   "locomotion.register"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.145",
+  "constant": false,
+  "qualified": "Open77.locomotion.register",
+  "route_id": "server:Open77.locomotion.register"
+ },
+ {
+  "namespace": "Open77.locomotion",
+  "name": "set",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Assign a registered movement style to a player.",
+  "description": "Requires an authenticated, ready, living player. options accepts durationMs (0..86400000, default 0 for no expiry) and resetOnDeath (default false). The assigning resource generation owns the selection. Repeating the same style/package/death policy renews its duration without respawning the body. Another resource cannot replace it. See [Custom locomotion](custom-locomotion.md).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "styleId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "options",
+    "type": "table",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, assignment revision on success",
+   "false, reason on failure"
+  ],
+  "api_set": "server",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, revision = Open77.locomotion.set(playerId, 'relaxed', { resetOnDeath = true })",
+  "inferred": false,
+  "source_line": 8852,
+  "permissions": [
+   "locomotion.control"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.145",
+  "constant": false,
+  "qualified": "Open77.locomotion.set",
+  "route_id": "server:Open77.locomotion.set"
+ },
+ {
+  "namespace": "Open77.locomotion",
+  "name": "get",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Read a player locomotion assignment.",
+  "description": "Returns player, style, packageRevision, revision, resetOnDeath and optional remainingMs. nil without a reason means no custom style is assigned. This reports canonical assignment, not rendered animation readiness. See [Custom locomotion](custom-locomotion.md).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "assignment table, or nil",
+   "reason on failure"
+  ],
+  "api_set": "server",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local selected, reason = Open77.locomotion.get(playerId)",
+  "inferred": false,
+  "source_line": 8853,
+  "permissions": [
+   "locomotion.read"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.145",
+  "constant": false,
+  "qualified": "Open77.locomotion.get",
+  "route_id": "server:Open77.locomotion.get"
+ },
+ {
+  "namespace": "Open77.locomotion",
+  "name": "reset",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Release this resource's locomotion assignment.",
+  "description": "The resource that selected the style owns its reset. Returns true even when there is no assignment. Resource stop, disconnect and package removal also release the selection. See [Custom locomotion](custom-locomotion.md).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true on success",
+   "false, reason on failure"
+  ],
+  "api_set": "server",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, reason = Open77.locomotion.reset(playerId)",
+  "inferred": false,
+  "source_line": 8854,
+  "permissions": [
+   "locomotion.control"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.145",
+  "constant": false,
+  "qualified": "Open77.locomotion.reset",
+  "route_id": "server:Open77.locomotion.reset"
+ },
+ {
+  "namespace": "Open77.locomotion",
+  "name": "playClip",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Play a declared clip from the selected locomotion package.",
+  "description": "The calling resource must own the selected style. The player must be ready, alive and outside a vehicle. clipId is a declared package clip, not a depot path. options accepts speed (0.25..4, default 1), blendInMs (0..2000, default 80), blendOutMs (0..2000, default 120). Playback is one-shot, without native root motion or game animation events. Late joiners receive elapsed time; finished actions do not restart. See [Custom locomotion](custom-locomotion.md).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "clipId",
+    "type": "string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "options",
+    "type": "table",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, handle on success",
+   "false, reason on failure"
+  ],
+  "api_set": "server",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, handle = Open77.locomotion.playClip(playerId, 'wave', { blendInMs = 80, blendOutMs = 120 })",
+  "inferred": false,
+  "source_line": 8855,
+  "permissions": [
+   "locomotion.control"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.145",
+  "constant": false,
+  "qualified": "Open77.locomotion.playClip",
+  "route_id": "server:Open77.locomotion.playClip"
+ },
+ {
+  "namespace": "Open77.locomotion",
+  "name": "stopClip",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Stop a locomotion clip owned by this resource.",
+  "description": "Omit handle to stop the current clip, or pass the returned handle so an old timer cannot cancel a newer action. blendOutMs is 0..2000, default 120. A stale handle returns stale_clip_handle. Returns true, revision (0 for a no-op). See [Custom locomotion](custom-locomotion.md).",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "handle",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "blendOutMs",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, revision on success",
+   "false, reason on failure"
+  ],
+  "api_set": "server",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, revision = Open77.locomotion.stopClip(playerId, handle, 120)",
+  "inferred": false,
+  "source_line": 8856,
+  "permissions": [
+   "locomotion.control"
+  ],
+  "reasons": [],
+  "since": "2.31.21+op77.145",
+  "constant": false,
+  "qualified": "Open77.locomotion.stopClip",
+  "route_id": "server:Open77.locomotion.stopClip"
  }
 ]

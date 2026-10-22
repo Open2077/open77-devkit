@@ -17481,6 +17481,29 @@
    "documented": false,
    "inCode": true,
    "lifecycle": false
+  },
+  {
+   "name": "onPlayerLocomotionChanged",
+   "sides": [
+    "server"
+   ],
+   "payload": "(playerId, styleOrNil, packageRevision, revision, reason)",
+   "guides": [
+    {
+     "file": "custom-locomotion.md",
+     "anchor": "ownership-and-change-events"
+    }
+   ],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
+     "line": 7987
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": true
   }
  ],
  "reservedPrefixes": [

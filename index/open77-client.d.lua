@@ -75,6 +75,8 @@ Open77.inspector = Open77.inspector or {}
 Open77.json = Open77.json or {}
 ---@class Open77.kvp
 Open77.kvp = Open77.kvp or {}
+---@class Open77.locomotion
+Open77.locomotion = Open77.locomotion or {}
 ---@class Open77.log
 Open77.log = Open77.log or {}
 ---@class Open77.loot
@@ -4386,6 +4388,17 @@ function Open77.kvp.setIfAbsent(key, value) end
 ---@return any reason reason
 function Open77.kvp.stats() end
 
+--- Register a custom locomotion package.
+---
+--- Requires locomotion.register. Reads a version 1 package metadata file relative to this resource. The shared registration script runs on both runtimes. The client validates the graph and mounted native assets; registration does not assign a style. Stable 147 supports 1,024 registered packages across resources/reload generations; existing standalone packages stay compatible. See [Custom locomotion](custom-locomotion.md#registration).
+---
+--- Permissions: locomotion.register
+--- Since: 2.31.21+op77.145
+---@param path string
+---@return any style style ID string, or nil
+---@return any reason reason on failure
+function Open77.locomotion.register(path) end
+
 --- Writes a debug line to this resource's client log.
 ---
 --- No permission. The line is written with the calling resource's name, so `red4ext/logs/open77-*.log` always says which resource spoke. Unlike its server namesake, the client honours the level. It takes one value, converted to text.
@@ -6312,6 +6325,39 @@ function Open77.props.unprojectAll() end
 ---@return any boolean boolean
 ---@return any reason reason
 function Open77.props.update(id, patch) end
+
+--- Create a local character-selection mannequin.
+---
+--- Requires puppets.present and a loaded world. options contains body={family,groups}, position={x,y,z}, optional equipment and yaw in degrees (default 0). Keep face morphs in the captured body. The encoded options must fit in 8 KiB. Creation returns a resource-owned preview handle immediately; poll getLocal for readiness. Limits: 32 per resource, 128 per client, 30-second preparation timeout. Previews are local, idle and removed on resource stop/reload or world teardown. See [Character previews](character-previews.md).
+---
+--- Permissions: puppets.present
+--- Since: 2.31.21+op77.147
+---@param options table
+---@return any integer integer preview handle, or nil
+---@return any reason reason on failure
+function Open77.puppets.createLocal(options) end
+
+--- Read a local mannequin preparation state.
+---
+--- Requires puppets.present. Accepts a preview handle owned by this resource generation, not a player ID or server NPC ID. Returns id, entity, ready, status and reason. status is spawning, preparing, ready or failed. Use entity for camera/scene integration only after ready is true. See [Character previews](character-previews.md).
+---
+--- Permissions: puppets.present
+--- Since: 2.31.21+op77.147
+---@param handle integer
+---@return any table table, or nil
+---@return any reason reason on failure
+function Open77.puppets.getLocal(handle) end
+
+--- Remove a local mannequin or cancel its pending spawn.
+---
+--- Requires puppets.present and a handle owned by this resource generation. Remove the old preview before changing a selection, outfit or placement. Resource stop/reload and world teardown also clean up previews. Unknown and foreign handles are refused. See [Character previews](character-previews.md).
+---
+--- Permissions: puppets.present
+--- Since: 2.31.21+op77.147
+---@param handle integer
+---@return any boolean boolean removed
+---@return any reason reason on failure
+function Open77.puppets.removeLocal(handle) end
 
 --- Project a captured body onto a network player proxy.
 ---

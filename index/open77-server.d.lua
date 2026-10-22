@@ -69,6 +69,8 @@ Open77.interest = Open77.interest or {}
 Open77.io = Open77.io or {}
 ---@class Open77.kvp
 Open77.kvp = Open77.kvp or {}
+---@class Open77.locomotion
+Open77.locomotion = Open77.locomotion or {}
 ---@class Open77.log
 Open77.log = Open77.log or {}
 ---@class Open77.loot
@@ -5141,6 +5143,78 @@ function Open77.kvp.setIfAbsent(key, value) end
 ---@return any reason reason
 function Open77.kvp.stats() end
 
+--- Read a player locomotion assignment.
+---
+--- Returns player, style, packageRevision, revision, resetOnDeath and optional remainingMs. nil without a reason means no custom style is assigned. This reports canonical assignment, not rendered animation readiness. See [Custom locomotion](custom-locomotion.md).
+---
+--- Permissions: locomotion.read
+--- Since: 2.31.21+op77.145
+---@param playerId integer
+---@return any assignment assignment table, or nil
+---@return any reason reason on failure
+function Open77.locomotion.get(playerId) end
+
+--- Play a declared clip from the selected locomotion package.
+---
+--- The calling resource must own the selected style. The player must be ready, alive and outside a vehicle. clipId is a declared package clip, not a depot path. options accepts speed (0.25..4, default 1), blendInMs (0..2000, default 80), blendOutMs (0..2000, default 120). Playback is one-shot, without native root motion or game animation events. Late joiners receive elapsed time; finished actions do not restart. See [Custom locomotion](custom-locomotion.md).
+---
+--- Permissions: locomotion.control
+--- Since: 2.31.21+op77.145
+---@param playerId integer
+---@param clipId string
+---@param options? table
+---@return any true true, handle on success
+---@return any false false, reason on failure
+function Open77.locomotion.playClip(playerId, clipId, options) end
+
+--- Register a custom locomotion package.
+---
+--- Requires locomotion.register. Reads a version 1 package metadata file relative to this resource. The shared registration script runs on both runtimes. The client validates the graph and mounted native assets; registration does not assign a style. Stable 147 supports 1,024 registered packages across resources/reload generations; existing standalone packages stay compatible. See [Custom locomotion](custom-locomotion.md#registration).
+---
+--- Permissions: locomotion.register
+--- Since: 2.31.21+op77.145
+---@param path string
+---@return any style style ID string, or nil
+---@return any reason reason on failure
+function Open77.locomotion.register(path) end
+
+--- Release this resource's locomotion assignment.
+---
+--- The resource that selected the style owns its reset. Returns true even when there is no assignment. Resource stop, disconnect and package removal also release the selection. See [Custom locomotion](custom-locomotion.md).
+---
+--- Permissions: locomotion.control
+--- Since: 2.31.21+op77.145
+---@param playerId integer
+---@return any true true on success
+---@return any false false, reason on failure
+function Open77.locomotion.reset(playerId) end
+
+--- Assign a registered movement style to a player.
+---
+--- Requires an authenticated, ready, living player. options accepts durationMs (0..86400000, default 0 for no expiry) and resetOnDeath (default false). The assigning resource generation owns the selection. Repeating the same style/package/death policy renews its duration without respawning the body. Another resource cannot replace it. See [Custom locomotion](custom-locomotion.md).
+---
+--- Permissions: locomotion.control
+--- Since: 2.31.21+op77.145
+---@param playerId integer
+---@param styleId string
+---@param options? table
+---@return any true true, assignment revision on success
+---@return any false false, reason on failure
+function Open77.locomotion.set(playerId, styleId, options) end
+
+--- Stop a locomotion clip owned by this resource.
+---
+--- Omit handle to stop the current clip, or pass the returned handle so an old timer cannot cancel a newer action. blendOutMs is 0..2000, default 120. A stale handle returns stale_clip_handle. Returns true, revision (0 for a no-op). See [Custom locomotion](custom-locomotion.md).
+---
+--- Permissions: locomotion.control
+--- Since: 2.31.21+op77.145
+---@param playerId integer
+---@param handle? integer
+---@param blendOutMs? integer
+---@return any true true, revision on success
+---@return any false false, reason on failure
+function Open77.locomotion.stopClip(playerId, handle, blendOutMs) end
+
 --- Writes a resource-prefixed debug line to the server log.
 ---
 --- No permission. Writes to the resource-prefixed server logger at the `DBG` level, which a production log filter usually drops -- the place for per-tick chatter. `Citizen.Trace` is this function. Values are joined with a tab like `print`; control sequences (ANSI colour codes, cursor moves) are stripped from the line before it reaches the log, so a ported script's coloured output cannot corrupt the terminal or the log file.
@@ -5911,7 +5985,7 @@ function Open77.npcs.capacity() end
 
 --- Creates an authoritative NPC.
 ---
---- Requires `world.npcs`. Build one from `record = "Character.*"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved`, `persistent` and `authorityPolicy`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `"invulnerable"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. `authorityPolicy` is `"nearest"` (default) or `"balanced"` (the client simulating the fewest NPCs, with a tenure-gated rebalance); anything else returns `nil, "npc_authority_policy_invalid"`. `behavior.observerReplay = true` makes clients that do not simulate the NPC replay the simulator's motion on the shared server clock. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md).
+--- Requires `world.npcs`. Build one from `record = "Character.*"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved`, `persistent` and `authorityPolicy`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `"invulnerable"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. `authorityPolicy` is `"nearest"` (default) or `"balanced"` (the client simulating the fewest NPCs, with a tenure-gated rebalance); anything else returns `nil, "npc_authority_policy_invalid"`. `behavior.observerReplay = true` makes clients that do not simulate the NPC replay the simulator's motion on the shared server clock. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md). Stable 147 also accepts body and equipment from a saved player look; body.family selects the matching Open77 player template. Do not combine it with a legacy template or an unrelated record. See [Character previews](character-previews.md).
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.45
@@ -5950,6 +6024,16 @@ function Open77.npcs.getAttitude(id) end
 ---@param id integer
 ---@return any table table behavior, or nil
 function Open77.npcs.getBehavior(id) end
+
+--- Read the stored player body of an NPC.
+---
+--- Requires world.npcs. Returns the stored body snapshot or nil when the NPC is unknown, owned by another resource, or has no player body. This describes canonical data, not native rendering readiness. See [Character previews](character-previews.md#networked-npc).
+---
+--- Permissions: world.npcs
+--- Since: 2.31.21+op77.147
+---@param id integer
+---@return any table table body, or nil
+function Open77.npcs.getBody(id) end
 
 --- The clothing set an owned NPC is dressed in, slot to record.
 ---
@@ -6100,6 +6184,19 @@ function Open77.npcs.setAttitude(id, attitude, options) end
 ---@return any boolean boolean success, optional string reason
 function Open77.npcs.setBehavior(id, behavior) end
 
+--- Replace a player-shaped NPC body.
+---
+--- Requires world.npcs and a body snapshot from appearance.captureBody. Replaces the complete body while preserving other loadout fields. The body family must match the NPC template; recreate the NPC to change family. Unrelated Character records cannot project player body groups. NPC ownership and the complete loadout 8 KiB limit apply. See [Character previews](character-previews.md#networked-npc).
+---
+--- Permissions: world.npcs
+--- Since: 2.31.21+op77.147
+--- Reasons: npc_body_invalid, npc_body_record_mismatch
+---@param id integer
+---@param body table
+---@return any boolean boolean accepted
+---@return any reason reason on failure
+function Open77.npcs.setBody(id, body) end
+
 --- Moves an NPC to another routing bucket.
 ---
 --- Requires `world.npcs`. Changes who can see it: only players in the same bucket stream the NPC.
@@ -6176,7 +6273,7 @@ function Open77.npcs.setHealth(id, health, maxHealth) end
 
 --- Convenience patch for an NPC's loadout.
 ---
---- Requires `world.npcs`. Exactly `update(id, { loadout = loadout })`.
+--- Requires `world.npcs`. Exactly `update(id, { loadout = loadout })`. Stable 147 supports player body snapshots in the NPC loadout. update(id, {body=...}) replaces the body while retaining other loadout data. Weapon-only loadout changes preserve the body and equipment. The complete loadout remains limited to 8 KiB. See [Character previews](character-previews.md#networked-npc).
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.45
@@ -6283,7 +6380,7 @@ function Open77.npcs.templates() end
 
 --- Patches an NPC's canonical state.
 ---
---- Requires `world.npcs`. Sparse: appearance, loadout, behavior, AI mode, damage policy, health and ragdoll can all be patched in one call, and everything omitted is left alone. The convenience setters below are thin wrappers over this.
+--- Requires `world.npcs`. Sparse: appearance, loadout, behavior, AI mode, damage policy, health and ragdoll can all be patched in one call, and everything omitted is left alone. The convenience setters below are thin wrappers over this. Stable 147 supports player body snapshots in the NPC loadout. update(id, {body=...}) replaces the body while retaining other loadout data. Weapon-only loadout changes preserve the body and equipment. The complete loadout remains limited to 8 KiB. See [Character previews](character-previews.md#networked-npc).
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.45
@@ -9123,7 +9220,7 @@ function Open77.vehicles.getPosition(id) end
 ---
 --- **Deliberately not where the car was standing.** Position, heading, velocity, occupants, routing bucket and revision are not properties of the car, and a table that carried them would tempt a caller into teleporting by accident; `setTransform` and `setBucket` still own those.
 ---
---- **What Cyberpunk does not have is the real story here.** Vehicle visual customisation on build 2.31 is one struct, `GenericTemplatePersistentData` -- primary RGB, secondary RGB and a lights hue -- plus the entity appearance variant. There are no mod slots, no wheel types, no neon, no window tint and no numbered extras: not unimplemented, absent, with no RTTI type for any of them. `Open77.vehicles.unsupportedProperties` names every FiveM property that therefore has no counterpart, and `setProperties` refuses such a key by name rather than dropping it.
+--- **What Cyberpunk does not have is the real story here.** Vehicle visual customisation on build 2.31 is one struct, `GenericTemplatePersistentData` -- primary RGB, secondary RGB and a lights hue -- plus the entity appearance variant. There are no mod slots, no wheel types, no neon, no window tint and no numbered extras: not unimplemented, absent, with no RTTI type for any of them. `Open77.vehicles.unsupportedProperties` names every FiveM property that therefore has no counterpart, and `setProperties` refuses such a key by name rather than dropping it. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67
@@ -9219,6 +9316,17 @@ function Open77.vehicles.isDoorOpen(id, door) end
 ---@return any boolean boolean, or nil
 ---@return any reason reason: vehicle_not_found
 function Open77.vehicles.isDrivable(id) end
+
+--- Read the canonical engine-hold flag.
+---
+--- Returns the server-owned hold, default false, rather than native ignition readiness. Requires world.vehicles and Stable 147 or later. An unknown vehicle returns nil, vehicle_not_found.
+---
+--- Permissions: world.vehicles
+--- Since: 2.31.21+op77.147
+---@param id integer
+---@return any boolean boolean, or nil
+---@return any reason reason on failure
+function Open77.vehicles.isEngineHeld(id) end
 
 --- Whether a vehicle's engine is running.
 ---
@@ -9731,7 +9839,7 @@ function Open77.vehicles.setDrivable(id, drivable) end
 
 --- Starts or stops a vehicle's engine.
 ---
---- Requires `world.vehicles`. Writes only the `engineOn` bit and leaves every other durable flag exactly as it was, which `Open77.vehicles.update` cannot do without a read-modify-write of the whole bitfield. The server retains a ten-second hold against conflicting owner reports, releasing each held bit when the owner reports the requested value. Separately, VehicleState carries an explicit electrical intent revision, mask and value: even a same-value setter is a new command, while ordinary owner-report echoes are observations, not commands. Owners initialize canonical control once per native/authority incarnation; subsequent explicit intents accumulate by mask and failed native calls retry. Local engine/light readbacks update the owner baseline only outside buffered or unapplied intent. Revoke/park authors explicit electrical OFF; a driver exit can retain coast/contact authority and is not itself always a revoke.
+--- Requires `world.vehicles`. Updates ignition while preserving unrelated flags. Stopping ignition also cancels engineHold. The server retains a ten-second hold against conflicting owner reports, releasing each held bit when the owner reports the requested value. Separately, VehicleState carries an explicit electrical intent revision, mask and value: even a same-value setter is a new command, while ordinary owner-report echoes are observations, not commands. Owners initialize canonical control once per native/authority incarnation; subsequent explicit intents accumulate by mask and failed native calls retry. Local engine/light readbacks update the owner baseline only outside buffered or unapplied intent. Revoke/park authors explicit electrical OFF unless engineHold is enabled; a driver exit can retain coast/contact authority and is not itself always a revoke.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67
@@ -9752,6 +9860,18 @@ function Open77.vehicles.setEngine(id, on) end
 ---@return any true true, or false
 ---@return any reason reason
 function Open77.vehicles.setEngineHealth(id, health) end
+
+--- Keep an empty vehicle engine running on every client.
+---
+--- Requires matching Stable 147 client/server (protocol 1.48). Enabling starts ignition. The hold survives driver exit, parking, owner changes and stream-in. Clearing it keeps current ignition; setEngine(id, false), zero health, destruction or undriveable state cancel it. No restart timer is needed. getProperties/setProperties include engineHold. See [Vehicles](vehicles.md#keep-an-empty-vehicle-running).
+---
+--- Permissions: world.vehicles
+--- Since: 2.31.21+op77.147
+---@param id integer
+---@param hold boolean
+---@return any true true on success, otherwise false
+---@return any reason reason on failure
+function Open77.vehicles.setEngineHold(id, hold) end
 
 --- Pins a vehicle where it stands, or lets it go.
 ---
@@ -9874,7 +9994,7 @@ function Open77.vehicles.setLightMask(id, mask) end
 
 --- Sets a vehicle's headlight mode.
 ---
---- Requires `world.vehicles`. One call for the whole mode, because `lightsOn` and `highBeams` are NOT independent on this build: the client maps the pair to a single native LightMode and 'high beams with no side lights' is not a state REDengine can express. Accepts `"off"`, `"on"`, `"high"` (aliases `highBeams`, `high_beams`, `full`) or a boolean. Carries the same explicit revision/mask/value command and separate server ten-second hold as `setEngine`, including same-value commands and native-call retries.
+--- Requires `world.vehicles`. One call for the whole mode, because `lightsOn` and `highBeams` are NOT independent on this build: the client maps the pair to a single native LightMode and 'high beams with no side lights' is not a state REDengine can express. Accepts `"off"`, `"on"`, `"high"` (aliases `highBeams`, `high_beams`, `full`) or a boolean. Carries the same explicit revision/mask/value command and separate server ten-second hold as `setEngine`, including same-value commands and native-call retries. The Stable 147 client fixes application to the driver and late-joining observers. The setter acknowledges canonical state; native application is asynchronous. It does not start ignition.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67
@@ -10035,7 +10155,7 @@ function Open77.vehicles.setPlayerIntoVehicle(playerId, vehicleId, seat, options
 ---
 --- `record` is checked, never applied: REDengine cannot change a spawned entity's record, so a Quadra table handed to a Thorton answers `record_mismatch` rather than half-restoring. Detached parts are one-way on a live projection, so a table asking for fewer than the car has already lost answers `detached_parts_not_reattachable`; respawn and apply the table to the new car.
 ---
---- **The order of application is deliberate.** Health, paint, doors, windows and the durable damage go in ONE `update`, so no viewer ever sees a half-restored car. The electrical bits then go through `setEngine`, `setLights`, `setSiren` and `setDrivable`, because those are what record the server intent that stops the physics owner's next durable report from undoing them -- writing them as raw flags would look like it worked and quietly revert about half a second later. The visual template and the performance ceiling follow on their own durable channels.
+--- **The order of application is deliberate.** Health, paint, doors, windows and the durable damage go in ONE `update`, so no viewer ever sees a half-restored car. The electrical bits then go through `setEngine`, `setLights`, `setSiren` and `setDrivable`, because those are what record the server intent that stops the physics owner's next durable report from undoing them -- writing them as raw flags would look like it worked and quietly revert about half a second later. The visual template and the performance ceiling follow on their own durable channels. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67

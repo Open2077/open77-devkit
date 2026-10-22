@@ -4066,9 +4066,14 @@
    "natives": [
     "Open77.puppets.setBody",
     "Open77.puppets.setSlot",
-    "Open77.puppets.setWardrobe"
+    "Open77.puppets.setWardrobe",
+    "Open77.puppets.createLocal",
+    "Open77.puppets.getLocal",
+    "Open77.puppets.removeLocal"
    ],
-   "guides": [],
+   "guides": [
+    "character-previews.md"
+   ],
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
@@ -5728,10 +5733,13 @@
     "server:SetNpcGroup",
     "server:SetNpcRelationship",
     "server:SetNpcTransform",
-    "server:UpdateNpc"
+    "server:UpdateNpc",
+    "server:Open77.npcs.getBody",
+    "server:Open77.npcs.setBody"
    ],
    "guides": [
-    "npcs.md"
+    "npcs.md",
+    "character-previews.md"
    ],
    "sources": [
     {
@@ -6357,7 +6365,9 @@
     "server:SetVehicleTransform",
     "server:TriggerVehicleHorn",
     "server:UpdateVehicleState",
-    "server:VehicleDrivingCommand"
+    "server:VehicleDrivingCommand",
+    "server:Open77.vehicles.isEngineHeld",
+    "server:Open77.vehicles.setEngineHold"
    ],
    "guides": [
     "armed-vehicles.md",
@@ -6365,7 +6375,8 @@
     "vehicle-ai.md",
     "vehicle-paint.md",
     "vehicle-seat-switching.md",
-    "vehicles.md"
+    "vehicles.md",
+    "vehicle-sirens.md"
    ],
    "sources": [
     {
@@ -6610,6 +6621,81 @@
     {
      "file": "scripting/src/ResourceHost.cpp",
      "line": 7111
+    }
+   ]
+  },
+  {
+   "name": "locomotion.control",
+   "runtimes": [
+    "server"
+   ],
+   "scoped": false,
+   "prefix": null,
+   "summary": "Assign, reset and play clips on resource-owned player locomotion styles.",
+   "curated": true,
+   "natives": [
+    "server:Open77.locomotion.set",
+    "server:Open77.locomotion.reset",
+    "server:Open77.locomotion.playClip",
+    "server:Open77.locomotion.stopClip"
+   ],
+   "guides": [
+    "custom-locomotion.md"
+   ],
+   "sources": [
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Locomotion.cs",
+     "line": 55
+    }
+   ]
+  },
+  {
+   "name": "locomotion.read",
+   "runtimes": [
+    "server"
+   ],
+   "scoped": false,
+   "prefix": null,
+   "summary": "Read server locomotion assignments.",
+   "curated": true,
+   "natives": [
+    "server:Open77.locomotion.get"
+   ],
+   "guides": [
+    "custom-locomotion.md"
+   ],
+   "sources": [
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Locomotion.cs",
+     "line": 113
+    }
+   ]
+  },
+  {
+   "name": "locomotion.register",
+   "runtimes": [
+    "client",
+    "server"
+   ],
+   "scoped": false,
+   "prefix": null,
+   "summary": "Register custom locomotion package data.",
+   "curated": true,
+   "natives": [
+    "Open77.locomotion.register",
+    "server:Open77.locomotion.register"
+   ],
+   "guides": [
+    "custom-locomotion.md"
+   ],
+   "sources": [
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Locomotion.cs",
+     "line": 14
+    },
+    {
+     "file": "scripting/src/LocomotionBindings.inl",
+     "line": 164
     }
    ]
   }
