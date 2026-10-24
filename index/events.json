@@ -15613,6 +15613,10 @@
     {
      "file": "weapons-api.md",
      "anchor": "how-the-cache-is-fed"
+    },
+    {
+     "file": "dual-wielding.md",
+     "anchor": "equip-a-pair-on-the-client"
     }
    ],
    "sources": [
@@ -15896,11 +15900,15 @@
    "sides": [
     "resource-client"
    ],
-   "payload": null,
+   "payload": "(requestId, slot, record, tweakDbId, active, drawn, locked, ammoRecord, ammoTweakDbId, ammoTotal, ammoReserve, magazine, capacity, reloading)",
    "guides": [
     {
      "file": "weapons-api.md",
      "anchor": "client-permissions-and-methods"
+    },
+    {
+     "file": "dual-wielding.md",
+     "anchor": "ammunition-and-hud"
     }
    ],
    "sources": [

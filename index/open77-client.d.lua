@@ -2820,6 +2820,28 @@ function Open77.cyberware.configureLegs(request, staminaManaged, maxAirborneMs, 
 ---@return any nil nil, reason on rejection
 function Open77.cyberware.configureLocal(request, options) end
 
+--- List Cyberpunk 2077 2.5 cosmetic cyberware styles and palettes.
+---
+--- Requires player.cyberware.read. Reads usable UIGlamdocCustomizationItem records from the installed TweakDB, including modded records. Entries contain record, type, brand, index, longSleevesIndex, defaultPrimary, defaultSecondary and five RGB colors. Lua palette array positions 1–5 correspond to setter indices 0–4. No menu is opened and no implant is granted. Requires Stable 152 or later on Cyberpunk 2077 2.5. See [Cyberware styles and colors](cyberware-customization.md).
+---
+--- Permissions: player.cyberware.read
+--- Since: 2.50.0+op77.152
+--- Reasons: permission_denied:player.cyberware.read, invalid_customization_request, customization_backend_unavailable, customization_unavailable, invalid_customization_state
+---@return any array array of style tables
+---@return any nil nil, reason on failure
+function Open77.cyberware.customizationCatalog() end
+
+--- Read the local cosmetic cyberware style as a restorable snapshot.
+---
+--- Requires player.cyberware.read and a loaded character. Returns schemaVersion=1, enabled, record, primary and secondary; colors are explicit sRGB {r,g,b} bytes. Pass the table to setCustomization to restore it. Persistence belongs to the server's character system. This is local native state, not a remote-player replication API. Requires Stable 152 or later on Cyberpunk 2077 2.5. See [Cyberware styles and colors](cyberware-customization.md).
+---
+--- Permissions: player.cyberware.read
+--- Since: 2.50.0+op77.152
+--- Reasons: permission_denied:player.cyberware.read, invalid_customization_request, customization_backend_unavailable, customization_adapter_missing, invalid_customization_state, body_not_ready
+---@return any snapshot snapshot table
+---@return any nil nil, reason on failure
+function Open77.cyberware.getCustomization() end
+
 --- Hold the server's double-jump activation lease on the local body.
 ---
 --- Requires player.cyberware.project and a running resource. Trusted projection primitive used by the shipped open77_cyberware client: with a lease held, a second-jump press is spent locally and the jump happens on the frame the player pressed; the server is told afterwards and reconciles at the stamp. lease is the server's lease id, epoch its uint32 epoch, budget the activations it allows (1-64) and ttlMs how much longer it is valid (1-30000) -- a remaining lifetime, never an absolute deadline, so no clock domain is mixed. Returns true when the lease is held; nil, reason otherwise (invalid_lease, cyberware_backend_unavailable). Without a lease the ask-and-wait path still runs.
@@ -2947,6 +2969,29 @@ function Open77.cyberware.releaseLegLease() end
 ---@return any true true
 ---@return any nil nil, reason on rejection
 function Open77.cyberware.releaseLegs() end
+
+--- Restore the native cyberware style from before this resource's override.
+---
+--- Requires player.cyberware.project. Only the resource that owns the customization can reset it. Restores both the prior model and colors and releases ownership. Resource stop performs the same cleanup. A reconnect or body load requires the character resource to reapply its saved customization. Requires Stable 152 or later on Cyberpunk 2077 2.5. See [Cyberware styles and colors](cyberware-customization.md). Model changes/restoration wait until cyberarms or fists are holstered and their attachment is ready; colors on an existing customized model update immediately.
+---
+--- Permissions: player.cyberware.project
+--- Since: 2.50.0+op77.152
+--- Reasons: permission_denied:player.cyberware.project, invalid_customization_request, customization_backend_unavailable, resource_not_running, customization_owned, customization_reset_failed, body_not_ready
+---@return any true true on restoration
+---@return any nil nil, reason on failure
+function Open77.cyberware.resetCustomization() end
+
+--- Apply a local cosmetic cyberware model and two colors without native UI.
+---
+--- Requires player.cyberware.project and a loaded character. options.record is a catalog record ID or TweakDB record name. primary and secondary independently accept a palette index 0–4 or integer sRGB {r,g,b} channels 0–255; omitted colors use the style defaults. enabled defaults to true; {enabled=false} clears the model selector and tint. Cosmetic changes grant no implant powers. The resource owns its override until reset/stop; another owner receives customization_owned. true confirms native dispatch; geometry streams asynchronously. This API does not automatically replicate colors to remote players. Requires Stable 152 or later on Cyberpunk 2077 2.5. See [Cyberware styles and colors](cyberware-customization.md). Model changes/restoration wait until cyberarms or fists are holstered and their attachment is ready; colors on an existing customized model update immediately.
+---
+--- Permissions: player.cyberware.project
+--- Since: 2.50.0+op77.152
+--- Reasons: permission_denied:player.cyberware.project, invalid_customization_request, customization_backend_unavailable, resource_not_running, unsupported_customization_schema, invalid_enabled, invalid_customization_record, invalid_customization_color, customization_owned, appearance_editor_open, customization_adapter_missing, customization_apply_failed, body_not_ready
+---@param options table
+---@return any true true on application
+---@return any nil nil, reason on failure
+function Open77.cyberware.setCustomization(options) end
 
 --- Runs the resource-owned native Dash projector operation.
 ---
@@ -8348,7 +8393,7 @@ function Open77.wardrobe.outfit(index) end
 
 --- Alias of `Open77.weapons.setActive`.
 ---
---- Requires `player.weapons.edit`; see `setActive` for template placement and asynchronous completion semantics.
+--- Requires `player.weapons.edit`; see `setActive` for template placement and asynchronous completion semantics. Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.
 ---
 --- Permissions: player.weapons.edit
 --- Since: 2.31.1+op77.9
@@ -8361,7 +8406,7 @@ function Open77.weapons.activate(target, options) end
 
 --- Alias of `Open77.weapons.snapshot`.
 ---
---- Requires `player.weapons.read`; results arrive asynchronously as slot-state events followed by completion.
+--- Requires `player.weapons.read`; results arrive asynchronously as slot-state events followed by completion. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud).
 ---
 --- Permissions: player.weapons.read
 --- Since: 2.31.1+op77.9
@@ -8384,7 +8429,7 @@ function Open77.weapons.applyBlast(blast) end
 
 --- Assigns an exact TweakDB weapon template to a standard loadout slot.
 ---
---- Requires `player.weapons.edit`. `slot` is 1..3. Options are `active` (default false) and `addToInventory` (default true). The return value only confirms that the validated request was queued; listen for `open77:weapons:completed` for the state verified by REDscript.
+--- Requires `player.weapons.edit`. `slot` is 1..6. Options are `active` (default false) and `addToInventory` (default true). The return value only confirms that the validated request was queued; listen for `open77:weapons:completed` for the state verified by REDscript. Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.
 ---
 --- Permissions: player.weapons.edit
 --- Since: 2.31.1+op77.9
@@ -8482,7 +8527,7 @@ function Open77.weapons.removeComponent(slot, attachmentSlot) end
 
 --- Selects and draws a standard weapon by slot or TweakDB template.
 ---
---- Requires `player.weapons.edit`. A numeric target must already contain a weapon. A template target reuses an assigned instance or equips it first; options accept fallback `slot` 1..3 and `addToInventory` (default true). Completion is asynchronous through `open77:weapons:completed`.
+--- Requires `player.weapons.edit`. A numeric target must already contain a weapon. A template target reuses an assigned instance or equips it first; options accept fallback `slot` 1..6 and `addToInventory` (default true). Completion is asynchronous through `open77:weapons:completed`. Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.
 ---
 --- Permissions: player.weapons.edit
 --- Since: 2.31.1+op77.9
@@ -8495,7 +8540,7 @@ function Open77.weapons.setActive(target, options) end
 
 --- Sets exact spare and/or loaded ammunition for a weapon slot.
 ---
---- Requires `player.weapons.edit`. `amounts` accepts integer `reserve` and `magazine` counts plus optional `activate`. At least one count is required; omitted counts are preserved. The operation verifies the shared ammo total, spare reserve, magazine, and live capacity asynchronously through `open77:weapons:completed`.
+--- Requires `player.weapons.edit`. `amounts` accepts integer `reserve` and `magazine` counts plus optional `activate`. At least one count is required; omitted counts are preserved. The operation verifies the shared ammo total, spare reserve, magazine, and live capacity asynchronously through `open77:weapons:completed`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently.
 ---
 --- Permissions: player.weapons.edit
 --- Since: 2.31.2+op77.10
@@ -8520,6 +8565,18 @@ function Open77.weapons.setAmmo(slot, amounts) end
 ---@return any reason reason
 function Open77.weapons.setComponent(slot, part, options) end
 
+--- Enable or disable native dual wield for a player incarnation.
+---
+--- Queues native dual-wield permission for the current player incarnation. true enables the authenticated-session perk gate; false clears secondary slots 4–6 without deleting inventory items. Reapply after reconnect/body replacement. Wait for open77:weapons:completed before assigning and activating a compatible pair. Requires matching Stable 152 client/server builds and the updated bundled open77_weapons resource. See [Dual wielding](dual-wielding.md). Requires player.weapons.edit. Completion arguments are strings; accepted must equal "true".
+---
+--- Permissions: player.weapons.edit
+--- Since: 2.50.0+op77.152
+--- Reasons: expected_boolean, permission_denied:player.weapons.edit
+---@param enabled boolean
+---@return any request request id, or nil
+---@return any reason reason
+function Open77.weapons.setDualWieldAllowed(enabled) end
+
 --- Configures a resource-owned tuning profile for the local held weapon.
 ---
 --- Requires a compatible development client exposing native weapon tuning with inventory-instance restoration. Client-only; requires `player.weapons.edit`. Accepts an exact `Items.*` record and a complete options table: omitted fields reset to their defaults. Supports reloadSpeed, fireRate, recoil, spread, damage, magazineCapacity, projectilesPerShot, aimSpeed, chargeSpeed, smartProjectileSpeed and the blastRadius/blastPush/blastLift/blastFalloff/blastCooldown weapon-impact controls. Unknown keys, nonnumeric or nonfinite values and out-of-range multipliers are refused. Returns true when accepted, or nil/reason; read tuning() to distinguish active, waiting_for_weapon and waiting_for_restore. Only one resource owns tuning at a time; another receives weapon_tuning_owned_by_another_resource. Does not equip a weapon, rewrite shared TweakDB records, change projectile types or override server damage policy. Supported inputs are bound-weapon entity hits, actual native impact positions from GameEffectExecutor_StimOnHit, and tracked-projectile collision/explosion callbacks. No synthetic crosshair raycast is substituted. Bare-terrain Comrade coverage remains unverified; generic hitscan ground detection and grenades without the bound weapon object are not promised. Vehicle impulses require a streamed, unfrozen vehicle whose current physics owner is this client. The local open77:weaponBlast(owner,record,sequence,x,y,z) event uses string arguments after cooldown acceptance; it grants no network character authority. Resources request character launches separately through server policy. Smart projectile speed applies only to smart weapons. Clearing, switching or stopping the resource removes its own modifiers, with deferred restoration when the engine temporarily retires a holstered weapon's stats.
@@ -8533,20 +8590,20 @@ function Open77.weapons.setComponent(slot, part, options) end
 ---@return any reason reason on failure
 function Open77.weapons.setTuning(record, options) end
 
---- Lists the three supported standard weapon slots.
+--- Lists the six supported standard weapon slots.
 ---
---- Requires `player.weapons.read`. Slot numbers are one-based and deliberately exclude QuickSlot grenades, WeaponHeavy items, and ArmsCW cyberware.
+--- Requires `player.weapons.read`. Slot numbers are one-based and deliberately exclude QuickSlot grenades, WeaponHeavy items, and ArmsCW cyberware. Since Stable 152 on game 2.5, slots 1–3 are primary and 4–6 are their respective secondary partners. See [Dual wielding](dual-wielding.md).
 ---
 --- Permissions: player.weapons.read
 --- Since: 2.31.1+op77.9
 --- Reasons: permission_denied:player.weapons.read
----@return any { 1, 2, 3 }, or nil
+---@return any { 1, 2, 3, 4, 5, 6 }, or nil
 ---@return any reason reason
 function Open77.weapons.slots() end
 
 --- Requests the verified state of every standard weapon slot.
 ---
---- Requires `player.weapons.read`. Emits one `open77:weapons:state` event per available slot and then `open77:weapons:completed`. TweakDB IDs remain opaque hexadecimal strings and are the presence authority; `record` may be empty for items equipped outside this API because shipping builds do not retain every reverse TweakDB name.
+--- Requires `player.weapons.read`. Emits one `open77:weapons:state` event per available slot and then `open77:weapons:completed`. TweakDB IDs remain opaque hexadecimal strings and are the presence authority; `record` may be empty for items equipped outside this API because shipping builds do not retain every reverse TweakDB name. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud).
 ---
 --- Permissions: player.weapons.read
 --- Since: 2.31.1+op77.9

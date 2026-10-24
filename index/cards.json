@@ -25377,11 +25377,11 @@
   "name": "activate",
   "handler": "LuaWeaponSetActive",
   "summary": "Alias of `Open77.weapons.setActive`.",
-  "description": "Requires `player.weapons.edit`; see `setActive` for template placement and asynchronous completion semantics.",
+  "description": "Requires `player.weapons.edit`; see `setActive` for template placement and asynchronous completion semantics. Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.",
   "params": [
    {
     "name": "target",
-    "type": "integer 1..3|string",
+    "type": "integer 1..6|string",
     "optional": false,
     "default": null
    },
@@ -25422,7 +25422,7 @@
   "name": "all",
   "handler": "LuaWeaponSnapshot",
   "summary": "Alias of `Open77.weapons.snapshot`.",
-  "description": "Requires `player.weapons.read`; results arrive asynchronously as slot-state events followed by completion.",
+  "description": "Requires `player.weapons.read`; results arrive asynchronously as slot-state events followed by completion. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud).",
   "params": [],
   "returns": [
    "request id, or nil",
@@ -25488,7 +25488,7 @@
   "name": "assign",
   "handler": "LuaWeaponAssign",
   "summary": "Assigns an exact TweakDB weapon template to a standard loadout slot.",
-  "description": "Requires `player.weapons.edit`. `slot` is 1..3. Options are `active` (default false) and `addToInventory` (default true). The return value only confirms that the validated request was queued; listen for `open77:weapons:completed` for the state verified by REDscript.",
+  "description": "Requires `player.weapons.edit`. `slot` is 1..6. Options are `active` (default false) and `addToInventory` (default true). The return value only confirms that the validated request was queued; listen for `open77:weapons:completed` for the state verified by REDscript. Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.",
   "params": [
    {
     "name": "record",
@@ -25498,7 +25498,7 @@
    },
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    },
@@ -25571,7 +25571,7 @@
   "params": [
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    }
@@ -25716,7 +25716,7 @@
   "params": [
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    }
@@ -25752,7 +25752,7 @@
   "params": [
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    },
@@ -25792,11 +25792,11 @@
   "name": "setActive",
   "handler": "LuaWeaponSetActive",
   "summary": "Selects and draws a standard weapon by slot or TweakDB template.",
-  "description": "Requires `player.weapons.edit`. A numeric target must already contain a weapon. A template target reuses an assigned instance or equips it first; options accept fallback `slot` 1..3 and `addToInventory` (default true). Completion is asynchronous through `open77:weapons:completed`.",
+  "description": "Requires `player.weapons.edit`. A numeric target must already contain a weapon. A template target reuses an assigned instance or equips it first; options accept fallback `slot` 1..6 and `addToInventory` (default true). Completion is asynchronous through `open77:weapons:completed`. Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.",
   "params": [
    {
     "name": "target",
-    "type": "integer 1..3|string",
+    "type": "integer 1..6|string",
     "optional": false,
     "default": null
    },
@@ -25837,11 +25837,11 @@
   "name": "setAmmo",
   "handler": "LuaWeaponSetAmmo",
   "summary": "Sets exact spare and/or loaded ammunition for a weapon slot.",
-  "description": "Requires `player.weapons.edit`. `amounts` accepts integer `reserve` and `magazine` counts plus optional `activate`. At least one count is required; omitted counts are preserved. The operation verifies the shared ammo total, spare reserve, magazine, and live capacity asynchronously through `open77:weapons:completed`.",
+  "description": "Requires `player.weapons.edit`. `amounts` accepts integer `reserve` and `magazine` counts plus optional `activate`. At least one count is required; omitted counts are preserved. The operation verifies the shared ammo total, spare reserve, magazine, and live capacity asynchronously through `open77:weapons:completed`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently.",
   "params": [
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    },
@@ -25884,7 +25884,7 @@
   "params": [
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    },
@@ -25975,11 +25975,11 @@
   "namespace": "Open77.weapons",
   "name": "slots",
   "handler": "LuaWeaponSlots",
-  "summary": "Lists the three supported standard weapon slots.",
-  "description": "Requires `player.weapons.read`. Slot numbers are one-based and deliberately exclude QuickSlot grenades, WeaponHeavy items, and ArmsCW cyberware.",
+  "summary": "Lists the six supported standard weapon slots.",
+  "description": "Requires `player.weapons.read`. Slot numbers are one-based and deliberately exclude QuickSlot grenades, WeaponHeavy items, and ArmsCW cyberware. Since Stable 152 on game 2.5, slots 1–3 are primary and 4–6 are their respective secondary partners. See [Dual wielding](dual-wielding.md).",
   "params": [],
   "returns": [
-   "{ 1, 2, 3 }, or nil",
+   "{ 1, 2, 3, 4, 5, 6 }, or nil",
    "reason"
   ],
   "api_set": "game",
@@ -26004,7 +26004,7 @@
   "name": "snapshot",
   "handler": "LuaWeaponSnapshot",
   "summary": "Requests the verified state of every standard weapon slot.",
-  "description": "Requires `player.weapons.read`. Emits one `open77:weapons:state` event per available slot and then `open77:weapons:completed`. TweakDB IDs remain opaque hexadecimal strings and are the presence authority; `record` may be empty for items equipped outside this API because shipping builds do not retain every reverse TweakDB name.",
+  "description": "Requires `player.weapons.read`. Emits one `open77:weapons:state` event per available slot and then `open77:weapons:completed`. TweakDB IDs remain opaque hexadecimal strings and are the presence authority; `record` may be empty for items equipped outside this API because shipping builds do not retain every reverse TweakDB name. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud).",
   "params": [],
   "returns": [
    "request id, or nil",
@@ -26111,7 +26111,7 @@
   "params": [
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    }
@@ -63396,7 +63396,7 @@
   "name": "activate",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Alias of `Open77.weapons.setActive`.",
-  "description": "Asynchronous. The same function under a second name; it accepts both the slot and the record form.",
+  "description": "Asynchronous. The same function under a second name; it accepts both the slot and the record form. Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.",
   "params": [
    {
     "name": "playerId",
@@ -63449,8 +63449,8 @@
   "namespace": "Open77.weapons",
   "name": "assign",
   "handler": "LuaResourceRuntime.Bootstrap",
-  "summary": "Assigns a weapon record to one of a player's three slots.",
-  "description": "Asynchronous. The calling resource declares `network.events` and depends on `open77_weapons >=0.1.0`; the request is relayed to the official `open77_weapons` client package. `slot` is an integer 1 to 3 and `record` is at most 160 characters. Listen for `open77:weapons:completed` with `playerId, requestId, operation, accepted, reason, result`; replies are matched to the authenticated target and the calling resource, and an unanswered request completes with `request_timeout` after ten seconds. See [Weapon Lua API](weapons-api.md).",
+  "summary": "Assigns a weapon record to one of a player's six slots.",
+  "description": "Asynchronous. The calling resource declares `network.events` and depends on `open77_weapons >=0.1.0`; the request is relayed to the official `open77_weapons` client package. `slot` is an integer 1 to 6 and `record` is at most 160 characters. Listen for `open77:weapons:completed` with `playerId, requestId, operation, accepted, reason, result`; replies are matched to the authenticated target and the calling resource, and an unanswered request completes with `request_timeout` after ten seconds. See [Weapon Lua API](weapons-api.md). Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.",
   "params": [
    {
     "name": "playerId",
@@ -63466,7 +63466,7 @@
    },
    {
     "name": "slot",
-    "type": "integer (1..3)",
+    "type": "integer (1..6)",
     "optional": false,
     "default": null
    },
@@ -63509,7 +63509,7 @@
   "name": "clear",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Empties all three of a player's weapon slots in one request.",
-  "description": "Asynchronous, like every other weapon mutation; the FiveM `RemoveAllPedWeapons` equivalent. One relay message rather than three `remove` calls: the owner runs the three native removals itself and answers once, so there is one request id to correlate instead of three and no way to end up half-cleared because one leg was refused. A slot that was already empty is **not** a failure and does not make `accepted` false. The completion's `result` carries `cleared` and a `slots` array of `{ slot, accepted, reason }`. Requires `network.events` and a dependency on `open77_weapons >=0.1.0`. See [Weapon Lua API](weapons-api.md).",
+  "description": "Asynchronous. Removes all six weapon slots through one owner relay request, secondary slots before primary slots to avoid native promotion leaving a weapon equipped. Already-empty slots are successful. The completion result carries cleared and a slots array of {slot, accepted, reason}; inspect each result for a partial failure. Requires network.events and the open77_weapons resource bundled with Stable 152 or later. See [Dual wielding](dual-wielding.md).",
   "params": [
    {
     "name": "playerId",
@@ -63557,7 +63557,7 @@
    },
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    }
@@ -63766,7 +63766,7 @@
   "name": "remove",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Empties one of a player's three weapon slots.",
-  "description": "Asynchronous, same relay and completion contract as `assign`. `slot` is an integer 1 to 3.",
+  "description": "Asynchronous, same relay and completion contract as `assign`. `slot` is an integer 1 to 6.",
   "params": [
    {
     "name": "playerId",
@@ -63776,7 +63776,7 @@
    },
    {
     "name": "slot",
-    "type": "integer (1..3)",
+    "type": "integer (1..6)",
     "optional": false,
     "default": null
    }
@@ -63821,7 +63821,7 @@
    },
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    },
@@ -63873,7 +63873,7 @@
    },
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    }
@@ -63984,7 +63984,7 @@
   "name": "setActive",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Draws a weapon, by slot or by record.",
-  "description": "Asynchronous, same relay and completion contract as `assign`. Two forms: a slot number 1 to 3, which takes no options, or a record string with optional options. Passing options with a slot is refused, because the two forms mean different things.",
+  "description": "Asynchronous, same relay and completion contract as `assign`. Two forms: a slot number 1 to 6, which takes no options, or a record string with optional options. Passing options with a slot is refused, because the two forms mean different things. Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.",
   "params": [
    {
     "name": "playerId",
@@ -64038,7 +64038,7 @@
   "name": "setAmmo",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sets a slot's magazine and reserve ammunition.",
-  "description": "Asynchronous, same relay and completion contract as `assign`. `amounts` takes `reserve` and `magazine` -- at least one is required, each a non-negative integer up to 1,000,000 -- plus an optional boolean `activate`.",
+  "description": "Asynchronous, same relay and completion contract as `assign`. `amounts` takes `reserve` and `magazine` -- at least one is required, each a non-negative integer up to 1,000,000 -- plus an optional boolean `activate`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently.",
   "params": [
    {
     "name": "playerId",
@@ -64048,7 +64048,7 @@
    },
    {
     "name": "slot",
-    "type": "integer (1..3)",
+    "type": "integer (1..6)",
     "optional": false,
     "default": null
    },
@@ -64100,7 +64100,7 @@
    },
    {
     "name": "slot",
-    "type": "integer 1..3",
+    "type": "integer 1..6",
     "optional": false,
     "default": null
    },
@@ -64212,7 +64212,7 @@
    },
    {
     "name": "slot",
-    "type": "integer (1..3)",
+    "type": "integer (1..6)",
     "optional": false,
     "default": null
    }
@@ -66165,5 +66165,229 @@
   "constant": false,
   "qualified": "Open77.locomotion.stopClip",
   "route_id": "server:Open77.locomotion.stopClip"
+ },
+ {
+  "namespace": "Open77.cyberware",
+  "name": "customizationCatalog",
+  "handler": "LuaCyberwareCustomizationCatalog",
+  "summary": "List Cyberpunk 2077 2.5 cosmetic cyberware styles and palettes.",
+  "description": "Requires player.cyberware.read. Reads usable UIGlamdocCustomizationItem records from the installed TweakDB, including modded records. Entries contain record, type, brand, index, longSleevesIndex, defaultPrimary, defaultSecondary and five RGB colors. Lua palette array positions 1–5 correspond to setter indices 0–4. No menu is opened and no implant is granted. Requires Stable 152 or later on Cyberpunk 2077 2.5. See [Cyberware styles and colors](cyberware-customization.md).",
+  "params": [],
+  "returns": [
+   "array of style tables",
+   "nil, reason on failure"
+  ],
+  "example": "local styles, reason = Open77.cyberware.customizationCatalog()\nif not styles then print(reason); return end\nfor _, style in ipairs(styles) do print(style.record, style.type) end",
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "inferred": false,
+  "source_line": 25778,
+  "permissions": [
+   "player.cyberware.read"
+  ],
+  "reasons": [
+   "permission_denied:player.cyberware.read",
+   "invalid_customization_request",
+   "customization_backend_unavailable",
+   "customization_unavailable",
+   "invalid_customization_state"
+  ],
+  "since": "2.50.0+op77.152",
+  "constant": false,
+  "qualified": "Open77.cyberware.customizationCatalog",
+  "route_id": "Open77.cyberware.customizationCatalog"
+ },
+ {
+  "namespace": "Open77.cyberware",
+  "name": "getCustomization",
+  "handler": "LuaCyberwareGetCustomization",
+  "summary": "Read the local cosmetic cyberware style as a restorable snapshot.",
+  "description": "Requires player.cyberware.read and a loaded character. Returns schemaVersion=1, enabled, record, primary and secondary; colors are explicit sRGB {r,g,b} bytes. Pass the table to setCustomization to restore it. Persistence belongs to the server's character system. This is local native state, not a remote-player replication API. Requires Stable 152 or later on Cyberpunk 2077 2.5. See [Cyberware styles and colors](cyberware-customization.md).",
+  "params": [],
+  "returns": [
+   "snapshot table",
+   "nil, reason on failure"
+  ],
+  "example": "local style, reason = Open77.cyberware.getCustomization()\nif style then print(style.record, style.enabled) else print(reason) end",
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "inferred": false,
+  "source_line": 25779,
+  "permissions": [
+   "player.cyberware.read"
+  ],
+  "reasons": [
+   "permission_denied:player.cyberware.read",
+   "invalid_customization_request",
+   "customization_backend_unavailable",
+   "customization_adapter_missing",
+   "invalid_customization_state",
+   "body_not_ready"
+  ],
+  "since": "2.50.0+op77.152",
+  "constant": false,
+  "qualified": "Open77.cyberware.getCustomization",
+  "route_id": "Open77.cyberware.getCustomization"
+ },
+ {
+  "namespace": "Open77.cyberware",
+  "name": "setCustomization",
+  "handler": "LuaCyberwareSetCustomization",
+  "summary": "Apply a local cosmetic cyberware model and two colors without native UI.",
+  "description": "Requires player.cyberware.project and a loaded character. options.record is a catalog record ID or TweakDB record name. primary and secondary independently accept a palette index 0–4 or integer sRGB {r,g,b} channels 0–255; omitted colors use the style defaults. enabled defaults to true; {enabled=false} clears the model selector and tint. Cosmetic changes grant no implant powers. The resource owns its override until reset/stop; another owner receives customization_owned. true confirms native dispatch; geometry streams asynchronously. This API does not automatically replicate colors to remote players. Requires Stable 152 or later on Cyberpunk 2077 2.5. See [Cyberware styles and colors](cyberware-customization.md). Model changes/restoration wait until cyberarms or fists are holstered and their attachment is ready; colors on an existing customized model update immediately.",
+  "params": [
+   {
+    "name": "options",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true on application",
+   "nil, reason on failure"
+  ],
+  "example": "local styles = assert(Open77.cyberware.customizationCatalog())\nif styles[1] then\n    assert(Open77.cyberware.setCustomization({record=styles[1].record, primary=0, secondary={r=20,g=150,b=240}}))\nend",
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "inferred": false,
+  "source_line": 25780,
+  "permissions": [
+   "player.cyberware.project"
+  ],
+  "reasons": [
+   "permission_denied:player.cyberware.project",
+   "invalid_customization_request",
+   "customization_backend_unavailable",
+   "resource_not_running",
+   "unsupported_customization_schema",
+   "invalid_enabled",
+   "invalid_customization_record",
+   "invalid_customization_color",
+   "customization_owned",
+   "appearance_editor_open",
+   "customization_adapter_missing",
+   "customization_apply_failed",
+   "body_not_ready"
+  ],
+  "since": "2.50.0+op77.152",
+  "constant": false,
+  "qualified": "Open77.cyberware.setCustomization",
+  "route_id": "Open77.cyberware.setCustomization"
+ },
+ {
+  "namespace": "Open77.cyberware",
+  "name": "resetCustomization",
+  "handler": "LuaCyberwareResetCustomization",
+  "summary": "Restore the native cyberware style from before this resource's override.",
+  "description": "Requires player.cyberware.project. Only the resource that owns the customization can reset it. Restores both the prior model and colors and releases ownership. Resource stop performs the same cleanup. A reconnect or body load requires the character resource to reapply its saved customization. Requires Stable 152 or later on Cyberpunk 2077 2.5. See [Cyberware styles and colors](cyberware-customization.md). Model changes/restoration wait until cyberarms or fists are holstered and their attachment is ready; colors on an existing customized model update immediately.",
+  "params": [],
+  "returns": [
+   "true on restoration",
+   "nil, reason on failure"
+  ],
+  "example": "local ok, reason = Open77.cyberware.resetCustomization()\nif not ok then print(reason) end",
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "inferred": false,
+  "source_line": 25781,
+  "permissions": [
+   "player.cyberware.project"
+  ],
+  "reasons": [
+   "permission_denied:player.cyberware.project",
+   "invalid_customization_request",
+   "customization_backend_unavailable",
+   "resource_not_running",
+   "customization_owned",
+   "customization_reset_failed",
+   "body_not_ready"
+  ],
+  "since": "2.50.0+op77.152",
+  "constant": false,
+  "qualified": "Open77.cyberware.resetCustomization",
+  "route_id": "Open77.cyberware.resetCustomization"
+ },
+ {
+  "namespace": "Open77.weapons",
+  "name": "setDualWieldAllowed",
+  "handler": "LuaWeaponSetDualWieldAllowed",
+  "summary": "Enable or disable native dual wield for a player incarnation.",
+  "description": "Queues native dual-wield permission for the current player incarnation. true enables the authenticated-session perk gate; false clears secondary slots 4–6 without deleting inventory items. Reapply after reconnect/body replacement. Wait for open77:weapons:completed before assigning and activating a compatible pair. Requires matching Stable 152 client/server builds and the updated bundled open77_weapons resource. See [Dual wielding](dual-wielding.md). Requires player.weapons.edit. Completion arguments are strings; accepted must equal \"true\".",
+  "params": [
+   {
+    "name": "enabled",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "request id, or nil",
+   "reason"
+  ],
+  "example": "local requestId, reason = Open77.weapons.setDualWieldAllowed(true)\nif not requestId then print(reason); return end\n-- Await open77:weapons:completed before assigning the two weapons.",
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "inferred": false,
+  "source_line": 25902,
+  "permissions": [
+   "player.weapons.edit"
+  ],
+  "reasons": [
+   "expected_boolean",
+   "permission_denied:player.weapons.edit"
+  ],
+  "since": "2.50.0+op77.152",
+  "constant": false,
+  "qualified": "Open77.weapons.setDualWieldAllowed",
+  "route_id": "Open77.weapons.setDualWieldAllowed"
+ },
+ {
+  "namespace": "Open77.weapons",
+  "name": "setDualWieldAllowed",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Enable or disable native dual wield for a player incarnation.",
+  "description": "Queues native dual-wield permission for the current player incarnation. true enables the authenticated-session perk gate; false clears secondary slots 4–6 without deleting inventory items. Reapply after reconnect/body replacement. Wait for open77:weapons:completed before assigning and activating a compatible pair. Requires matching Stable 152 client/server builds and the updated bundled open77_weapons resource. See [Dual wielding](dual-wielding.md). Server resources need network.events and dependency open77_weapons >=0.1.0. Completion is (playerId, requestId, operation, accepted, reason, result), with boolean accepted.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer|string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "enabled",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "request id, or nil",
+   "reason"
+  ],
+  "example": "local requestId, reason = Open77.weapons.setDualWieldAllowed(playerId, true)\nif not requestId then print(reason); return end\n-- Await open77:weapons:completed before assigning the two weapons.",
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "inferred": false,
+  "source_line": 8443,
+  "permissions": [
+   "network.events"
+  ],
+  "reasons": [
+   "expected_boolean",
+   "permission_denied:network.events"
+  ],
+  "since": "2.50.0+op77.152",
+  "constant": false,
+  "qualified": "Open77.weapons.setDualWieldAllowed",
+  "route_id": "server:Open77.weapons.setDualWieldAllowed"
  }
 ]

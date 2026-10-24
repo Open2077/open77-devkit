@@ -1134,7 +1134,7 @@
     "client",
     "server"
    ],
-   "summary": "Enforced by the client and server; gates 69 natives in Open77.appearance, Open77.callbacks, Open77.clothing, Open77.consumables, Open77.heldItems, Open77.net, Open77.notifications, Open77.perspective, Open77.sound, Open77.state, Open77.weapons, _G.",
+   "summary": "Enforced by the client and server; gates 70 natives in Open77.appearance, Open77.callbacks, Open77.clothing, Open77.consumables, Open77.heldItems, Open77.net, Open77.notifications, Open77.perspective, Open77.sound, Open77.state, Open77.weapons, _G.",
    "curated": false,
    "natives": [
     "Open77.net.call",
@@ -1201,6 +1201,7 @@
     "server:Open77.weapons.setActive",
     "server:Open77.weapons.setAmmo",
     "server:Open77.weapons.setComponent",
+    "server:Open77.weapons.setDualWieldAllowed",
     "server:Open77.weapons.takeGadget",
     "server:Open77.weapons.unequip",
     "server:RegisterNetEvent",
@@ -1208,13 +1209,14 @@
     "server:TriggerLatentClientEvent"
    ],
    "guides": [
+    "README.md",
     "callbacks.md",
+    "dual-wielding.md",
     "interactions.md",
     "local-puppet-visibility.md",
     "loot.md",
     "native-map.md",
     "polyzone.md",
-    "README.md",
     "server-api.md",
     "server-resources.md",
     "ui-kit.md",
@@ -1620,7 +1622,7 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 13 natives in Open77.cyberware.",
+   "summary": "Enforced by the client; gates 15 natives in Open77.cyberware.",
    "curated": false,
    "natives": [
     "Open77.cyberware.approveLegJump",
@@ -1635,9 +1637,13 @@
     "Open77.cyberware.projectLocal",
     "Open77.cyberware.refreshLegLease",
     "Open77.cyberware.releaseLegLease",
-    "Open77.cyberware.releaseLegs"
+    "Open77.cyberware.releaseLegs",
+    "Open77.cyberware.resetCustomization",
+    "Open77.cyberware.setCustomization"
    ],
-   "guides": [],
+   "guides": [
+    "cyberware-customization.md"
+   ],
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
@@ -1726,15 +1732,19 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 4 natives in Open77.appearance, Open77.cyberware.",
+   "summary": "Enforced by the client; gates 6 natives in Open77.appearance, Open77.cyberware.",
    "curated": false,
    "natives": [
     "Open77.appearance.captureBody",
     "Open77.cyberware.attackState",
     "Open77.cyberware.captureArms",
+    "Open77.cyberware.customizationCatalog",
+    "Open77.cyberware.getCustomization",
     "Open77.cyberware.legsActivity"
    ],
-   "guides": [],
+   "guides": [
+    "cyberware-customization.md"
+   ],
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
@@ -2284,7 +2294,7 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 21 natives in Open77.consumables, Open77.weapons.",
+   "summary": "Enforced by the client; gates 22 natives in Open77.consumables, Open77.weapons.",
    "curated": false,
    "natives": [
     "Open77.consumables.configure",
@@ -2305,11 +2315,14 @@
     "Open77.weapons.setActive",
     "Open77.weapons.setAmmo",
     "Open77.weapons.setComponent",
+    "Open77.weapons.setDualWieldAllowed",
     "Open77.weapons.setTuning",
     "Open77.weapons.takeGadget",
     "Open77.weapons.unequip"
    ],
-   "guides": [],
+   "guides": [
+    "dual-wielding.md"
+   ],
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",

@@ -10653,7 +10653,7 @@ function Open77.voice.updateChannel(channelId, patch) end
 
 --- Alias of `Open77.weapons.setActive`.
 ---
---- Asynchronous. The same function under a second name; it accepts both the slot and the record form.
+--- Asynchronous. The same function under a second name; it accepts both the slot and the record form. Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
@@ -10665,9 +10665,9 @@ function Open77.voice.updateChannel(channelId, patch) end
 ---@return any reason reason
 function Open77.weapons.activate(playerId, target, options) end
 
---- Assigns a weapon record to one of a player's three slots.
+--- Assigns a weapon record to one of a player's six slots.
 ---
---- Asynchronous. The calling resource declares `network.events` and depends on `open77_weapons >=0.1.0`; the request is relayed to the official `open77_weapons` client package. `slot` is an integer 1 to 3 and `record` is at most 160 characters. Listen for `open77:weapons:completed` with `playerId, requestId, operation, accepted, reason, result`; replies are matched to the authenticated target and the calling resource, and an unanswered request completes with `request_timeout` after ten seconds. See [Weapon Lua API](weapons-api.md).
+--- Asynchronous. The calling resource declares `network.events` and depends on `open77_weapons >=0.1.0`; the request is relayed to the official `open77_weapons` client package. `slot` is an integer 1 to 6 and `record` is at most 160 characters. Listen for `open77:weapons:completed` with `playerId, requestId, operation, accepted, reason, result`; replies are matched to the authenticated target and the calling resource, and an unanswered request completes with `request_timeout` after ten seconds. See [Weapon Lua API](weapons-api.md). Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
@@ -10682,7 +10682,7 @@ function Open77.weapons.assign(playerId, record, slot, options) end
 
 --- Empties all three of a player's weapon slots in one request.
 ---
---- Asynchronous, like every other weapon mutation; the FiveM `RemoveAllPedWeapons` equivalent. One relay message rather than three `remove` calls: the owner runs the three native removals itself and answers once, so there is one request id to correlate instead of three and no way to end up half-cleared because one leg was refused. A slot that was already empty is **not** a failure and does not make `accepted` false. The completion's `result` carries `cleared` and a `slots` array of `{ slot, accepted, reason }`. Requires `network.events` and a dependency on `open77_weapons >=0.1.0`. See [Weapon Lua API](weapons-api.md).
+--- Asynchronous. Removes all six weapon slots through one owner relay request, secondary slots before primary slots to avoid native promotion leaving a weapon equipped. Already-empty slots are successful. The completion result carries cleared and a slots array of {slot, accepted, reason}; inspect each result for a partial failure. Requires network.events and the open77_weapons resource bundled with Stable 152 or later. See [Dual wielding](dual-wielding.md).
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.67
@@ -10758,7 +10758,7 @@ function Open77.weapons.holster(playerId) end
 
 --- Empties one of a player's three weapon slots.
 ---
---- Asynchronous, same relay and completion contract as `assign`. `slot` is an integer 1 to 3.
+--- Asynchronous, same relay and completion contract as `assign`. `slot` is an integer 1 to 6.
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
@@ -10822,7 +10822,7 @@ function Open77.weapons.requestSnapshot(playerId) end
 
 --- Draws a weapon, by slot or by record.
 ---
---- Asynchronous, same relay and completion contract as `assign`. Two forms: a slot number 1 to 3, which takes no options, or a record string with optional options. Passing options with a slot is refused, because the two forms mean different things.
+--- Asynchronous, same relay and completion contract as `assign`. Two forms: a slot number 1 to 6, which takes no options, or a record string with optional options. Passing options with a slot is refused, because the two forms mean different things. Secondary slots 4–6 require a compatible enabled dual-wield pair on Stable 152 or later; await completion between policy, assignments and activation.
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
@@ -10836,7 +10836,7 @@ function Open77.weapons.setActive(playerId, target, options) end
 
 --- Sets a slot's magazine and reserve ammunition.
 ---
---- Asynchronous, same relay and completion contract as `assign`. `amounts` takes `reserve` and `magazine` -- at least one is required, each a non-negative integer up to 1,000,000 -- plus an optional boolean `activate`.
+--- Asynchronous, same relay and completion contract as `assign`. `amounts` takes `reserve` and `magazine` -- at least one is required, each a non-negative integer up to 1,000,000 -- plus an optional boolean `activate`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently.
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45
@@ -10862,6 +10862,19 @@ function Open77.weapons.setAmmo(playerId, slot, amounts) end
 ---@return any requestId requestId, or nil
 ---@return any reason reason
 function Open77.weapons.setComponent(playerId, slot, record, options) end
+
+--- Enable or disable native dual wield for a player incarnation.
+---
+--- Queues native dual-wield permission for the current player incarnation. true enables the authenticated-session perk gate; false clears secondary slots 4–6 without deleting inventory items. Reapply after reconnect/body replacement. Wait for open77:weapons:completed before assigning and activating a compatible pair. Requires matching Stable 152 client/server builds and the updated bundled open77_weapons resource. See [Dual wielding](dual-wielding.md). Server resources need network.events and dependency open77_weapons >=0.1.0. Completion is (playerId, requestId, operation, accepted, reason, result), with boolean accepted.
+---
+--- Permissions: network.events
+--- Since: 2.50.0+op77.152
+--- Reasons: expected_boolean, permission_denied:network.events
+---@param playerId any
+---@param enabled boolean
+---@return any request request id, or nil
+---@return any reason reason
+function Open77.weapons.setDualWieldAllowed(playerId, enabled) end
 
 --- Takes grenades back from a player: some units of a record, or every unit of the active gadget.
 ---
