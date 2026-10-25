@@ -5985,7 +5985,7 @@ function Open77.npcs.capacity() end
 
 --- Creates an authoritative NPC.
 ---
---- Requires `world.npcs`. Build one from `record = "Character.*"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved`, `persistent` and `authorityPolicy`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `"invulnerable"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. `authorityPolicy` is `"nearest"` (default) or `"balanced"` (the client simulating the fewest NPCs, with a tenure-gated rebalance); anything else returns `nil, "npc_authority_policy_invalid"`. `behavior.observerReplay = true` makes clients that do not simulate the NPC replay the simulator's motion on the shared server clock. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md). Stable 147 also accepts body and equipment from a saved player look; body.family selects the matching Open77 player template. Do not combine it with a legacy template or an unrelated record. See [Character previews](character-previews.md).
+--- Requires `world.npcs`. Build one from `record = "Character.*"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved`, `persistent` and `authorityPolicy`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `"invulnerable"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. `authorityPolicy` is `"nearest"` (default) or `"balanced"` (the client simulating the fewest NPCs, with a tenure-gated rebalance); anything else returns `nil, "npc_authority_policy_invalid"`. `behavior.observerReplay = true` makes clients that do not simulate the NPC replay the simulator's motion on the shared server clock. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md). Stable 147 also accepts body and equipment from a saved player look; body.family selects the matching Open77 player template. Do not combine it with a legacy template or an unrelated record. See [Character previews](character-previews.md). Stable 156 snapshots include armor. Server create accepts armor (default 0), update preserves it when omitted; finite 0..100000 points absorb canonical damage before health. Matching protocol 1.50 is required. See [NPC armor](/docs/npcs#armor).
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.45
@@ -5997,13 +5997,23 @@ function Open77.npcs.create(def) end
 
 --- Reads one NPC's canonical snapshot.
 ---
---- Requires `world.npcs`. Answers `nil` for an unknown id. The snapshot is the server's record, so it is available before the body has streamed to anyone.
+--- Requires `world.npcs`. Answers `nil` for an unknown id. The snapshot is the server's record, so it is available before the body has streamed to anyone. Stable 156 snapshots include armor. Server create accepts armor (default 0), update preserves it when omitted; finite 0..100000 points absorb canonical damage before health. Matching protocol 1.50 is required. See [NPC armor](/docs/npcs#armor).
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.45
 ---@param id any
 ---@return any NPC NPC snapshot, or nil
 function Open77.npcs.get(id) end
+
+--- Reads an owned NPC's armor points.
+---
+--- Requires `world.npcs` and resource ownership. Returns the canonical armor value, or nil for an unavailable/unowned NPC. On the client use `Open77.npcs.get(id).armor` with `npcs.read`. See [NPC armor](/docs/npcs#armor).
+---
+--- Permissions: world.npcs
+--- Since: 2.50.0+op77.156
+---@param npcId integer
+---@return any number number, or nil
+function Open77.npcs.getArmor(npcId) end
 
 --- Reads back every attitude row an NPC states.
 ---
@@ -6157,6 +6167,19 @@ function Open77.npcs.setAiMode(id, mode) end
 ---@return any boolean boolean
 ---@return any reason reason
 function Open77.npcs.setAppearance(id, appearance) end
+
+--- Sets an owned NPC's armor points.
+---
+--- Requires `world.npcs` and ownership of the NPC. Sets finite armor points from 0 to 100000; equivalent to `update(id, { armor = points })`. Updates omitting armor preserve it; creation defaults to zero. Canonical damage consumes armor before health, while invulnerability preserves both. Damage event amounts remain health damage, including zero for an entirely absorbed hit. Armor is replicated to current observers and late joiners with protocol 1.50. See [NPC armor](/docs/npcs#armor).
+---
+--- Permissions: world.npcs
+--- Since: 2.50.0+op77.156
+--- Reasons: invalid_npc_armor
+---@param npcId integer
+---@param points number
+---@return any boolean boolean
+---@return any reason reason
+function Open77.npcs.setArmor(npcId, points) end
 
 --- Makes an NPC hostile, neutral or friendly toward a target.
 ---
@@ -6380,7 +6403,7 @@ function Open77.npcs.templates() end
 
 --- Patches an NPC's canonical state.
 ---
---- Requires `world.npcs`. Sparse: appearance, loadout, behavior, AI mode, damage policy, health and ragdoll can all be patched in one call, and everything omitted is left alone. The convenience setters below are thin wrappers over this. Stable 147 supports player body snapshots in the NPC loadout. update(id, {body=...}) replaces the body while retaining other loadout data. Weapon-only loadout changes preserve the body and equipment. The complete loadout remains limited to 8 KiB. See [Character previews](character-previews.md#networked-npc).
+--- Requires `world.npcs`. Sparse: appearance, loadout, behavior, AI mode, damage policy, health and ragdoll can all be patched in one call, and everything omitted is left alone. The convenience setters below are thin wrappers over this. Stable 147 supports player body snapshots in the NPC loadout. update(id, {body=...}) replaces the body while retaining other loadout data. Weapon-only loadout changes preserve the body and equipment. The complete loadout remains limited to 8 KiB. See [Character previews](character-previews.md#networked-npc). Stable 156 snapshots include armor. Server create accepts armor (default 0), update preserves it when omitted; finite 0..100000 points absorb canonical damage before health. Matching protocol 1.50 is required. See [NPC armor](/docs/npcs#armor).
 ---
 --- Permissions: world.npcs
 --- Since: 2.31.13+op77.45
@@ -6512,6 +6535,20 @@ function Open77.playerInteractions.request(actorId, targetId, kind, options) end
 ---@return any array array of player ids
 function Open77.players.all() end
 
+--- Creates or updates an experimental persistent player binding.
+---
+--- Requires `players.attachments.control`. Options: `{ parentType = "player"|"vehicle", parentId, bone?, offset?, rotation?, pose? }`. Bone defaults to the parent root. Offset axes are metres within ±1000; rotation axes are degrees within ±360. Parent/child must be ready and in the same bucket; child cannot be in a vehicle. Rejects cycles, busy participants and foreign ownership. Enforce consent and distance in your own server resource. Omit pose: its client projection is unsupported. Acceptance returns pending state, not proof of rendering; preparation times out after 15 seconds. Active bindings have no duration cap. Optional expectedRevision compares current revision, or 0 for no binding. Resource stop, disconnect, bucket/parent/incarnation changes and vehicle entry release the binding. See [persistent player attachments](/docs/player-interactions#persistent-player-attachments-experimental). Experimental: alive-player root/exported-slot following only; arbitrary skeleton bones, corpse transport and custom-bank poses are not reliable supported workflows. Requires matching protocol 1.50 and `open77_player_interactions`.
+---
+--- Permissions: players.attachments.control
+--- Since: 2.50.0+op77.156
+--- Reasons: invalid_attachment, invalid_revision, stale_revision, owned_by_another_resource, wrong_bucket, parent_unavailable, player_not_ready, player_in_vehicle, player_reserved, attachment_cycle, attachment_limit, attachment_parent_limit
+---@param playerId any
+---@param options table
+---@param expectedRevision? integer
+---@return any state state table, or nil
+---@return any reason reason
+function Open77.players.attach(playerId, options, expectedRevision) end
+
 --- Bans a player's device identity through the master and disconnects them now.
 ---
 --- Requires `players.ban`. `BanPlayer` is the same function. Resolves the authenticated device identity and submits a **server-scoped** ban to the master -- different from `Open77.access.ban`, which writes the server's own local list. `durationSeconds` must be strictly positive; omitting it bans permanently. Reasons accept up to 512 UTF-8 bytes. Central publication is best-effort and asynchronous while the local kick is queued immediately.
@@ -6562,6 +6599,19 @@ function Open77.players.closest(anchor, options) end
 ---@return any true true, or false
 ---@return any reason reason
 function Open77.players.damage(playerId, amount, options) end
+
+--- Releases this resource's persistent player binding.
+---
+--- Requires `players.attachments.control`. Optional expectedRevision rejects a stale write. Releases only the caller's binding; foreign ownership is refused. Listen for `onPlayerAttachmentChanged(state)` on the server for phase/reason changes. See [persistent player attachments](/docs/player-interactions#persistent-player-attachments-experimental). Experimental: alive-player root/exported-slot following only; arbitrary skeleton bones, corpse transport and custom-bank poses are not reliable supported workflows. Requires matching protocol 1.50 and `open77_player_interactions`.
+---
+--- Permissions: players.attachments.control
+--- Since: 2.50.0+op77.156
+--- Reasons: stale_revision, owned_by_another_resource, invalid_revision
+---@param playerId any
+---@param expectedRevision? integer
+---@return any true true, or nil
+---@return any reason reason
+function Open77.players.detach(playerId, expectedRevision) end
 
 --- Disconnects a player with a reason they see.
 ---
@@ -6666,6 +6716,17 @@ function Open77.players.forceOutOfVehicle(playerId, vehicleId) end
 ---@return any table table, or nil
 ---@return any reason reason: invalid_player_id, player_not_found, sessions_unavailable
 function Open77.players.get(playerId) end
+
+--- Reads a player's current persistent binding.
+---
+--- Requires `players.attachments.read`. May read another resource's binding. State includes epoch, revision, id, playerId, incarnation, bucket, parentType, parentId, parentIncarnation, bone, offset, rotation, pose, phase and reason. Preserve returned IDs as strings. Returns nil without a live binding, or nil and a reason on failure. See [persistent player attachments](/docs/player-interactions#persistent-player-attachments-experimental). Experimental: alive-player root/exported-slot following only; arbitrary skeleton bones, corpse transport and custom-bank poses are not reliable supported workflows. Requires matching protocol 1.50 and `open77_player_interactions`.
+---
+--- Permissions: players.attachments.read
+--- Since: 2.50.0+op77.156
+---@param playerId any
+---@return any state state table, or nil
+---@return any reason reason on failure
+function Open77.players.getAttachment(playerId) end
 
 --- Reads server-validated vehicle drive-by state.
 ---
@@ -6952,6 +7013,16 @@ function Open77.players.kill(playerId, options) end
 ---@return any table table, or nil
 ---@return any reason reason on failure
 function Open77.players.lastSeen(identifier) end
+
+--- Lists this resource's persistent player bindings.
+---
+--- Requires `players.attachments.read`. Returns only bindings owned by the calling resource, not all bindings on the server. See [persistent player attachments](/docs/player-interactions#persistent-player-attachments-experimental). Experimental: alive-player root/exported-slot following only; arbitrary skeleton bones, corpse transport and custom-bank poses are not reliable supported workflows. Requires matching protocol 1.50 and `open77_player_interactions`.
+---
+--- Permissions: players.attachments.read
+--- Since: 2.50.0+op77.156
+---@return any array array of state tables, or nil
+---@return any reason reason
+function Open77.players.listAttachments() end
 
 --- The language a player's own game runs in, as their client reported it at world-ready.
 ---
@@ -7602,7 +7673,7 @@ function Open77.props.clear() end
 
 --- Creates an authoritative, replicated world prop.
 ---
---- Requires `world.props`. This is the **server** meaning of the name: the prop is owned by the creating resource, streamed per player rather than broadcast to a bucket, and visible to everyone in range. The identically named *client* function makes a local, unreplicated decoration instead. Definitions accept `model`, `position`, `yaw`, `scale` (a number or `{ x, y, z }`), `appearance`, `bucket`, `physics` (`static`, `kinematic`, `dynamic`, `none`), `collision`, `visible`, `kind` (`prop`, `light`, `effect`), `light`, `streamingRadius` (10 to 2000, default 120), `streamingHysteresis` (default 30) and `ttlMs` (0 for no expiry, seven days maximum). The registry holds 8,192 props, of which one resource may own 2,048. Ids are decimal strings; do not pass them through `tonumber`.
+--- Requires `world.props`. This is the **server** meaning of the name: the prop is owned by the creating resource, streamed per player rather than broadcast to a bucket, and visible to everyone in range. The identically named *client* function makes a local, unreplicated decoration instead. Definitions accept `model`, `position`, `yaw`, `scale` (a number or `{ x, y, z }`), `appearance`, `bucket`, `physics` (`static`, `kinematic`, `dynamic`, `none`), `collision`, `visible`, `kind` (`prop`, `light`, `effect`), `light`, `streamingRadius` (10 to 2000, default 120), `streamingHysteresis` (default 30) and `ttlMs` (0 for no expiry, seven days maximum). The registry holds 8,192 props, of which one resource may own 2,048. Ids are decimal strings; do not pass them through `tonumber`. Stable 156 accepts raw .mesh and .ent depot paths without an alias whitelist. Every observer needs the assets and dependencies mounted. Mesh loading is asynchronous; rendered stays false until ready. Raw .ent requires kind="prop" and retains its authored graph/appearance. Visual scale does not rescale collision. Attached props are non-blocking; collision=false keeps raw decorations non-solid after detach. Arbitrary gameplay/physics template families remain experimental. Existing alias and registered-model routing is preserved. See [model limits](/docs/props#model-and-collision-limits).
 ---
 --- Permissions: world.props
 --- Since: 2.31.13+op77.45
@@ -10836,7 +10907,7 @@ function Open77.weapons.setActive(playerId, target, options) end
 
 --- Sets a slot's magazine and reserve ammunition.
 ---
---- Asynchronous, same relay and completion contract as `assign`. `amounts` takes `reserve` and `magazine` -- at least one is required, each a non-negative integer up to 1,000,000 -- plus an optional boolean `activate`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently.
+--- Asynchronous, same relay and completion contract as `assign`. `amounts` takes `reserve` and `magazine` -- at least one is required, each a non-negative integer up to 1,000,000 -- plus an optional boolean `activate`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently. On Stable 156 or later, inactive/holstered slots, including never-drawn assigned weapons, can be read and updated without drawing or changing selection. `activate = true` explicitly selects/draws. For an inactive slot, reserve is inventory total minus that slot's magazine and currently drawn other-hand magazines; other inactive magazines are saved counts, not separate pools. Native jobs are ordered and asynchronous; await completion. Slot changes, invalid capacity, disconnect or body replacement invalidate the job. See [weapon ammunition](/docs/weapons-api).
 ---
 --- Permissions: network.events
 --- Since: 2.31.13+op77.45

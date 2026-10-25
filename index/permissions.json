@@ -834,7 +834,13 @@
     "Open77.input.setActionBlocked",
     "Open77.input.setNativeActionBlocked",
     "Open77.input.unregisterKeyMapping",
-    "RegisterKeyMapping"
+    "RegisterKeyMapping",
+    "client:Open77.input.blockableActions",
+    "client:Open77.input.mappings",
+    "client:Open77.input.rebind",
+    "client:Open77.input.registerKeyMapping",
+    "client:Open77.input.setActionBlocked",
+    "client:RegisterKeyMapping"
    ],
    "guides": [
     "input-blocking.md",
@@ -1352,7 +1358,8 @@
     "Open77.npcs.all",
     "Open77.npcs.currentTask",
     "Open77.npcs.get",
-    "Open77.npcs.whenReady"
+    "Open77.npcs.whenReady",
+    "client:Open77.npcs.get"
    ],
    "guides": [
     "npcs.md"
@@ -2318,7 +2325,8 @@
     "Open77.weapons.setDualWieldAllowed",
     "Open77.weapons.setTuning",
     "Open77.weapons.takeGadget",
-    "Open77.weapons.unequip"
+    "Open77.weapons.unequip",
+    "client:Open77.weapons.setAmmo"
    ],
    "guides": [
     "dual-wielding.md"
@@ -2402,7 +2410,10 @@
     "server:Open77.consumables.get",
     "server:Open77.weapons.components",
     "server:Open77.weapons.gadgets",
-    "server:Open77.weapons.get"
+    "server:Open77.weapons.get",
+    "client:Open77.weapons.all",
+    "client:Open77.weapons.shotCounters",
+    "client:Open77.weapons.snapshot"
    ],
    "guides": [],
    "sources": [
@@ -2651,7 +2662,9 @@
     "Open77.players.freezePosition",
     "Open77.players.freezeRotation",
     "Open77.players.getControlMask",
-    "Open77.players.resetControls"
+    "Open77.players.resetControls",
+    "client:AllowEncumbrance",
+    "client:Open77.players.allowEncumbrance"
    ],
    "guides": [
     "player-utilities.md"
@@ -5748,7 +5761,9 @@
     "server:SetNpcTransform",
     "server:UpdateNpc",
     "server:Open77.npcs.getBody",
-    "server:Open77.npcs.setBody"
+    "server:Open77.npcs.setBody",
+    "server:Open77.npcs.getArmor",
+    "server:Open77.npcs.setArmor"
    ],
    "guides": [
     "npcs.md",
@@ -5917,7 +5932,8 @@
     "server:RemoveProp",
     "server:SetPropBucket",
     "server:SetPropTransform",
-    "server:UpdateProp"
+    "server:UpdateProp",
+    "client:Open77.props.create"
    ],
    "guides": [
     "attachments.md",
@@ -6031,7 +6047,10 @@
     "Open77.world.population",
     "Open77.world.raycast",
     "Screen2DPointTo3DSpace",
-    "server:Open77.world.groundZ"
+    "server:Open77.world.groundZ",
+    "client:Open77.camera.aimRay",
+    "client:Open77.world.isBurning",
+    "client:Open77.world.raycast"
    ],
    "guides": [
     "lua-modules.md",
@@ -6709,6 +6728,52 @@
     {
      "file": "scripting/src/LocomotionBindings.inl",
      "line": 164
+    }
+   ]
+  },
+  {
+   "name": "players.attachments.control",
+   "runtimes": [
+    "server"
+   ],
+   "scoped": false,
+   "prefix": null,
+   "summary": "Creates and releases resource-owned persistent player bindings (experimental).",
+   "curated": true,
+   "natives": [
+    "server:Open77.players.attach",
+    "server:Open77.players.detach"
+   ],
+   "guides": [
+    "player-interactions.md"
+   ],
+   "sources": [
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.PlayerAttachments.cs",
+     "line": 35
+    }
+   ]
+  },
+  {
+   "name": "players.attachments.read",
+   "runtimes": [
+    "server"
+   ],
+   "scoped": false,
+   "prefix": null,
+   "summary": "Reads persistent player bindings.",
+   "curated": true,
+   "natives": [
+    "server:Open77.players.getAttachment",
+    "server:Open77.players.listAttachments"
+   ],
+   "guides": [
+    "player-interactions.md"
+   ],
+   "sources": [
+    {
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.PlayerAttachments.cs",
+     "line": 35
     }
    ]
   }

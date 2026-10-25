@@ -17512,6 +17512,35 @@
    "documented": true,
    "inCode": true,
    "lifecycle": true
+  },
+  {
+   "name": "onPlayerAttachmentChanged",
+   "sides": [
+    "server",
+    "resource-client"
+   ],
+   "payload": "(state)",
+   "guides": [
+    {
+     "file": "player-interactions.md",
+     "anchor": "persistent-player-attachments-experimental"
+    }
+   ],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.cs",
+     "line": 8052
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_player_interactions/client/attachments-controller.lua",
+     "line": 50
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": true
   }
  ],
  "reservedPrefixes": [

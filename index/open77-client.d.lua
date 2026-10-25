@@ -220,6 +220,16 @@ function AllowCrouch(enabled) end
 ---@return any true true, or false, reason
 function AllowDodge(enabled) end
 
+--- Enables or suppresses native overweight penalties.
+---
+--- Requires `players.controls` and a strict boolean. `false` acquires resource-owned suppression of vanilla overweight warnings and movement penalties, removing an existing encumbered effect. `true` releases only this resource's claim; `resetControls`, resource stop and player/session teardown also release it. Inventory contents, measured weight and carry capacity are unchanged; server inventory rules remain separate. Update `open77_equipment` to 0.2.1 for suppression by default, or set its `Open77EquipmentConfig.nativeEncumbrance = true` to release that package's claim. See [native weight penalties](/docs/player-utilities#native-weight-penalties).
+---
+--- Permissions: players.controls
+--- Since: 2.50.0+op77.156
+---@param allow boolean
+---@return any true true, or false, reason
+function AllowEncumbrance(allow) end
+
 --- Allow or block a local-player action.
 ---
 --- Requires players.controls and a strict boolean. Freeze true acquires a block; Allow false acquires a block. The inverse releases only this resource VM's block, never another owner or vanilla restriction. Automatically released on resource stop, death and session teardown. Does not freeze vehicles, moving platforms or server teleports. See player-utilities.md for each native restriction and limitations.
@@ -782,17 +792,18 @@ function RegisterCommand(name, handler, restricted, suggestion) end
 
 --- Declares a named, rebindable action bound to a key.
 ---
---- Declares a named, rebindable action bound to a key, as an engine primitive. Requires `input.actions`. Accepts a spec table `{ id, name, key, hold, onPressed, onReleased }` or the positional form `(id, name, key, onPressed [, onReleased])`; the callback receives the mapping id, fires on the key-down edge (and key-up in hold mode), and never fires while a page owns the keyboard. Returns the effective key (the player's saved rebind, else the default). The player rebinds it from Pause -> Settings -> KEY BINDINGS, and the choice persists machine-globally across servers and relaunches. Mirrored as `Open77.input.registerKeyMapping`.
+--- Requires `input.actions`. Accepts `{ id, name, key (or defaultKey), hold?, consume?, onPressed, onReleased? }` or `(id, name, key, onPressed [, onReleased])`. Returns `true, effectiveKey` or `false, reason`. The callback receives the mapping ID; hold mode adds releases. Defaults to observing input; Stable 156 adds `consume = true` to suppress the bound native input while invoking Lua. Keyboard, MOUSE1..5, MOUSEWHEELUP/DOWN and gamepad buttons/triggers are supported; wheel holds emit press/release pulses and triggers use a 0.5 threshold. Gamepad behavior remains experimental. Pause and voice capture support keyboard and mouse buttons; use Lua/rebind for wheel/gamepad controls. Mappings pause while a WebUI owns input. Re-registering preserves saved rebinds; unregister/stop/rebind/focus changes release consumption. See [key mappings](/docs/keybindings).
 ---
 --- Permissions: input.actions
 --- Since: 2.31.7+op77.16
+--- Reasons: input_consumption_unavailable, gamepad_consumption_unavailable
 ---@param id string
 ---@param name string
 ---@param key string
 ---@param onPressed? function
 ---@param onReleased? function
----@return any boolean boolean: true when the mapping is installed, false when it was refused
----@return any string string: the effective key (the player's rebinding, or the default) on success, the reason on refusal
+---@return any boolean boolean: true on installation, false on refusal
+---@return any string string: effective key on success, reason on refusal
 function RegisterKeyMapping(id, name, key, onPressed, onReleased) end
 
 --- Allows an event to arrive from the server.
@@ -1731,7 +1742,7 @@ function Open77.blips.setActive(id, active) end
 
 --- Sets an owned blip color or restores its source colors.
 ---
---- Experimental per-blip styling; requires the matching native client adapter. Accepts exactly #RRGGBB, #RRGGBBAA or false to clear the override. Works with native sprites and custom SVGs without changing other blips sharing the sprite. For SVGs it replaces RGB and multiplies each painted shape's source alpha. Clearing the icon does not clear this override; visual-only updates preserve native tracking.
+--- Experimental per-blip styling; requires the matching native client adapter. Accepts exactly #RRGGBB, #RRGGBBAA or false to clear the override. Works with native sprites and custom SVGs without changing other blips sharing the sprite. For SVGs it replaces RGB and multiplies each painted shape's source alpha. Clearing the icon does not clear this override; visual-only updates preserve native tracking. On Cyberpunk 2077 2.5, use Stable 156 or later for corrected map, minimap, legend and world presentation. Existing options remain compatible.
 ---
 --- Permissions: ui.vanilla.map
 --- Since: not in any published build
@@ -1756,7 +1767,7 @@ function Open77.blips.setDescription(id, description) end
 
 --- Sets a declared SVG icon or restores the native sprite.
 ---
---- Experimental native SVG adapter; requires the matching OPEN//77 client and Cyberpunk 2077 2.31. Accepts a declared resource-relative .svg path, { asset, size }, or false to restore the native sprite. Size is 16–128 native Ink units (default 48). Color overrides remain when the icon is cleared. Visual-only edits preserve tracking; malformed or unsupported SVG leaves the existing icon unchanged. URLs and PNG/WebP are rejected.
+--- Experimental native SVG adapter; requires a matching OPEN//77 client. On Cyberpunk 2077 2.5, use Stable 156 or later for the corrected adapter. Accepts a declared resource-relative .svg path, { asset, size }, or false to restore the native sprite. Size is 16–128 native Ink units (default 48). Color overrides remain when the icon is cleared. Visual-only edits preserve tracking; malformed or unsupported SVG leaves the existing icon unchanged. URLs and PNG/WebP are rejected.
 ---
 --- Permissions: ui.vanilla.map
 --- Since: 2.31.0+op77.3
@@ -1896,7 +1907,7 @@ function Open77.blips.untrack(id) end
 
 --- Updates several properties of an owned blip.
 ---
---- Updates mutable fields on an owned blip. Visual-only icon/color changes preserve its native identity and tracking selection. Structural changes register a replacement before removing the previous mappin. position switches to positional mode; entity switches to attached mode. routable cannot be changed. Invalid SVG or color replacements leave the existing visual unchanged.
+--- Updates mutable fields on an owned blip. Visual-only icon/color changes preserve its native identity and tracking selection. Structural changes register a replacement before removing the previous mappin. position switches to positional mode; entity switches to attached mode. routable cannot be changed. Invalid SVG or color replacements leave the existing visual unchanged. On Cyberpunk 2077 2.5, use Stable 156 or later for corrected map, minimap, legend and world presentation. Existing options remain compatible.
 ---
 --- Permissions: ui.vanilla.map
 --- Since: 2.31.0+op77.3
@@ -1970,15 +1981,15 @@ function Open77.camera.activate(camId, options) end
 
 --- The ray from the camera along its forward vector: what the reticle points at.
 ---
---- `Open77.camera.view()` plus `Open77.world.raycast` in one call. Unlike `Open77.inspector.target`, which answers with an entity under the crosshair or nothing, this hits empty pavement too, which is what placing a prop, a blip or a teleport target needs. `maxDistance` defaults to 200 m and is capped at 5000. Requires `world.query`. Takes the same `entities` option as `Open77.world.raycast`, adding an `entity` table naming what the reticle is actually on, which is the targeting and shot-validation question this call exists for. Without the option the result is unchanged.
+--- Traces from the camera along its forward vector. Requires `world.query`. Synchronous native raycast on the client game thread. Defaults to Static and Dynamic groups; the nearer hit wins. Stable 156 adds `groups`, 1..16 case-sensitive native names such as Vehicle, Static and Terrain, checked against the engine registry. It replaces static/dynamic flags; combining them fails with `collision_groups_conflict`. Unknown names return `invalid_collision_group`; malformed lists return `invalid_collision_groups`. With `entities = true`, entity identity comes from the hit proxy's actual native owner, never a nearest-object guess. Geometry without an owner has no entity; unavailable owner lookup returns `ray_entity_lookup_unavailable`. The optional entity contains engineEntity, className, kind, position, distance and a canonical playerId/vehicleId/npcId/propId when owned. `ignore` is unsupported and returns `ray_ignore_unavailable`. See [world queries](/docs/world-queries#choosing-collision-groups).
 ---
 --- Permissions: world.query
 --- Since: 2.31.9+op77.22
---- Reasons: camera_unavailable, invalid_distance, permission_denied:world.query
+--- Reasons: camera_unavailable, collision_groups_conflict, invalid_collision_group, invalid_collision_groups, invalid_distance, permission_denied:world.query, ray_entity_lookup_unavailable, ray_ignore_unavailable
 ---@param maxDistance? any
 ---@param options? any
----@return any table table { hit, position, normal, material, distance }, or nil
----@return any reason reason: permission_denied:world.query, invalid_distance, camera_unavailable, or the engine status
+---@return any table table { hit, position?, normal?, material?, distance?, entity? }, or nil
+---@return any reason reason
 function Open77.camera.aimRay(maxDistance, options) end
 
 --- Parents a scripted camera to an entity, or restores the player's own camera.
@@ -4074,7 +4085,7 @@ function Open77.input.axis(axis) end
 
 --- The actions that can really be blocked on this build, with mechanism and confidence.
 ---
---- Requires `input.actions`. Returns an array of `{ action, mechanism, confidence, note }`. `mechanism` is one of `stream`, `action`, `restriction`, `condition`, `flow`, `native`. `confidence` is `proven`, `measured` or `inferred` -- reported rather than hidden, so a lever reasoned from the engine's shape is distinguishable from one observed working in a live session. Read this instead of hard-coding action names.
+--- Requires `input.actions`. Returns the current action vocabulary, mechanism and confidence. Stable 156 supports NextWeapon, Reload, SwitchItem, Grenade, Consumable, RadialWheels, VehicleInsideWheel and PocketRadioWheel. NextWeapon blocks native selection/holstering while preserving held-weapon fire and Lua setActive. Blocking an open wheel cancels its modal state. VehicleWheel remains inferred and cannot lift the enforced CallVehicle policy. Movement, Map, Hub, FastTravel, WeaponWheel remain available; Attack, Melee, Jump and Sprint have inferred confidence. Unknown, unsupported and enforced names fail explicitly. See [input blocking](/docs/input-blocking).
 ---
 --- Permissions: input.actions
 --- Since: 2.31.13+op77.67
@@ -4172,7 +4183,7 @@ function Open77.input.keyFor(id) end
 
 --- Every registered key mapping across all running resources.
 ---
---- Requires `input.actions`. Returns an array of `{ resource, id, name, key, defaultKey, hold, rebound }` records for the rebinding UI. Only serialisable metadata is exposed; the callbacks stay in their owning resource.
+--- Requires `input.actions`. Returns an array of `{ resource, id, name, key, defaultKey, hold, rebound }` records for the rebinding UI. Only serialisable metadata is exposed; the callbacks stay in their owning resource. Stable 156 accepts wheel and gamepad button/trigger mappings; `consume` is an optional boolean on registered mapping specs. See [supported controls](/docs/keybindings#key-names).
 ---
 --- Permissions: input.actions
 --- Since: 2.31.7+op77.16
@@ -4192,7 +4203,7 @@ function Open77.input.pointer() end
 
 --- Sets and persists a new key for any mapping.
 ---
---- Requires `input.actions`. Rebinds the mapping identified by `resource` and `id` to `key` (same key vocabulary as `Open77.input.isDown`), persists it machine-globally, and raises `open77:keybinds:changed`. Used by the pause KEY BINDINGS tab.
+--- Requires `input.actions`. Rebinds the mapping identified by `resource` and `id` to `key` (same key vocabulary as `Open77.input.isDown`), persists it machine-globally, and raises `open77:keybinds:changed`. Used by the pause KEY BINDINGS tab. Stable 156 accepts wheel and gamepad button/trigger mappings; `consume` is an optional boolean on registered mapping specs. See [supported controls](/docs/keybindings#key-names).
 ---
 --- Permissions: input.actions
 --- Since: 2.31.7+op77.16
@@ -4205,13 +4216,14 @@ function Open77.input.rebind(resource, id, key) end
 
 --- Declares a named, rebindable action bound to a key (twin of the RegisterKeyMapping global).
 ---
---- Requires `input.actions`. Accepts a spec table `{ id, name, key (or defaultKey), hold, onPressed, onReleased }` or the positional form `(id, name, key, onPressed [, onReleased])`. The engine owns the registry and the per-frame dispatch; the callback receives the mapping id and never fires while a page owns the keyboard. `onPressed` fires on the key-down edge; with `hold` (or a positional release callback) `onReleased` fires on key-up. Re-registering an id replaces the entry but keeps the player's saved rebind. Ids are letters/numbers/`_.:-`, up to 64 chars; names up to 96. Up to 64 mappings per resource.
+--- Requires `input.actions`. Accepts `{ id, name, key (or defaultKey), hold?, consume?, onPressed, onReleased? }` or `(id, name, key, onPressed [, onReleased])`. Returns `true, effectiveKey` or `false, reason`. The callback receives the mapping ID; hold mode adds releases. Defaults to observing input; Stable 156 adds `consume = true` to suppress the bound native input while invoking Lua. Keyboard, MOUSE1..5, MOUSEWHEELUP/DOWN and gamepad buttons/triggers are supported; wheel holds emit press/release pulses and triggers use a 0.5 threshold. Gamepad behavior remains experimental. Pause and voice capture support keyboard and mouse buttons; use Lua/rebind for wheel/gamepad controls. Mappings pause while a WebUI owns input. Re-registering preserves saved rebinds; unregister/stop/rebind/focus changes release consumption. See [key mappings](/docs/keybindings).
 ---
 --- Permissions: input.actions
 --- Since: 2.31.7+op77.16
+--- Reasons: input_consumption_unavailable, gamepad_consumption_unavailable
 ---@param spec table
----@return any effective effective key (the saved rebind, else the default)
----@return any reason reason for the refusal
+---@return any boolean boolean: true on installation, false on refusal
+---@return any string string: effective key on success, reason on refusal
 function Open77.input.registerKeyMapping(spec) end
 
 --- Restores a mapping to its registered default key.
@@ -4228,7 +4240,7 @@ function Open77.input.reset(resource, id) end
 
 --- Blocks or releases one curated input action for the calling resource.
 ---
---- Requires `input.actions`. The vocabulary is curated rather than an engine enum dump, because Cyberpunk has no single input-blocking lever: five unrelated mechanisms serve five families of action and a large minority of actions cannot be refused at all. Blockable today: `Movement`, `Map`, `Hub`, `FastTravel`, `Attack` (firing only), `Melee` (every melee swing, fists included), `Jump`, `Sprint` (walk mode alone does not cap sprinting) and `WeaponWheel`; `Open77.input.blockableActions()` reports how sure each one is. An action outside the vocabulary is refused with `unknown_action`; one this engine cannot refuse with `action_not_blockable`; one Open77 already blocks unconditionally (`PhotoMode`, `Scanner`, `Quickhack`, `CallVehicle`, `Journal`) with `action_already_enforced`. Nothing is accepted and silently ignored. Claims are owned by the calling resource: two resources may block the same action, `blocked=false` removes only the caller's claim, and everything a resource holds is released when it stops. See `wiki/input-blocking.md` and `docs/research/input-action-blocking.md`.
+--- Requires `input.actions`. Sets or releases this resource's action block; another owner's block remains effective. Claims are released on resource stop. Stable 156 supports NextWeapon, Reload, SwitchItem, Grenade, Consumable, RadialWheels, VehicleInsideWheel and PocketRadioWheel. NextWeapon blocks native selection/holstering while preserving held-weapon fire and Lua setActive. Blocking an open wheel cancels its modal state. VehicleWheel remains inferred and cannot lift the enforced CallVehicle policy. Movement, Map, Hub, FastTravel, WeaponWheel remain available; Attack, Melee, Jump and Sprint have inferred confidence. Unknown, unsupported and enforced names fail explicitly. See [input blocking](/docs/input-blocking).
 ---
 --- Permissions: input.actions
 --- Since: 2.31.13+op77.67
@@ -5293,7 +5305,7 @@ function Open77.npcs.entity(id) end
 
 --- Reads one server-owned NPC currently known by this client.
 ---
---- Read-only and guarded by npcs.read. The snapshot includes the exact Character record; template is the legacy alias or 'record' for direct spawns. The local entity handle is generation-checked and becomes invalid after stream-out. Observe onNpcReady/onNpcSpawnFailed for asynchronous projection readiness; see wiki/npcs.md.
+--- Read-only and guarded by npcs.read. The snapshot includes the exact Character record; template is the legacy alias or 'record' for direct spawns. The local entity handle is generation-checked and becomes invalid after stream-out. Observe onNpcReady/onNpcSpawnFailed for asynchronous projection readiness; see wiki/npcs.md. Stable 156 snapshots include armor. Server create accepts armor (default 0), update preserves it when omitted; finite 0..100000 points absorb canonical damage before health. Matching protocol 1.50 is required. See [NPC armor](/docs/npcs#armor).
 ---
 --- Permissions: npcs.read
 --- Since: 2.31.0+op77.3
@@ -5619,6 +5631,16 @@ function Open77.players.allowCrouch(enabled) end
 ---@param enabled boolean
 ---@return any true true, or false, reason
 function Open77.players.allowDodge(enabled) end
+
+--- Enables or suppresses native overweight penalties.
+---
+--- Requires `players.controls` and a strict boolean. `false` acquires resource-owned suppression of vanilla overweight warnings and movement penalties, removing an existing encumbered effect. `true` releases only this resource's claim; `resetControls`, resource stop and player/session teardown also release it. Inventory contents, measured weight and carry capacity are unchanged; server inventory rules remain separate. Update `open77_equipment` to 0.2.1 for suppression by default, or set its `Open77EquipmentConfig.nativeEncumbrance = true` to release that package's claim. See [native weight penalties](/docs/player-utilities#native-weight-penalties).
+---
+--- Permissions: players.controls
+--- Since: 2.50.0+op77.156
+---@param allow boolean
+---@return any true true, or false, reason
+function Open77.players.allowEncumbrance(allow) end
 
 --- Allow or block a local-player action.
 ---
@@ -6249,7 +6271,7 @@ function Open77.props.clear() end
 
 --- Creates a local, decorative prop owned by this resource.
 ---
---- Requires `world.props`. This is the **client** meaning of the name: the prop is never replicated and never visible to anyone else -- a placement ghost, a build cursor, a preview being dragged. It is charged against this resource's quota and released when the resource stops. The identically-named *server* function mints an authoritative, replicated prop instead; the two `Open77` tables are different objects on different machines.
+--- Requires `world.props`. This is the **client** meaning of the name: the prop is never replicated and never visible to anyone else -- a placement ghost, a build cursor, a preview being dragged. It is charged against this resource's quota and released when the resource stops. The identically-named *server* function mints an authoritative, replicated prop instead; the two `Open77` tables are different objects on different machines. Stable 156 accepts raw .mesh and .ent depot paths without an alias whitelist. Every observer needs the assets and dependencies mounted. Mesh loading is asynchronous; rendered stays false until ready. Raw .ent requires kind="prop" and retains its authored graph/appearance. Visual scale does not rescale collision. Attached props are non-blocking; collision=false keeps raw decorations non-solid after detach. Arbitrary gameplay/physics template families remain experimental. Existing alias and registered-model routing is preserved. See [model limits](/docs/props#model-and-collision-limits).
 ---
 --- Permissions: world.props
 --- Since: 2.31.1+op77.9
@@ -8406,7 +8428,7 @@ function Open77.weapons.activate(target, options) end
 
 --- Alias of `Open77.weapons.snapshot`.
 ---
---- Requires `player.weapons.read`; results arrive asynchronously as slot-state events followed by completion. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud).
+--- Requires `player.weapons.read`; results arrive asynchronously as slot-state events followed by completion. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud). Stable 156 reads reserve, magazine and capacity for inactive/holstered ranged slots, including never-drawn weapons. Completion follows all native reads; unreadable ranged caches fail with `ammo_cache_unavailable`. Empty/non-ammo slots retain unavailable fields (-1).
 ---
 --- Permissions: player.weapons.read
 --- Since: 2.31.1+op77.9
@@ -8540,7 +8562,7 @@ function Open77.weapons.setActive(target, options) end
 
 --- Sets exact spare and/or loaded ammunition for a weapon slot.
 ---
---- Requires `player.weapons.edit`. `amounts` accepts integer `reserve` and `magazine` counts plus optional `activate`. At least one count is required; omitted counts are preserved. The operation verifies the shared ammo total, spare reserve, magazine, and live capacity asynchronously through `open77:weapons:completed`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently.
+--- Requires `player.weapons.edit`. `amounts` accepts integer `reserve` and `magazine` counts plus optional `activate`. At least one count is required; omitted counts are preserved. The operation verifies the shared ammo total, spare reserve, magazine, and live capacity asynchronously through `open77:weapons:completed`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently. On Stable 156 or later, inactive/holstered slots, including never-drawn assigned weapons, can be read and updated without drawing or changing selection. `activate = true` explicitly selects/draws. For an inactive slot, reserve is inventory total minus that slot's magazine and currently drawn other-hand magazines; other inactive magazines are saved counts, not separate pools. Native jobs are ordered and asynchronous; await completion. Slot changes, invalid capacity, disconnect or body replacement invalidate the job. See [weapon ammunition](/docs/weapons-api).
 ---
 --- Permissions: player.weapons.edit
 --- Since: 2.31.2+op77.10
@@ -8590,6 +8612,17 @@ function Open77.weapons.setDualWieldAllowed(enabled) end
 ---@return any reason reason on failure
 function Open77.weapons.setTuning(record, options) end
 
+--- Reads cumulative local discharges for each hand.
+---
+--- Requires `player.weapons.read`. Returns cumulative native discharges as `{ generation, right, left, total }`, or `nil, reason`. Counts real discharges, including free shots, rather than ammo cost; reloads and administrative ammo edits do not add shots. Holstering and switching preserve counts. A new character incarnation resets them and changes generation; compare generation before subtracting. Local observation only, with no implicit server broadcast or damage authority. See [shot counters](/docs/weapons-api#counting-shots-between-polls).
+---
+--- Permissions: player.weapons.read
+--- Since: 2.50.0+op77.156
+--- Reasons: permission_denied:player.weapons.read, invalid_weapon_request, weapon_counters_unavailable
+---@return any table table { generation, right, left, total }, or nil
+---@return any reason reason
+function Open77.weapons.shotCounters() end
+
 --- Lists the six supported standard weapon slots.
 ---
 --- Requires `player.weapons.read`. Slot numbers are one-based and deliberately exclude QuickSlot grenades, WeaponHeavy items, and ArmsCW cyberware. Since Stable 152 on game 2.5, slots 1–3 are primary and 4–6 are their respective secondary partners. See [Dual wielding](dual-wielding.md).
@@ -8603,7 +8636,7 @@ function Open77.weapons.slots() end
 
 --- Requests the verified state of every standard weapon slot.
 ---
---- Requires `player.weapons.read`. Emits one `open77:weapons:state` event per available slot and then `open77:weapons:completed`. TweakDB IDs remain opaque hexadecimal strings and are the presence authority; `record` may be empty for items equipped outside this API because shipping builds do not retain every reverse TweakDB name. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud).
+--- Requires `player.weapons.read`. Emits one `open77:weapons:state` event per available slot and then `open77:weapons:completed`. TweakDB IDs remain opaque hexadecimal strings and are the presence authority; `record` may be empty for items equipped outside this API because shipping builds do not retain every reverse TweakDB name. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud). Stable 156 reads reserve, magazine and capacity for inactive/holstered ranged slots, including never-drawn weapons. Completion follows all native reads; unreadable ranged caches fail with `ammo_cache_unavailable`. Empty/non-ammo slots retain unavailable fields (-1).
 ---
 --- Permissions: player.weapons.read
 --- Since: 2.31.1+op77.9
@@ -8776,6 +8809,18 @@ function Open77.world.getTimeScale() end
 ---@return any reason reason on failure
 function Open77.world.groundZ(x, y, fromZ) end
 
+--- Reads an entity's native Burning status effect.
+---
+--- Requires `world.query`. Reads the resolved entity's native Burning status effect. Omit target or pass 0 for the local player; accepts a receiver-local entity integer, `{ playerId }`, `{ npcId }`, `{ vehicleId }`, `{ propId }`, or `{ engineEntity, radius? }`. Canonical IDs take priority; an unavailable canonical target never falls back to a different entity. Preserve engine IDs as strings. `false` means no native Burning status; `nil, reason` means unavailable. Cosmetic flames, wreck visuals and nearby fires are not Burning status. No implicit replication or server authority. See [burning status](/docs/world-queries#burning-status).
+---
+--- Permissions: world.query
+--- Since: 2.50.0+op77.156
+--- Reasons: permission_denied:world.query, unexpected_arguments, game_unavailable_on_this_host
+---@param target? any
+---@return any boolean boolean, or nil
+---@return any reason reason
+function Open77.world.isBurning(target) end
+
 --- Every object within a radius of the local player, nearest first.
 ---
 --- Exposes `Api::WorldQuery::Around`, the engine's own targeting search. It is centred on the local player because the search takes a source object, not a point: to look around somewhere else, stand there. `filter` narrows the object classes: a name, a list of names or a raw mask. Names: `player`, `puppet`, `sensor`, `device`, `other` (classes), `friendly`, `hostile`, `neutral`, `alive`, `dead`, `turnedOn`, `turnedOff`, `quickHackable` (attitude and state bits, which widen a search rather than narrow it). Requires `world.query`.
@@ -8825,16 +8870,16 @@ function Open77.world.population() end
 
 --- Traces a physics ray between two world points and returns the nearest blocking surface.
 ---
---- Runs `gameSpatialQueriesSystem::SyncRaycastByCollisionGroup`, the same native the combat and camera code use, against the `Static` and `Dynamic` collision groups and keeps the nearer hit. `options` may disable either group (`{ static = true, dynamic = false }`). The result is what the engine's trace publishes: position, surface normal, material name and distance. With `options.entities = true` it also carries `entity` when the ray stopped on an object rather than on world geometry: `engineEntity`, `className`, `kind`, `position`, `distance`, and one of `playerId`, `vehicleId`, `npcId` or canonical decimal-string `propId` when Open77 owns the thing. Without that option the returned table is unchanged, so existing resources are unaffected. The entity is not read out of the trace, which carries none: the object standing at the hit point is found with the same object search `Open77.world.nearest` uses, so the search is centred on the local player and a hit more than 250 m away cannot be attributed. A hit on a wall, a road or a railing has no entity at all, which is the ordinary answer and not an error. Synchronous, on the game thread; requires the `world.query` permission.
+--- Traces the segment from `from` to `to`. Requires `world.query`. Synchronous native raycast on the client game thread. Defaults to Static and Dynamic groups; the nearer hit wins. Stable 156 adds `groups`, 1..16 case-sensitive native names such as Vehicle, Static and Terrain, checked against the engine registry. It replaces static/dynamic flags; combining them fails with `collision_groups_conflict`. Unknown names return `invalid_collision_group`; malformed lists return `invalid_collision_groups`. With `entities = true`, entity identity comes from the hit proxy's actual native owner, never a nearest-object guess. Geometry without an owner has no entity; unavailable owner lookup returns `ray_entity_lookup_unavailable`. The optional entity contains engineEntity, className, kind, position, distance and a canonical playerId/vehicleId/npcId/propId when owned. `ignore` is unsupported and returns `ray_ignore_unavailable`. See [world queries](/docs/world-queries#choosing-collision-groups).
 ---
 --- Permissions: world.query
 --- Since: 2.31.9+op77.22
---- Reasons: invalid_from, invalid_to, permission_denied:world.query
+--- Reasons: collision_groups_conflict, invalid_collision_group, invalid_collision_groups, invalid_from, invalid_to, permission_denied:world.query, ray_entity_lookup_unavailable, ray_ignore_unavailable
 ---@param from any
 ---@param to any
 ---@param options? any
----@return any table table { hit, position { x, y, z }, normal { x, y, z }, material, distance, entity? } (position, normal, material and distance only when hit is true; entity only when options.entities is set AND the ray stopped on an object), or nil
----@return any reason reason: permission_denied:world.query, invalid_from, invalid_to, ray_entities_unavailable_on_this_host, world_unavailable_on_this_host, or the engine status
+---@return any table table { hit, position?, normal?, material?, distance?, entity? }, or nil
+---@return any reason reason
 function Open77.world.raycast(from, to, options) end
 
 --- Whether the vanilla safe-area marking is currently in effect.

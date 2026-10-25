@@ -1876,7 +1876,7 @@
   "name": "RegisterKeyMapping",
   "handler": "LuaRegisterKeyMapping",
   "summary": "Declares a named, rebindable action bound to a key.",
-  "description": "Declares a named, rebindable action bound to a key, as an engine primitive. Requires `input.actions`. Accepts a spec table `{ id, name, key, hold, onPressed, onReleased }` or the positional form `(id, name, key, onPressed [, onReleased])`; the callback receives the mapping id, fires on the key-down edge (and key-up in hold mode), and never fires while a page owns the keyboard. Returns the effective key (the player's saved rebind, else the default). The player rebinds it from Pause -> Settings -> KEY BINDINGS, and the choice persists machine-globally across servers and relaunches. Mirrored as `Open77.input.registerKeyMapping`.",
+  "description": "Requires `input.actions`. Accepts `{ id, name, key (or defaultKey), hold?, consume?, onPressed, onReleased? }` or `(id, name, key, onPressed [, onReleased])`. Returns `true, effectiveKey` or `false, reason`. The callback receives the mapping ID; hold mode adds releases. Defaults to observing input; Stable 156 adds `consume = true` to suppress the bound native input while invoking Lua. Keyboard, MOUSE1..5, MOUSEWHEELUP/DOWN and gamepad buttons/triggers are supported; wheel holds emit press/release pulses and triggers use a 0.5 threshold. Gamepad behavior remains experimental. Pause and voice capture support keyboard and mouse buttons; use Lua/rebind for wheel/gamepad controls. Mappings pause while a WebUI owns input. Re-registering preserves saved rebinds; unregister/stop/rebind/focus changes release consumption. See [key mappings](/docs/keybindings).",
   "params": [
    {
     "name": "id",
@@ -1910,8 +1910,8 @@
    }
   ],
   "returns": [
-   "boolean: true when the mapping is installed, false when it was refused",
-   "string: the effective key (the player's rebinding, or the default) on success, the reason on refusal"
+   "boolean: true on installation, false on refusal",
+   "string: effective key on success, reason on refusal"
   ],
   "api_set": "game",
   "runtime": "client",
@@ -1922,7 +1922,10 @@
   "permissions": [
    "input.actions"
   ],
-  "reasons": [],
+  "reasons": [
+   "input_consumption_unavailable",
+   "gamepad_consumption_unavailable"
+  ],
   "since": "2.31.7+op77.16",
   "constant": false,
   "qualified": "RegisterKeyMapping",
@@ -5150,7 +5153,7 @@
   "name": "setColor",
   "handler": "LuaBlipSetColor",
   "summary": "Sets an owned blip color or restores its source colors.",
-  "description": "Experimental per-blip styling; requires the matching native client adapter. Accepts exactly #RRGGBB, #RRGGBBAA or false to clear the override. Works with native sprites and custom SVGs without changing other blips sharing the sprite. For SVGs it replaces RGB and multiplies each painted shape's source alpha. Clearing the icon does not clear this override; visual-only updates preserve native tracking.",
+  "description": "Experimental per-blip styling; requires the matching native client adapter. Accepts exactly #RRGGBB, #RRGGBBAA or false to clear the override. Works with native sprites and custom SVGs without changing other blips sharing the sprite. For SVGs it replaces RGB and multiplies each painted shape's source alpha. Clearing the icon does not clear this override; visual-only updates preserve native tracking. On Cyberpunk 2077 2.5, use Stable 156 or later for corrected map, minimap, legend and world presentation. Existing options remain compatible.",
   "params": [
    {
     "name": "id",
@@ -5232,7 +5235,7 @@
   "name": "setIcon",
   "handler": "LuaBlipSetIcon",
   "summary": "Sets a declared SVG icon or restores the native sprite.",
-  "description": "Experimental native SVG adapter; requires the matching OPEN//77 client and Cyberpunk 2077 2.31. Accepts a declared resource-relative .svg path, { asset, size }, or false to restore the native sprite. Size is 16–128 native Ink units (default 48). Color overrides remain when the icon is cleared. Visual-only edits preserve tracking; malformed or unsupported SVG leaves the existing icon unchanged. URLs and PNG/WebP are rejected.",
+  "description": "Experimental native SVG adapter; requires a matching OPEN//77 client. On Cyberpunk 2077 2.5, use Stable 156 or later for the corrected adapter. Accepts a declared resource-relative .svg path, { asset, size }, or false to restore the native sprite. Size is 16–128 native Ink units (default 48). Color overrides remain when the icon is cleared. Visual-only edits preserve tracking; malformed or unsupported SVG leaves the existing icon unchanged. URLs and PNG/WebP are rejected.",
   "params": [
    {
     "name": "id",
@@ -5681,7 +5684,7 @@
   "name": "update",
   "handler": "LuaBlipUpdate",
   "summary": "Updates several properties of an owned blip.",
-  "description": "Updates mutable fields on an owned blip. Visual-only icon/color changes preserve its native identity and tracking selection. Structural changes register a replacement before removing the previous mappin. position switches to positional mode; entity switches to attached mode. routable cannot be changed. Invalid SVG or color replacements leave the existing visual unchanged.",
+  "description": "Updates mutable fields on an owned blip. Visual-only icon/color changes preserve its native identity and tracking selection. Structural changes register a replacement before removing the previous mappin. position switches to positional mode; entity switches to attached mode. routable cannot be changed. Invalid SVG or color replacements leave the existing visual unchanged. On Cyberpunk 2077 2.5, use Stable 156 or later for corrected map, minimap, legend and world presentation. Existing options remain compatible.",
   "params": [
    {
     "name": "id",
@@ -5930,7 +5933,7 @@
   "name": "aimRay",
   "handler": "LuaCameraAimRay",
   "summary": "The ray from the camera along its forward vector: what the reticle points at.",
-  "description": "`Open77.camera.view()` plus `Open77.world.raycast` in one call. Unlike `Open77.inspector.target`, which answers with an entity under the crosshair or nothing, this hits empty pavement too, which is what placing a prop, a blip or a teleport target needs. `maxDistance` defaults to 200 m and is capped at 5000. Requires `world.query`. Takes the same `entities` option as `Open77.world.raycast`, adding an `entity` table naming what the reticle is actually on, which is the targeting and shot-validation question this call exists for. Without the option the result is unchanged.",
+  "description": "Traces from the camera along its forward vector. Requires `world.query`. Synchronous native raycast on the client game thread. Defaults to Static and Dynamic groups; the nearer hit wins. Stable 156 adds `groups`, 1..16 case-sensitive native names such as Vehicle, Static and Terrain, checked against the engine registry. It replaces static/dynamic flags; combining them fails with `collision_groups_conflict`. Unknown names return `invalid_collision_group`; malformed lists return `invalid_collision_groups`. With `entities = true`, entity identity comes from the hit proxy's actual native owner, never a nearest-object guess. Geometry without an owner has no entity; unavailable owner lookup returns `ray_entity_lookup_unavailable`. The optional entity contains engineEntity, className, kind, position, distance and a canonical playerId/vehicleId/npcId/propId when owned. `ignore` is unsupported and returns `ray_ignore_unavailable`. See [world queries](/docs/world-queries#choosing-collision-groups).",
   "params": [
    {
     "name": "maxDistance",
@@ -5940,14 +5943,14 @@
    },
    {
     "name": "options",
-    "type": "table { static?, dynamic? }",
+    "type": "table { static?, dynamic?, groups?, entities? }",
     "optional": true,
     "default": null
    }
   ],
   "returns": [
-   "table { hit, position, normal, material, distance }, or nil",
-   "reason: permission_denied:world.query, invalid_distance, camera_unavailable, or the engine status"
+   "table { hit, position?, normal?, material?, distance?, entity? }, or nil",
+   "reason"
   ],
   "api_set": "game",
   "runtime": "client",
@@ -5960,8 +5963,13 @@
   ],
   "reasons": [
    "camera_unavailable",
+   "collision_groups_conflict",
+   "invalid_collision_group",
+   "invalid_collision_groups",
    "invalid_distance",
-   "permission_denied:world.query"
+   "permission_denied:world.query",
+   "ray_entity_lookup_unavailable",
+   "ray_ignore_unavailable"
   ],
   "since": "2.31.9+op77.22",
   "constant": false,
@@ -12580,7 +12588,7 @@
   "name": "blockableActions",
   "handler": "LuaBlockableActions",
   "summary": "The actions that can really be blocked on this build, with mechanism and confidence.",
-  "description": "Requires `input.actions`. Returns an array of `{ action, mechanism, confidence, note }`. `mechanism` is one of `stream`, `action`, `restriction`, `condition`, `flow`, `native`. `confidence` is `proven`, `measured` or `inferred` -- reported rather than hidden, so a lever reasoned from the engine's shape is distinguishable from one observed working in a live session. Read this instead of hard-coding action names.",
+  "description": "Requires `input.actions`. Returns the current action vocabulary, mechanism and confidence. Stable 156 supports NextWeapon, Reload, SwitchItem, Grenade, Consumable, RadialWheels, VehicleInsideWheel and PocketRadioWheel. NextWeapon blocks native selection/holstering while preserving held-weapon fire and Lua setActive. Blocking an open wheel cancels its modal state. VehicleWheel remains inferred and cannot lift the enforced CallVehicle policy. Movement, Map, Hub, FastTravel, WeaponWheel remain available; Attack, Melee, Jump and Sprint have inferred confidence. Unknown, unsupported and enforced names fail explicitly. See [input blocking](/docs/input-blocking).",
   "params": [],
   "returns": [
    "array of { action, mechanism, confidence, note }, otherwise nil",
@@ -12827,7 +12835,7 @@
   "name": "mappings",
   "handler": "LuaInputMappings",
   "summary": "Every registered key mapping across all running resources.",
-  "description": "Requires `input.actions`. Returns an array of `{ resource, id, name, key, defaultKey, hold, rebound }` records for the rebinding UI. Only serialisable metadata is exposed; the callbacks stay in their owning resource.",
+  "description": "Requires `input.actions`. Returns an array of `{ resource, id, name, key, defaultKey, hold, rebound }` records for the rebinding UI. Only serialisable metadata is exposed; the callbacks stay in their owning resource. Stable 156 accepts wheel and gamepad button/trigger mappings; `consume` is an optional boolean on registered mapping specs. See [supported controls](/docs/keybindings#key-names).",
   "params": [],
   "returns": [
    "array of mapping records"
@@ -12882,7 +12890,7 @@
   "name": "rebind",
   "handler": "LuaInputRebind",
   "summary": "Sets and persists a new key for any mapping.",
-  "description": "Requires `input.actions`. Rebinds the mapping identified by `resource` and `id` to `key` (same key vocabulary as `Open77.input.isDown`), persists it machine-globally, and raises `open77:keybinds:changed`. Used by the pause KEY BINDINGS tab.",
+  "description": "Requires `input.actions`. Rebinds the mapping identified by `resource` and `id` to `key` (same key vocabulary as `Open77.input.isDown`), persists it machine-globally, and raises `open77:keybinds:changed`. Used by the pause KEY BINDINGS tab. Stable 156 accepts wheel and gamepad button/trigger mappings; `consume` is an optional boolean on registered mapping specs. See [supported controls](/docs/keybindings#key-names).",
   "params": [
    {
     "name": "resource",
@@ -12927,7 +12935,7 @@
   "name": "registerKeyMapping",
   "handler": "LuaRegisterKeyMapping",
   "summary": "Declares a named, rebindable action bound to a key (twin of the RegisterKeyMapping global).",
-  "description": "Requires `input.actions`. Accepts a spec table `{ id, name, key (or defaultKey), hold, onPressed, onReleased }` or the positional form `(id, name, key, onPressed [, onReleased])`. The engine owns the registry and the per-frame dispatch; the callback receives the mapping id and never fires while a page owns the keyboard. `onPressed` fires on the key-down edge; with `hold` (or a positional release callback) `onReleased` fires on key-up. Re-registering an id replaces the entry but keeps the player's saved rebind. Ids are letters/numbers/`_.:-`, up to 64 chars; names up to 96. Up to 64 mappings per resource.",
+  "description": "Requires `input.actions`. Accepts `{ id, name, key (or defaultKey), hold?, consume?, onPressed, onReleased? }` or `(id, name, key, onPressed [, onReleased])`. Returns `true, effectiveKey` or `false, reason`. The callback receives the mapping ID; hold mode adds releases. Defaults to observing input; Stable 156 adds `consume = true` to suppress the bound native input while invoking Lua. Keyboard, MOUSE1..5, MOUSEWHEELUP/DOWN and gamepad buttons/triggers are supported; wheel holds emit press/release pulses and triggers use a 0.5 threshold. Gamepad behavior remains experimental. Pause and voice capture support keyboard and mouse buttons; use Lua/rebind for wheel/gamepad controls. Mappings pause while a WebUI owns input. Re-registering preserves saved rebinds; unregister/stop/rebind/focus changes release consumption. See [key mappings](/docs/keybindings).",
   "params": [
    {
     "name": "spec",
@@ -12937,8 +12945,8 @@
    }
   ],
   "returns": [
-   "effective key (the saved rebind, else the default)",
-   "reason for the refusal"
+   "boolean: true on installation, false on refusal",
+   "string: effective key on success, reason on refusal"
   ],
   "api_set": "game",
   "runtime": "client",
@@ -12949,7 +12957,10 @@
   "permissions": [
    "input.actions"
   ],
-  "reasons": [],
+  "reasons": [
+   "input_consumption_unavailable",
+   "gamepad_consumption_unavailable"
+  ],
   "since": "2.31.7+op77.16",
   "constant": false,
   "qualified": "Open77.input.registerKeyMapping",
@@ -12999,7 +13010,7 @@
   "name": "setActionBlocked",
   "handler": "LuaSetActionBlocked",
   "summary": "Blocks or releases one curated input action for the calling resource.",
-  "description": "Requires `input.actions`. The vocabulary is curated rather than an engine enum dump, because Cyberpunk has no single input-blocking lever: five unrelated mechanisms serve five families of action and a large minority of actions cannot be refused at all. Blockable today: `Movement`, `Map`, `Hub`, `FastTravel`, `Attack` (firing only), `Melee` (every melee swing, fists included), `Jump`, `Sprint` (walk mode alone does not cap sprinting) and `WeaponWheel`; `Open77.input.blockableActions()` reports how sure each one is. An action outside the vocabulary is refused with `unknown_action`; one this engine cannot refuse with `action_not_blockable`; one Open77 already blocks unconditionally (`PhotoMode`, `Scanner`, `Quickhack`, `CallVehicle`, `Journal`) with `action_already_enforced`. Nothing is accepted and silently ignored. Claims are owned by the calling resource: two resources may block the same action, `blocked=false` removes only the caller's claim, and everything a resource holds is released when it stops. See `wiki/input-blocking.md` and `docs/research/input-action-blocking.md`.",
+  "description": "Requires `input.actions`. Sets or releases this resource's action block; another owner's block remains effective. Claims are released on resource stop. Stable 156 supports NextWeapon, Reload, SwitchItem, Grenade, Consumable, RadialWheels, VehicleInsideWheel and PocketRadioWheel. NextWeapon blocks native selection/holstering while preserving held-weapon fire and Lua setActive. Blocking an open wheel cancels its modal state. VehicleWheel remains inferred and cannot lift the enforced CallVehicle policy. Movement, Map, Hub, FastTravel, WeaponWheel remain available; Attack, Melee, Jump and Sprint have inferred confidence. Unknown, unsupported and enforced names fail explicitly. See [input blocking](/docs/input-blocking).",
   "params": [
    {
     "name": "action",
@@ -16262,7 +16273,7 @@
   "name": "get",
   "handler": "LuaNpcGet",
   "summary": "Reads one server-owned NPC currently known by this client.",
-  "description": "Read-only and guarded by npcs.read. The snapshot includes the exact Character record; template is the legacy alias or 'record' for direct spawns. The local entity handle is generation-checked and becomes invalid after stream-out. Observe onNpcReady/onNpcSpawnFailed for asynchronous projection readiness; see wiki/npcs.md.",
+  "description": "Read-only and guarded by npcs.read. The snapshot includes the exact Character record; template is the legacy alias or 'record' for direct spawns. The local entity handle is generation-checked and becomes invalid after stream-out. Observe onNpcReady/onNpcSpawnFailed for asynchronous projection readiness; see wiki/npcs.md. Stable 156 snapshots include armor. Server create accepts armor (default 0), update preserves it when omitted; finite 0..100000 points absorb canonical damage before health. Matching protocol 1.50 is required. See [NPC armor](/docs/npcs#armor).",
   "params": [
    {
     "name": "id",
@@ -19214,7 +19225,7 @@
   "name": "create",
   "handler": "LuaPropCreate",
   "summary": "Creates a local, decorative prop owned by this resource.",
-  "description": "Requires `world.props`. This is the **client** meaning of the name: the prop is never replicated and never visible to anyone else -- a placement ghost, a build cursor, a preview being dragged. It is charged against this resource's quota and released when the resource stops. The identically-named *server* function mints an authoritative, replicated prop instead; the two `Open77` tables are different objects on different machines.",
+  "description": "Requires `world.props`. This is the **client** meaning of the name: the prop is never replicated and never visible to anyone else -- a placement ghost, a build cursor, a preview being dragged. It is charged against this resource's quota and released when the resource stops. The identically-named *server* function mints an authoritative, replicated prop instead; the two `Open77` tables are different objects on different machines. Stable 156 accepts raw .mesh and .ent depot paths without an alias whitelist. Every observer needs the assets and dependencies mounted. Mesh loading is asynchronous; rendered stays false until ready. Raw .ent requires kind=\"prop\" and retains its authored graph/appearance. Visual scale does not rescale collision. Attached props are non-blocking; collision=false keeps raw decorations non-solid after detach. Arbitrary gameplay/physics template families remain experimental. Existing alias and registered-model routing is preserved. See [model limits](/docs/props#model-and-collision-limits).",
   "params": [
    {
     "name": "options",
@@ -25422,7 +25433,7 @@
   "name": "all",
   "handler": "LuaWeaponSnapshot",
   "summary": "Alias of `Open77.weapons.snapshot`.",
-  "description": "Requires `player.weapons.read`; results arrive asynchronously as slot-state events followed by completion. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud).",
+  "description": "Requires `player.weapons.read`; results arrive asynchronously as slot-state events followed by completion. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud). Stable 156 reads reserve, magazine and capacity for inactive/holstered ranged slots, including never-drawn weapons. Completion follows all native reads; unreadable ranged caches fail with `ammo_cache_unavailable`. Empty/non-ammo slots retain unavailable fields (-1).",
   "params": [],
   "returns": [
    "request id, or nil",
@@ -25837,7 +25848,7 @@
   "name": "setAmmo",
   "handler": "LuaWeaponSetAmmo",
   "summary": "Sets exact spare and/or loaded ammunition for a weapon slot.",
-  "description": "Requires `player.weapons.edit`. `amounts` accepts integer `reserve` and `magazine` counts plus optional `activate`. At least one count is required; omitted counts are preserved. The operation verifies the shared ammo total, spare reserve, magazine, and live capacity asynchronously through `open77:weapons:completed`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently.",
+  "description": "Requires `player.weapons.edit`. `amounts` accepts integer `reserve` and `magazine` counts plus optional `activate`. At least one count is required; omitted counts are preserved. The operation verifies the shared ammo total, spare reserve, magazine, and live capacity asynchronously through `open77:weapons:completed`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently. On Stable 156 or later, inactive/holstered slots, including never-drawn assigned weapons, can be read and updated without drawing or changing selection. `activate = true` explicitly selects/draws. For an inactive slot, reserve is inventory total minus that slot's magazine and currently drawn other-hand magazines; other inactive magazines are saved counts, not separate pools. Native jobs are ordered and asynchronous; await completion. Slot changes, invalid capacity, disconnect or body replacement invalidate the job. See [weapon ammunition](/docs/weapons-api).",
   "params": [
    {
     "name": "slot",
@@ -26004,7 +26015,7 @@
   "name": "snapshot",
   "handler": "LuaWeaponSnapshot",
   "summary": "Requests the verified state of every standard weapon slot.",
-  "description": "Requires `player.weapons.read`. Emits one `open77:weapons:state` event per available slot and then `open77:weapons:completed`. TweakDB IDs remain opaque hexadecimal strings and are the presence authority; `record` may be empty for items equipped outside this API because shipping builds do not retain every reverse TweakDB name. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud).",
+  "description": "Requires `player.weapons.read`. Emits one `open77:weapons:state` event per available slot and then `open77:weapons:completed`. TweakDB IDs remain opaque hexadecimal strings and are the presence authority; `record` may be empty for items equipped outside this API because shipping builds do not retain every reverse TweakDB name. Client state rows append reloading after capacity. The booleans are strings; collect rows by request ID and publish only after successful completion. See [Dual wielding](dual-wielding.md#ammunition-and-hud). Stable 156 reads reserve, magazine and capacity for inactive/holstered ranged slots, including never-drawn weapons. Completion follows all native reads; unreadable ranged caches fail with `ammo_cache_unavailable`. Empty/non-ammo slots retain unavailable fields (-1).",
   "params": [],
   "returns": [
    "request id, or nil",
@@ -26629,7 +26640,7 @@
   "name": "raycast",
   "handler": "LuaWorldRaycast",
   "summary": "Traces a physics ray between two world points and returns the nearest blocking surface.",
-  "description": "Runs `gameSpatialQueriesSystem::SyncRaycastByCollisionGroup`, the same native the combat and camera code use, against the `Static` and `Dynamic` collision groups and keeps the nearer hit. `options` may disable either group (`{ static = true, dynamic = false }`). The result is what the engine's trace publishes: position, surface normal, material name and distance. With `options.entities = true` it also carries `entity` when the ray stopped on an object rather than on world geometry: `engineEntity`, `className`, `kind`, `position`, `distance`, and one of `playerId`, `vehicleId`, `npcId` or canonical decimal-string `propId` when Open77 owns the thing. Without that option the returned table is unchanged, so existing resources are unaffected. The entity is not read out of the trace, which carries none: the object standing at the hit point is found with the same object search `Open77.world.nearest` uses, so the search is centred on the local player and a hit more than 250 m away cannot be attributed. A hit on a wall, a road or a railing has no entity at all, which is the ordinary answer and not an error. Synchronous, on the game thread; requires the `world.query` permission.",
+  "description": "Traces the segment from `from` to `to`. Requires `world.query`. Synchronous native raycast on the client game thread. Defaults to Static and Dynamic groups; the nearer hit wins. Stable 156 adds `groups`, 1..16 case-sensitive native names such as Vehicle, Static and Terrain, checked against the engine registry. It replaces static/dynamic flags; combining them fails with `collision_groups_conflict`. Unknown names return `invalid_collision_group`; malformed lists return `invalid_collision_groups`. With `entities = true`, entity identity comes from the hit proxy's actual native owner, never a nearest-object guess. Geometry without an owner has no entity; unavailable owner lookup returns `ray_entity_lookup_unavailable`. The optional entity contains engineEntity, className, kind, position, distance and a canonical playerId/vehicleId/npcId/propId when owned. `ignore` is unsupported and returns `ray_ignore_unavailable`. See [world queries](/docs/world-queries#choosing-collision-groups).",
   "params": [
    {
     "name": "from",
@@ -26645,14 +26656,14 @@
    },
    {
     "name": "options",
-    "type": "table { static?, dynamic?, entities? }",
+    "type": "table { static?, dynamic?, groups?, entities? }",
     "optional": true,
     "default": null
    }
   ],
   "returns": [
-   "table { hit, position { x, y, z }, normal { x, y, z }, material, distance, entity? } (position, normal, material and distance only when hit is true; entity only when options.entities is set AND the ray stopped on an object), or nil",
-   "reason: permission_denied:world.query, invalid_from, invalid_to, ray_entities_unavailable_on_this_host, world_unavailable_on_this_host, or the engine status"
+   "table { hit, position?, normal?, material?, distance?, entity? }, or nil",
+   "reason"
   ],
   "api_set": "game",
   "runtime": "client",
@@ -26664,9 +26675,14 @@
    "world.query"
   ],
   "reasons": [
+   "collision_groups_conflict",
+   "invalid_collision_group",
+   "invalid_collision_groups",
    "invalid_from",
    "invalid_to",
-   "permission_denied:world.query"
+   "permission_denied:world.query",
+   "ray_entity_lookup_unavailable",
+   "ray_ignore_unavailable"
   ],
   "since": "2.31.9+op77.22",
   "constant": false,
@@ -47139,7 +47155,7 @@
   "name": "create",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Creates an authoritative NPC.",
-  "description": "Requires `world.npcs`. Build one from `record = \"Character.*\"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved`, `persistent` and `authorityPolicy`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `\"invulnerable\"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. `authorityPolicy` is `\"nearest\"` (default) or `\"balanced\"` (the client simulating the fewest NPCs, with a tenure-gated rebalance); anything else returns `nil, \"npc_authority_policy_invalid\"`. `behavior.observerReplay = true` makes clients that do not simulate the NPC replay the simulator's motion on the shared server clock. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md). Stable 147 also accepts body and equipment from a saved player look; body.family selects the matching Open77 player template. Do not combine it with a legacy template or an unrelated record. See [Character previews](character-previews.md).",
+  "description": "Requires `world.npcs`. Build one from `record = \"Character.*\"` directly -- no catalogue entry is needed -- or from the legacy `template` alias. Definition fields are `record`, `template`, `position`, `yaw`, `bucket`, `appearance`, `loadout`, `behavior`, `aiMode`, `damagePolicy`, `health`, `maxHealth`, `streamingRadius`, `streamingHysteresis`, `despawnWhenUnobserved`, `persistent` and `authorityPolicy`. `aiMode` and `damagePolicy` are **integers** from the constant tables `Open77.npcs.ai` (`tasks = 0`, `frozen = 1`, `native = 2`) and `Open77.npcs.damage` (`mortal = 0`, `immortal = 1`, `invulnerable = 2`; default `immortal`); a string such as `\"invulnerable\"` raises a Lua argument error (`number expected, got string`) in `CreateNpc`. `authorityPolicy` is `\"nearest\"` (default) or `\"balanced\"` (the client simulating the fewest NPCs, with a tenure-gated rebalance); anything else returns `nil, \"npc_authority_policy_invalid\"`. `behavior.observerReplay = true` makes clients that do not simulate the NPC replay the simulator's motion on the shared server clock. The id comes back at once, but engine readiness is asynchronous: a freshly created NPC is not yet a body in the world. See [NPCs](npcs.md). Stable 147 also accepts body and equipment from a saved player look; body.family selects the matching Open77 player template. Do not combine it with a legacy template or an unrelated record. See [Character previews](character-previews.md). Stable 156 snapshots include armor. Server create accepts armor (default 0), update preserves it when omitted; finite 0..100000 points absorb canonical damage before health. Matching protocol 1.50 is required. See [NPC armor](/docs/npcs#armor).",
   "params": [
    {
     "name": "def",
@@ -47178,7 +47194,7 @@
   "name": "get",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Reads one NPC's canonical snapshot.",
-  "description": "Requires `world.npcs`. Answers `nil` for an unknown id. The snapshot is the server's record, so it is available before the body has streamed to anyone.",
+  "description": "Requires `world.npcs`. Answers `nil` for an unknown id. The snapshot is the server's record, so it is available before the body has streamed to anyone. Stable 156 snapshots include armor. Server create accepts armor (default 0), update preserves it when omitted; finite 0..100000 points absorb canonical damage before health. Matching protocol 1.50 is required. See [NPC armor](/docs/npcs#armor).",
   "params": [
    {
     "name": "id",
@@ -48378,7 +48394,7 @@
   "name": "update",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Patches an NPC's canonical state.",
-  "description": "Requires `world.npcs`. Sparse: appearance, loadout, behavior, AI mode, damage policy, health and ragdoll can all be patched in one call, and everything omitted is left alone. The convenience setters below are thin wrappers over this. Stable 147 supports player body snapshots in the NPC loadout. update(id, {body=...}) replaces the body while retaining other loadout data. Weapon-only loadout changes preserve the body and equipment. The complete loadout remains limited to 8 KiB. See [Character previews](character-previews.md#networked-npc).",
+  "description": "Requires `world.npcs`. Sparse: appearance, loadout, behavior, AI mode, damage policy, health and ragdoll can all be patched in one call, and everything omitted is left alone. The convenience setters below are thin wrappers over this. Stable 147 supports player body snapshots in the NPC loadout. update(id, {body=...}) replaces the body while retaining other loadout data. Weapon-only loadout changes preserve the body and equipment. The complete loadout remains limited to 8 KiB. See [Character previews](character-previews.md#networked-npc). Stable 156 snapshots include armor. Server create accepts armor (default 0), update preserves it when omitted; finite 0..100000 points absorb canonical damage before health. Matching protocol 1.50 is required. See [NPC armor](/docs/npcs#armor).",
   "params": [
    {
     "name": "id",
@@ -53466,7 +53482,7 @@
   "name": "create",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Creates an authoritative, replicated world prop.",
-  "description": "Requires `world.props`. This is the **server** meaning of the name: the prop is owned by the creating resource, streamed per player rather than broadcast to a bucket, and visible to everyone in range. The identically named *client* function makes a local, unreplicated decoration instead. Definitions accept `model`, `position`, `yaw`, `scale` (a number or `{ x, y, z }`), `appearance`, `bucket`, `physics` (`static`, `kinematic`, `dynamic`, `none`), `collision`, `visible`, `kind` (`prop`, `light`, `effect`), `light`, `streamingRadius` (10 to 2000, default 120), `streamingHysteresis` (default 30) and `ttlMs` (0 for no expiry, seven days maximum). The registry holds 8,192 props, of which one resource may own 2,048. Ids are decimal strings; do not pass them through `tonumber`.",
+  "description": "Requires `world.props`. This is the **server** meaning of the name: the prop is owned by the creating resource, streamed per player rather than broadcast to a bucket, and visible to everyone in range. The identically named *client* function makes a local, unreplicated decoration instead. Definitions accept `model`, `position`, `yaw`, `scale` (a number or `{ x, y, z }`), `appearance`, `bucket`, `physics` (`static`, `kinematic`, `dynamic`, `none`), `collision`, `visible`, `kind` (`prop`, `light`, `effect`), `light`, `streamingRadius` (10 to 2000, default 120), `streamingHysteresis` (default 30) and `ttlMs` (0 for no expiry, seven days maximum). The registry holds 8,192 props, of which one resource may own 2,048. Ids are decimal strings; do not pass them through `tonumber`. Stable 156 accepts raw .mesh and .ent depot paths without an alias whitelist. Every observer needs the assets and dependencies mounted. Mesh loading is asynchronous; rendered stays false until ready. Raw .ent requires kind=\"prop\" and retains its authored graph/appearance. Visual scale does not rescale collision. Attached props are non-blocking; collision=false keeps raw decorations non-solid after detach. Arbitrary gameplay/physics template families remain experimental. Existing alias and registered-model routing is preserved. See [model limits](/docs/props#model-and-collision-limits).",
   "params": [
    {
     "name": "def",
@@ -64038,7 +64054,7 @@
   "name": "setAmmo",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sets a slot's magazine and reserve ammunition.",
-  "description": "Asynchronous, same relay and completion contract as `assign`. `amounts` takes `reserve` and `magazine` -- at least one is required, each a non-negative integer up to 1,000,000 -- plus an optional boolean `activate`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently.",
+  "description": "Asynchronous, same relay and completion contract as `assign`. `amounts` takes `reserve` and `magazine` -- at least one is required, each a non-negative integer up to 1,000,000 -- plus an optional boolean `activate`. When both hands share an ammo record, reserve is shared and the total includes both loaded magazines. Editing one magazine preserves the other; await completion before a dependent change. Native dual reloads with too little shared reserve can still allocate rounds inconsistently. On Stable 156 or later, inactive/holstered slots, including never-drawn assigned weapons, can be read and updated without drawing or changing selection. `activate = true` explicitly selects/draws. For an inactive slot, reserve is inventory total minus that slot's magazine and currently drawn other-hand magazines; other inactive magazines are saved counts, not separate pools. Native jobs are ordered and asynchronous; await completion. Slot changes, invalid capacity, disconnect or body replacement invalidate the job. See [weapon ammunition](/docs/weapons-api).",
   "params": [
    {
     "name": "playerId",
@@ -66389,5 +66405,369 @@
   "constant": false,
   "qualified": "Open77.weapons.setDualWieldAllowed",
   "route_id": "server:Open77.weapons.setDualWieldAllowed"
+ },
+ {
+  "namespace": "Open77.weapons",
+  "name": "shotCounters",
+  "handler": "LuaWeaponShotCounters",
+  "summary": "Reads cumulative local discharges for each hand.",
+  "description": "Requires `player.weapons.read`. Returns cumulative native discharges as `{ generation, right, left, total }`, or `nil, reason`. Counts real discharges, including free shots, rather than ammo cost; reloads and administrative ammo edits do not add shots. Holstering and switching preserve counts. A new character incarnation resets them and changes generation; compare generation before subtracting. Local observation only, with no implicit server broadcast or damage authority. See [shot counters](/docs/weapons-api#counting-shots-between-polls).",
+  "params": [],
+  "returns": [
+   "table { generation, right, left, total }, or nil",
+   "reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local shots, reason = Open77.weapons.shotCounters()\nif shots then print(shots.generation, shots.right, shots.left) end",
+  "inferred": false,
+  "source_line": 15101,
+  "permissions": [
+   "player.weapons.read"
+  ],
+  "reasons": [
+   "permission_denied:player.weapons.read",
+   "invalid_weapon_request",
+   "weapon_counters_unavailable"
+  ],
+  "since": "2.50.0+op77.156",
+  "constant": false,
+  "qualified": "Open77.weapons.shotCounters",
+  "route_id": "Open77.weapons.shotCounters"
+ },
+ {
+  "namespace": "Open77.world",
+  "name": "isBurning",
+  "handler": "LuaWorldIsBurning",
+  "summary": "Reads an entity's native Burning status effect.",
+  "description": "Requires `world.query`. Reads the resolved entity's native Burning status effect. Omit target or pass 0 for the local player; accepts a receiver-local entity integer, `{ playerId }`, `{ npcId }`, `{ vehicleId }`, `{ propId }`, or `{ engineEntity, radius? }`. Canonical IDs take priority; an unavailable canonical target never falls back to a different entity. Preserve engine IDs as strings. `false` means no native Burning status; `nil, reason` means unavailable. Cosmetic flames, wreck visuals and nearby fires are not Burning status. No implicit replication or server authority. See [burning status](/docs/world-queries#burning-status).",
+  "params": [
+   {
+    "name": "target",
+    "type": "integer|table",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean, or nil",
+   "reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local burning, reason = Open77.world.isBurning({ playerId = otherPlayerId })\nif burning ~= nil then print(burning) end",
+  "inferred": false,
+  "source_line": 5949,
+  "permissions": [
+   "world.query"
+  ],
+  "reasons": [
+   "permission_denied:world.query",
+   "unexpected_arguments",
+   "game_unavailable_on_this_host"
+  ],
+  "since": "2.50.0+op77.156",
+  "constant": false,
+  "qualified": "Open77.world.isBurning",
+  "route_id": "Open77.world.isBurning"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "allowEncumbrance",
+  "handler": "LuaPlayerControl",
+  "summary": "Enables or suppresses native overweight penalties.",
+  "description": "Requires `players.controls` and a strict boolean. `false` acquires resource-owned suppression of vanilla overweight warnings and movement penalties, removing an existing encumbered effect. `true` releases only this resource's claim; `resetControls`, resource stop and player/session teardown also release it. Inventory contents, measured weight and carry capacity are unchanged; server inventory rules remain separate. Update `open77_equipment` to 0.2.1 for suppression by default, or set its `Open77EquipmentConfig.nativeEncumbrance = true` to release that package's claim. See [native weight penalties](/docs/player-utilities#native-weight-penalties).",
+  "params": [
+   {
+    "name": "allow",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "assert(Open77.players.allowEncumbrance(false))\n-- Release this resource's suppression when appropriate:\nassert(Open77.players.allowEncumbrance(true))",
+  "inferred": false,
+  "source_line": 13415,
+  "permissions": [
+   "players.controls"
+  ],
+  "reasons": [],
+  "since": "2.50.0+op77.156",
+  "constant": false,
+  "qualified": "Open77.players.allowEncumbrance",
+  "route_id": "Open77.players.allowEncumbrance"
+ },
+ {
+  "namespace": "_G",
+  "name": "AllowEncumbrance",
+  "handler": "LuaPlayerControl",
+  "summary": "Enables or suppresses native overweight penalties.",
+  "description": "Requires `players.controls` and a strict boolean. `false` acquires resource-owned suppression of vanilla overweight warnings and movement penalties, removing an existing encumbered effect. `true` releases only this resource's claim; `resetControls`, resource stop and player/session teardown also release it. Inventory contents, measured weight and carry capacity are unchanged; server inventory rules remain separate. Update `open77_equipment` to 0.2.1 for suppression by default, or set its `Open77EquipmentConfig.nativeEncumbrance = true` to release that package's claim. See [native weight penalties](/docs/player-utilities#native-weight-penalties).",
+  "params": [
+   {
+    "name": "allow",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false, reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "assert(Open77.players.allowEncumbrance(false))\n-- Release this resource's suppression when appropriate:\nassert(Open77.players.allowEncumbrance(true))",
+  "inferred": false,
+  "source_line": 13415,
+  "permissions": [
+   "players.controls"
+  ],
+  "reasons": [],
+  "since": "2.50.0+op77.156",
+  "constant": false,
+  "qualified": "AllowEncumbrance",
+  "route_id": "AllowEncumbrance"
+ },
+ {
+  "namespace": "Open77.npcs",
+  "name": "setArmor",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Sets an owned NPC's armor points.",
+  "description": "Requires `world.npcs` and ownership of the NPC. Sets finite armor points from 0 to 100000; equivalent to `update(id, { armor = points })`. Updates omitting armor preserve it; creation defaults to zero. Canonical damage consumes armor before health, while invulnerability preserves both. Damage event amounts remain health damage, including zero for an entirely absorbed hit. Armor is replicated to current observers and late joiners with protocol 1.50. See [NPC armor](/docs/npcs#armor).",
+  "params": [
+   {
+    "name": "npcId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "points",
+    "type": "number",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "assert(Open77.npcs.setArmor(npcId, 50))",
+  "inferred": false,
+  "source_line": 9520,
+  "permissions": [
+   "world.npcs"
+  ],
+  "reasons": [
+   "invalid_npc_armor"
+  ],
+  "since": "2.50.0+op77.156",
+  "constant": false,
+  "qualified": "Open77.npcs.setArmor",
+  "route_id": "server:Open77.npcs.setArmor"
+ },
+ {
+  "namespace": "Open77.npcs",
+  "name": "getArmor",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads an owned NPC's armor points.",
+  "description": "Requires `world.npcs` and resource ownership. Returns the canonical armor value, or nil for an unavailable/unowned NPC. On the client use `Open77.npcs.get(id).armor` with `npcs.read`. See [NPC armor](/docs/npcs#armor).",
+  "params": [
+   {
+    "name": "npcId",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "number, or nil"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local armor = Open77.npcs.getArmor(npcId)",
+  "inferred": false,
+  "source_line": 9524,
+  "permissions": [
+   "world.npcs"
+  ],
+  "reasons": [],
+  "since": "2.50.0+op77.156",
+  "constant": false,
+  "qualified": "Open77.npcs.getArmor",
+  "route_id": "server:Open77.npcs.getArmor"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "attach",
+  "handler": "PlayerAttachmentOp",
+  "summary": "Creates or updates an experimental persistent player binding.",
+  "description": "Requires `players.attachments.control`. Options: `{ parentType = \"player\"|\"vehicle\", parentId, bone?, offset?, rotation?, pose? }`. Bone defaults to the parent root. Offset axes are metres within ±1000; rotation axes are degrees within ±360. Parent/child must be ready and in the same bucket; child cannot be in a vehicle. Rejects cycles, busy participants and foreign ownership. Enforce consent and distance in your own server resource. Omit pose: its client projection is unsupported. Acceptance returns pending state, not proof of rendering; preparation times out after 15 seconds. Active bindings have no duration cap. Optional expectedRevision compares current revision, or 0 for no binding. Resource stop, disconnect, bucket/parent/incarnation changes and vehicle entry release the binding. See [persistent player attachments](/docs/player-interactions#persistent-player-attachments-experimental). Experimental: alive-player root/exported-slot following only; arbitrary skeleton bones, corpse transport and custom-bank poses are not reliable supported workflows. Requires matching protocol 1.50 and `open77_player_interactions`.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer|string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "options",
+    "type": "table",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "expectedRevision",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "state table, or nil",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local state, reason = Open77.players.attach(playerId, {\n    parentType = \"vehicle\", parentId = vehicleId,\n    offset = { x = 0, y = -2, z = 0.5 },\n}, 0)",
+  "inferred": false,
+  "source_line": 8893,
+  "permissions": [
+   "players.attachments.control"
+  ],
+  "reasons": [
+   "invalid_attachment",
+   "invalid_revision",
+   "stale_revision",
+   "owned_by_another_resource",
+   "wrong_bucket",
+   "parent_unavailable",
+   "player_not_ready",
+   "player_in_vehicle",
+   "player_reserved",
+   "attachment_cycle",
+   "attachment_limit",
+   "attachment_parent_limit"
+  ],
+  "since": "2.50.0+op77.156",
+  "constant": false,
+  "qualified": "Open77.players.attach",
+  "route_id": "server:Open77.players.attach"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "detach",
+  "handler": "PlayerAttachmentOp",
+  "summary": "Releases this resource's persistent player binding.",
+  "description": "Requires `players.attachments.control`. Optional expectedRevision rejects a stale write. Releases only the caller's binding; foreign ownership is refused. Listen for `onPlayerAttachmentChanged(state)` on the server for phase/reason changes. See [persistent player attachments](/docs/player-interactions#persistent-player-attachments-experimental). Experimental: alive-player root/exported-slot following only; arbitrary skeleton bones, corpse transport and custom-bank poses are not reliable supported workflows. Requires matching protocol 1.50 and `open77_player_interactions`.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer|string",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "expectedRevision",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or nil",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local current = Open77.players.getAttachment(playerId)\nif current then Open77.players.detach(playerId, current.revision) end",
+  "inferred": false,
+  "source_line": 8896,
+  "permissions": [
+   "players.attachments.control"
+  ],
+  "reasons": [
+   "stale_revision",
+   "owned_by_another_resource",
+   "invalid_revision"
+  ],
+  "since": "2.50.0+op77.156",
+  "constant": false,
+  "qualified": "Open77.players.detach",
+  "route_id": "server:Open77.players.detach"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "getAttachment",
+  "handler": "PlayerAttachmentOp",
+  "summary": "Reads a player's current persistent binding.",
+  "description": "Requires `players.attachments.read`. May read another resource's binding. State includes epoch, revision, id, playerId, incarnation, bucket, parentType, parentId, parentIncarnation, bone, offset, rotation, pose, phase and reason. Preserve returned IDs as strings. Returns nil without a live binding, or nil and a reason on failure. See [persistent player attachments](/docs/player-interactions#persistent-player-attachments-experimental). Experimental: alive-player root/exported-slot following only; arbitrary skeleton bones, corpse transport and custom-bank poses are not reliable supported workflows. Requires matching protocol 1.50 and `open77_player_interactions`.",
+  "params": [
+   {
+    "name": "playerId",
+    "type": "integer|string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "state table, or nil",
+   "reason on failure"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local state, reason = Open77.players.getAttachment(playerId)",
+  "inferred": false,
+  "source_line": 8899,
+  "permissions": [
+   "players.attachments.read"
+  ],
+  "reasons": [],
+  "since": "2.50.0+op77.156",
+  "constant": false,
+  "qualified": "Open77.players.getAttachment",
+  "route_id": "server:Open77.players.getAttachment"
+ },
+ {
+  "namespace": "Open77.players",
+  "name": "listAttachments",
+  "handler": "PlayerAttachmentOp",
+  "summary": "Lists this resource's persistent player bindings.",
+  "description": "Requires `players.attachments.read`. Returns only bindings owned by the calling resource, not all bindings on the server. See [persistent player attachments](/docs/player-interactions#persistent-player-attachments-experimental). Experimental: alive-player root/exported-slot following only; arbitrary skeleton bones, corpse transport and custom-bank poses are not reliable supported workflows. Requires matching protocol 1.50 and `open77_player_interactions`.",
+  "params": [],
+  "returns": [
+   "array of state tables, or nil",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "for _, state in ipairs(Open77.players.listAttachments() or {}) do\n    print(state.playerId, state.phase)\nend",
+  "inferred": false,
+  "source_line": 8900,
+  "permissions": [
+   "players.attachments.read"
+  ],
+  "reasons": [],
+  "since": "2.50.0+op77.156",
+  "constant": false,
+  "qualified": "Open77.players.listAttachments",
+  "route_id": "server:Open77.players.listAttachments"
  }
 ]
