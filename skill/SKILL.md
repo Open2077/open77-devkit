@@ -97,6 +97,38 @@ handler `source` is the authenticated player, never client data.
 Porting from FiveM: `open77_fivem_equivalent <name>` for every native; the compatibility guide
 lists the three places Open77 deliberately answers differently.
 
+## Vehicle customization
+
+Liveries, neon and its animation, lamp colours, rims and body parts, plate, window tint, stickers,
+performance stages and engine sounds are **server** natives on `Open77.vehicles`, **coming in the
+next release**: their cards carry `since: null`, so they are not available on a published build
+yet. Paint, the lights hue and factory trims (`setPaint`, `setLightsHue`, `setHeadlightColor`,
+`setAppearance`) are already published. Read `open77_guide vehicle-customization` first, then the
+topic pages it lists: `vehicle-customization-natives`, `-packs`, `-models`, `-persistence`,
+`-fivem` and `-examples`.
+
+- **Permissions.** A call that changes the look (trim, livery, neon, lamp colours, parts, rims,
+  plate, tint, stickers) needs `world.vehicles` **and** `world.vehicles.appearance`; the same
+  value again needs only `world.vehicles`, so a garage restoring onto a fresh car needs both.
+  `register*` calls need none; `list*` calls need none given a record name and `world.vehicles`
+  given a vehicle id.
+- **Part ids are namespaced** `<resource>:<id>`. A bare id names a part of the calling resource,
+  so a shop that sells another pack's rims passes the qualified ids `listParts` returns, or gets
+  `unknown_part`.
+- **Coverage is data.** A part fits only the records its `fit` lists (`part_not_for_model`), a
+  livery or sticker only its records, a stage only the records the pack generated. Offer what the
+  `list*` functions answer for that car, never an id or record name a client sent.
+- **Stages and engine sounds rebuild the car** (`respawnAs`, `setEngineSound`): it must be empty
+  (`vehicle_occupied`). The server cannot see which records a pack generated.
+- **Feature-detect** every native (`if Open77.vehicles.setWheels then`) so a resource still loads
+  on an older server, and read client `customizationAvailable(id).skipped` (permission
+  `vehicles.read`) to tell a player what their game cannot draw.
+- **Persist** with `getProperties(id)` stored by the resource and `setProperties(id, stored)` on
+  the new car; Open77 writes no vehicle to disk.
+- **FiveM:** `SetVehicleLivery`, `SetVehicleNeonLight*`, `SetVehicleMod`, `SetVehicleWheelType`
+  and `SetVehicleWindowTint` (with their getters) are server globals; `SetVehicleNumberPlateText`
+  is `setPlate`, the custom colours are `setPaint`. Ask `open77_fivem_equivalent` for each.
+
 ## Testing
 
 For RP jobs and inventory actions, read `open77_guide rp-animations` before choosing

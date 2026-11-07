@@ -14,8 +14,8 @@ import { z } from "zod";
 import { opNumber } from "./index/builder.js";
 import { guideOnlyGlobals, type GuideOnlyGlobal } from "./index/conventions.js";
 import { loadCatalogue, readStub } from "./index/loader.js";
-import { IndexSearch, type SearchKind } from "./index/search.js";
-import type { ApiCard, DevIndex, Guide, GuideSection } from "./index/types.js";
+import { fivemStatus, IndexSearch, type SearchKind } from "./index/search.js";
+import type { ApiCard, DevIndex, FivemMapping, Guide, GuideSection } from "./index/types.js";
 import type { ResolvedIndex } from "./index/refresh.js";
 
 export interface ServerContext {
@@ -39,6 +39,9 @@ function buildLine(context: ServerContext): string {
   return `answering for build ${resolved.build}${note}`;
 }
 
+/** What a card with no `since` is: on main, in no published build yet. */
+export const UNRELEASED = "unreleased: in no published build yet, coming in the next release";
+
 export function cardHeader(card: ApiCard): string {
   const side = card.runtime === "server" ? "server" : "client";
   // A constant table (Open77.vehicles.seats) is read, not called.
@@ -58,8 +61,8 @@ export function renderCard(card: ApiCard, context: ServerContext, guides: Guide[
   lines.push("");
   lines.push(`- runtime: ${card.runtime} (${card.api_set})`);
   lines.push(`- permissions: ${card.permissions.length ? card.permissions.join(", ") : "none checked in the handler"}`);
-  lines.push(`- since: ${card.since ?? "not in any published build (main only)"}`);
-  lines.push(`- reasons it can return: ${card.reasons.length ? card.reasons.join(", ") : card.constant ? "none (a table, not a call)" : "none found in the handler; a refusal it forwards from a callee may still reach you as a second return value"}`);
+  lines.push(`- since: ${card.since ?? UNRELEASED}`);
+  lines.push(`- reasons it can return: ${card.reasons.length ? card.reasons.join(", ") : card.constant ? "none (a table, not a call)" : card.returns.some((r) => /reason/i.test(r)) ? "none found in the handler; the documented ones are listed under returns" : "none found in the handler; a refusal it forwards from a callee may still reach you as a second return value"}`);
   if (card.returns.length) lines.push(`- returns: ${card.returns.join("; ")}`);
   if (card.inferred) lines.push("- signature: inferred from the handler, not reviewed");
   const available = availabilityNote(card, context);
@@ -74,7 +77,7 @@ export function renderCard(card: ApiCard, context: ServerContext, guides: Guide[
 /** "not available on op77.54 (since op77.57)" when the served build predates the card. */
 export function availabilityNote(card: ApiCard, context: ServerContext): string | null {
   const served = opNumber(context.resolved.build);
-  if (!card.since) return `NOT AVAILABLE on ${context.resolved.build}: this native is not in any published build`;
+  if (!card.since) return `NOT AVAILABLE on ${context.resolved.build}: ${UNRELEASED}`;
   if (opNumber(card.since) > served) return `NOT AVAILABLE on ${context.resolved.build}: needs ${card.since} or newer`;
   return null;
 }
@@ -379,7 +382,13 @@ export function createMcpServer(context: ServerContext): McpServer {
       const key = name.replace(/\(\)$/, "").toLowerCase();
       const exact = index.fivem.filter((m) => m.fivem.replace(/\(\)$/, "").toLowerCase() === key);
       if (exact.length) {
-        return text(exact.map((m) => `**${m.fivem}** — ${m.status}${m.status !== "missing" ? ` (client ${m.client ? "yes" : "no"}, server ${m.server ? "yes" : "no"})` : ""}\n${m.open77}\n_guide: fivem-compatibility#${m.guideAnchor}_`).join("\n\n") + `\n\n_${buildLine(context)}_`);
+        // An alias with its own card (a server global) carries its permissions
+        // and since there; print them so the port declares the right manifest.
+        const aliasCard = (m: FivemMapping) => {
+          const cards = (byQualified.get(m.fivem.replace(/\(.*$/, "").toLowerCase()) ?? []).filter((c) => c.namespace === "_G");
+          return cards.map((c) => `\ncard: ${cardHeader(c)} [${c.permissions.length ? c.permissions.join(", ") : "no permission"}] · ${c.since ? `since ${c.since}` : UNRELEASED}`).join("");
+        };
+        return text(exact.map((m) => `**${m.fivem}** — ${fivemStatus(m)}\n${m.open77}${aliasCard(m)}\n_guide: fivem-compatibility#${m.guideAnchor}_`).join("\n\n") + `\n\n_${buildLine(context)}_`);
       }
       // A FiveM native is words in camelCase: `GetVehiclePedIsIn` asks about a
       // vehicle and a seat, `SetEntityHealth` about health. Search the words, not
@@ -397,7 +406,7 @@ export function createMcpServer(context: ServerContext): McpServer {
       const guideHits = hits.filter((h) => h.kind === "guide").slice(0, 3);
       return text([
         `${name} is not in the FiveM alias table (no row named exactly that).`,
-        ...(aliasRows.length ? ["Alias rows that contain it:", ...aliasRows.slice(0, 5).map((m) => `- ${m.fivem}: ${m.status} — ${m.open77}`)] : []),
+        ...(aliasRows.length ? ["Alias rows that contain it:", ...aliasRows.slice(0, 5).map((m) => `- ${m.fivem}: ${fivemStatus(m)} — ${m.open77}`)] : []),
         `Open77 natives that answer the words in the name (${words.join(", ") || name}):`,
         ...(cardHits.length ? cardHits.map((h) => `- ${h.title}${h.runtime ? ` [${h.runtime}]` : ""} — ${h.snippet}`) : ["- none; try open77_namespace on the subject (Open77.vehicles, Open77.players, Open77.character)"]),
         ...(guideHits.length ? ["Guides:", ...guideHits.map((h) => `- ${h.ref} — ${h.snippet.slice(0, 120)}`)] : []),

@@ -5,10 +5,10 @@ import path from "node:path";
 import { test } from "node:test";
 import { buildIndex, chunkGuide, opNumber, parseFivemGuide } from "../src/index/builder.js";
 import { loadIndex } from "../src/index/loader.js";
-import { IndexSearch } from "../src/index/search.js";
+import { fivemStatus, IndexSearch } from "../src/index/search.js";
 import type { ApiCard } from "../src/index/types.js";
 import type { ServerContext } from "../src/server.js";
-import { availabilityNote } from "../src/server.js";
+import { availabilityNote, renderCard } from "../src/server.js";
 import { detectWorkspace } from "../src/workspace/detect.js";
 import { scaffold } from "../src/workspace/scaffold.js";
 import { parseManifest, validateResource } from "../src/workspace/validate.js";
@@ -96,6 +96,24 @@ test("parseFivemGuide reads alias tables", () => {
   assert.equal(rows[0]!.status, "alias");
   assert.equal(rows[2]!.status, "missing");
   assert.equal(rows[2]!.guideAnchor, "availability");
+});
+
+test("a FiveM row with no alias names the native to use, not a gap", () => {
+  const [plate, mod] = parseFivemGuide([
+    "| Name | Client | Server | Open77 |",
+    "|---|---|---|---|",
+    "| `SetVehicleNumberPlateText` | no | no | server `Open77.vehicles.setPlate(id, text)` |",
+    "| `SetVehicleMod` / `GetVehicleMod` | no | yes | `setWheels`, `setParts` |",
+  ].join("\n"));
+  assert.equal(fivemStatus(plate!), "no alias under the FiveM name");
+  assert.match(fivemStatus(mod!), /^alias on one side only \(client no, server yes\)$/);
+});
+
+test("a card with no since reads as unreleased, never as an error", async () => {
+  const ctx = await context();
+  const card: ApiCard = { ...ctx.index.cards[0]!, since: null };
+  assert.match(availabilityNote(card, ctx)!, /NOT AVAILABLE .*unreleased.*next release/);
+  assert.match(renderCard(card, ctx, []), /- since: unreleased: in no published build yet, coming in the next release/);
 });
 
 test("the embedded index loads, verifies and searches", async () => {

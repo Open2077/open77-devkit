@@ -10,7 +10,17 @@
  */
 
 import MiniSearch from "minisearch";
-import type { DevIndex } from "./types.js";
+import type { DevIndex, FivemMapping } from "./types.js";
+
+/**
+ * How a FiveM alias row reads. `missing` means the FiveM name itself is not
+ * provided, though the row still names the Open77 native to use: say "no alias".
+ */
+export function fivemStatus(m: Pick<FivemMapping, "status" | "client" | "server">): string {
+  if (m.status === "missing") return "no alias under the FiveM name";
+  const sides = `client ${m.client ? "yes" : "no"}, server ${m.server ? "yes" : "no"}`;
+  return m.status === "alias" ? `alias (${sides})` : `alias on one side only (${sides})`;
+}
 
 export type SearchKind = "card" | "guide" | "event" | "permission" | "fivem";
 
@@ -215,7 +225,7 @@ export class IndexSearch {
         runtime: "",
         text: `${mapping.status} ${mapping.open77}`,
         ref: mapping.fivem,
-        snippet: `${mapping.status}: ${mapping.open77}`,
+        snippet: `${fivemStatus(mapping)}: ${mapping.open77}`,
       });
     }
     // An index built by an older builder could carry a duplicate section id;
