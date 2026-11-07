@@ -7585,6 +7585,18 @@ function Open77.vehicles.clearPerformanceClass(record) end
 ---@return any reason reason: permission_denied:vehicles.read, invalid_radius, no_vehicle_in_range, no_session, no_local_position
 function Open77.vehicles.closest(radiusOrOptions) end
 
+--- Reads what this vehicle's record supports and how far its look got on this client.
+---
+--- Requires `vehicles.read`. Client-side and read-only. Answers from the live TweakDB and from this client's copy of the server's visual value: `{ record, paint, rims, lights, twintone, profiles, appearance, streamed, destroyed, rev, appliedRev, neonLit, skipped }`. A capability the record did not answer is absent (nil). `skipped` lists `"<category>:<item>:<reason>"` strings for what this game could not draw: `attach:<key>:model_not_registered` when its parts pack is missing, `hide:*:held_parts_missing` while it keeps the factory parts those pieces replace, `tint:<level>:pending_mesh` while the glass is still loading. Read `skipped` only once `appliedRev` has caught up with `rev`. Returns nil and `unknown_vehicle`, `vehicles_unavailable` or `permission_denied:vehicles.read` on failure.
+---
+--- Permissions: vehicles.read
+--- Since: not in any published build
+--- Reasons: permission_denied:vehicles.read, unknown_vehicle, vehicles_unavailable
+---@param id integer
+---@return any value value
+---@return any reason reason (when the first is nil)
+function Open77.vehicles.customizationAvailable(id) end
+
 --- The same description for one named engine-spawned chassis.
 ---
 --- Requires `vehicles.read`. Takes the `engineEntity` string an `adoptable()` entry carries (a plain integer id also works). `already_managed` means the server already owns that car and it is not a candidate; `vehicle_not_found` means it is not within eighty metres of the player, which is as far as this read looks.
@@ -7670,6 +7682,18 @@ function Open77.vehicles.getSteeringInput(vehicleId) end
 ---@return any number number degrees
 ---@return any reason reason on failure
 function Open77.vehicles.getSteeringWheelAngle(vehicleId) end
+
+--- Reads the vehicle's visual value exactly as the server published it.
+---
+--- Requires `vehicles.read`. Client-side and read-only. Returns the `open77.visual` value (schema v1: `v`, `rev`, `profile`, `neon`, `hide`, `show`, `attach`, `plate`, `tint`, and `na`, `lc`, `st` for the neon animation, lamp colours and stickers), or nil when the car has none -- the factory look -- or is unknown. It is what the server sent, not what this game managed to draw: `customizationAvailable` tells that. Returns nil and `vehicles_unavailable` or `permission_denied:vehicles.read` on failure.
+---
+--- Permissions: vehicles.read
+--- Since: not in any published build
+--- Reasons: permission_denied:vehicles.read, vehicles_unavailable
+---@param id integer
+---@return any value value
+---@return any reason reason (when the first is nil)
+function Open77.vehicles.getVisual(id) end
 
 --- Reads one weapon mount by its stable one-based index.
 ---

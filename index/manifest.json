@@ -1,18 +1,17 @@
 {
  "formatVersion": 1,
  "build": "2.50.0+op77.156",
- "generatedAt": "2026-11-07T10:15:00.330Z",
+ "generatedAt": "2026-11-07T10:57:12.005Z",
  "docsSyncedAt": "2026-09-24T12:33:14.568Z",
  "source": {
-  "repository": "https://github.com/Open2077/open77-app",
-  "commit": "03d2bf162680a29b0a4756c1b4f779e2e510fec8"
+  "repository": "https://github.com/Open2077/open77-app"
  },
  "counts": {
-  "cards": 1771,
+  "cards": 1800,
   "releases": 85,
   "siteGuides": 40,
-  "guides": 152,
-  "sections": 2186,
+  "guides": 153,
+  "sections": 2205,
   "fivem": 100,
   "catalogues": 9,
   "schemas": 2,
@@ -20,24 +19,24 @@
  },
  "files": {
   "cards.json": {
-   "sha256": "7c1e3269473dec1049cf08072baca656301c5499eb453730d54cd0881d26407e",
-   "bytes": 2570521
+   "sha256": "93cbc0dee3428a903c87ee862aee586821ed4f87f0f2a5d7d109e0771b21e1ca",
+   "bytes": 2624442
   },
   "events.json": {
    "sha256": "a3c674889c803f9e84bf16edda8f55da8b3c6e7a73c68b1056c75ff5194f73af",
    "bytes": 385167
   },
   "permissions.json": {
-   "sha256": "54314dbe61ed0f8967e78234e8205cd2257df445430466328c25d9ca9647e4bb",
-   "bytes": 158078
+   "sha256": "0f74fef53bf602f5f4e4379ab71f6cd3928d4b22b0b793a171dff0ab0ee0db8a",
+   "bytes": 159077
   },
   "releases.json": {
    "sha256": "1157e2372564b6bbec13a1d5f5069e820a443330e5807f9fb8c161f994601433",
    "bytes": 7243
   },
   "guides.json": {
-   "sha256": "8f6f68ea7e0b3aa3fea41b92f0dd5cbe56f341724c103cd66fb82c339b2f2f3a",
-   "bytes": 3185937
+   "sha256": "95b9f5c37da7676b49924e5d55680537ef63156a495154c01944e61338ab12fc",
+   "bytes": 3224365
   },
   "fivem-map.json": {
    "sha256": "f88c88ee9c0fa42b67a5ddfebb2226cd35564d34d797741f0f398964104ca3fa",
@@ -88,12 +87,12 @@
    "bytes": 26685
   },
   "open77-client.d.lua": {
-   "sha256": "220b2e22230e98184e26420e5c9b0d76adf7de7b25ef19da456e890086f1f1e0",
-   "bytes": 590532
+   "sha256": "3c1414744a38bf2d05eef8294bd1477154083fd39e498dc9623187f92d241b88",
+   "bytes": 592604
   },
   "open77-server.d.lua": {
-   "sha256": "12254307113e0d933a71afe67c6b9b06a3ae336a99c069c6b963fd89ba014a78",
-   "bytes": 747287
+   "sha256": "f6aff09ada652e5dfa34754176a1362a07c5fccdadc519b733a8bb953722f514",
+   "bytes": 780123
   }
  }
 }

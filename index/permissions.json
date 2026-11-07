@@ -4723,7 +4723,7 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 30 natives in Open77.players, Open77.vehicles.",
+   "summary": "Enforced by the client; gates 32 natives in Open77.players, Open77.vehicles.",
    "curated": false,
    "natives": [
     "Open77.players.getVehicleSeat",
@@ -4731,12 +4731,14 @@
     "Open77.vehicles.aimed",
     "Open77.vehicles.all",
     "Open77.vehicles.closest",
+    "Open77.vehicles.customizationAvailable",
     "Open77.vehicles.describeAdoptable",
     "Open77.vehicles.fromEntity",
     "Open77.vehicles.get",
     "Open77.vehicles.getActiveWeapons",
     "Open77.vehicles.getPaint",
     "Open77.vehicles.getPlayerSeat",
+    "Open77.vehicles.getVisual",
     "Open77.vehicles.getWeapon",
     "Open77.vehicles.getWeaponAim",
     "Open77.vehicles.getWeaponAmmo",
@@ -6237,7 +6239,7 @@
    "runtimes": [
     "server"
    ],
-   "summary": "Enforced by the server; gates 153 natives in Open77.effects, Open77.players, Open77.vehicles, Open77.vehicles.ai, _G.",
+   "summary": "Enforced by the server; gates 173 natives in Open77.effects, Open77.players, Open77.vehicles, Open77.vehicles.ai, _G.",
    "curated": false,
    "natives": [
     "server:CreateVehicle",
@@ -6399,12 +6401,33 @@
     "server:UpdateVehicleState",
     "server:VehicleDrivingCommand",
     "server:Open77.vehicles.isEngineHeld",
-    "server:Open77.vehicles.setEngineHold"
+    "server:Open77.vehicles.setEngineHold",
+    "server:Open77.vehicles.clearNeon",
+    "server:Open77.vehicles.getDecalBudget",
+    "server:Open77.vehicles.getEngineSound",
+    "server:Open77.vehicles.getLightColors",
+    "server:Open77.vehicles.getNeonAnimation",
+    "server:Open77.vehicles.getStickers",
+    "server:Open77.vehicles.getVisual",
+    "server:Open77.vehicles.getWindowTint",
+    "server:Open77.vehicles.positions",
+    "server:Open77.vehicles.respawnAs",
+    "server:Open77.vehicles.setEngineSound",
+    "server:Open77.vehicles.setLightColors",
+    "server:Open77.vehicles.setNeon",
+    "server:Open77.vehicles.setNeonAnimation",
+    "server:Open77.vehicles.setPaintProfile",
+    "server:Open77.vehicles.setParts",
+    "server:Open77.vehicles.setPlate",
+    "server:Open77.vehicles.setStickers",
+    "server:Open77.vehicles.setWheels",
+    "server:Open77.vehicles.setWindowTint"
    ],
    "guides": [
     "armed-vehicles.md",
     "effects.md",
     "vehicle-ai.md",
+    "vehicle-customization.md",
     "vehicle-paint.md",
     "vehicle-seat-switching.md",
     "vehicles.md",
@@ -6525,7 +6548,9 @@
    "summary": "Enforced by the server; gates 0 natives.",
    "curated": false,
    "natives": [],
-   "guides": [],
+   "guides": [
+    "vehicle-customization.md"
+   ],
    "sources": [
     {
      "file": "server/src/Open77.Server.Scripting/Runtime/LuaResourceRuntime.Vehicles.cs",
