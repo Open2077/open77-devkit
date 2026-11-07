@@ -8704,6 +8704,16 @@ function Open77.webui.blocklist(rules) end
 ---@return any reason reason
 function Open77.webui.blocklistState() end
 
+--- How full the WebUI surface pool your pages are counted against is, and which resources hold it.
+---
+--- Client-only; no permission. Older clients do not have it: test that `Open77.webui.budget` (or `WebUI.budget`) exists before calling it. Every page is a browser of its own and the client caps how many are alive at once: 32 for the connected server's pages (all of its resources together, Open77's own server-side resources included), plus a separate pool of 8 for the client's built-in pages (shell, load screen, pause menu, blips, reticle, debug inspector), which a server can neither use nor fill. A `create` past the cap answers `nil, "webui_surface_quota"` and the client logs `Open77 WebUI surface refused for <resource>: webui_surface_quota, server 32/32: <holders>`. Answers `{ pool, used, limit, free, own, pages = { { resource, count }, ... } }` for the caller's pool: `pool` is `"server"` (or `"system"` for a built-in resource), `own` is how many of the pages are the caller's, and `pages` lists every holder, largest first. A page being destroyed is no longer counted; a hidden page is. Answers `nil, "webui_backend_unavailable"` where there is no WebUI. Counts only: no URL, size or content of anybody's page crosses this call.
+---
+--- Since: not in any published build
+--- Reasons: webui_backend_unavailable
+---@return any table table, or nil
+---@return any reason reason
+function Open77.webui.budget() end
+
 --- Creates a web surface.
 ---
 --- Creates a WebUI asynchronously. The handle returns at once and the page is built later, so `page:send` before the page's ready event is dropped; send the first state from `page:on("ui:ready", ...)`. For an initially visible surface, pass `visible = true` and let the page show or hide its own content: showing a surface again after hiding it may not repaint reliably.

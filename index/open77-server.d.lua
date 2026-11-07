@@ -9595,6 +9595,17 @@ function Open77.vehicles.openWindow(id, window) end
 ---@return any reason reason: invalid_vehicle_id, vehicle_not_found
 function Open77.vehicles.owner(id) end
 
+--- Reads where the server vehicles are, as one flat array of numbers.
+---
+--- Requires `world.vehicles`. The light twin of `Open77.vehicles.all`: the same vehicles, in the same order (ascending Open77 ID) and with the same optional routing-bucket filter, but each vehicle is six consecutive numbers -- `id, x, y, z, yaw, bucket` -- in one table, followed by the vehicle count as a second return value. Vehicle `i` (from 1) starts at index `(i - 1) * 6 + 1`. A row of `all()` is about fifty fields and six sub-tables per car; a resource that reads its fleet's poses several times a second (`open77_traffic` does, for spacing and area counts) should read this instead and call `Open77.vehicles.get` only for the cars it acts on. The pose is the server registry's last accepted transform, the one `get` reports as `x`/`y`/`z`/`yaw`. Like `all()`, it lists every vehicle on the server, not only this resource's. Without `world.vehicles` it answers an empty table and `0`, not a refusal. `bucket` must be an integer from 0 to 4294967295; `nil` lists every bucket.
+---
+--- Permissions: world.vehicles
+--- Since: not in any published build
+---@param bucket? integer
+---@return any flat flat array: id, x, y, z, yaw, bucket per vehicle
+---@return any integer integer count of vehicles
+function Open77.vehicles.positions(bucket) end
+
 --- Registers resource-local named damage zones and glass parts.
 ---
 --- Requires `world.vehicles`. Profiles are scoped to the calling server resource VM and can extend or override the default body-zone mapping for one vehicle record.

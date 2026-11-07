@@ -26217,6 +26217,32 @@
  },
  {
   "namespace": "Open77.webui",
+  "name": "budget",
+  "handler": "LuaWebUiBudget",
+  "summary": "How full the WebUI surface pool your pages are counted against is, and which resources hold it.",
+  "description": "Client-only; no permission. Older clients do not have it: test that `Open77.webui.budget` (or `WebUI.budget`) exists before calling it. Every page is a browser of its own and the client caps how many are alive at once: 32 for the connected server's pages (all of its resources together, Open77's own server-side resources included), plus a separate pool of 8 for the client's built-in pages (shell, load screen, pause menu, blips, reticle, debug inspector), which a server can neither use nor fill. A `create` past the cap answers `nil, \"webui_surface_quota\"` and the client logs `Open77 WebUI surface refused for <resource>: webui_surface_quota, server 32/32: <holders>`. Answers `{ pool, used, limit, free, own, pages = { { resource, count }, ... } }` for the caller's pool: `pool` is `\"server\"` (or `\"system\"` for a built-in resource), `own` is how many of the pages are the caller's, and `pages` lists every holder, largest first. A page being destroyed is no longer counted; a hidden page is. Answers `nil, \"webui_backend_unavailable\"` where there is no WebUI. Counts only: no URL, size or content of anybody's page crosses this call.",
+  "params": [],
+  "returns": [
+   "table, or nil",
+   "reason"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Create the phone only if the client still has room, and say who holds it if not.\n-- Older clients have no budget(): test for it before calling.\nlocal budget = Open77.webui.budget and Open77.webui.budget()\nif budget and budget.free == 0 then\n    local holders = {}\n    for _, entry in ipairs(budget.pages) do\n        holders[#holders + 1] = entry.resource .. \" \" .. entry.count\n    end\n    print((\"no WebUI slot left (%d/%d): %s\"):format(budget.used, budget.limit, table.concat(holders, \", \")))\n    return\nend\nlocal page, reason = WebUI.create({ entry = \"web/phone.html\", visible = false })\nif not page then print(\"phone page refused: \" .. tostring(reason)) end",
+  "inferred": false,
+  "source_line": 27251,
+  "permissions": [],
+  "reasons": [
+   "webui_backend_unavailable"
+  ],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.webui.budget",
+  "route_id": "Open77.webui.budget"
+ },
+ {
+  "namespace": "Open77.webui",
   "name": "create",
   "handler": "LuaWebUiCreate",
   "summary": "Creates a web surface.",
@@ -59310,6 +59336,39 @@
   "constant": false,
   "qualified": "Open77.vehicles.owner",
   "route_id": "server:Open77.vehicles.owner"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "positions",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads where the server vehicles are, as one flat array of numbers.",
+  "description": "Requires `world.vehicles`. The light twin of `Open77.vehicles.all`: the same vehicles, in the same order (ascending Open77 ID) and with the same optional routing-bucket filter, but each vehicle is six consecutive numbers -- `id, x, y, z, yaw, bucket` -- in one table, followed by the vehicle count as a second return value. Vehicle `i` (from 1) starts at index `(i - 1) * 6 + 1`. A row of `all()` is about fifty fields and six sub-tables per car; a resource that reads its fleet's poses several times a second (`open77_traffic` does, for spacing and area counts) should read this instead and call `Open77.vehicles.get` only for the cars it acts on. The pose is the server registry's last accepted transform, the one `get` reports as `x`/`y`/`z`/`yaw`. Like `all()`, it lists every vehicle on the server, not only this resource's. Without `world.vehicles` it answers an empty table and `0`, not a refusal. `bucket` must be an integer from 0 to 4294967295; `nil` lists every bucket.",
+  "params": [
+   {
+    "name": "bucket",
+    "type": "integer",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "flat array: id, x, y, z, yaw, bucket per vehicle",
+   "integer count of vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- /nearcars: count the cars within 50 m of the caller, in their instance, from one flat read\nRegisterCommand(\"nearcars\", function(source)\n    local me = Open77.players.get(source)\n    if not me or not me.position then return end\n    local flat, count = Open77.vehicles.positions(me.bucket)\n    local near = 0\n    for at = 0, (count - 1) * 6, 6 do\n        local dx, dy = flat[at + 2] - me.position.x, flat[at + 3] - me.position.y\n        if dx * dx + dy * dy <= 50 * 50 then near = near + 1 end\n    end\n    Open77.chat.send(source, (\"%d of %d cars within 50 m\"):format(near, count))\nend, false)",
+  "inferred": false,
+  "source_line": 9723,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": null,
+  "constant": false,
+  "qualified": "Open77.vehicles.positions",
+  "route_id": "server:Open77.vehicles.positions"
  },
  {
   "namespace": "Open77.vehicles",
