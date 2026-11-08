@@ -4385,55 +4385,65 @@
    "runtimes": [
     "client"
    ],
-   "summary": "Enforced by the client; gates 8 natives in Open77.nameplates.",
+   "summary": "Enforced by the client; gates 10 natives in Open77.nameplates.",
    "curated": false,
    "natives": [
     "Open77.nameplates.clear",
     "Open77.nameplates.remove",
     "Open77.nameplates.render",
+    "Open77.nameplates.resetStyle",
     "Open77.nameplates.set",
     "Open77.nameplates.setTalking",
     "Open77.nameplates.snapshot",
     "Open77.nameplates.stopStream",
-    "Open77.nameplates.stream"
+    "Open77.nameplates.stream",
+    "Open77.nameplates.style"
    ],
    "guides": [],
    "sources": [
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10398
+     "line": 11629
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10405
+     "line": 11636
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10452
+     "line": 11691
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10468
+     "line": 11707
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10479
+     "line": 11718
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10506
+     "line": 11759
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10522
+     "line": 11827
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10539
+     "line": 11840
     },
     {
      "file": "scripting/src/ResourceHost.cpp",
-     "line": 10555
+     "line": 11856
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 11873
+    },
+    {
+     "file": "scripting/src/ResourceHost.cpp",
+     "line": 11889
     }
    ]
   },
