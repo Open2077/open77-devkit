@@ -695,7 +695,7 @@ function GetNpcAttitude(id) end
 --- The low-level form of `Open77.npcs.capacity` (bound to the same native). The two are the same function under two names; `Open77.npcs.capacity` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.npcs
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.112
 --- Reasons: npcs_unavailable, permission_denied:world.npcs
 function GetNpcCapacity() end
 
@@ -878,7 +878,7 @@ function GetPlayerLocale(playerId) end
 --- Requires players.model.read and a connected positive integer player ID. Returns nil without an error for the original model, or a table with player, record, appearance, revision, ready, resetOnDeath and optional remainingMs. Ready is the subject's presentation acknowledgement, not proof that every observer has streamed the body. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: invalid_player, permission_denied:players.model.read, player_models_unavailable, player_unavailable
 ---@param playerId integer
 ---@return any table table? state
@@ -897,7 +897,7 @@ function GetPlayerName(playerId) end
 ---
 --- Returns a table of active player IDs using the same directed relation as isInScope, including the owner. Unknown IDs return an empty table. Non-positive IDs return false, invalid_player. No visibility is granted. Querying in native code avoids a Lua call for every player in the server; revalidate delayed publications after yielding.
 ---
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: invalid_player
 ---@param subjectId integer
 ---@return any table table player IDs
@@ -961,7 +961,7 @@ function GetPlayersInBucket(bucket) end
 ---
 --- Returns a table of active player IDs using the same directed relation as isInScope, including the owner. Unknown IDs return an empty table. Non-positive IDs return false, invalid_player. No visibility is granted. Querying in native code avoids a Lua call for every player in the server; revalidate delayed publications after yielding.
 ---
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: invalid_player
 ---@param viewerId integer
 ---@return any table table player IDs
@@ -1161,6 +1161,29 @@ function GetUtcTimestamp() end
 ---@param id integer
 function GetVehicle(id) end
 
+--- Reads the FiveM index of a car's livery.
+---
+--- Requires `world.vehicles`: it reads the car through `Open77.vehicles.getVisual` and `listPaintProfiles`. Answers the 0-based position of the car's current profile in `Open77.vehicles.listPaintProfiles`, or `-1` for generic paint, for a profile the list no longer holds (its pack stopped), and on a failure (then with the reason as a second value).
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param vehicle any
+---@return any index index, or -1
+---@return any reason reason on failure
+function GetVehicleLivery(vehicle) end
+
+--- Reads the FiveM index of a car's choice for one mod type.
+---
+--- Requires `world.vehicles`: it reads the car through `Open77.vehicles.listParts` and `getVisual`. Answers the index of the current choice in the same index space `SetVehicleMod` uses, or `-1` for stock and on a failure (then with the reason as a second value).
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param vehicle any
+---@param modType integer
+---@return any index index, or -1
+---@return any reason reason on failure
+function GetVehicleMod(vehicle, modType) end
+
 --- Low-level alias of `Open77.vehicles.all`.
 ---
 --- The low-level form of `Open77.vehicles.all` (bound to the same native). The two are the same function under two names; `Open77.vehicles.all` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
@@ -1169,6 +1192,17 @@ function GetVehicle(id) end
 --- Since: 2.31.13+op77.45
 ---@param bucket integer
 function GetVehicles(bucket) end
+
+--- Reads the window tint as a FiveM index.
+---
+--- Requires `world.vehicles`: it reads the car through `Open77.vehicles.getWindowTint`. Answers `3`, `2` or `5` for Open77 levels 1 to 3, and `-1` for factory glass (FiveM's "no tint set") or on a failure (then with the reason as a second value). A car set with `1` (PURE_BLACK) therefore reads back `5`, the index of the same level.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param vehicle any
+---@return any FiveM FiveM tint index, or -1
+---@return any reason reason on failure
+function GetVehicleWindowTint(vehicle) end
 
 --- The server-wide state bag, as a table.
 ---
@@ -1251,7 +1285,7 @@ function IsPlayerGhosted(playerId) end
 ---
 --- Read-only directed visibility relation used by player roster and motion replication. Returns true for an active player viewing itself. Distinct players must be active, in the same routing bucket, and in the current area-of-interest graph. Unknown or disconnected players return false; invalid non-positive IDs return false, invalid_player. With deferred bootstrap, new peers remain outside scope until placement permits reconciliation. This does not grant interest or measure render visibility. Use it to filter presentation events and replays so they follow the native roster.
 ---
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: invalid_player
 ---@param viewerId integer
 ---@param subjectId integer
@@ -1264,7 +1298,7 @@ function IsPlayerInScope(viewerId, subjectId) end
 --- Requires players.model.read and a connected positive integer player ID. Returns false for the original character or a model still preparing; nil, reason is an error. Observe onPlayerModelReady(player, revision) for asynchronous readiness and match the requested revision. This does not certify observer rendering or every animation. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: invalid_player, permission_denied:players.model.read, player_models_unavailable, player_unavailable
 ---@param playerId integer
 ---@return any boolean boolean? ready
@@ -1297,7 +1331,7 @@ function IsPrincipalAceAllowed(userId, permission) end
 --- The low-level form of `Open77.vehicles.isVisibleTo` (bound to the same native). The two are the same function under two names; `Open77.vehicles.isVisibleTo` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.112
 --- Reasons: invalid_argument, permission_denied:world.vehicles
 ---@param vehicleId integer
 ---@param playerId integer
@@ -1624,7 +1658,7 @@ function RequestPlayerLifeResync(playerId) end
 --- Requires players.model.control and a connected positive integer player ID. Returns true when already original. Refuses model_owned_by_other_resource if another resource generation owns the override. Broadcasts restoration in the player's bucket and emits onPlayerModelChanged with a nil record and reason reset. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: invalid_player, permission_denied:players.model.control, player_models_unavailable, resource_stopping
 ---@param playerId integer
 ---@return any boolean boolean
@@ -2001,7 +2035,7 @@ function SetPlayerMaxStamina(playerId, maximum) end
 --- Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0–86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: invalid_argument, invalid_options, permission_denied:players.model.control, player_models_unavailable, resource_stopping
 ---@param playerId integer
 ---@param record string
@@ -2193,6 +2227,19 @@ function SetTick(body) end
 ---@return any timer timer id
 function SetTimeout(milliseconds, body) end
 
+--- Applies a livery by its FiveM index.
+---
+--- Requires `world.vehicles`; a call that changes the look also requires `world.vehicles.appearance`. The FiveM spelling over `Open77.vehicles` (see the native for the details), with its permissions and its `false, reason` refusals. The vehicle handle is the canonical vehicle id. The index is the 0-based position in `Open77.vehicles.listPaintProfiles` for that car (the build's own templates first, then those running resources registered), and `-1` goes back to generic paint. An index past the list is `invalid_profile`; a non-integer is `invalid_argument`.
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+--- Reasons: invalid_argument, invalid_profile
+---@param vehicle any
+---@param livery integer
+---@return any true true, or false
+---@return any reason reason
+function SetVehicleLivery(vehicle, livery) end
+
 --- Low-level alias of `Open77.vehicles.setLocked`.
 ---
 --- The low-level form of `Open77.vehicles.setLocked` (bound to the same native). The two are the same function under two names; `Open77.vehicles.setLocked` is the spelling resources are told to prefer, and its card carries the arguments, the return values and the failure reasons.
@@ -2203,6 +2250,49 @@ function SetTimeout(milliseconds, body) end
 ---@param id integer
 ---@param locked? boolean
 function SetVehicleLocked(id, locked) end
+
+--- Chooses a kit part or a rim by FiveM mod type and index.
+---
+--- Requires `world.vehicles`; a call that changes the look also requires `world.vehicles.appearance`. The FiveM spelling over `Open77.vehicles` (see the native for the details), with its permissions and its `false, reason` refusals. The vehicle handle is the canonical vehicle id. Mod types 23 and 24 (front and back wheels) are the rims; any other type is the registered parts whose catalogue entry declares that `modType`. The index space of a type on a car is every (part, variant) pair that fits it, ordered by part id then variant id, so an index is stable while the catalogue is. One choice per mod type, like a FiveM slot: choosing a part takes the other parts of that type off. `-1` is stock. An index past the list is `invalid_mod_index`; `customTires` has no counterpart and is ignored.
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+--- Reasons: invalid_argument, invalid_mod_index
+---@param vehicle any
+---@param modType integer
+---@param modIndex integer
+---@param customTires? boolean
+---@return any true true, or false
+---@return any reason reason
+function SetVehicleMod(vehicle, modType, modIndex, customTires) end
+
+--- Switches a car's neon on or off.
+---
+--- Requires `world.vehicles`; a call that changes the look also requires `world.vehicles.appearance`. The FiveM spelling over `Open77.vehicles` (see the native for the details), with its permissions and its `false, reason` refusals. The vehicle handle is the canonical vehicle id. Cyberpunk's neon is one light set laid out per chassis, not four strips, so any `index` switches all of it. Switching on a car that has no neon yet lights it in FiveM's default colour, magenta; switching off a car without one is accepted and does nothing. `toggle` must be a boolean (`invalid_argument`).
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+--- Reasons: invalid_argument
+---@param vehicle any
+---@param index integer
+---@param toggle boolean
+---@return any true true, or false
+---@return any reason reason
+function SetVehicleNeonLightEnabled(vehicle, index, toggle) end
+
+--- Sets the colour of a car's neon.
+---
+--- Requires `world.vehicles`; a call that changes the look also requires `world.vehicles.appearance`. The FiveM spelling over `Open77.vehicles` (see the native for the details), with its permissions and its `false, reason` refusals. The vehicle handle is the canonical vehicle id. Keeps the on/off state, so a colour set before the lights are switched on is the colour they come on in. Each channel is 0-255.
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param vehicle any
+---@param r integer
+---@param g integer
+---@param b integer
+---@return any true true, or false
+---@return any reason reason
+function SetVehicleNeonLightsColour(vehicle, r, g, b) end
 
 --- Repaints a vehicle: primary and secondary colour as six 0-255 channels.
 ---
@@ -2231,6 +2321,31 @@ function SetVehiclePaint(id, primaryR, primaryG, primaryB, secondaryR, secondary
 ---@param z number
 ---@param yaw number
 function SetVehicleTransform(id, x, y, z, yaw) end
+
+--- Accepted for ported tuning menus; changes nothing.
+---
+--- Requires `world.vehicles`: it reads the car to check it exists. There are no wheel families in this game: every rim is a catalogue part, chosen with `SetVehicleMod` mod type 23 or 24 (or `Open77.vehicles.setWheels`). The call answers true for a car that exists, so a ported menu does not fail on its first line, and `false, reason` otherwise.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param vehicle any
+---@param wheelType integer
+---@return any true true, or false
+---@return any reason reason
+function SetVehicleWheelType(vehicle, wheelType) end
+
+--- Sets the window tint by its FiveM index.
+---
+--- Requires `world.vehicles`; a call that changes the look also requires `world.vehicles.appearance`. The FiveM spelling over `Open77.vehicles` (see the native for the details), with its permissions and its `false, reason` refusals. The vehicle handle is the canonical vehicle id. FiveM's index maps onto the three Open77 levels: `-1`, `0` (NONE) and `4` (STOCK) are factory glass, `3` (LIGHTSMOKE) is level 1, `2` (DARKSMOKE) level 2, `1` (PURE_BLACK) and `5` (LIMO) level 3. `6` (GREEN) has no counterpart and is refused as `unsupported_property:windowTint` rather than drawn black; anything else is `invalid_tint`.
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+--- Reasons: invalid_tint
+---@param vehicle any
+---@param tint integer
+---@return any true true, or false
+---@return any reason reason
+function SetVehicleWindowTint(vehicle, tint) end
 
 --- Put one player behind another player's shoulder: ghost, hide, and a follow camera on the target, as one transaction that fails closed.
 ---
@@ -3361,7 +3476,7 @@ function Open77.combat.createScope(definition) end
 --- Requires `players.stats.read` (or the legacy `players.damage.read` / `players.life.read`), like every other read of the damage ledger. When a car strikes a player only the victim's game sees it, so its client reports a self-targeted environment hit; the server then finds, from the canonical vehicle poses it accepted over the last second, the vehicle whose path came within reach of the impact point while moving toward it, and its seated driver. Nothing the victim claims names a driver. The list is oldest first and holds at most 32 entries (at most one per second), none older than ten minutes; it is released when the player disconnects. `sinceMs` (the `GetGameTimer()` clock) keeps the entries at or after it. Each entry is the table `open77:playerHitByVehicle` hands its handler: `{ victim, driver, vehicle, passengers, physicsOwner, reason, speed, vehicleSpeed, distance, position = {x, y, z}, time, damage, outcome, credited, lethal, downed }`. `driver` and `vehicle` are `0` when none was found, and `reason` says why: `driver`, `npc_driver`, `unowned_vehicle` (parked, rolling or stewarded, nobody at the wheel), `no_vehicle_found` (NPC traffic or a claim with no car near) or `unverified_position`. A passenger is listed in `passengers`, never as the driver. `outcome` is `damaged`, `cancelled` (a damage arbiter) or the protection that refused it (`god_mode`, `friendly_fire_disabled`, `same_team`); `damage` is what the ledger took. The damage itself stays the victim's own environment hit unless the server enables `combat.vehicleHitCreditsDriver` (see Player stats, Car impacts).
 ---
 --- Permissions: players.stats.read
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 --- Reasons: combat_unavailable, invalid_argument, invalid_player_id, permission_denied:players.stats.read
 ---@param playerId any
 ---@param sinceMs? number
@@ -3474,7 +3589,6 @@ function Open77.combat.setWeaponDamageMultiplier(weaponTdbId, multiplier) end
 --- Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Set record, count (0..999), capacity (1..999), equipped and recharge. Unknown options or count above an explicit capacity are rejected. Omitted fields preserve state; capacity grows to fit count if omitted. The first managed write defaults to recharge=false. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: network.events
---- Since: not in any published build
 ---@param playerId integer
 ---@param kind any
 ---@param options table
@@ -3487,7 +3601,6 @@ function Open77.consumables.configure(playerId, kind, options) end
 --- Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Optionally selects a new record. Omitting record uses the retained type and preserves its charges. Fails with no_consumable_type if none is available. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: network.events
---- Since: not in any published build
 ---@param playerId integer
 ---@param kind any
 ---@param record? string
@@ -3500,7 +3613,6 @@ function Open77.consumables.equip(playerId, kind, record) end
 --- Server; requires `player.weapons.read`. Source is owner_report from the authenticated player's client; missing reports return consumable_unreported. Returns kind, record, tweakDbId, count, capacity, equipped, recharge, managed, sequence, reportedAgeMs and source. An unresolved native record name can be empty; use tweakDbId to identify it. Age measures time since observation, not a heartbeat. Use snapshot when fresh state is required. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: player.weapons.read
---- Since: not in any published build
 ---@param playerId integer
 ---@param kind any
 ---@return any state state table or nil
@@ -3512,7 +3624,6 @@ function Open77.consumables.get(playerId, kind) end
 --- Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Restores the captured native regeneration policy and removes this API's capacity modifiers. Preserves the selected item, clamps excess charges to restored capacity, and leaves unrelated inventory and modifiers intact. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: network.events
---- Since: not in any published build
 ---@param playerId integer
 ---@param kind any
 ---@return any requestId requestId or nil
@@ -3524,7 +3635,6 @@ function Open77.consumables.reset(playerId, kind) end
 --- Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Count is 0..999, not an inventory stack size. Zero retains the selected type without allowing a use. Capacity grows when needed. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: network.events
---- Since: not in any published build
 ---@param playerId integer
 ---@param kind any
 ---@param count integer
@@ -3537,7 +3647,6 @@ function Open77.consumables.setCount(playerId, kind, count) end
 --- Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Accepts a strict boolean. False gives a finite charge supply; true enables native regeneration. Native capacity and regeneration modifiers are released on reset or player/session replacement. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: network.events
---- Since: not in any published build
 ---@param playerId integer
 ---@param kind any
 ---@param enabled boolean
@@ -3550,7 +3659,6 @@ function Open77.consumables.setRecharge(playerId, kind, enabled) end
 --- Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Preserves charges and equipped state. The record must resolve to the matching grenade, inhaler or injector type; an Items.* name alone is insufficient. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: network.events
---- Since: not in any published build
 ---@param playerId integer
 ---@param kind any
 ---@param record string
@@ -3563,7 +3671,6 @@ function Open77.consumables.setType(playerId, kind, record) end
 --- Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Asynchronous readback of the actual selected type, charges, capacity, equipment and regeneration. Use get for a synchronous cached observation. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: network.events
---- Since: not in any published build
 ---@param playerId integer
 ---@param kind any
 ---@return any requestId requestId or nil
@@ -3575,7 +3682,6 @@ function Open77.consumables.snapshot(playerId, kind) end
 --- Server; requires `network.events`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Requires the open77_weapons owner relay 0.2.0 and a compatible client. Server completion includes playerId, requestId, operation, boolean accepted, reason and a typed state table. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Preserves selected type and charges so equip can restore the kit. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: network.events
---- Since: not in any published build
 ---@param playerId integer
 ---@param kind any
 ---@return any requestId requestId or nil
@@ -3641,7 +3747,7 @@ function Open77.cyberware.activity(playerId) end
 --- Requires players.cyberware.read. Takes no arguments and synchronously returns an array of player IDs whose current authoritative activity is holding with remainingMs greater than zero. Excludes stale activity (over1500ms), mismatched implant/body incarnations, unarmed players and expired holds. Use these candidates to query activity(playerId) for presentation instead of polling every connected player; the list is not permission to commit damage. Returns an empty array when no players qualify or the action service is unavailable. Returns nil, reason for resource_stopping, permission_denied:players.cyberware.read or cyberware_storage_unavailable.
 ---
 --- Permissions: players.cyberware.read
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: cyberware_storage_unavailable, invalid_definition, invalid_json, invalid_operation, invalid_options, invalid_player, invalid_request, json_too_large, permission_denied:players.cyberware.define, permission_denied:players.cyberware.identity, permission_denied:players.cyberware.manage, permission_denied:players.cyberware.read, permission_denied:players.cyberware.temporary, player_unavailable, request_too_large, resource_stopping
 ---@return any array array of player IDs
 ---@return any nil nil, reason on failure
@@ -4832,7 +4938,7 @@ function Open77.http.unlisten(prefix) end
 --- Requires `world.interest`. Returns the number of points removed, including `0` when this generation had none, or `false, reason` on a permission or argument failure. Use it when a viewer stops watching all of this resource's remote points; `remove` releases one named point.
 ---
 --- Permissions: world.interest
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 --- Reasons: interest_unavailable, invalid_id, invalid_operation, invalid_player, permission_denied:world.interest, resource_stopping
 ---@param playerId any
 ---@return any removed removed count (integer)
@@ -4844,7 +4950,7 @@ function Open77.interest.clear(playerId) end
 --- Requires `world.interest`. Only the exact resource generation that created the point can remove it, and only for the player it was created for: a name this generation never set answers `not_found`, which is also what a replacement generation sees after a reload. Removing the last point for a player drops the player's row, and player disconnect or resource stop cleans the rest up. Returns `true`, or `false, reason`.
 ---
 --- Permissions: world.interest
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 --- Reasons: interest_unavailable, invalid_id, invalid_operation, invalid_player, permission_denied:world.interest, resource_stopping
 ---@param playerId any
 ---@param id string
@@ -4856,7 +4962,7 @@ function Open77.interest.remove(playerId, id) end
 --- Requires `world.interest`. `options` is `{position={x,y,z}, radius, bucket}`: `radius` is metres (1..500) and `bucket` must be the player's current routing bucket, re-checked against the authoritative routing registry on every call. The point belongs to the calling resource generation and to that player; a second `set` with the same player and id replaces the first, and another resource cannot read, replace or remove it. Returns `true`, or `false, reason`: `permission_denied:world.interest`, `interest_unavailable`, `player_not_found`, `bucket_mismatch`, `player_interest_limit`, `interest_limit` or `stale_generation`. Replication admission is a separate budget from native capture admission, and an accepted point is a streaming request, not a streaming-complete acknowledgement.
 ---
 --- Permissions: world.interest
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 --- Reasons: interest_unavailable, invalid_id, invalid_operation, invalid_player, permission_denied:world.interest, resource_stopping
 ---@param playerId any
 ---@param id string
@@ -5148,7 +5254,7 @@ function Open77.kvp.stats() end
 --- Returns player, style, packageRevision, revision, resetOnDeath and optional remainingMs. nil without a reason means no custom style is assigned. This reports canonical assignment, not rendered animation readiness. See [Custom locomotion](custom-locomotion.md).
 ---
 --- Permissions: locomotion.read
---- Since: 2.31.21+op77.145
+--- Since: 2.31.21-unstable+op77.144
 ---@param playerId integer
 ---@return any assignment assignment table, or nil
 ---@return any reason reason on failure
@@ -5159,7 +5265,7 @@ function Open77.locomotion.get(playerId) end
 --- The calling resource must own the selected style. The player must be ready, alive and outside a vehicle. clipId is a declared package clip, not a depot path. options accepts speed (0.25..4, default 1), blendInMs (0..2000, default 80), blendOutMs (0..2000, default 120). Playback is one-shot, without native root motion or game animation events. Late joiners receive elapsed time; finished actions do not restart. See [Custom locomotion](custom-locomotion.md).
 ---
 --- Permissions: locomotion.control
---- Since: 2.31.21+op77.145
+--- Since: 2.31.21-unstable+op77.144
 ---@param playerId integer
 ---@param clipId string
 ---@param options? table
@@ -5172,7 +5278,7 @@ function Open77.locomotion.playClip(playerId, clipId, options) end
 --- Requires locomotion.register. Reads a version 1 package metadata file relative to this resource. The shared registration script runs on both runtimes. The client validates the graph and mounted native assets; registration does not assign a style. Stable 147 supports 1,024 registered packages across resources/reload generations; existing standalone packages stay compatible. See [Custom locomotion](custom-locomotion.md#registration).
 ---
 --- Permissions: locomotion.register
---- Since: 2.31.21+op77.145
+--- Since: 2.31.21-unstable+op77.144
 ---@param path string
 ---@return any style style ID string, or nil
 ---@return any reason reason on failure
@@ -5183,7 +5289,7 @@ function Open77.locomotion.register(path) end
 --- The resource that selected the style owns its reset. Returns true even when there is no assignment. Resource stop, disconnect and package removal also release the selection. See [Custom locomotion](custom-locomotion.md).
 ---
 --- Permissions: locomotion.control
---- Since: 2.31.21+op77.145
+--- Since: 2.31.21-unstable+op77.144
 ---@param playerId integer
 ---@return any true true on success
 ---@return any false false, reason on failure
@@ -5194,7 +5300,7 @@ function Open77.locomotion.reset(playerId) end
 --- Requires an authenticated, ready, living player. options accepts durationMs (0..86400000, default 0 for no expiry) and resetOnDeath (default false). The assigning resource generation owns the selection. Repeating the same style/package/death policy renews its duration without respawning the body. Another resource cannot replace it. See [Custom locomotion](custom-locomotion.md).
 ---
 --- Permissions: locomotion.control
---- Since: 2.31.21+op77.145
+--- Since: 2.31.21-unstable+op77.144
 ---@param playerId integer
 ---@param styleId string
 ---@param options? table
@@ -5207,7 +5313,7 @@ function Open77.locomotion.set(playerId, styleId, options) end
 --- Omit handle to stop the current clip, or pass the returned handle so an old timer cannot cancel a newer action. blendOutMs is 0..2000, default 120. A stale handle returns stale_clip_handle. Returns true, revision (0 for a no-op). See [Custom locomotion](custom-locomotion.md).
 ---
 --- Permissions: locomotion.control
---- Since: 2.31.21+op77.145
+--- Since: 2.31.21-unstable+op77.144
 ---@param playerId integer
 ---@param handle? integer
 ---@param blendOutMs? integer
@@ -5305,7 +5411,7 @@ function Open77.loot.update(id, def) end
 --- Server only; requires `metrics.write`. Replaces the current value of `open77_gameplay_<name>`, with the host supplying this resource's label. Value must be finite with absolute value at most 1e100; negative gauges are allowed. Names must match `[a-z][a-z0-9_]*`, be 1–64 characters, and not end in `_total`, `_bucket`, `_sum`, `_count` or `_seconds`. A name's metric type is fixed across resources. Limits until server restart are 32 names per resource and 512 resource/name pairs globally. An explicit resource stop resets its gauges to zero; set them on startup and update them as gameplay changes. There are no caller-supplied labels. Returns true or false, reason. See [Metrics](metrics.md#custom-gameplay-counters-from-lua).
 ---
 --- Permissions: metrics.write
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.96
 --- Reasons: invalid_metric_arguments, metrics_disabled, permission_denied:metrics.write
 ---@param name string
 ---@param value number
@@ -5318,7 +5424,7 @@ function Open77.metrics.gauge(name, value) end
 --- Server only; requires `metrics.write`. Adds `amount` (default 1 when omitted or nil) to `open77_gameplay_<name>_total`, with the host supplying this resource's label. Amount must be finite and between 0 and 1e100. Names must match `[a-z][a-z0-9_]*`, be 1–64 characters, and not end in `_total`, `_bucket`, `_sum`, `_count` or `_seconds`. A name's metric type is fixed across resources. Limits until server restart are 32 names per resource and 512 resource/name pairs globally. Counters survive resource restarts; do not increment during speculative hot-reload initialization because a discarded candidate's increments cannot be rolled back. Returns true or false, reason. See [Metrics](metrics.md#custom-gameplay-counters-from-lua).
 ---
 --- Permissions: metrics.write
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.96
 --- Reasons: invalid_metric_arguments, metrics_disabled, permission_denied:metrics.write
 ---@param name string
 ---@param amount? number
@@ -5331,7 +5437,7 @@ function Open77.metrics.increment(name, amount) end
 --- Server only; requires `metrics.write`. Adds one observation to the `open77_gameplay_<name>_seconds` histogram family, with the host supplying this resource's label. Supply seconds, not milliseconds; the value must be finite and between 0 and 1e100. Names must match `[a-z][a-z0-9_]*`, be 1–64 characters, and not end in `_total`, `_bucket`, `_sum`, `_count` or `_seconds`. A name's metric type is fixed across resources. Limits until server restart are 32 names per resource and 512 resource/name pairs globally. Histograms survive resource restarts; do not observe during speculative hot-reload initialization because discarded observations cannot be rolled back. Returns true or false, reason. See [Metrics](metrics.md#custom-gameplay-counters-from-lua).
 ---
 --- Permissions: metrics.write
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.96
 --- Reasons: invalid_metric_arguments, metrics_disabled, permission_denied:metrics.write
 ---@param name string
 ---@param seconds number
@@ -5382,7 +5488,7 @@ function Open77.motion.knockdown(playerId, options) end
 --- Requires players.motion.control and a matching development server. options={x,y,push,lift}; XY must be finite and nonzero and is normalized. push is 0..20 m/s, lift is 0..14 m/s, and at least one must be positive. Requires a ready, alive, unmounted exact incarnation with no active motion or recovery protection. Returns {ok=true,id=string} for admission, or nil/reason; admission is not completed movement. onPlayerMotionChanged reports pending/active/ended, and the pending lease expires after two seconds without the owning client's acknowledgement. Real owners apply one native 3D impulse; updated headless bots publish a bounded ballistic fixture trajectory without REDengine terrain or collision simulation. Observers present the pose and follow owner snapshots. current(playerId) reads the lease, including kind, push and lift; cancel(playerId,id) ends this resource's lease. No damage or generic teleport authority is granted. Motion does not require an implant database; the server still requires canonical body readiness and matching life, incarnation and bucket.
 ---
 --- Permissions: players.motion.control
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: invalid_duration, invalid_json, invalid_operation, invalid_player, invalid_request, json_too_large, motion_unavailable, permission_denied:players.motion.control, permission_denied:players.motion.read, resource_stopping
 ---@param playerId integer
 ---@param options table
@@ -5883,7 +5989,7 @@ function Open77.npcs.tasks.stopDriving(id) end
 --- Requires `world.npcs`. Movement channel. The NPC's simulating client puts it into the game's pedestrian traffic (`ReactionSystem.TryAndJoinTraffic`) and keeps it there; the game picks the lanes, the exits and the turns, so there is no destination, route or radius. `speed` is `"walk"` (the default) or `"run"`; `sprint` is refused with `npc_task_invalid_speed`. `threat = { x, y, z }` is the game's own crowd fear: the NPC stays in traffic and runs away from that point, and no workspot visit happens while it is set; a bad point is refused with `npc_task_invalid_point`. `visits` (boolean, default `true`) says whether the game may send the NPC to its crowd workspots; a non-boolean is refused with `npc_task_invalid_parameters`, and it is ignored while `threat` is set. Options also take `priority` and `timeoutMs` (default 0, no timeout). The task never succeeds while the NPC walks or runs: it runs until it is cancelled or replaced, or the client reports `failure` with a reason (`traffic_unavailable` when the body could not be put into traffic). When the NPC enters a crowd workspot the client ends it with `success` and reason `"workspot"`, with the body's placement, and `onNpcTaskState(npcId, taskId, "success", "workspot")` reaches the resources. Once in traffic the NPC is driven by the game's crowd AI and does not execute other movement commands: to change speed, threat or visits, cancel the active traffic task and enqueue the new one in the same call, which keeps the NPC in traffic; enqueued alone it queues behind the old one. With `behavior.observerReplay` the other clients replay the simulator's motion instead of running their own traffic AI.
 ---
 --- Permissions: world.npcs
---- Since: not in any published build
+--- Since: 2.31.21+op77.132
 --- Reasons: npc_task_invalid_point, permission_denied:world.npcs
 ---@param id any
 ---@param options? any
@@ -5959,6 +6065,21 @@ function Open77.npcs.tasks.workspots(query) end
 ---@return any array array of NPC snapshots
 function Open77.npcs.all(bucket) end
 
+--- Applies managed NPC-to-NPC crossfire with difficulty.
+---
+--- Requires `world.npcs`; both victim and attacker must belong to the caller. Applies attacker damageMultiplier and victim healthMultiplier to the supplied damage through the NPC damage policy. This is distinct from exact `applyDamage`; it does not change unrelated PvP damage.
+---
+--- Permissions: world.npcs
+--- Since: 2.50.0-unstable+op77.161
+---@param victimId any
+---@param attackerId any
+---@param amount number
+---@param source? string
+---@param cause? string
+---@return any boolean boolean
+---@return any reason reason
+function Open77.npcs.applyCrossfireDamage(victimId, attackerId, amount, source, cause) end
+
 --- Applies authoritative damage to an NPC.
 ---
 --- Requires `world.npcs`. `source` and `cause` are recorded with the hit so a kill can be attributed. The damage still passes the NPC's damage policy, so an `invulnerable` NPC takes nothing.
@@ -5977,7 +6098,7 @@ function Open77.npcs.applyDamage(id, amount, source, cause) end
 --- Requires `world.npcs`. Takes no arguments. `resourceUsed` counts every NPC still owned by the calling resource, including retained corpses and persistent entries; `globalUsed` counts all allocated NPCs across resources. `resourceLimit` is 512 and `globalLimit` is 4096. These are allocation counts, not counts of living or currently visible NPCs. Returns nil, reason when permission or the NPC subsystem is unavailable.
 ---
 --- Permissions: world.npcs
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.112
 --- Reasons: npcs_unavailable, permission_denied:world.npcs
 ---@return any resourceUsed { resourceUsed, resourceLimit, globalUsed, globalLimit }, or nil
 ---@return any reason reason: permission_denied:world.npcs, npcs_unavailable
@@ -6045,6 +6166,18 @@ function Open77.npcs.getBehavior(id) end
 ---@return any table table body, or nil
 function Open77.npcs.getBody(id) end
 
+--- Reads an owned NPC's difficulty multipliers.
+---
+--- Requires `world.npcs`. Returns `{healthMultiplier, damageMultiplier}` or `nil, reason`. The same canonical settings appear in `Open77.npcs.get(id).difficulty`.
+---
+--- Permissions: world.npcs
+--- Since: 2.50.0-unstable+op77.161
+--- Reasons: npcs_unavailable, permission_denied:world.npcs
+---@param id any
+---@return any table table or nil
+---@return any reason reason
+function Open77.npcs.getDifficulty(id) end
+
 --- The clothing set an owned NPC is dressed in, slot to record.
 ---
 --- Requires `world.npcs`. Reads `loadout.equipment` back as a table; empty when the NPC wears nothing of ours, `nil` for an id this resource does not own. The same object is `json.decode(Open77.npcs.get(id).loadout).equipment`.
@@ -6104,7 +6237,7 @@ function Open77.npcs.owner(id) end
 --- Requires `world.npcs`, and `npcs.foreign` for an NPC another resource created (the same rule as `Open77.npcs.all({ includeForeign = true })`, because where somebody else's NPC stands is roster information). The read a rule needs when a client acts FOR an NPC: `authorityPlayerId` is the client simulating it (`0` when nobody), `epoch` the authority epoch that client holds, and `leaseMs` how long its lease still has -- present only while there is a live lease. `alive` is the canonical life (alive flag and health above zero). `x`, `y`, `z` and `bucket` are the canonical place: the transform the simulator last reported and the server accepted under its anti-teleport budget. `owned` says whether the caller created it; `resource` names who did. Unlike `get` it builds one table, not a snapshot of the whole NPC, and unlike `all` it never walks the roster. The door service uses it to admit an NPC's passage only from the client that simulates that NPC.
 ---
 --- Permissions: world.npcs
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.119
 --- Reasons: invalid_npc_id, npc_not_found, npcs_unavailable, permission_denied:npcs.foreign, permission_denied:world.npcs
 ---@param id any
 ---@return any id { id, resource, owned, bucket, x, y, z, alive, authorityPlayerId, epoch, leaseMs? }, or nil
@@ -6254,6 +6387,19 @@ function Open77.npcs.setCombatEnabled(id, enabled) end
 ---@return any boolean boolean
 ---@return any reason reason
 function Open77.npcs.setDamagePolicy(id, policy) end
+
+--- Patches an owned NPC's difficulty multipliers.
+---
+--- Requires `world.npcs`. Accepts a partial table of finite `healthMultiplier` (0.01..100) and `damageMultiplier` (0..100); omitted values stay unchanged. Invalid keys, types or ranges return `false, "npc_difficulty_invalid"` without mutation. H divides admitted native body and admitted player body/weakspot fractions after admission, without rescaling authored part-break bonuses. D is used by resource-authored NPC-to-player damage and managed crossfire. Health fraction and phase are unchanged; exact scripted damage and setHealth are not scaled.
+---
+--- Permissions: world.npcs
+--- Since: 2.50.0-unstable+op77.161
+--- Reasons: invalid_json, json_too_large, npc_body_invalid, npc_difficulty_invalid, npc_loadout_invalid
+---@param id any
+---@param difficulty table
+---@return any boolean boolean
+---@return any reason reason
+function Open77.npcs.setDifficulty(id, difficulty) end
 
 --- Sets the canonical clothing set of an owned NPC, slot to `Items.*` record. Whether a rig renders it is the client's answer, not this call's.
 ---
@@ -6733,7 +6879,7 @@ function Open77.players.getAttachment(playerId) end
 --- Server; requires players.life.read and a positive connected player ID. Returns enabled, available, active, phase, sequence, duration and elapsed; non-none phases include canonical vehicle and seat. Phases are none, entering, active, exiting; active includes transitions. duration/elapsed are seconds. Actions must belong to the current canonical seat lifetime, bucket and alive player, and expire when stale. enabled is combined server policy; client-only restrictions are not broadcast. A missing action returns none/unavailable, while an unknown player returns nil, player_unavailable. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by). Adds mode (passenger, car_driver, bike_driver) and driverYaw/driverPitch/driverRoll in degrees relative to the seated pose. Drivers use front_left and phase active with zero duration/elapsed. Only interpret mode while active; inactive data defaults to passenger with zero angles.
 ---
 --- Permissions: players.life.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.114
 --- Reasons: permission_denied:players.life.read, player_unavailable
 ---@param playerId integer
 ---@return any state state table or nil
@@ -6776,7 +6922,7 @@ function Open77.players.getLifeState(playerId) end
 --- Requires players.model.read and a connected positive integer player ID. Returns nil without an error for the original model, or a table with player, record, appearance, revision, ready, resetOnDeath and optional remainingMs. Ready is the subject's presentation acknowledgement, not proof that every observer has streamed the body. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: invalid_player, permission_denied:players.model.read, player_models_unavailable, player_unavailable
 ---@param playerId integer
 ---@return any table table? state
@@ -6871,7 +7017,7 @@ function Open77.players.inBucket(bucket) end
 ---
 --- Returns a table of active player IDs using the same directed relation as isInScope, including the owner. Unknown IDs return an empty table. Non-positive IDs return false, invalid_player. No visibility is granted. Querying in native code avoids a Lua call for every player in the server; revalidate delayed publications after yielding.
 ---
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: invalid_player
 ---@param viewerId integer
 ---@return any table table player IDs
@@ -6893,7 +7039,7 @@ function Open77.players.isDead(playerId) end
 --- Server; requires players.life.read and a positive connected player ID. True means no server resource denies vehicle drive-by. It does not mean the player is in a vehicle or actively fighting, and cannot reveal client-only restrictions. Returns nil, reason for an unavailable player or denied permission. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by).
 ---
 --- Permissions: players.life.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.114
 --- Reasons: permission_denied:players.life.read, player_unavailable
 ---@param playerId integer
 ---@return any boolean boolean enabled or nil
@@ -6935,7 +7081,7 @@ function Open77.players.isGhosted(playerId) end
 --- Server; requires players.life.read and a positive connected player ID. True for entering, active or exiting. False when no fresh admitted action is available, including after death or unmount. Use getDriveByState for the exact phase, canonical vehicle and seat. Returns nil, reason for an unknown player or denied permission. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by).
 ---
 --- Permissions: players.life.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.114
 --- Reasons: permission_denied:players.life.read, player_unavailable
 ---@param playerId integer
 ---@return any boolean boolean active or nil
@@ -6946,7 +7092,7 @@ function Open77.players.isInDriveBy(playerId) end
 ---
 --- Read-only directed visibility relation used by player roster and motion replication. Returns true for an active player viewing itself. Distinct players must be active, in the same routing bucket, and in the current area-of-interest graph. Unknown or disconnected players return false; invalid non-positive IDs return false, invalid_player. With deferred bootstrap, new peers remain outside scope until placement permits reconciliation. This does not grant interest or measure render visibility. Use it to filter presentation events and replays so they follow the native roster.
 ---
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: invalid_player
 ---@param viewerId integer
 ---@param subjectId integer
@@ -6959,7 +7105,7 @@ function Open77.players.isInScope(viewerId, subjectId) end
 --- Requires players.model.read and a connected positive integer player ID. Returns false for the original character or a model still preparing; nil, reason is an error. Observe onPlayerModelReady(player, revision) for asynchronous readiness and match the requested revision. This does not certify observer rendering or every animation. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: invalid_player, permission_denied:players.model.read, player_models_unavailable, player_unavailable
 ---@param playerId integer
 ---@return any boolean boolean? ready
@@ -7062,7 +7208,7 @@ function Open77.players.nearby(anchor, radius, options) end
 ---
 --- Returns a table of active player IDs using the same directed relation as isInScope, including the owner. Unknown IDs return an empty table. Non-positive IDs return false, invalid_player. No visibility is granted. Querying in native code avoids a Lua call for every player in the server; revalidate delayed publications after yielding.
 ---
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: invalid_player
 ---@param subjectId integer
 ---@return any table table player IDs
@@ -7139,7 +7285,7 @@ function Open77.players.requestScreenshot(playerId, options) end
 --- Requires players.model.control and a connected positive integer player ID. Returns true when already original. Refuses model_owned_by_other_resource if another resource generation owns the override. Broadcasts restoration in the player's bucket and emits onPlayerModelChanged with a nil record and reason reset. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: invalid_player, permission_denied:players.model.control, player_models_unavailable, resource_stopping
 ---@param playerId integer
 ---@return any boolean boolean
@@ -7234,7 +7380,7 @@ function Open77.players.setDownedDamageable(playerId, enabled) end
 --- Server; requires players.driveby. False holds this resource's denial; true releases only its own denial. Other resources' restrictions remain effective. Stopping the owner resource releases its claims. Denials survive death, respawn and routing-bucket changes; disconnect removes them. Pending native respawn/revive can return transition_in_progress; retry after completion. Disabling requests native exit and rejects passenger ranged damage. Enabling does not force a pose or equip a weapon. Returns false, reason on refusal. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by).
 ---
 --- Permissions: players.driveby
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.114
 --- Reasons: invalid_argument, permission_denied:players.driveby, player_unavailable
 ---@param playerId integer
 ---@param enabled boolean
@@ -7374,7 +7520,7 @@ function Open77.players.setMaxWanted(playerId, level) end
 --- Requires players.model.control. The player must be connected, alive and gameplay-ready. This resource generation exclusively owns the override; another owner fails with model_owned_by_other_resource. Options: appearance (ASCII CName up to 128 characters, default empty), durationMs (integer 0–86400000, default 0), resetOnDeath (boolean, default false); unknown fields are rejected. True, revision means accepted, not visible. Observe onPlayerModelReady/onPlayerModelFailed; a missing record fails asynchronously and restores the original body. Identical options extend the lease without respawn. Stopping the owner, timeout or disconnect releases state. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: invalid_argument, permission_denied:players.model.control, player_models_unavailable, resource_stopping
 ---@param playerId integer
 ---@param record string
@@ -8683,7 +8829,7 @@ function Open77.vehicles.ai.attachDriver(vehicleId, options) end
 --- Requires world.vehicles; without it returns nil, permission_denied:world.vehicles. Takes no vehicle id and counts every resource's controllers, not only the caller's. globalUsed counts the controllers attached now in any mode or status (an idle or stopped one keeps its slot until removeDriver or vehicle removal); the server sets no total. perSimulatorLimit is the server's simulation.maximumAiVehiclesPerSimulator (1..128, default 128; 128 is the server's own per-simulator ceiling). owners maps decimal player-id strings to the jobs booked against that player: the cars it simulates now plus reservations made with attachDriver's admissionPlayerId for cars no client simulates yet; a player with none is absent. A car whose simulator leaves range, changes bucket or becomes unavailable releases its booking immediately; a nearby simulator whose readiness expires keeps its booking until a fresh acknowledgment or another client is granted it. Election never grants a car to a client at the limit (the task waits with reason simulator_capacity) and a client already simulating a car keeps it. The table is a snapshot: attachDriver re-checks the per-simulator limit and its refusal is authoritative. A configured perSimulatorLimit is an admission bound, not a measured or certified fleet size for any client.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.112
 ---@return any capacity capacity, or nil, reason
 function Open77.vehicles.ai.capacity() end
 
@@ -8758,7 +8904,7 @@ function Open77.vehicles.ai.on(event, handler) end
 --- Requires world.vehicles and ownership of a running or waiting joinTraffic task; another task returns nil, panic_unsupported_task, a finished one traffic_panic_inactive. options.threatPosition {x,y,z} is required (invalid_threatPosition); threatKind (player, npc or vehicle) and threatId are optional, and a named npc or vehicle must exist in the car's bucket (threat_unavailable). durationMilliseconds is 1000..30000, default 10000. Each accepted call is a new request with a new panicRequest token that replaces the previous one. The client simulating the car releases the kinematic join, waits until the engine holds no traffic slot and no vehicle command, sends the engine's own AIVehiclePanicCommand (allowSimplifiedMovement, ignoreTickets, useSpeedBasedLookupRange; tryDriveAwayFromPlayer only when the threat is that client's own player), and panicStatus turns from pending to active only once that command is observed executing. The duration starts there and survives a handoff or new native body, which re-confirm it without restarting it. Terminal outcomes: ended (duration_elapsed or the native command stopping on its own), blocked (join_unreleased, command_unreleased, not_executing, or application_timeout after 5 s unconfirmed), refused (native_rejected, native_failure, unsupported_vehicle, ...), cancelled (replaced, pattern_changed, or the task's own end reason, such as driver_dead when the driver's canonical health reaches zero or driver_unavailable when the driver was removed or left the car's bucket). The car then returns to its join through the bounded collision-recovery path; a recovery that cannot find a safe lane fails the task. After driver_dead nothing rejoins: the client releases the native command and the controller detaches. panicRemainingMs and the panic event (on) report progress. The threat position is not a native input: it is validated, published and used for correlation.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.112
 ---@param vehicleId integer
 ---@param options table
 ---@return any state state, or nil, reason
@@ -8801,7 +8947,7 @@ function Open77.vehicles.ai.setSpeed(vehicleId, speed) end
 --- Requires world.vehicles and ownership of a running joinTraffic task; on any other task it returns nil, traffic_pattern_inactive. pattern is default or stop, the record's own crowd move patterns, and any other name -- including the crowd panic move type, which is the separate panic call -- is refused with invalid_traffic_pattern rather than forwarded. default resolves to the vehicle's declared default or normal spec; stop keeps its exact declared name, and the engine's boolean acceptance stays mandatory. The change rides the same task and the same lane enrollment -- the task id does not move -- and the new pattern is a fresh request the client simulating the car answers: state.patternStatus reports whether it did (pending, applied, failed, inactive) and state.patternReason why a failure happened. Applied is the engine's acceptance on the current executor, not a guaranteed speed, and a handoff of the car puts the same request back to pending; the executor also re-applies it to every new join command it sends (after a collision recovery or a panic) without re-reporting an unchanged answer. An accepted pattern also ends a pending or active panic (panicStatus cancelled, panicReason pattern_changed). stop the pattern holds the car under the native join; it is not the stop command, which cancels the task.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 --- Reasons: invalid_traffic_pattern
 ---@param vehicleId integer
 ---@param pattern string
@@ -8926,7 +9072,7 @@ function Open77.vehicles.breakTire(id, index) end
 --- Requires world.vehicles. Releases the destination and retains the source. A stale token is refused with stale_transition and cannot affect a newer request.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@param playerId integer
 ---@param transitionId string
 ---@return any true true or false
@@ -8955,6 +9101,17 @@ function Open77.vehicles.clearLightsHue(id) end
 ---@return any true true, or false
 ---@return any reason reason: invalid_player_id, vehicle_not_found
 function Open77.vehicles.clearLockedForPlayer(id, playerId) end
+
+--- Removes a car's under-chassis lights.
+---
+--- Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. Takes the neon off entirely (`getVisual` then has no `neon`); `setNeon(id, { enabled = false })` instead keeps the colour for later.
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@return any true true, or false
+---@return any reason reason: permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.clearNeon(id) end
 
 --- Hands a vehicle back its record's rated performance.
 ---
@@ -9155,6 +9312,17 @@ function Open77.vehicles.getDamage(id) end
 ---@return any profile profile table, or `nil`
 function Open77.vehicles.getDamageProfile(record) end
 
+--- Reads how many of a car's 12 decals are used.
+---
+--- Requires `world.vehicles`. Answers `used, maximum`: the decals the car shows now (its livery's plus its stickers') and the cap, 12.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@return any used used, maximum, or nil
+---@return any reason reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.getDecalBudget(id) end
+
 --- The player driving this vehicle, or nil when nobody is.
 ---
 --- Requires `world.vehicles`. The front-left occupant from the canonical seat ledger. Absent rather than zero when the seat is empty, and absent while an entry animation is still running, because a reserved seat is not yet a driver. Also on the read as `Open77.vehicles.get(id).driverPlayerId`, which is the field the occupants list is scanned for nine times out of ten.
@@ -9176,6 +9344,17 @@ function Open77.vehicles.getDriver(id) end
 ---@return any number number, or nil
 ---@return any reason reason
 function Open77.vehicles.getEngineHealth(id) end
+
+--- Reads the engine sound set a car carries.
+---
+--- Requires `world.vehicles`. Answers the sound id the car's record carries, or `nil` for the factory sound -- also while the pack that declared the sound is stopped.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@return any soundId soundId, or nil
+---@return any reason reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.getEngineSound(id) end
 
 --- The vehicle's heading in degrees.
 ---
@@ -9209,6 +9388,17 @@ function Open77.vehicles.getHeadlightHue(id) end
 ---@return any reason reason: vehicle_not_found
 function Open77.vehicles.getHealth(id) end
 
+--- Reads a car's light-group colours.
+---
+--- Requires `world.vehicles`. Answers `{ brake = {r,g,b}?, reverse?, blinkers?, interior? }`, or `nil` for factory lights.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@return any colors colors, or nil
+---@return any reason reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.getLightColors(id) end
+
 --- A vehicle's headlight mode as a word.
 ---
 --- Requires `world.vehicles`. Answers `"off"`, `"on"` or `"high"` -- the same three words `setLights` accepts, so a read feeds straight back into a write.
@@ -9230,6 +9420,17 @@ function Open77.vehicles.getLights(id) end
 ---@return any number number 0..1 or nil, or nil
 ---@return any reason reason: vehicle_not_found, permission_denied:world.vehicles
 function Open77.vehicles.getLightsHue(id) end
+
+--- Reads how a car's neon moves.
+---
+--- Requires `world.vehicles`, like `getVisual`. Answers `{ mode, periodMs, color2 = {r,g,b}? }`, or `nil` for a steady neon.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@return any animation animation, or nil
+---@return any reason reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.getNeonAnimation(id) end
 
 --- Reads authoritative vehicle paint.
 ---
@@ -9266,7 +9467,7 @@ function Open77.vehicles.getPlayerSeat(playerId) end
 --- Requires world.vehicles. Returns id (string), playerId, vehicleId, fromSeat, toSeat and automatic. Returns nil when no transition is active; invalid players and missing permission return false plus reason.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@param playerId integer
 ---@return any transition transition table, nil when idle, or false on refusal
 ---@return any reason reason
@@ -9287,11 +9488,13 @@ function Open77.vehicles.getPosition(id) end
 ---
 --- Requires `world.vehicles`. Answers one plain table -- strings, numbers, booleans and tables, so it survives `json.encode` and a database column unchanged -- or `nil, "vehicle_not_found"`. This is the Cyberpunk counterpart of the `GetVehicleProperties` helper every FiveM framework ships, and `setProperties` is its other half: **`setProperties(id, getProperties(id))` leaves the vehicle observably unchanged**, and the same table applied to a fresh vehicle of the same record reproduces it.
 ---
---- The shape is `{ version = 1, record, appearance, paint = { applied, primary = {r,g,b}, secondary = {r,g,b}, lightsHue? }, health, engineOn, lights = "off"|"on"|"high", siren, locked, drivable, invulnerable, immortal, doors, windows, damage = { body = {30 cells}, glass, lights, tires, detachedParts, destroyed, exploded }, performance? }`.
+--- The shape is `{ version = 1, record, appearance, paint = { applied, primary = {r,g,b}, secondary = {r,g,b}, lightsHue? }, health, engineOn, engineHold, lights = "off"|"on"|"high", siren, locked, drivable, invulnerable, immortal, doors, windows, damage = { body = {30 cells}, glass, lights, tires, detachedParts, destroyed, exploded }, performance? }`.
 ---
 --- **Deliberately not where the car was standing.** Position, heading, velocity, occupants, routing bucket and revision are not properties of the car, and a table that carried them would tempt a caller into teleporting by accident; `setTransform` and `setBucket` still own those.
 ---
---- **What Cyberpunk does not have is the real story here.** Vehicle visual customisation on build 2.31 is one struct, `GenericTemplatePersistentData` -- primary RGB, secondary RGB and a lights hue -- plus the entity appearance variant. There are no mod slots, no wheel types, no neon, no window tint and no numbered extras: not unimplemented, absent, with no RTTI type for any of them. `Open77.vehicles.unsupportedProperties` names every FiveM property that therefore has no counterpart, and `setProperties` refuses such a key by name rather than dropping it. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.
+--- **What Cyberpunk does not have is the real story here.** Vehicle visual customisation on build 2.31 is one struct, `GenericTemplatePersistentData` -- primary RGB, secondary RGB and a lights hue -- plus the entity appearance variant. The engine has no mod slots, no wheel types, no neon, no window tint and no numbered extras: not unimplemented, absent, with no RTTI type for any of them. `Open77.vehicles.unsupportedProperties` names every FiveM property that therefore has no counterpart, and `setProperties` refuses such a key by name rather than dropping it. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.
+---
+--- **From 2.50.0-unstable+op77.205:** the table also carries `visual = { profile?, neon = { enabled, color = {r,g,b}, intensity, radius, layout }?, parts = { [partId] = variant | true }, wheels = { rim, variant? }?, plate?, tint?, neonAnimation = { mode, periodMs, color2? }?, lightColors = { brake?, reverse?, blinkers?, interior? }?, engineSound?, stickers = { id, ... }? }`, the look Open77 adds on the server: a TwinTone paint profile (`setPaintProfile`), neon (`setNeon`), kit parts and rims (`registerParts`, `setParts`, `setWheels`), plate text (`setPlate`), a window tint level (`setWindowTint`), a neon animation (`setNeonAnimation`), light-group colours (`setLightColors`) and stickers (`setStickers`); `visual.engineSound` names the engine sound the car's record carries (`setEngineSound`). `visual` is `getVisual(id)` without `rev`: `parts` is always there (empty when the car wears none, and it lists the rim too); the other fields are absent when unset. Neon, its animation and the light colours need no pack; rims, kit parts, plates, tint, pack liveries, engine sounds and stickers are drawn only by a client that has the pack. A server on the current public build answers no `visual`, and its `setProperties` refuses one as `unsupported_property:visual`.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67
@@ -9322,6 +9525,17 @@ function Open77.vehicles.getSpeed(id) end
 ---@return any reason reason: vehicle_not_found
 function Open77.vehicles.getSpeedKph(id) end
 
+--- Reads the stickers a car wears.
+---
+--- Requires `world.vehicles`. Answers `{ stickerId, ... }` in the order they were set, or `nil` for none.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@return any stickers stickers, or nil
+---@return any reason reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.getStickers(id) end
+
 --- The FiveM-shaped name for `getProperties`.
 ---
 --- Identical contract. The name exists so a resource ported from a FiveM framework, where the helper is spelled `GetVehicleProperties`, does not have to be renamed to be read.
@@ -9342,6 +9556,28 @@ function Open77.vehicles.getVehicleProperties(id) end
 ---@return any velocity velocity table, or nil
 ---@return any reason reason: vehicle_not_found
 function Open77.vehicles.getVelocity(id) end
+
+--- Reads the customization a car wears: livery, neon, parts, rims, plate, tint, neon animation, light colours, engine sound and stickers.
+---
+--- Requires `world.vehicles`. Answers `{ rev, profile?, neon = { enabled, color = {r,g,b}, intensity, radius, layout }?, parts = { [partId] = variant | true }, wheels = { rim, variant? }?, plate?, tint?, neonAnimation = { mode, periodMs, color2? }?, lightColors = { brake?, reverse?, blinkers?, interior? }?, engineSound?, stickers = { id, ... }? }`. `plate` is the normalized (upper-case) text; `tint` is absent for factory glass. The wave 2 fields are absent when unset; `engineSound` is the sound id the car's record carries (nil for the factory sound, or while its pack is stopped), and `stickers` the chosen sticker ids in order. `profile` and `parts` are the choices: one whose pack is stopped, or that the car's current record does not list, is still answered while it is not shown. `rev` grows with every change. The host event `onVehicleVisualChanged(id, rev, fields)` reports changes, `fields` listing what moved among `profile`, `neon`, `parts`, `wheels`, `plate`, `tint`, `neonAnimation`, `lightColors` and `stickers`; an engine sound is a record change and is not listed. `getProperties` carries the same table (without `rev`) as `visual`, which `setProperties` restores.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@return any visual visual table, or nil
+---@return any reason reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.getVisual(id) end
+
+--- Reads a car's window tint level.
+---
+--- Requires `world.vehicles`, like `getVisual`. Answers `0` for factory glass, else the level from 1 to 3.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@return any level level, or nil
+---@return any reason reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.getWindowTint(id) end
 
 --- Alias of `Open77.vehicles.getHeading`.
 ---
@@ -9457,7 +9693,7 @@ function Open77.vehicles.isPartDetached(id, part) end
 --- Requires world.vehicles. False while any server resource holds an automatic takeover veto. Client resources can independently veto their local automatic behavior.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@param playerId integer
 ---@return any boolean boolean
 ---@return any reason reason on refusal
@@ -9488,7 +9724,7 @@ function Open77.vehicles.isSirenOn(id) end
 --- Requires `world.vehicles`. Arguments are vehicleId first, playerId second. Returns whether the server currently includes this vehicle in that player's visibility set, not a distance estimate or proof of native projection readiness. Returns false when it is not visible or the vehicle subsystem is unavailable. Malformed IDs return false, invalid_argument; missing permission returns false, permission_denied:world.vehicles.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.112
 --- Reasons: invalid_argument, permission_denied:world.vehicles
 ---@param vehicleId integer
 ---@param playerId integer
@@ -9505,6 +9741,46 @@ function Open77.vehicles.isVisibleTo(vehicleId, playerId) end
 ---@param window integer
 ---@return any boolean boolean, or `nil`
 function Open77.vehicles.isWindowOpen(id, window) end
+
+--- Lists the engine sound sets a car can take.
+---
+--- Takes a vehicle id (`world.vehicles`) or a record name (no permission). Answers `{ { id, label, class }, ... }`: the sets of the car's class (`car` or `bike`) whose pack generated a record for this model at its current stage, in catalogue order. Empty when no running resource registered one.
+---
+--- Since: 2.50.0-unstable+op77.205
+---@param idOrRecord any
+---@return any list list, or nil
+---@return any reason reason: invalid_record, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.listEngineSounds(idOrRecord) end
+
+--- Lists the TwinTone colour templates a record or a car accepts.
+---
+--- Answers `{ { id, label?, main = {r,g,b}?, sec = {r,g,b}?, appearances = {...}, hasPattern, resource?, decals? } ... }`: the build's own templates first, in table order (a FiveM livery index counts in this list), then those running resources declared with `registerPaintProfiles`, each carrying its declaring `resource`. A record name needs no permission (it is catalogue data); a vehicle id reads a car and needs `world.vehicles`. A record without customization answers `{}`; a performance-stage record (`Vehicle.<base>_o77sN`) answers its base record's list plus anything registered on the stage. `decals` is the number of decals the template spends of the car's 12-decal budget (see `getDecalBudget`), present only when it spends any.
+---
+--- Since: 2.50.0-unstable+op77.205
+---@param recordOrId any
+---@return any profile profile list, or nil
+---@return any reason reason: invalid_record, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.listPaintProfiles(recordOrId) end
+
+--- Lists the registered kit parts and rims that fit a record or a car.
+---
+--- Answers `{ { id, kind, label?, slot?, carrier?, modType?, variants = { [variant] = model } } ... }`, ids fully qualified (`<resource>:<id>`). A record name needs no permission; a vehicle id needs `world.vehicles`. `carrier` is the opening panel slot a body part rides on (`trunk_a`, `hood_a`), as `registerParts` declared it.
+---
+--- Since: 2.50.0-unstable+op77.205
+---@param recordOrId any
+---@return any part part list, or nil
+---@return any reason reason: invalid_record, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.listParts(recordOrId) end
+
+--- Lists the stickers that fit a car.
+---
+--- Takes a vehicle id (`world.vehicles`) or a record name (no permission; stickers bound to an appearance are then not listed). Answers `{ { id, label, group, decals }, ... }`, by group then id; `decals` is what one sticker costs against the 12-decal budget.
+---
+--- Since: 2.50.0-unstable+op77.205
+---@param idOrRecord any
+---@return any list list, or nil
+---@return any reason reason: invalid_record, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.listStickers(idOrRecord) end
 
 --- Locks a vehicle against ordinary entry.
 ---
@@ -9600,7 +9876,7 @@ function Open77.vehicles.owner(id) end
 --- Requires `world.vehicles`. The light twin of `Open77.vehicles.all`: the same vehicles, in the same order (ascending Open77 ID) and with the same optional routing-bucket filter, but each vehicle is six consecutive numbers -- `id, x, y, z, yaw, bucket` -- in one table, followed by the vehicle count as a second return value. Vehicle `i` (from 1) starts at index `(i - 1) * 6 + 1`. A row of `all()` is about fifty fields and six sub-tables per car; a resource that reads its fleet's poses several times a second (`open77_traffic` does, for spacing and area counts) should read this instead and call `Open77.vehicles.get` only for the cars it acts on. The pose is the server registry's last accepted transform, the one `get` reports as `x`/`y`/`z`/`yaw`. Like `all()`, it lists every vehicle on the server, not only this resource's. Without `world.vehicles` it answers an empty table and `0`, not a refusal. `bucket` must be an integer from 0 to 4294967295; `nil` lists every bucket.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.50.0-unstable+op77.170
 ---@param bucket? integer
 ---@return any flat flat array: id, x, y, z, yaw, bucket per vehicle
 ---@return any integer integer count of vehicles
@@ -9616,6 +9892,52 @@ function Open77.vehicles.positions(bucket) end
 ---@param profile table
 ---@return any true `true`
 function Open77.vehicles.registerDamageProfile(record, profile) end
+
+--- Declares the engine sound records a resource's pack adds.
+---
+--- Needs no permission: it changes no car. `catalogue` is `{ { id, label, class, set, index, models, maxStage? }, ... }`. `id`: lower-case letters, digits, `_ . -`, at most 32. `label`: 1-64 characters naming no make. `class`: `car` or `bike`. `set`: the vanilla sound set the records use (kept internal, never listed). `index`: the `k` of the record suffix, 1-999. `models`: `{ [baseRecord] = { stage, ... } }` (0 = factory stage), or a list of base records covering stages 0 to `maxStage` (0 when absent) -- exactly the records the pack generated, since the server never asks for a record the clients lack. Ids and indices belong to the first running resource that registers them and go when it stops. Atomic.
+---
+--- Since: 2.50.0-unstable+op77.205
+---@param catalogue table
+---@return any true true, or false
+---@return any reason reason: invalid_engine_sound_catalogue, invalid_engine_sound:<id>.<field> (or #<n>.<field>), duplicate_engine_sound:<id>, engine_sound_taken:<id>, engine_sound_index_taken:<index>, engine_sound_limit, vehicles_unavailable
+function Open77.vehicles.registerEngineSounds(catalogue) end
+
+--- Declares the colour template records this resource's TweakXL pack adds, per model.
+---
+--- `catalogue` is `{ [record] = { { id, label?, main?, sec?, pattern?, match?, decals? }, ... } }`. `record` is a vehicle record (`Vehicle.` + letters, digits, `_`; a stage record inherits its base's rows). `id` is the template record, `Vehicle.o77_` + letters, digits, `_`, at most 128 characters: the prefix keeps every vanilla template out of reach, and an id belongs to the first running resource that registers it. `label` (1-64 characters) and `main` / `sec` (`{r,g,b}`, `{r=,g=,b=}` or `"#rrggbb"`) are for a UI's swatches; `pattern` (default false) is `hasPattern`; `match` (appearance names) is listed as `appearances`. A vehicle kit `profiles.json` `records` table is accepted as is.
+---
+--- **A template the pack adds must carry at most 12 `customDecals`**: 13 or more crash every client that spawns the car (2.5, `Cyberpunk2077.exe+0x37DD77`), whatever the number of cars nearby. The server cannot read the pack, so the cap is the pack builder's job.
+---
+--- Merged into this resource's set: a row restating an id on the same record replaces it, others are added, and nothing is taken away until the resource stops or is reloaded: a hot reload declares the set again from scratch, so what the new generation does not register goes, and a reload that fails keeps the running set. A resource that fails to load releases whatever it registered first. Then its profiles go: a car wearing one keeps the choice (`getVisual` still answers it) but shows generic paint until the resource registers it again. **Needs no permission**: it paints no car, and applying a profile is still `setPaintProfile`. `decals` (0-12, default 0) is the template's `customDecals` count: it counts against the car's 12-decal budget with its stickers, and a livery above 12 is refused, since it would crash every client on its own. Give it for a livery with decals: left out, the livery counts as 0, `getDecalBudget` under-reports, and stickers past the real budget are accepted, then dropped by the client. Caps: 64 rows per record, 256 records, 1024 rows per resource; one call is read with a budget of 262,144 Lua values (not the 4096 of a network event), so a catalogue within these caps registers in one call. Atomic.
+---
+--- Since: 2.50.0-unstable+op77.205
+---@param catalogue table
+---@return any true true, or false
+---@return any reason reason: invalid_profile_catalogue, invalid_profile_record:<record>, invalid_paint_profile:<id>.<field>, duplicate_paint_profile:<id>, profile_taken:<id>, profile_limit, vehicles_unavailable
+function Open77.vehicles.registerPaintProfiles(catalogue) end
+
+--- Declares this resource's kit parts and rims, and how they fit each model.
+---
+--- Ids are namespaced by resource (`<resource>:<id>`) and vanish when the resource stops; cars wearing a vanished part republish without it and get it back when the kit is registered again. A hot reload declares the kit again from scratch: a part the new generation does not register vanishes the same way, and a reload that fails keeps the running kit whole. A resource that fails to load releases whatever it registered first. **Register at the top level of the script**: a reload republishes the cars as soon as the top level has run, so a kit registered later (a `CreateThread`, a database callback) first shows them without its parts, then with them, and a write naming one in between is refused (`unknown_part`). A part a failed reload put on a car stays chosen but dormant until the kit registers it again. **Needs no permission**: it changes no car, only what this resource's own ids mean.
+---
+--- Entry: `{ kind = "rim" | "part" | "toggle", label?, slot? (part: the vehicle component it attaches to), carrier? (part: the slot of the opening panel it rides on), modType?, variants = { [variant] = model }, fit = { [record] = { slot?, carrier?, offset?, rotation?, scale?, hide?, show?, wheels?, appearances? } } }`. `carrier = "trunk_a"` makes a part fitted on the body follow the trunk lid as it opens: the offsets stay those of `slot` with the lid shut, and the client moves the part as far as the carrier slot has moved (it measures the shut pose itself, and follows `slot` alone until then or on a car without that slot). A fit's `carrier = false` means none on that record; a rim or a toggle has none. A rim's `wheels = { { slot, offset?, rotation?, scale? }, ... }` (1-8 entries, unique slots) replaces its default wheel slots on that record, one prop per entry. `appearances = { ["<appearance>"] = { offset?, rotation?, scale?, wheels?, hide?, show? } }` (at most 32, never `slot` or `carrier`) fits the part per trim: a car wearing that appearance gets the record fit with those fields replaced. The look follows the car's appearance on its own: `setAppearance`, `setProperties` and `respawnAs` republish it in the same call. A model is `asset:<resource>/<model>`, a prop a pack resource registered, resolved like `Open77.props.create`; the client skips and logs a model it cannot resolve (`model_not_registered`, for instance from an archive the game did not mount at start). A part applies only to the records its `fit` lists (`part_not_for_model`). Atomic.
+---
+--- Since: 2.50.0-unstable+op77.205
+---@param catalogue table
+---@return any true true, or false
+---@return any reason reason: invalid_part_catalogue, invalid_part:<id>.<field>, part_limit, vehicles_unavailable
+function Open77.vehicles.registerParts(catalogue) end
+
+--- Declares the stickers a resource's pack adds.
+---
+--- Needs no permission: it changes no car. `catalogue` is `{ { id, label, group, records | parts, model?, appearances?, decals?, record? }, ... }`. `records`: 1 to 12 distinct `VehicleDecalAttachment` records of the pack (`Vehicle.o77_...`); `parts`, the vehicle kit's form, gives the same records as `{ record, component, decal }` rows (with both, they must agree). `model`: a record or an appearance name, or a list of them (records start with `Vehicle.`; a stage or sound record fits its base). `decals`, when given, must equal the number of records. `record`: the pack's own colour template listing the decals (kept, never published). Police (NCPD included), sheriff, border patrol, Arasaka and Delamain sets are refused by name, in the id, the label or the group (`sticker_excluded`). Ids belong to the first running resource that registers them and go when it stops. Atomic.
+---
+--- Since: 2.50.0-unstable+op77.205
+---@param catalogue table
+---@return any true true, or false
+---@return any reason reason: invalid_sticker_catalogue, invalid_sticker:<id>.<field> (or #<n>.<field>), duplicate_sticker:<id>, sticker_taken:<id>, sticker_excluded:<id>, sticker_limit, vehicles_unavailable
+function Open77.vehicles.registerStickers(catalogue) end
 
 --- Removes a server-authoritative network vehicle.
 ---
@@ -9758,6 +10080,18 @@ function Open77.vehicles.requestAuthority(id, playerId) end
 ---@return any boolean boolean success
 function Open77.vehicles.resetPaint(id) end
 
+--- Rebuilds a car on another record at the same place, under the same id.
+---
+--- Requires `world.vehicles`. Swaps the car's record -- a performance stage `Vehicle.<base>_o77sN`, or any other -- and keeps paint, appearance, lights hue, health, the visual state and every state bag key. The car must be empty. A record of the same model without a sound suffix keeps the car's engine sound (`Vehicle.x_o77s2` on a car with sound 3 respawns it on `Vehicle.x_o77s2a3`): `engine_sound_not_for_stage` when the sound pack generated no record for that stage, `engine_sound_unregistered` while the sound pack is stopped. `setEngineSound(id, nil)` takes the sound off first. Answers the id, which never changes, so every reference a resource holds stays valid.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param record string
+---@return any the the same id, or nil
+---@return any reason reason: vehicle_occupied, engine_sound_not_for_stage, engine_sound_unregistered, invalid_record, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.respawnAs(id, record) end
+
 --- Whether one seat of a vehicle is free.
 ---
 --- Requires `world.vehicles`. A seat held by an occupant whose entry animation is still running counts as TAKEN: the seat is reserved and a second warp into it is refused, so reporting it free would be a lie the caller then trips over. Seats accept `-1..2`, the `Open77.vehicles.seats` constants, aliases like `driver`, and canonical `seat_*` names.
@@ -9801,13 +10135,13 @@ function Open77.vehicles.setAdoptPolicy(policy, options) end
 
 --- Swaps the appearance variant on a live car, on every viewer.
 ---
---- Requires `world.vehicles` **and** `world.vehicles.appearance`. The second string exists because this is the one vehicle write that changes what the world LOOKS like rather than what a car does: it reaches a native entity-appearance reschedule on every viewer at once, for every car a resource can name, and a resource that wants to repaint the city should have to say so -- the same argument that gave adoption its own string. **It gates a CHANGE, never a restatement**: writing the variant a car already wears is accepted without it, which is what makes `setProperties(id, getProperties(id))` work for a resource that never changes a look.
+--- Requires `world.vehicles`, and a change requires `world.vehicles.appearance` too. The second string exists because this is the one vehicle write that changes what the world LOOKS like rather than what a car does: it reaches a native entity-appearance reschedule on every viewer at once, for every car a resource can name, and a resource that wants to repaint the city should have to say so -- the same argument that gave adoption its own string. **It gates a CHANGE, never a restatement**: writing the variant a car already wears is accepted without it, which is what makes `setProperties(id, getProperties(id))` work for a resource that never changes a look.
 ---
 --- `nil` or `""` restores the record's default variant. The name is not validated here, because only the client holds the entity template: a variant the model does not define is a no-op on each projection and the canonical value stays as written. `Open77.data.vehicle(record)` looks a record up but does not enumerate variants -- the shipped 2.31 catalogue does not carry them.
 ---
 --- **No intent window, and that is structural rather than lucky.** The physics owner's durable report has no appearance field and no colour field of any kind, so the twice-a-second merge that used to undo server writes cannot reach this one. On the client the variant is applied through `entEntity::ScheduleAppearanceChange` and held on the replica until the projection attaches -- measured at up to about 3.7 s after the create -- then re-applied if the entity is torn down and streamed back.
 ---
---- Permissions: world.vehicles
+--- Permissions: world.vehicles, world.vehicles.appearance
 --- Since: 2.31.13+op77.67
 ---@param id any
 ---@param appearance any
@@ -9955,6 +10289,18 @@ function Open77.vehicles.setEngineHealth(id, health) end
 ---@return any reason reason on failure
 function Open77.vehicles.setEngineHold(id, hold) end
 
+--- Gives a car another engine sound set, horn included.
+---
+--- Requires `world.vehicles` only: like a stage, a sound is a record (`Vehicle.<base>_o77a<k>`, or `_o77s<n>a<k>` on a stage) that the pack adds, and the car is respawned on it in place under the same id, keeping paint, appearance, health, the visual state and every state bag key. `soundId` is an id `listEngineSounds` lists, or `nil` for the factory sound of the current stage. Restating the current sound changes nothing. The car must be empty (`vehicle_occupied`). Every client, the driver included, hears what the record says.
+---
+--- Permissions: world.vehicles
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param soundId any
+---@return any true true, or false
+---@return any reason reason: invalid_engine_sound, unknown_engine_sound, engine_sound_not_for_class, engine_sound_not_for_model, vehicle_occupied, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.setEngineSound(id, soundId) end
+
 --- Pins a vehicle where it stands, or lets it go.
 ---
 --- Requires `world.vehicles`. The server half of FiveM's `FreezeEntityPosition` for a vehicle, and only that half: the control lock is `setUndriveable`, and the two compose (an impound wants both, a starting grid wants the freeze alone with the engine running). Three things happen in ONE canonical revision: the `frozen` bit goes up (`Open77.vehicles.flags.frozen`, bit 11), the motion facts are pinned (`speed`, `velocity`, `angularVelocity`, `onGround`, `reversing` read as a car at rest), and the physics owner's transform reports are discarded while the bit is up -- discarded, not punished: the lease is renewed and the tick consumed as an accepted report would be, so nothing flaps and nothing is logged. Every projection maps the bit to the native physics mask, so inertia, gravity and impulses stop too; a driver pressing the throttle revs an engine that goes nowhere. Nothing electrical changes. Like `undriveable` the bit is server-authored, absent from every owner report and preserved across them. The pinned transform is wherever the last ACCEPTED report put the car: frozen at speed, the owner's screen stops one latency past the pin and the two agree again after the release. Widening the accepted flag mask is a wire change -- server and client must be built together.
@@ -10044,7 +10390,7 @@ function Open77.vehicles.setHighBeams(id, on) end
 --- Requires `world.vehicles`. Sets the canonical linear velocity (m/s, world axes) of a car that has never had a physics owner, so the create every projection receives carries it and the first client to simulate the car writes it into the chassis when it takes over -- the same body write the client uses to keep a car's momentum across an ownership change. The drivetrain `speed` reading is not touched. Refused once any client has simulated the car, even after its ownership was revoked (`vehicle_simulated`; its velocity is then its simulator's report). Viewers that already stream the car receive the velocity at once. A frozen car is refused (`vehicle_frozen`; it is pinned at rest, so thaw it first). Each component is bounded to ±250. A client that only takes the car over more than 6 s after receiving its create starts it from rest.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.127
 ---@param id any
 ---@param velocity any
 ---@return any true true, or false
@@ -10062,6 +10408,18 @@ function Open77.vehicles.setLaunchVelocity(id, velocity) end
 ---@param broken boolean
 ---@return any boolean boolean success
 function Open77.vehicles.setLightBroken(id, index, broken) end
+
+--- Colours a car's brake, reverse, blinker and interior lights.
+---
+--- Requires `world.vehicles`; a change also requires `world.vehicles.appearance`. `colors` is `{ brake?, reverse?, blinkers?, interior? }`, each a colour (`{r,g,b}`, `{r=,g=,b=}` or `"#rrggbb"`); the table is the whole set, so a group it does not name goes back to its factory colour, and `nil` or `{}` gives every group its factory colour back. Every client applies it through the car's light controller, again after every rebuild, stream-in and paint change. Headlights are not a group: `setPaint`'s lights hue keeps them. Red or blue blinkers and blue brake lights are refused: they read as an emergency vehicle.
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param colors any
+---@return any true true, or false
+---@return any reason reason: invalid_light_colors, invalid_light_colors:<group>, emergency_look:blinkers, emergency_look:brake, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.setLightColors(id, colors) end
 
 --- Replaces the broken-light bit mask.
 ---
@@ -10090,9 +10448,11 @@ function Open77.vehicles.setLights(id, mode) end
 ---
 --- Requires `world.vehicles`. `hue` is `0..1` -- the H of the HSB triple the engine's visual template carries -- and `nil` hands the lights back the record's colour.
 ---
---- **This is the closest build 2.31 has to `SetVehicleNeonLights` or `SetVehicleHeadlightsColour`, and it is not the same thing.** There is no underglow and no xenon palette in this game; what exists is the vehicle's own emissive colour, continuous rather than indexed, in the same `GenericTemplatePersistentData` struct as the two paint colours. Because it is the same struct, the hue and the paint reach the engine in one event -- which is why the hue is carried inside `paint` in a property table, and why it is unaffected by `paintApplied`: a car can wear a tinted headlight over its stock body paint.
+--- **This is the closest build 2.31 has to `SetVehicleNeonLights` or `SetVehicleHeadlightsColour`, and it is not the same thing.** There is no underglow and no xenon palette in this game; what exists is the vehicle's own emissive colour, continuous rather than indexed, in the same `GenericTemplatePersistentData` struct as the two paint colours. Because it is the same struct, the hue and the paint reach the engine in one event -- which is why the hue is carried inside `paint` in a property table, and why it is unaffected by `paintApplied`.
 ---
---- Replicated to every viewer and replayed on stream-in. It is not in the physics owner's durable report, so it needs no intent window.
+--- Replicated to every viewer and replayed on stream-in. It is not in the physics owner's durable report, so it needs no intent window. In the current public build the hue is stored, replicated and read back (`getLightsHue`), but the client does not show it on the headlights, which stay white: the engine keeps the hue in the template without colouring the lamps.
+---
+--- **From 2.50.0-unstable+op77.205:** every client colours the car's headlights, the lamp glow and the beam, from the hue at full saturation and brightness, on every new body, after a stream-in and after each paint. Brake, reverse, blinker and interior lamps keep their own colours (`setLightColors`), and Open77's under-chassis neon is a separate native, `setNeon`. A client older than that release shows white headlights whatever the hue.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67
@@ -10140,6 +10500,30 @@ function Open77.vehicles.setLockedForAll(id, locked) end
 ---@return any reason reason: invalid_argument, invalid_player_id, vehicle_not_found, vehicles_unavailable, permission_denied:world.vehicles
 function Open77.vehicles.setLockedForPlayer(id, playerId, locked) end
 
+--- Turns on or changes the under-chassis lights of a car.
+---
+--- Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. `neon` is `{ enabled?, color = {r,g,b} | {r=,g=,b=} | "#rrggbb", intensity? (0-5000, default 600), radius? (0.5-8 m, default 3), layout? ("auto") }`. Absent fields keep the current neon's values; `color` is required on a car without a neon. `enabled = false` keeps the colour and switches the lights off. The server owns the look: every visual setter writes one JSON value, the platform-reserved `open77.visual` key of the vehicle's state bag, which each client applies on stream-in, after an appearance change and after a rebuild, so it reaches current viewers, late joiners and reconnects alike. A resource cannot write that key itself (`reserved_state_key`).
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param neon table
+---@return any true true, or false
+---@return any reason reason: invalid_neon, invalid_neon_color, invalid_neon_intensity, invalid_neon_radius, invalid_neon_layout, emergency_look:neonAnimation, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.setNeon(id, neon) end
+
+--- Makes a car's neon pulse, breathe, strobe, chase, cycle hues or follow its speed or brakes.
+---
+--- Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance`, while restating the current value needs only the first. `animation` is `{ mode, periodMs?, color2? }`, or `nil` for a steady neon. `mode` is one of `pulse`, `breathe`, `strobe`, `chase`, `rainbow`, `speed`, `brake`. `periodMs` is an integer from 250 to 10000 (a strobe at least 333, so never faster than 3 Hz); without it the mode's default is stored (breathe 4000, strobe 500, chase 1000, rainbow 6000, the others 1200). `color2` (`{r,g,b}`, `{r=,g=,b=}` or `"#rrggbb"`) is the second colour of pulse, breathe, strobe and chase, the colour `speed` blends to at speed and the colour `brake` flares to while braking; it is refused on `rainbow`. Every client computes the light from the server clock, so all of them show the same moment. The neon itself is still `setNeon`: without one, nothing shows. A red or blue strobe, or a red/blue pair in pulse, breathe, strobe or chase, is refused (`emergency_look:neonAnimation`), judged with the neon colour, so a later `setNeon` can be refused for it too.
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param animation any
+---@return any true true, or false
+---@return any reason reason: invalid_neon_animation, invalid_neon_animation:mode, invalid_neon_animation:periodMs, invalid_neon_animation:color2, emergency_look:neonAnimation, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.setNeonAnimation(id, animation) end
+
 --- Sets authoritative paint on a canonical vehicle.
 ---
 --- Requires `world.vehicles`. Accepts primary and optional secondary RGB colors as `#RRGGBB`, keyed `{ r, g, b }`, or positional tables. Omitting secondary mirrors primary. Paint is cross-resource and replicated to current viewers, stream-in projections, reconnects, and late joiners.
@@ -10150,6 +10534,18 @@ function Open77.vehicles.setLockedForPlayer(id, playerId, locked) end
 ---@param paint table
 ---@return any boolean boolean success
 function Open77.vehicles.setPaint(id, paint) end
+
+--- Applies a TwinTone colour template (a livery) to a car, on every viewer.
+---
+--- Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. `profileId` is an id from `listPaintProfiles` for this car's record, or `nil` to go back to generic paint; an id the record does not list is `invalid_profile`. Restating the car's current profile always passes, even one whose pack is stopped. A later `setPaint`, `resetPaint` or repaint through `update` clears it. The server owns the look: every visual setter writes one JSON value, the platform-reserved `open77.visual` key of the vehicle's state bag, which each client applies on stream-in, after an appearance change and after a rebuild, so it reaches current viewers, late joiners and reconnects alike. A resource cannot write that key itself (`reserved_state_key`). On a car with stickers, a livery whose decals would take the car past 12 with them is refused (`decal_budget_exceeded`, see `getDecalBudget`).
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param profileId any
+---@return any true true, or false
+---@return any reason reason: invalid_profile, decal_budget_exceeded, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.setPaintProfile(id, profileId) end
 
 --- Detaches one standard vehicle part.
 ---
@@ -10162,6 +10558,18 @@ function Open77.vehicles.setPaint(id, paint) end
 ---@param detached boolean
 ---@return any boolean boolean success
 function Open77.vehicles.setPartDetached(id, part, detached) end
+
+--- Puts kit parts on a car, or takes them off.
+---
+--- Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. `parts` is `{ [partId] = variantId | true | false }`: `true` picks the only variant, `false` takes the part off; parts not named are left as they are. A bare id names a part of the calling resource, a qualified one (`<resource>:<id>`) any running resource's. A rim named here replaces the car's current rim, and two rims in one call answer `conflicting_parts`; which body parts exclude each other (two front lips) is the resource's to enforce. The server owns the look: every visual setter writes one JSON value, the platform-reserved `open77.visual` key of the vehicle's state bag, which each client applies on stream-in, after an appearance change and after a rebuild, so it reaches current viewers, late joiners and reconnects alike. A resource cannot write that key itself (`reserved_state_key`).
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param parts table
+---@return any true true, or false
+---@return any reason reason: unknown_part, part_not_for_model, unknown_variant, variant_required, conflicting_parts, invalid_parts, attach_limit, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.setParts(id, parts) end
 
 --- Caps one vehicle's top speed and pickup, from the server.
 ---
@@ -10187,12 +10595,24 @@ function Open77.vehicles.setPerformance(id, profile) end
 ---@return any reason reason: invalid_argument, vehicle_not_found, vehicles_unavailable, permission_denied:world.vehicles
 function Open77.vehicles.setPersistent(id, persistent) end
 
+--- Sets the text on a car's licence plate.
+---
+--- Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. The text is trimmed, then upper-cased; A-Z, 0-9, space and `-` only, 1 to 10 characters, no two spaces in a row, anything else is `invalid_plate`. `nil` or `""` goes back to the model's own plate. The platform rule is permissive on purpose: format, uniqueness and banned words are the resource's to enforce. Shown on models whose plate pack carries the plate widget; on a model without it the car keeps its stock plate and the text is still stored. The same plate in another case (`"nc 01"` after `"NC 01"`) is a restatement.
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param text any
+---@return any true true, or false
+---@return any reason reason: invalid_plate, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.setPlate(id, text) end
+
 --- Controls a resource-owned automatic takeover policy.
 ---
 --- Requires world.vehicles. false adds this resource's veto for the player; true removes only its own veto. Explicit seat requests remain available. Policies are released on resource stop and player disconnect.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@param playerId integer
 ---@param enabled boolean
 ---@return any true true or false
@@ -10233,11 +10653,15 @@ function Open77.vehicles.setPlayerIntoVehicle(playerId, vehicleId, seat, options
 ---
 --- **`version` decides how absence is read, and it is the only thing that does.** A table carrying `version = 1` -- which is every table `getProperties` hands back -- is a COMPLETE description, so an absent optional field means "this car has none": no lights hue, no performance ceiling. A table without `version` is a PATCH, so an absent field is left exactly as it was, and `setProperties(id, { paint = { primary = "#FF0000" } })` is a repaint and nothing else.
 ---
---- **A property with no Cyberpunk counterpart is refused by name**, as `unsupported_property:modEngine` or `unsupported_property:paint.neonColor` -- the offending key alphabetically first, so the refusal is reproducible whatever `pairs` decides that run. Pass `{ ignoreUnsupported = true }` to skip them instead, in which case the third return value lists what was skipped. Refusing is deliberate: a garage that silently loses two thirds of its table is worse than one that fails loudly on day one. `Open77.vehicles.unsupportedProperties` maps every such name to the reason.
+--- **A property with no Cyberpunk counterpart is refused by name**, as `unsupported_property:modEngine` or `unsupported_property:paint.neonColor` -- the offending key alphabetically first, so the refusal is reproducible whatever `pairs` decides that run. Any key the table format does not name is refused the same way, `visual` included, and so are the FiveM keys `neonEnabled`, `neonColor`, `livery` and `windowTint`. Pass `{ ignoreUnsupported = true }` to skip them instead, in which case the third return value lists what was skipped: the alphabetically first unsupported key of the top level, of `paint` and of `damage`. Refusing is deliberate: a garage that silently loses two thirds of its table is worse than one that fails loudly on day one. `Open77.vehicles.unsupportedProperties` maps every such name to the reason.
 ---
 --- `record` is checked, never applied: REDengine cannot change a spawned entity's record, so a Quadra table handed to a Thorton answers `record_mismatch` rather than half-restoring. Detached parts are one-way on a live projection, so a table asking for fewer than the car has already lost answers `detached_parts_not_reattachable`; respawn and apply the table to the new car.
 ---
 --- **The order of application is deliberate.** Health, paint, doors, windows and the durable damage go in ONE `update`, so no viewer ever sees a half-restored car. The electrical bits then go through `setEngine`, `setLights`, `setSiren` and `setDrivable`, because those are what record the server intent that stops the physics owner's next durable report from undoing them -- writing them as raw flags would look like it worked and quietly revert about half a second later. The visual template and the performance ceiling follow on their own durable channels. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.
+---
+--- **From 2.50.0-unstable+op77.205:** `setProperties` restores the vehicle customization too. The unsupported check also covers the `visual` table and runs before the vehicle is read or anything is applied, and `ignoreUnsupported` hands back every skipped key, sorted, nested ones prefixed (`paint.`, `damage.`, `visual.`). `visual` is applied as `getVisual` shapes it (`rev` is ignored), its wave 2 fields `neonAnimation`, `lightColors` and `stickers` included, with their setters' refusals, and the whole look is validated before anything is applied. **One exception, for a restore**: in a versioned table a sticker past the decal budget stays chosen but undrawn (dormant), as when a heavier livery is registered under the car, instead of refusing the table, since the table describes a car whose sticker was already dormant. A patch that adds a sticker is a purchase and is still refused with `decal_budget_exceeded`, as by `setStickers`. `neonEnabled` (a boolean, or FiveM's four per-side booleans) and `neonColor` become `visual.neon`; `livery` is a 0-based index into `listPaintProfiles(record)`, `-1` for none; `windowTint` is the FiveM index mapped onto `visual.tint`, GREEN (`6`) refused as `unsupported_property:windowTint`. A FiveM key wins over its `visual` field. In a versioned table a field absent from `visual` means none, but a table with no `visual` at all leaves the look alone. Changing the look needs `world.vehicles.appearance`; restating it does not. **Only a choice the car already holds survives a stopped pack:** on a freshly spawned car every part, livery and sticker is a new choice, so one that no running resource has registered is refused (`unknown_part`, `invalid_profile`, `unknown_sticker`) and the call applies nothing. `record` is then applied within the same model: a stage or engine-sound record of the same model (`_o77s<n>`, `_o77a<k>`, `_o77s<n>a<k>`) respawns the car onto it first, in place and under the same id, after every check and before the update, exactly as `respawnAs` would (`vehicle_occupied` while anyone is in it), so a garage that spawns the base model gets the tuned car back from the table. A sound record no running resource covers is not spawned blind: the sound is dropped and the stage kept. `visual.engineSound` must agree with `record` (`engine_sound_mismatch`); in a table without `record` it is applied like `setEngineSound`.
+---
+--- **Nothing is applied before the whole table is proved**: the record, the visual, the update, the electrical values, the appearance and hue, the ceiling, each by the checks of the setter that then applies it. A refused table leaves the car exactly as it was: not respawned, not repainted, its profile untouched. **A repaint replaces a TwinTone profile**, as it does through `update`: a table whose colours change the paint clears the profile whatever else it carries, unless the table states the profile itself (`visual.profile`, `livery`, or a `visual` in a versioned table), which then wins.
 ---
 --- Permissions: world.vehicles
 --- Since: 2.31.13+op77.67
@@ -10245,8 +10669,8 @@ function Open77.vehicles.setPlayerIntoVehicle(playerId, vehicleId, seat, options
 ---@param props table
 ---@param options? any
 ---@return any true true, or false
----@return any reason reason: unsupported_property:<name>, unsupported_version, record_mismatch, detached_parts_not_reattachable, invalid_argument, invalid_paint, invalid_damage, invalid_health, invalid_appearance, invalid_lights_hue, vehicle_not_found, permission_denied:world.vehicles, permission_denied:world.vehicles.appearance
----@return any skipped skipped: the list of unsupported names, only with ignoreUnsupported
+---@return any reason reason: unsupported_property:<name>, unsupported_version, record_mismatch, detached_parts_not_reattachable, invalid_argument, invalid_paint, invalid_damage, invalid_health, invalid_appearance, invalid_lights_hue, vehicle_not_found, permission_denied:world.vehicles, permission_denied:world.vehicles.appearance; from 2.50.0-unstable+op77.205 also vehicle_occupied, engine_sound_mismatch, invalid_engine_sound, invalid_visual and the refusals of the visual setters (unknown_part, invalid_profile, unknown_sticker, ...)
+---@return any skipped skipped: only with ignoreUnsupported, the unsupported names (the first of each table today; every one, sorted and prefixed, from 2.50.0-unstable+op77.205)
 function Open77.vehicles.setProperties(id, props, options) end
 
 --- Turns a vehicle's siren on or off.
@@ -10260,6 +10684,18 @@ function Open77.vehicles.setProperties(id, props, options) end
 ---@return any true true, or false
 ---@return any reason reason: invalid_argument, vehicle_not_found
 function Open77.vehicles.setSiren(id, on) end
+
+--- Sets the stickers on a car.
+---
+--- Requires `world.vehicles`; a change also requires `world.vehicles.appearance`. `stickers` is the whole list in order, at most 12 ids, each once; `nil` or `{}` takes them off. With the livery's own decals they must fit 12 decals: a thirteenth crashes every client that sees the car, so the server refuses it (`decal_budget_exceeded`, see `getDecalBudget`). A decal two stickers share counts once. A sticker whose pack stops stays chosen but is not shown until the pack comes back.
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param stickers any
+---@return any true true, or false
+---@return any reason reason: invalid_stickers, unknown_sticker, sticker_not_for_model, decal_budget_exceeded, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.setStickers(id, stickers) end
 
 --- Gives a vehicle a deadline, in milliseconds from now.
 ---
@@ -10343,6 +10779,18 @@ function Open77.vehicles.setUndriveable(id, undriveable) end
 ---@return any reason reason
 function Open77.vehicles.setVehicleProperties(id, props, options) end
 
+--- Fits a rim design on every wheel of a car, or puts the factory rims back.
+---
+--- Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. `wheels` is `{ rim = partId, variant? }`; `nil` or `{}` takes the rim off. A bare `rim` names a part of the calling resource; a qualified id (`<resource>:<id>`, the form `listParts` answers) names a part any running resource registered, so a shop resource selling another resource's rims passes the qualified id. `variant` may be left out when the rim has a single variant. The rim goes on every wheel slot (four on a car, two on a bike, or the fit's own `wheels` list for this record) and hides the factory rim components its fit lists for the model, or for the car's current appearance when the fit has an override for it. The server owns the look: every visual setter writes one JSON value, the platform-reserved `open77.visual` key of the vehicle's state bag, which each client applies on stream-in, after an appearance change and after a rebuild, so it reaches current viewers, late joiners and reconnects alike. A resource cannot write that key itself (`reserved_state_key`).
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param wheels any
+---@return any true true, or false
+---@return any reason reason: invalid_wheels, unknown_part, part_not_a_rim, part_not_for_model, unknown_variant, variant_required, attach_limit, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.setWheels(id, wheels) end
+
 --- Sets one reversible side-window opening state.
 ---
 --- Requires `world.vehicles`. This controls the four openable side windows and is separate from destructible broken-glass state.
@@ -10354,6 +10802,18 @@ function Open77.vehicles.setVehicleProperties(id, props, options) end
 ---@param opened boolean
 ---@return any boolean boolean success
 function Open77.vehicles.setWindowOpen(id, window, opened) end
+
+--- Sets the window tint level of a car.
+---
+--- Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. `level` is an integer from 1 (light smoke) to 3 (limo), or `0` / `nil` for factory glass. A fraction, a string or a value out of range is `invalid_tint`. The level is stored on any car; it is drawn on the side and rear glass of the models the client's tint pack covers (`customizationAvailable` on the client names the others), never on the windshield. Which models a resource offers tint on is its own choice.
+---
+--- Permissions: world.vehicles, world.vehicles.appearance
+--- Since: 2.50.0-unstable+op77.205
+---@param id any
+---@param level any
+---@return any true true, or false
+---@return any reason reason: invalid_tint, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles
+function Open77.vehicles.setWindowTint(id, level) end
 
 --- Starts a vehicle's engine.
 ---
@@ -10382,7 +10842,7 @@ function Open77.vehicles.stopEngine(id) end
 --- Requires world.vehicles and protocol 1.44. Both seats are held until native completion. Returns true and a string transition ID on reservation, or false and a reason. Completion/failure is reported by onPlayerVehicleSeatSwitchCompleted/Failed. Does not board on-foot players or evict occupants. Explicit requests remain allowed when automatic takeover is disabled.
 ---
 --- Permissions: world.vehicles
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@param playerId integer
 ---@param seat any
 ---@return any true true or false
@@ -10479,7 +10939,9 @@ function Open77.vehicles.unlockForAll(id) end
 ---
 --- A table, not a function: each key is a FiveM `GetVehicleProperties` field this engine cannot express, and each value says what is missing. `setProperties` refuses every one of them by name. Read it to decide, before writing, what a ported script has to drop -- and read it instead of guessing, because several of the absences are surprising: there are no colour INDICES (Cyberpunk paint is RGB), no livery index (the appearance variant is a name, not a number), and no plate at all.
 ---
---- The list covers `modKit`, `mods`, `modEngine`, `modBrakes`, `modTransmission`, `modSuspension`, `modArmour`, `modTurbo`, `wheels`, `wheelType`, `wheelColor`, `windowTint`, `neonEnabled`, `neonColor`, `xenonColor`, `livery`, `roofLivery`, `extras`, `color1`, `color2`, `pearlescentColor`, `interiorColor`, `dashboardColor`, `dirtLevel`, `tyreSmokeColor`, `plateText`, `plateIndex` and `fuelLevel`.
+--- In the current public build the list covers `modKit`, `mods`, `modEngine`, `modBrakes`, `modTransmission`, `modSuspension`, `modArmour`, `modTurbo`, `wheels`, `wheelType`, `wheelColor`, `windowTint`, `neonEnabled`, `neonColor`, `xenonColor`, `livery`, `roofLivery`, `extras`, `color1`, `color2`, `pearlescentColor`, `interiorColor`, `dashboardColor`, `dirtLevel`, `tyreSmokeColor`, `plateText`, `plateIndex` and `fuelLevel`.
+---
+--- **From 2.50.0-unstable+op77.205:** `neonEnabled`, `neonColor` and `livery` leave the table, because `setProperties` reads them into `visual`; `windowTint` stays only for its GREEN index (`6`); and several values name the Open77 native to use instead: rims are `setWheels`, kit parts `registerParts` / `setParts`, plate text `setPlate` (`plateText` itself is still refused in a property table). Read the table at run time rather than copying either list.
 ---
 --- Since: 2.31.13+op77.67
 ---@return any table table mapping property name to the reason it has no counterpart

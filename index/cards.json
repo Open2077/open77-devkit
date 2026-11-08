@@ -810,7 +810,7 @@
    "players.model.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "GetPlayerModel",
   "route_id": "GetPlayerModel"
@@ -1304,7 +1304,7 @@
    "players.model.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "IsPlayerModelReady",
   "route_id": "IsPlayerModelReady"
@@ -1337,7 +1337,7 @@
    "players.model.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "IsPlayerModelValid",
   "route_id": "IsPlayerModelValid"
@@ -3626,7 +3626,7 @@
   "reasons": [
    "anchors_backend_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13+op77.83",
   "constant": false,
   "qualified": "Open77.anchors.frame",
   "route_id": "Open77.anchors.frame"
@@ -5186,7 +5186,7 @@
    "invalid_color:expected_#RRGGBB_or_#RRGGBBAA",
    "native_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.blips.setColor",
   "route_id": "Open77.blips.setColor"
@@ -8137,7 +8137,7 @@
    "invalid_consumable_request",
    "invalid_consumable_state"
   ],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.consumables.configure",
   "route_id": "Open77.consumables.configure"
@@ -8185,7 +8185,7 @@
    "invalid_consumable_request",
    "invalid_consumable_state"
   ],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.consumables.equip",
   "route_id": "Open77.consumables.equip"
@@ -8227,7 +8227,7 @@
    "invalid_consumable_request",
    "invalid_consumable_state"
   ],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.consumables.get",
   "route_id": "Open77.consumables.get"
@@ -8269,7 +8269,7 @@
    "invalid_consumable_request",
    "invalid_consumable_state"
   ],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.consumables.reset",
   "route_id": "Open77.consumables.reset"
@@ -8317,7 +8317,7 @@
    "invalid_consumable_request",
    "invalid_consumable_state"
   ],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.consumables.setCount",
   "route_id": "Open77.consumables.setCount"
@@ -8365,7 +8365,7 @@
    "invalid_consumable_request",
    "invalid_consumable_state"
   ],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.consumables.setRecharge",
   "route_id": "Open77.consumables.setRecharge"
@@ -8413,7 +8413,7 @@
    "invalid_consumable_request",
    "invalid_consumable_state"
   ],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.consumables.setType",
   "route_id": "Open77.consumables.setType"
@@ -8455,7 +8455,7 @@
    "invalid_consumable_request",
    "invalid_consumable_state"
   ],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.consumables.snapshot",
   "route_id": "Open77.consumables.snapshot"
@@ -8497,7 +8497,7 @@
    "invalid_consumable_request",
    "invalid_consumable_state"
   ],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.consumables.unequip",
   "route_id": "Open77.consumables.unequip"
@@ -11455,7 +11455,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.activate",
   "route_id": "Open77.gizmos.activate"
@@ -11481,7 +11481,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.active",
   "route_id": "Open77.gizmos.active"
@@ -11514,7 +11514,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.cancel",
   "route_id": "Open77.gizmos.cancel"
@@ -11547,7 +11547,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.capabilities",
   "route_id": "Open77.gizmos.capabilities"
@@ -11580,7 +11580,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.commit",
   "route_id": "Open77.gizmos.commit"
@@ -11613,7 +11613,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.create",
   "route_id": "Open77.gizmos.create"
@@ -11646,7 +11646,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.deactivate",
   "route_id": "Open77.gizmos.deactivate"
@@ -11679,7 +11679,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.destroy",
   "route_id": "Open77.gizmos.destroy"
@@ -11712,7 +11712,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.get",
   "route_id": "Open77.gizmos.get"
@@ -11738,7 +11738,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.list",
   "route_id": "Open77.gizmos.list"
@@ -11771,7 +11771,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.redo",
   "route_id": "Open77.gizmos.redo"
@@ -11810,7 +11810,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.setTransform",
   "route_id": "Open77.gizmos.setTransform"
@@ -11843,7 +11843,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.undo",
   "route_id": "Open77.gizmos.undo"
@@ -11882,7 +11882,7 @@
    "gizmos.edit"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.gizmos.update",
   "route_id": "Open77.gizmos.update"
@@ -13994,7 +13994,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.addTab",
   "route_id": "Open77.map.addTab"
@@ -14076,7 +14076,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.focus",
   "route_id": "Open77.map.focus"
@@ -14101,7 +14101,7 @@
    "map.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.getScreen",
   "route_id": "Open77.map.getScreen"
@@ -14151,7 +14151,7 @@
    "map.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.getView",
   "route_id": "Open77.map.getView"
@@ -14290,7 +14290,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.recenter",
   "route_id": "Open77.map.recenter"
@@ -14322,7 +14322,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.removeTab",
   "route_id": "Open77.map.removeTab"
@@ -14347,7 +14347,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.resetAppearance",
   "route_id": "Open77.map.resetAppearance"
@@ -14379,7 +14379,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.selectTab",
   "route_id": "Open77.map.selectTab"
@@ -14411,7 +14411,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.setAccentColor",
   "route_id": "Open77.map.setAccentColor"
@@ -14443,7 +14443,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.setCameraMode",
   "route_id": "Open77.map.setCameraMode"
@@ -14481,7 +14481,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.setTabLabel",
   "route_id": "Open77.map.setTabLabel"
@@ -14513,7 +14513,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.setTitle",
   "route_id": "Open77.map.setTitle"
@@ -14545,7 +14545,7 @@
    "map.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.map.setZoomLevel",
   "route_id": "Open77.map.setZoomLevel"
@@ -14670,7 +14670,7 @@
    "not_found",
    "permission_denied:world.markers"
   ],
-  "since": null,
+  "since": "2.31.13+op77.83",
   "constant": false,
   "qualified": "Open77.markers.get",
   "route_id": "Open77.markers.get"
@@ -14755,7 +14755,7 @@
   "source_line": 25496,
   "permissions": [],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.83",
   "constant": false,
   "qualified": "Open77.markers.shapes",
   "route_id": "Open77.markers.shapes"
@@ -14831,7 +14831,7 @@
    "missing_prop_or_page",
    "permission_denied:world.props"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.media.bind",
   "route_id": "Open77.media.bind"
@@ -14857,7 +14857,7 @@
    "world.props"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.media.clear",
   "route_id": "Open77.media.clear"
@@ -14883,7 +14883,7 @@
    "world.props"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.media.list",
   "route_id": "Open77.media.list"
@@ -14916,7 +14916,7 @@
    "world.props"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.media.unbind",
   "route_id": "Open77.media.unbind"
@@ -14955,7 +14955,7 @@
    "world.props"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.media.update",
   "route_id": "Open77.media.update"
@@ -15073,7 +15073,7 @@
    "permission_denied:player.motion.project",
    "resource_not_running"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "Open77.motion.launch",
   "route_id": "Open77.motion.launch"
@@ -15136,7 +15136,7 @@
    "prediction_backend_unavailable",
    "resource_not_running"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.119",
   "constant": false,
   "qualified": "Open77.motion.predictAction",
   "route_id": "Open77.motion.predictAction"
@@ -15165,7 +15165,7 @@
    "permission_denied:player.motion.project",
    "prediction_backend_unavailable"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.119",
   "constant": false,
   "qualified": "Open77.motion.predictionStats",
   "route_id": "Open77.motion.predictionStats"
@@ -15202,7 +15202,7 @@
    "motion_backend_unavailable",
    "permission_denied:player.motion.project"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.119",
   "constant": false,
   "qualified": "Open77.motion.refutePrediction",
   "route_id": "Open77.motion.refutePrediction"
@@ -15563,7 +15563,7 @@
    "ui.nameplates"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.50.0-unstable+op77.205",
   "constant": false,
   "qualified": "Open77.nameplates.resetStyle",
   "route_id": "Open77.nameplates.resetStyle"
@@ -15762,7 +15762,7 @@
    "ui.nameplates"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.50.0-unstable+op77.205",
   "constant": false,
   "qualified": "Open77.nameplates.style",
   "route_id": "Open77.nameplates.style"
@@ -16456,7 +16456,7 @@
    "pause_menu.customize"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.87",
   "constant": false,
   "qualified": "Open77.pauseMenu.getAppearance",
   "route_id": "Open77.pauseMenu.getAppearance"
@@ -16482,7 +16482,7 @@
    "pause_menu.customize"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.87",
   "constant": false,
   "qualified": "Open77.pauseMenu.resetAppearance",
   "route_id": "Open77.pauseMenu.resetAppearance"
@@ -16515,7 +16515,7 @@
    "pause_menu.customize"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.87",
   "constant": false,
   "qualified": "Open77.pauseMenu.setAccentColor",
   "route_id": "Open77.pauseMenu.setAccentColor"
@@ -16548,7 +16548,7 @@
    "pause_menu.customize"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.87",
   "constant": false,
   "qualified": "Open77.pauseMenu.setLogo",
   "route_id": "Open77.pauseMenu.setLogo"
@@ -17829,7 +17829,7 @@
    "players.model.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.players.getModel",
   "route_id": "Open77.players.getModel"
@@ -18211,7 +18211,7 @@
    "permission_denied:players.local.visibility",
    "unexpected_arguments"
   ],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.players.isLocalPuppetVisible",
   "route_id": "Open77.players.isLocalPuppetVisible"
@@ -18244,7 +18244,7 @@
    "players.model.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.players.isModelReady",
   "route_id": "Open77.players.isModelReady"
@@ -18277,7 +18277,7 @@
    "players.model.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.players.isModelValid",
   "route_id": "Open77.players.isModelValid"
@@ -18678,7 +18678,7 @@
    "players.local.visibility"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21+op77.111",
   "constant": false,
   "qualified": "Open77.players.setLocalPuppetVisible",
   "route_id": "Open77.players.setLocalPuppetVisible"
@@ -18715,7 +18715,7 @@
    "game_unavailable_on_this_host",
    "permission_denied:players.read"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.114",
   "constant": false,
   "qualified": "Open77.players.getDriveByState",
   "route_id": "Open77.players.getDriveByState"
@@ -18752,7 +18752,7 @@
    "game_unavailable_on_this_host",
    "permission_denied:players.read"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.114",
   "constant": false,
   "qualified": "Open77.players.isDriveByEnabled",
   "route_id": "Open77.players.isDriveByEnabled"
@@ -18789,7 +18789,7 @@
    "game_unavailable_on_this_host",
    "permission_denied:players.read"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.114",
   "constant": false,
   "qualified": "Open77.players.isInDriveBy",
   "route_id": "Open77.players.isInDriveBy"
@@ -18824,7 +18824,7 @@
   "reasons": [
    "permission_denied:players.driveby"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.114",
   "constant": false,
   "qualified": "Open77.players.setLocalDriveByEnabled",
   "route_id": "Open77.players.setLocalDriveByEnabled"
@@ -18860,7 +18860,7 @@
    "permission_denied:players.life.read",
    "player_unavailable"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.114",
   "constant": false,
   "qualified": "Open77.players.getDriveByState",
   "route_id": "server:Open77.players.getDriveByState"
@@ -18896,7 +18896,7 @@
    "permission_denied:players.life.read",
    "player_unavailable"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.114",
   "constant": false,
   "qualified": "Open77.players.isDriveByEnabled",
   "route_id": "server:Open77.players.isDriveByEnabled"
@@ -18932,7 +18932,7 @@
    "permission_denied:players.life.read",
    "player_unavailable"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.114",
   "constant": false,
   "qualified": "Open77.players.isInDriveBy",
   "route_id": "server:Open77.players.isInDriveBy"
@@ -18975,7 +18975,7 @@
    "permission_denied:players.driveby",
    "player_unavailable"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.114",
   "constant": false,
   "qualified": "Open77.players.setDriveByEnabled",
   "route_id": "server:Open77.players.setDriveByEnabled"
@@ -19015,7 +19015,7 @@
    "prediction_backend_unavailable",
    "resource_not_running"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.119",
   "constant": false,
   "qualified": "Open77.prediction.setPolicy",
   "route_id": "Open77.prediction.setPolicy"
@@ -19041,7 +19041,7 @@
   "reasons": [
    "prediction_backend_unavailable"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.119",
   "constant": false,
   "qualified": "Open77.prediction.stats",
   "route_id": "Open77.prediction.stats"
@@ -19490,7 +19490,7 @@
    "permission_denied:world.props",
    "props_backend_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13+op77.84",
   "constant": false,
   "qualified": "Open77.props.projected",
   "route_id": "Open77.props.projected"
@@ -19921,7 +19921,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.bindHud",
   "route_id": "Open77.remoteCamera.bindHud"
@@ -19965,7 +19965,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.bindWebUI",
   "route_id": "Open77.remoteCamera.bindWebUI"
@@ -20003,7 +20003,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.bindWorld",
   "route_id": "Open77.remoteCamera.bindWorld"
@@ -20035,7 +20035,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.bindings",
   "route_id": "Open77.remoteCamera.bindings"
@@ -20060,7 +20060,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.budget",
   "route_id": "Open77.remoteCamera.budget"
@@ -20085,7 +20085,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.capabilities",
   "route_id": "Open77.remoteCamera.capabilities"
@@ -20117,7 +20117,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.create",
   "route_id": "Open77.remoteCamera.create"
@@ -20149,7 +20149,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.destroy",
   "route_id": "Open77.remoteCamera.destroy"
@@ -20181,7 +20181,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.get",
   "route_id": "Open77.remoteCamera.get"
@@ -20213,7 +20213,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.getBinding",
   "route_id": "Open77.remoteCamera.getBinding"
@@ -20238,7 +20238,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.list",
   "route_id": "Open77.remoteCamera.list"
@@ -20270,7 +20270,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.unbind",
   "route_id": "Open77.remoteCamera.unbind"
@@ -20308,7 +20308,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.update",
   "route_id": "Open77.remoteCamera.update"
@@ -20346,7 +20346,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.updateBinding",
   "route_id": "Open77.remoteCamera.updateBinding"
@@ -20371,7 +20371,7 @@
    "camera.capture"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.remoteCamera.worldModels",
   "route_id": "Open77.remoteCamera.worldModels"
@@ -21414,7 +21414,7 @@
    "network.client"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.80",
   "constant": false,
   "qualified": "Open77.session.openLauncher",
   "route_id": "Open77.session.openLauncher"
@@ -22996,6 +22996,43 @@
   "constant": false,
   "qualified": "Open77.vehicles.closest",
   "route_id": "Open77.vehicles.closest"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "customizationAvailable",
+  "handler": "LuaVehicleCustomizationAvailable",
+  "summary": "Reads what this vehicle's record supports and how far its look got on this client.",
+  "description": "Requires `vehicles.read`. Client-side and read-only. Answers from the live TweakDB and from this client's copy of the server's visual value: `{ record, paint, rims, lights, twintone, profiles, appearance, streamed, destroyed, rev, appliedRev, neonLit, skipped }`. A capability the record did not answer is absent (nil). `skipped` lists `\"<category>:<item>:<reason>\"` strings for what this game could not draw: `attach:<key>:model_not_registered` when its parts pack is missing, `hide:*:held_parts_missing` while it keeps the factory parts those pieces replace, `tint:<level>:pending_mesh` while the glass is still loading. Read `skipped` only once `appliedRev` has caught up with `rev`. Returns nil and `unknown_vehicle`, `vehicles_unavailable` or `permission_denied:vehicles.read` on failure.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "value",
+   "reason (when the first is nil)"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "-- Tell the player when their game cannot draw a part the server put on the car\nlocal state, reason = Open77.vehicles.customizationAvailable(vehicleId)\nif not state then print(reason); return end\nif (state.appliedRev or 0) < (state.rev or 0) then return end -- not applied yet\nfor _, entry in ipairs(state.skipped or {}) do\n    if entry:find(\":model_not_registered\", 1, true) then\n        print(\"parts pack missing, reconnect to download it: \" .. entry)\n    end\nend",
+  "inferred": false,
+  "source_line": 27735,
+  "permissions": [
+   "vehicles.read"
+  ],
+  "reasons": [
+   "permission_denied:vehicles.read",
+   "unknown_vehicle",
+   "vehicles_unavailable"
+  ],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.customizationAvailable",
+  "route_id": "Open77.vehicles.customizationAvailable"
  },
  {
   "namespace": "Open77.vehicles",
@@ -25548,7 +25585,7 @@
    "permission_denied:player.weapons.edit",
    "weapon_blast_unavailable"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.112",
   "constant": false,
   "qualified": "Open77.weapons.applyBlast",
   "route_id": "Open77.weapons.applyBlast"
@@ -25627,7 +25664,7 @@
    "permission_denied:player.weapons.edit",
    "weapon_tuning_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "Open77.weapons.clearTuning",
   "route_id": "Open77.weapons.clearTuning"
@@ -26036,7 +26073,7 @@
    "permission_denied:player.weapons.edit",
    "weapon_tuning_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "Open77.weapons.setTuning",
   "route_id": "Open77.weapons.setTuning"
@@ -26167,7 +26204,7 @@
    "permission_denied:player.weapons.read",
    "weapon_tuning_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "Open77.weapons.tuning",
   "route_id": "Open77.weapons.tuning"
@@ -26240,7 +26277,7 @@
    "permission_denied:webui.policy",
    "webui_policy_backend_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.webui.blocklist",
   "route_id": "Open77.webui.blocklist"
@@ -26269,7 +26306,7 @@
    "permission_denied:webui.policy",
    "webui_policy_backend_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.webui.blocklistState",
   "route_id": "Open77.webui.blocklistState"
@@ -27287,7 +27324,7 @@
   "source_line": 24442,
   "permissions": [],
   "reasons": [],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "WebUI.Page.setConsumedKeys",
   "route_id": "WebUI.Page.setConsumedKeys"
@@ -29539,7 +29576,7 @@
    "npcs_unavailable",
    "permission_denied:world.npcs"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.112",
   "constant": false,
   "qualified": "GetNpcCapacity",
   "route_id": "server:GetNpcCapacity"
@@ -30171,7 +30208,7 @@
    "player_models_unavailable",
    "player_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "GetPlayerModel",
   "route_id": "server:GetPlayerModel"
@@ -30232,7 +30269,7 @@
   "reasons": [
    "invalid_player"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "GetPlayerObservers",
   "route_id": "server:GetPlayerObservers"
@@ -30629,7 +30666,7 @@
   "reasons": [
    "invalid_player"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "GetPlayersInScope",
   "route_id": "server:GetPlayersInScope"
@@ -31123,6 +31160,111 @@
  },
  {
   "namespace": "_G",
+  "name": "GetVehicleLivery",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads the FiveM index of a car's livery.",
+  "description": "Requires `world.vehicles`: it reads the car through `Open77.vehicles.getVisual` and `listPaintProfiles`. Answers the 0-based position of the car's current profile in `Open77.vehicles.listPaintProfiles`, or `-1` for generic paint, for a profile the list no longer holds (its pack stopped), and on a failure (then with the reason as a second value).",
+  "params": [
+   {
+    "name": "vehicle",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "index, or -1",
+   "reason on failure"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Compat.cs",
+  "example": "local livery = GetVehicleLivery(vehicle)\nif livery >= 0 then print('livery ' .. livery) end",
+  "inferred": false,
+  "source_line": 386,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "GetVehicleLivery",
+  "route_id": "server:GetVehicleLivery"
+ },
+ {
+  "namespace": "_G",
+  "name": "GetVehicleMod",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads the FiveM index of a car's choice for one mod type.",
+  "description": "Requires `world.vehicles`: it reads the car through `Open77.vehicles.listParts` and `getVisual`. Answers the index of the current choice in the same index space `SetVehicleMod` uses, or `-1` for stock and on a failure (then with the reason as a second value).",
+  "params": [
+   {
+    "name": "vehicle",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "modType",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "index, or -1",
+   "reason on failure"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Compat.cs",
+  "example": "local spoiler = GetVehicleMod(vehicle, 0)",
+  "inferred": false,
+  "source_line": 506,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "GetVehicleMod",
+  "route_id": "server:GetVehicleMod"
+ },
+ {
+  "namespace": "_G",
+  "name": "GetVehicleWindowTint",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads the window tint as a FiveM index.",
+  "description": "Requires `world.vehicles`: it reads the car through `Open77.vehicles.getWindowTint`. Answers `3`, `2` or `5` for Open77 levels 1 to 3, and `-1` for factory glass (FiveM's \"no tint set\") or on a failure (then with the reason as a second value). A car set with `1` (PURE_BLACK) therefore reads back `5`, the index of the same level.",
+  "params": [
+   {
+    "name": "vehicle",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "FiveM tint index, or -1",
+   "reason on failure"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Compat.cs",
+  "example": "if GetVehicleWindowTint(vehicle) == 5 then print('limo tint') end",
+  "inferred": false,
+  "source_line": 447,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "GetVehicleWindowTint",
+  "route_id": "server:GetVehicleWindowTint"
+ },
+ {
+  "namespace": "_G",
   "name": "GetVehicles",
   "handler": "GetVehicles",
   "summary": "Low-level alias of `Open77.vehicles.all`.",
@@ -31447,7 +31589,7 @@
   "reasons": [
    "invalid_player"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "IsPlayerInScope",
   "route_id": "server:IsPlayerInScope"
@@ -31485,7 +31627,7 @@
    "player_models_unavailable",
    "player_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "IsPlayerModelReady",
   "route_id": "server:IsPlayerModelReady"
@@ -31598,7 +31740,7 @@
    "invalid_argument",
    "permission_denied:world.vehicles"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.112",
   "constant": false,
   "qualified": "IsVehicleVisibleTo",
   "route_id": "server:IsVehicleVisibleTo"
@@ -32749,7 +32891,7 @@
    "player_models_unavailable",
    "resource_stopping"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "ResetPlayerModel",
   "route_id": "server:ResetPlayerModel"
@@ -34168,7 +34310,7 @@
    "player_models_unavailable",
    "resource_stopping"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "SetPlayerModel",
   "route_id": "server:SetPlayerModel"
@@ -34874,6 +35016,49 @@
  },
  {
   "namespace": "_G",
+  "name": "SetVehicleLivery",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Applies a livery by its FiveM index.",
+  "description": "Requires `world.vehicles`; a call that changes the look also requires `world.vehicles.appearance`. The FiveM spelling over `Open77.vehicles` (see the native for the details), with its permissions and its `false, reason` refusals. The vehicle handle is the canonical vehicle id. The index is the 0-based position in `Open77.vehicles.listPaintProfiles` for that car (the build's own templates first, then those running resources registered), and `-1` goes back to generic paint. An index past the list is `invalid_profile`; a non-integer is `invalid_argument`.",
+  "params": [
+   {
+    "name": "vehicle",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "livery",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Compat.cs",
+  "example": "SetVehicleLivery(vehicle, 0) -- the first livery this model lists\nSetVehicleLivery(vehicle, -1) -- generic paint again",
+  "inferred": false,
+  "source_line": 374,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [
+   "invalid_argument",
+   "invalid_profile"
+  ],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "SetVehicleLivery",
+  "route_id": "server:SetVehicleLivery"
+ },
+ {
+  "namespace": "_G",
   "name": "SetVehicleLocked",
   "handler": "SetVehicleLocked",
   "summary": "Low-level alias of `Open77.vehicles.setLocked`.",
@@ -34912,6 +35097,161 @@
   "constant": false,
   "qualified": "SetVehicleLocked",
   "route_id": "server:SetVehicleLocked"
+ },
+ {
+  "namespace": "_G",
+  "name": "SetVehicleMod",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Chooses a kit part or a rim by FiveM mod type and index.",
+  "description": "Requires `world.vehicles`; a call that changes the look also requires `world.vehicles.appearance`. The FiveM spelling over `Open77.vehicles` (see the native for the details), with its permissions and its `false, reason` refusals. The vehicle handle is the canonical vehicle id. Mod types 23 and 24 (front and back wheels) are the rims; any other type is the registered parts whose catalogue entry declares that `modType`. The index space of a type on a car is every (part, variant) pair that fits it, ordered by part id then variant id, so an index is stable while the catalogue is. One choice per mod type, like a FiveM slot: choosing a part takes the other parts of that type off. `-1` is stock. An index past the list is `invalid_mod_index`; `customTires` has no counterpart and is ignored.",
+  "params": [
+   {
+    "name": "vehicle",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "modType",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "modIndex",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "customTires",
+    "type": "boolean",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Compat.cs",
+  "example": "SetVehicleMod(vehicle, 0, 1)  -- the second spoiler option registered with modType = 0\nSetVehicleMod(vehicle, 23, -1) -- factory rims",
+  "inferred": false,
+  "source_line": 479,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [
+   "invalid_argument",
+   "invalid_mod_index"
+  ],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "SetVehicleMod",
+  "route_id": "server:SetVehicleMod"
+ },
+ {
+  "namespace": "_G",
+  "name": "SetVehicleNeonLightEnabled",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Switches a car's neon on or off.",
+  "description": "Requires `world.vehicles`; a call that changes the look also requires `world.vehicles.appearance`. The FiveM spelling over `Open77.vehicles` (see the native for the details), with its permissions and its `false, reason` refusals. The vehicle handle is the canonical vehicle id. Cyberpunk's neon is one light set laid out per chassis, not four strips, so any `index` switches all of it. Switching on a car that has no neon yet lights it in FiveM's default colour, magenta; switching off a car without one is accepted and does nothing. `toggle` must be a boolean (`invalid_argument`).",
+  "params": [
+   {
+    "name": "vehicle",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "index",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "toggle",
+    "type": "boolean",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Compat.cs",
+  "example": "for index = 0, 3 do SetVehicleNeonLightEnabled(vehicle, index, true) end",
+  "inferred": false,
+  "source_line": 401,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [
+   "invalid_argument"
+  ],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "SetVehicleNeonLightEnabled",
+  "route_id": "server:SetVehicleNeonLightEnabled"
+ },
+ {
+  "namespace": "_G",
+  "name": "SetVehicleNeonLightsColour",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Sets the colour of a car's neon.",
+  "description": "Requires `world.vehicles`; a call that changes the look also requires `world.vehicles.appearance`. The FiveM spelling over `Open77.vehicles` (see the native for the details), with its permissions and its `false, reason` refusals. The vehicle handle is the canonical vehicle id. Keeps the on/off state, so a colour set before the lights are switched on is the colour they come on in. Each channel is 0-255.",
+  "params": [
+   {
+    "name": "vehicle",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "r",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "g",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "b",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Compat.cs",
+  "example": "SetVehicleNeonLightsColour(vehicle, 0, 229, 255)\nSetVehicleNeonLightEnabled(vehicle, 0, true)",
+  "inferred": false,
+  "source_line": 414,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "SetVehicleNeonLightsColour",
+  "route_id": "server:SetVehicleNeonLightsColour"
  },
  {
   "namespace": "_G",
@@ -35032,6 +35372,87 @@
   "constant": false,
   "qualified": "SetVehicleTransform",
   "route_id": "server:SetVehicleTransform"
+ },
+ {
+  "namespace": "_G",
+  "name": "SetVehicleWheelType",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Accepted for ported tuning menus; changes nothing.",
+  "description": "Requires `world.vehicles`: it reads the car to check it exists. There are no wheel families in this game: every rim is a catalogue part, chosen with `SetVehicleMod` mod type 23 or 24 (or `Open77.vehicles.setWheels`). The call answers true for a car that exists, so a ported menu does not fail on its first line, and `false, reason` otherwise.",
+  "params": [
+   {
+    "name": "vehicle",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "wheelType",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Compat.cs",
+  "example": "SetVehicleWheelType(vehicle, 7) -- accepted, no effect\nSetVehicleMod(vehicle, 23, 2)  -- the rim itself",
+  "inferred": false,
+  "source_line": 425,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "SetVehicleWheelType",
+  "route_id": "server:SetVehicleWheelType"
+ },
+ {
+  "namespace": "_G",
+  "name": "SetVehicleWindowTint",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Sets the window tint by its FiveM index.",
+  "description": "Requires `world.vehicles`; a call that changes the look also requires `world.vehicles.appearance`. The FiveM spelling over `Open77.vehicles` (see the native for the details), with its permissions and its `false, reason` refusals. The vehicle handle is the canonical vehicle id. FiveM's index maps onto the three Open77 levels: `-1`, `0` (NONE) and `4` (STOCK) are factory glass, `3` (LIGHTSMOKE) is level 1, `2` (DARKSMOKE) level 2, `1` (PURE_BLACK) and `5` (LIMO) level 3. `6` (GREEN) has no counterpart and is refused as `unsupported_property:windowTint` rather than drawn black; anything else is `invalid_tint`.",
+  "params": [
+   {
+    "name": "vehicle",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "tint",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.Compat.cs",
+  "example": "SetVehicleWindowTint(vehicle, 1) -- PURE_BLACK: the darkest level",
+  "inferred": false,
+  "source_line": 436,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [
+   "invalid_tint"
+  ],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "SetVehicleWindowTint",
+  "route_id": "server:SetVehicleWindowTint"
  },
  {
   "namespace": "_G",
@@ -39648,7 +40069,7 @@
    "invalid_player_id",
    "permission_denied:players.stats.read"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.combat.getVehicleHits",
   "route_id": "server:Open77.combat.getVehicleHits"
@@ -40588,7 +41009,7 @@
    "request_too_large",
    "resource_stopping"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "Open77.cyberware.activityPlayers",
   "route_id": "server:Open77.cyberware.activityPlayers"
@@ -44942,7 +45363,7 @@
    "permission_denied:world.interest",
    "resource_stopping"
   ],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.interest.clear",
   "route_id": "server:Open77.interest.clear"
@@ -44987,7 +45408,7 @@
    "permission_denied:world.interest",
    "resource_stopping"
   ],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.interest.remove",
   "route_id": "server:Open77.interest.remove"
@@ -45038,7 +45459,7 @@
    "permission_denied:world.interest",
    "resource_stopping"
   ],
-  "since": null,
+  "since": "2.31.13+op77.82",
   "constant": false,
   "qualified": "Open77.interest.set",
   "route_id": "server:Open77.interest.set"
@@ -46234,7 +46655,7 @@
    "metrics_disabled",
    "permission_denied:metrics.write"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.96",
   "constant": false,
   "qualified": "Open77.metrics.gauge",
   "route_id": "server:Open77.metrics.gauge"
@@ -46277,7 +46698,7 @@
    "metrics_disabled",
    "permission_denied:metrics.write"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.96",
   "constant": false,
   "qualified": "Open77.metrics.increment",
   "route_id": "server:Open77.metrics.increment"
@@ -46320,7 +46741,7 @@
    "metrics_disabled",
    "permission_denied:metrics.write"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.96",
   "constant": false,
   "qualified": "Open77.metrics.observe",
   "route_id": "server:Open77.metrics.observe"
@@ -46514,7 +46935,7 @@
    "permission_denied:players.motion.read",
    "resource_stopping"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "Open77.motion.launch",
   "route_id": "server:Open77.motion.launch"
@@ -47230,7 +47651,7 @@
    "npcs_unavailable",
    "permission_denied:world.npcs"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.112",
   "constant": false,
   "qualified": "Open77.npcs.capacity",
   "route_id": "server:Open77.npcs.capacity"
@@ -47579,7 +48000,7 @@
    "permission_denied:npcs.foreign",
    "permission_denied:world.npcs"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.119",
   "constant": false,
   "qualified": "Open77.npcs.presence",
   "route_id": "server:Open77.npcs.presence"
@@ -50853,7 +51274,7 @@
    "player_models_unavailable",
    "player_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.players.getModel",
   "route_id": "server:Open77.players.getModel"
@@ -51166,7 +51587,7 @@
   "reasons": [
    "invalid_player"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "Open77.players.inScope",
   "route_id": "server:Open77.players.inScope"
@@ -51333,7 +51754,7 @@
   "reasons": [
    "invalid_player"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "Open77.players.isInScope",
   "route_id": "server:Open77.players.isInScope"
@@ -51371,7 +51792,7 @@
    "player_models_unavailable",
    "player_unavailable"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.players.isModelReady",
   "route_id": "server:Open77.players.isModelReady"
@@ -51683,7 +52104,7 @@
   "reasons": [
    "invalid_player"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.99",
   "constant": false,
   "qualified": "Open77.players.observers",
   "route_id": "server:Open77.players.observers"
@@ -51958,7 +52379,7 @@
    "player_models_unavailable",
    "resource_stopping"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.players.resetModel",
   "route_id": "server:Open77.players.resetModel"
@@ -52706,7 +53127,7 @@
    "player_models_unavailable",
    "resource_stopping"
   ],
-  "since": null,
+  "since": "2.31.13+op77.79",
   "constant": false,
   "qualified": "Open77.players.setModel",
   "route_id": "server:Open77.players.setModel"
@@ -57487,6 +57908,40 @@
  },
  {
   "namespace": "Open77.vehicles",
+  "name": "clearNeon",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Removes a car's under-chassis lights.",
+  "description": "Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. Takes the neon off entirely (`getVisual` then has no `neon`); `setNeon(id, { enabled = false })` instead keeps the colour for later.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "Open77.vehicles.clearNeon(vehicleId)",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.clearNeon",
+  "route_id": "server:Open77.vehicles.clearNeon"
+ },
+ {
+  "namespace": "Open77.vehicles",
   "name": "clearPerformance",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Hands a vehicle back its record's rated performance.",
@@ -58133,6 +58588,39 @@
  },
  {
   "namespace": "Open77.vehicles",
+  "name": "getDecalBudget",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads how many of a car's 12 decals are used.",
+  "description": "Requires `world.vehicles`. Answers `used, maximum`: the decals the car shows now (its livery's plus its stickers') and the cap, 12.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "used, maximum, or nil",
+   "reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local used, maximum = Open77.vehicles.getDecalBudget(vehicleId)\nprint((\"%d of %d decals\"):format(used, maximum))",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.getDecalBudget",
+  "route_id": "server:Open77.vehicles.getDecalBudget"
+ },
+ {
+  "namespace": "Open77.vehicles",
   "name": "getDriver",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "The player driving this vehicle, or nil when nobody is.",
@@ -58196,6 +58684,39 @@
   "constant": false,
   "qualified": "Open77.vehicles.getEngineHealth",
   "route_id": "server:Open77.vehicles.getEngineHealth"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "getEngineSound",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads the engine sound set a car carries.",
+  "description": "Requires `world.vehicles`. Answers the sound id the car's record carries, or `nil` for the factory sound -- also while the pack that declared the sound is stopped.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "soundId, or nil",
+   "reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "print(Open77.vehicles.getEngineSound(vehicleId) or \"factory\")",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.getEngineSound",
+  "route_id": "server:Open77.vehicles.getEngineSound"
  },
  {
   "namespace": "Open77.vehicles",
@@ -58296,6 +58817,39 @@
  },
  {
   "namespace": "Open77.vehicles",
+  "name": "getLightColors",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads a car's light-group colours.",
+  "description": "Requires `world.vehicles`. Answers `{ brake = {r,g,b}?, reverse?, blinkers?, interior? }`, or `nil` for factory lights.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "colors, or nil",
+   "reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local colors = Open77.vehicles.getLightColors(vehicleId) or {}",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.getLightColors",
+  "route_id": "server:Open77.vehicles.getLightColors"
+ },
+ {
+  "namespace": "Open77.vehicles",
   "name": "getLights",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "A vehicle's headlight mode as a word.",
@@ -58359,6 +58913,39 @@
   "constant": false,
   "qualified": "Open77.vehicles.getLightsHue",
   "route_id": "server:Open77.vehicles.getLightsHue"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "getNeonAnimation",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads how a car's neon moves.",
+  "description": "Requires `world.vehicles`, like `getVisual`. Answers `{ mode, periodMs, color2 = {r,g,b}? }`, or `nil` for a steady neon.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "animation, or nil",
+   "reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local animation = Open77.vehicles.getNeonAnimation(vehicleId)\nif animation then print(animation.mode, animation.periodMs) end",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.getNeonAnimation",
+  "route_id": "server:Open77.vehicles.getNeonAnimation"
  },
  {
   "namespace": "Open77.vehicles",
@@ -58493,7 +59080,7 @@
   "name": "getProperties",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Everything a garage has to store to put this exact car back.",
-  "description": "Requires `world.vehicles`. Answers one plain table -- strings, numbers, booleans and tables, so it survives `json.encode` and a database column unchanged -- or `nil, \"vehicle_not_found\"`. This is the Cyberpunk counterpart of the `GetVehicleProperties` helper every FiveM framework ships, and `setProperties` is its other half: **`setProperties(id, getProperties(id))` leaves the vehicle observably unchanged**, and the same table applied to a fresh vehicle of the same record reproduces it.\n\nThe shape is `{ version = 1, record, appearance, paint = { applied, primary = {r,g,b}, secondary = {r,g,b}, lightsHue? }, health, engineOn, lights = \"off\"|\"on\"|\"high\", siren, locked, drivable, invulnerable, immortal, doors, windows, damage = { body = {30 cells}, glass, lights, tires, detachedParts, destroyed, exploded }, performance? }`.\n\n**Deliberately not where the car was standing.** Position, heading, velocity, occupants, routing bucket and revision are not properties of the car, and a table that carried them would tempt a caller into teleporting by accident; `setTransform` and `setBucket` still own those.\n\n**What Cyberpunk does not have is the real story here.** Vehicle visual customisation on build 2.31 is one struct, `GenericTemplatePersistentData` -- primary RGB, secondary RGB and a lights hue -- plus the entity appearance variant. There are no mod slots, no wheel types, no neon, no window tint and no numbered extras: not unimplemented, absent, with no RTTI type for any of them. `Open77.vehicles.unsupportedProperties` names every FiveM property that therefore has no counterpart, and `setProperties` refuses such a key by name rather than dropping it. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.",
+  "description": "Requires `world.vehicles`. Answers one plain table -- strings, numbers, booleans and tables, so it survives `json.encode` and a database column unchanged -- or `nil, \"vehicle_not_found\"`. This is the Cyberpunk counterpart of the `GetVehicleProperties` helper every FiveM framework ships, and `setProperties` is its other half: **`setProperties(id, getProperties(id))` leaves the vehicle observably unchanged**, and the same table applied to a fresh vehicle of the same record reproduces it.\n\nThe shape is `{ version = 1, record, appearance, paint = { applied, primary = {r,g,b}, secondary = {r,g,b}, lightsHue? }, health, engineOn, engineHold, lights = \"off\"|\"on\"|\"high\", siren, locked, drivable, invulnerable, immortal, doors, windows, damage = { body = {30 cells}, glass, lights, tires, detachedParts, destroyed, exploded }, performance? }`.\n\n**Deliberately not where the car was standing.** Position, heading, velocity, occupants, routing bucket and revision are not properties of the car, and a table that carried them would tempt a caller into teleporting by accident; `setTransform` and `setBucket` still own those.\n\n**What Cyberpunk does not have is the real story here.** Vehicle visual customisation on build 2.31 is one struct, `GenericTemplatePersistentData` -- primary RGB, secondary RGB and a lights hue -- plus the entity appearance variant. The engine has no mod slots, no wheel types, no neon, no window tint and no numbered extras: not unimplemented, absent, with no RTTI type for any of them. `Open77.vehicles.unsupportedProperties` names every FiveM property that therefore has no counterpart, and `setProperties` refuses such a key by name rather than dropping it. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.\n\n**From 2.50.0-unstable+op77.205:** the table also carries `visual = { profile?, neon = { enabled, color = {r,g,b}, intensity, radius, layout }?, parts = { [partId] = variant | true }, wheels = { rim, variant? }?, plate?, tint?, neonAnimation = { mode, periodMs, color2? }?, lightColors = { brake?, reverse?, blinkers?, interior? }?, engineSound?, stickers = { id, ... }? }`, the look Open77 adds on the server: a TwinTone paint profile (`setPaintProfile`), neon (`setNeon`), kit parts and rims (`registerParts`, `setParts`, `setWheels`), plate text (`setPlate`), a window tint level (`setWindowTint`), a neon animation (`setNeonAnimation`), light-group colours (`setLightColors`) and stickers (`setStickers`); `visual.engineSound` names the engine sound the car's record carries (`setEngineSound`). `visual` is `getVisual(id)` without `rev`: `parts` is always there (empty when the car wears none, and it lists the rim too); the other fields are absent when unset. Neon, its animation and the light colours need no pack; rims, kit parts, plates, tint, pack liveries, engine sounds and stickers are drawn only by a client that has the pack. A server on the current public build answers no `visual`, and its `setProperties` refuses one as `unsupported_property:visual`.",
   "params": [
    {
     "name": "id",
@@ -58511,7 +59098,7 @@
   "source": "LuaResourceRuntime.cs",
   "example": "-- /park: store the caller's car so it can be brought back after a restart\nRegisterCommand(\"park\", function(source)\n    local seat = Open77.vehicles.getPlayerSeat(source)\n    if not seat then return end\n    local props = Open77.vehicles.getProperties(seat.vehicleId)\n    Open77.kvp.set(\"garage:\" .. Open77.players.identifier(source), json.encode(props))\n    Open77.vehicles.remove(seat.vehicleId)\n    Open77.chat.send(source, \"Car stored.\")\nend, false)",
   "inferred": false,
-  "source_line": 8999,
+  "source_line": 9499,
   "permissions": [
    "world.vehicles"
   ],
@@ -58589,6 +59176,39 @@
  },
  {
   "namespace": "Open77.vehicles",
+  "name": "getStickers",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads the stickers a car wears.",
+  "description": "Requires `world.vehicles`. Answers `{ stickerId, ... }` in the order they were set, or `nil` for none.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "stickers, or nil",
+   "reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local stickers = Open77.vehicles.getStickers(vehicleId) or {}",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.getStickers",
+  "route_id": "server:Open77.vehicles.getStickers"
+ },
+ {
+  "namespace": "Open77.vehicles",
   "name": "getVehicleProperties",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "The FiveM-shaped name for `getProperties`.",
@@ -58650,6 +59270,72 @@
   "constant": false,
   "qualified": "Open77.vehicles.getVelocity",
   "route_id": "server:Open77.vehicles.getVelocity"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "getVisual",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads the customization a car wears: livery, neon, parts, rims, plate, tint, neon animation, light colours, engine sound and stickers.",
+  "description": "Requires `world.vehicles`. Answers `{ rev, profile?, neon = { enabled, color = {r,g,b}, intensity, radius, layout }?, parts = { [partId] = variant | true }, wheels = { rim, variant? }?, plate?, tint?, neonAnimation = { mode, periodMs, color2? }?, lightColors = { brake?, reverse?, blinkers?, interior? }?, engineSound?, stickers = { id, ... }? }`. `plate` is the normalized (upper-case) text; `tint` is absent for factory glass. The wave 2 fields are absent when unset; `engineSound` is the sound id the car's record carries (nil for the factory sound, or while its pack is stopped), and `stickers` the chosen sticker ids in order. `profile` and `parts` are the choices: one whose pack is stopped, or that the car's current record does not list, is still answered while it is not shown. `rev` grows with every change. The host event `onVehicleVisualChanged(id, rev, fields)` reports changes, `fields` listing what moved among `profile`, `neon`, `parts`, `wheels`, `plate`, `tint`, `neonAnimation`, `lightColors` and `stickers`; an engine sound is a record change and is not listed. `getProperties` carries the same table (without `rev`) as `visual`, which `setProperties` restores.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "visual table, or nil",
+   "reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- Save the car's look with the garage row\nlocal visual = Open77.vehicles.getVisual(vehicleId)\nif visual then MySQL.update(\"UPDATE garage SET visual = ? WHERE id = ?\", { json.encode(visual), rowId }) end",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.getVisual",
+  "route_id": "server:Open77.vehicles.getVisual"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "getWindowTint",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads a car's window tint level.",
+  "description": "Requires `world.vehicles`, like `getVisual`. Answers `0` for factory glass, else the level from 1 to 3.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "level, or nil",
+   "reason: vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local level = Open77.vehicles.getWindowTint(vehicleId) or 0",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.getWindowTint",
+  "route_id": "server:Open77.vehicles.getWindowTint"
  },
  {
   "namespace": "Open77.vehicles",
@@ -59068,7 +59754,7 @@
    "invalid_argument",
    "permission_denied:world.vehicles"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.112",
   "constant": false,
   "qualified": "Open77.vehicles.isVisibleTo",
   "route_id": "server:Open77.vehicles.isVisibleTo"
@@ -59108,6 +59794,130 @@
   "constant": false,
   "qualified": "Open77.vehicles.isWindowOpen",
   "route_id": "server:Open77.vehicles.isWindowOpen"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "listEngineSounds",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Lists the engine sound sets a car can take.",
+  "description": "Takes a vehicle id (`world.vehicles`) or a record name (no permission). Answers `{ { id, label, class }, ... }`: the sets of the car's class (`car` or `bike`) whose pack generated a record for this model at its current stage, in catalogue order. Empty when no running resource registered one.",
+  "params": [
+   {
+    "name": "idOrRecord",
+    "type": "vehicle id|string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "list, or nil",
+   "reason: invalid_record, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "for _, sound in ipairs(Open77.vehicles.listEngineSounds(vehicleId) or {}) do print(sound.id, sound.label) end",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.listEngineSounds",
+  "route_id": "server:Open77.vehicles.listEngineSounds"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "listPaintProfiles",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Lists the TwinTone colour templates a record or a car accepts.",
+  "description": "Answers `{ { id, label?, main = {r,g,b}?, sec = {r,g,b}?, appearances = {...}, hasPattern, resource?, decals? } ... }`: the build's own templates first, in table order (a FiveM livery index counts in this list), then those running resources declared with `registerPaintProfiles`, each carrying its declaring `resource`. A record name needs no permission (it is catalogue data); a vehicle id reads a car and needs `world.vehicles`. A record without customization answers `{}`; a performance-stage record (`Vehicle.<base>_o77sN`) answers its base record's list plus anything registered on the stage. `decals` is the number of decals the template spends of the car's 12-decal budget (see `getDecalBudget`), present only when it spends any.",
+  "params": [
+   {
+    "name": "recordOrId",
+    "type": "string|vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "profile list, or nil",
+   "reason: invalid_record, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- Offer the liveries this car accepts\nlocal profiles = Open77.vehicles.listPaintProfiles(vehicleId) or {}\nfor _, p in ipairs(profiles) do\n    print(p.id, p.label or p.id, p.hasPattern and \"pattern\" or \"two-tone\")\nend",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.listPaintProfiles",
+  "route_id": "server:Open77.vehicles.listPaintProfiles"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "listParts",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Lists the registered kit parts and rims that fit a record or a car.",
+  "description": "Answers `{ { id, kind, label?, slot?, carrier?, modType?, variants = { [variant] = model } } ... }`, ids fully qualified (`<resource>:<id>`). A record name needs no permission; a vehicle id needs `world.vehicles`. `carrier` is the opening panel slot a body part rides on (`trunk_a`, `hood_a`), as `registerParts` declared it.",
+  "params": [
+   {
+    "name": "recordOrId",
+    "type": "string|vehicle id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "part list, or nil",
+   "reason: invalid_record, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "for _, part in ipairs(Open77.vehicles.listParts(vehicleId) or {}) do\n    print(part.id, part.kind, part.slot or \"\")\nend",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.listParts",
+  "route_id": "server:Open77.vehicles.listParts"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "listStickers",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Lists the stickers that fit a car.",
+  "description": "Takes a vehicle id (`world.vehicles`) or a record name (no permission; stickers bound to an appearance are then not listed). Answers `{ { id, label, group, decals }, ... }`, by group then id; `decals` is what one sticker costs against the 12-decal budget.",
+  "params": [
+   {
+    "name": "idOrRecord",
+    "type": "vehicle id|string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "list, or nil",
+   "reason: invalid_record, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "for _, s in ipairs(Open77.vehicles.listStickers(vehicleId) or {}) do print(s.group, s.label, s.decals) end",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.listStickers",
+  "route_id": "server:Open77.vehicles.listStickers"
  },
  {
   "namespace": "Open77.vehicles",
@@ -59424,7 +60234,7 @@
    "world.vehicles"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.50.0-unstable+op77.170",
   "constant": false,
   "qualified": "Open77.vehicles.positions",
   "route_id": "server:Open77.vehicles.positions"
@@ -59466,6 +60276,130 @@
   "constant": false,
   "qualified": "Open77.vehicles.registerDamageProfile",
   "route_id": "server:Open77.vehicles.registerDamageProfile"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "registerEngineSounds",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Declares the engine sound records a resource's pack adds.",
+  "description": "Needs no permission: it changes no car. `catalogue` is `{ { id, label, class, set, index, models, maxStage? }, ... }`. `id`: lower-case letters, digits, `_ . -`, at most 32. `label`: 1-64 characters naming no make. `class`: `car` or `bike`. `set`: the vanilla sound set the records use (kept internal, never listed). `index`: the `k` of the record suffix, 1-999. `models`: `{ [baseRecord] = { stage, ... } }` (0 = factory stage), or a list of base records covering stages 0 to `maxStage` (0 when absent) -- exactly the records the pack generated, since the server never asks for a record the clients lack. Ids and indices belong to the first running resource that registers them and go when it stops. Atomic.",
+  "params": [
+   {
+    "name": "catalogue",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_engine_sound_catalogue, invalid_engine_sound:<id>.<field> (or #<n>.<field>), duplicate_engine_sound:<id>, engine_sound_taken:<id>, engine_sound_index_taken:<index>, engine_sound_limit, vehicles_unavailable"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- s01 uses the vanilla set of a city compact; the pack generated its records\n-- for this model at stages 0 to 3\nOpen77.vehicles.registerEngineSounds({\n  { id = \"s01\", label = \"Compact, city buzz\", class = \"car\", set = \"v_car_makigai_maimai\", index = 1,\n    models = { \"Vehicle.v_standard2_makigai_maimai_player\" }, maxStage = 3 },\n})",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.registerEngineSounds",
+  "route_id": "server:Open77.vehicles.registerEngineSounds"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "registerPaintProfiles",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Declares the colour template records this resource's TweakXL pack adds, per model.",
+  "description": "`catalogue` is `{ [record] = { { id, label?, main?, sec?, pattern?, match?, decals? }, ... } }`. `record` is a vehicle record (`Vehicle.` + letters, digits, `_`; a stage record inherits its base's rows). `id` is the template record, `Vehicle.o77_` + letters, digits, `_`, at most 128 characters: the prefix keeps every vanilla template out of reach, and an id belongs to the first running resource that registers it. `label` (1-64 characters) and `main` / `sec` (`{r,g,b}`, `{r=,g=,b=}` or `\"#rrggbb\"`) are for a UI's swatches; `pattern` (default false) is `hasPattern`; `match` (appearance names) is listed as `appearances`. A vehicle kit `profiles.json` `records` table is accepted as is.\n\n**A template the pack adds must carry at most 12 `customDecals`**: 13 or more crash every client that spawns the car (2.5, `Cyberpunk2077.exe+0x37DD77`), whatever the number of cars nearby. The server cannot read the pack, so the cap is the pack builder's job.\n\nMerged into this resource's set: a row restating an id on the same record replaces it, others are added, and nothing is taken away until the resource stops or is reloaded: a hot reload declares the set again from scratch, so what the new generation does not register goes, and a reload that fails keeps the running set. A resource that fails to load releases whatever it registered first. Then its profiles go: a car wearing one keeps the choice (`getVisual` still answers it) but shows generic paint until the resource registers it again. **Needs no permission**: it paints no car, and applying a profile is still `setPaintProfile`. `decals` (0-12, default 0) is the template's `customDecals` count: it counts against the car's 12-decal budget with its stickers, and a livery above 12 is refused, since it would crash every client on its own. Give it for a livery with decals: left out, the livery counts as 0, `getDecalBudget` under-reports, and stickers past the real budget are accepted, then dropped by the client. Caps: 64 rows per record, 256 records, 1024 rows per resource; one call is read with a budget of 262,144 Lua values (not the 4096 of a network event), so a catalogue within these caps registers in one call. Atomic.",
+  "params": [
+   {
+    "name": "catalogue",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_profile_catalogue, invalid_profile_record:<record>, invalid_paint_profile:<id>.<field>, duplicate_paint_profile:<id>, profile_taken:<id>, profile_limit, vehicles_unavailable"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- At resource start: the livery pack's records for one model\nlocal ok, reason = Open77.vehicles.registerPaintProfiles({\n    [\"Vehicle.v_sport2_quadra_type66\"] = {\n        { id = \"Vehicle.o77_type66_stripe\", label = \"Racing stripe\", main = \"#d11f2a\", sec = \"#f2f2f2\", pattern = true },\n    },\n})\nif not ok then print(\"liveries refused: \" .. reason) end",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.registerPaintProfiles",
+  "route_id": "server:Open77.vehicles.registerPaintProfiles"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "registerParts",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Declares this resource's kit parts and rims, and how they fit each model.",
+  "description": "Ids are namespaced by resource (`<resource>:<id>`) and vanish when the resource stops; cars wearing a vanished part republish without it and get it back when the kit is registered again. A hot reload declares the kit again from scratch: a part the new generation does not register vanishes the same way, and a reload that fails keeps the running kit whole. A resource that fails to load releases whatever it registered first. **Register at the top level of the script**: a reload republishes the cars as soon as the top level has run, so a kit registered later (a `CreateThread`, a database callback) first shows them without its parts, then with them, and a write naming one in between is refused (`unknown_part`). A part a failed reload put on a car stays chosen but dormant until the kit registers it again. **Needs no permission**: it changes no car, only what this resource's own ids mean.\n\nEntry: `{ kind = \"rim\" | \"part\" | \"toggle\", label?, slot? (part: the vehicle component it attaches to), carrier? (part: the slot of the opening panel it rides on), modType?, variants = { [variant] = model }, fit = { [record] = { slot?, carrier?, offset?, rotation?, scale?, hide?, show?, wheels?, appearances? } } }`. `carrier = \"trunk_a\"` makes a part fitted on the body follow the trunk lid as it opens: the offsets stay those of `slot` with the lid shut, and the client moves the part as far as the carrier slot has moved (it measures the shut pose itself, and follows `slot` alone until then or on a car without that slot). A fit's `carrier = false` means none on that record; a rim or a toggle has none. A rim's `wheels = { { slot, offset?, rotation?, scale? }, ... }` (1-8 entries, unique slots) replaces its default wheel slots on that record, one prop per entry. `appearances = { [\"<appearance>\"] = { offset?, rotation?, scale?, wheels?, hide?, show? } }` (at most 32, never `slot` or `carrier`) fits the part per trim: a car wearing that appearance gets the record fit with those fields replaced. The look follows the car's appearance on its own: `setAppearance`, `setProperties` and `respawnAs` republish it in the same call. A model is `asset:<resource>/<model>`, a prop a pack resource registered, resolved like `Open77.props.create`; the client skips and logs a model it cannot resolve (`model_not_registered`, for instance from an archive the game did not mount at start). A part applies only to the records its `fit` lists (`part_not_for_model`). Atomic.",
+  "params": [
+   {
+    "name": "catalogue",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_part_catalogue, invalid_part:<id>.<field>, part_limit, vehicles_unavailable"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- Models are props a pack resource registered with Open77.props.registerModel\nOpen77.vehicles.registerParts({\n    wing_gt = {\n        kind = \"part\", slot = \"trunk_body\", label = \"GT wing\",\n        variants = { carbon = \"asset:my_kit/wing_gt_carbon\" },\n        fit = { [\"Vehicle.v_standard2_archer_hella_player\"] = { offset = { 0, -0.2, 0.35 } } },\n    },\n    rim_fork = {\n        kind = \"rim\", label = \"Fork 5\",\n        variants = { black = \"asset:my_kit/rim_fork_black\" },\n        fit = { [\"Vehicle.v_standard2_archer_hella_player\"] = {\n            hide = { \"wheel_01_fl_a\", \"wheel_01_fr_a\", \"wheel_01_bl_a\", \"wheel_01_br_a\" } } },\n    },\n    no_antenna = { kind = \"toggle\", fit = { [\"Vehicle.v_standard2_archer_hella_player\"] = {\n        hide = { \"attachment_antenna_1_n_roof_radar_cables\" } } } },\n})",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.registerParts",
+  "route_id": "server:Open77.vehicles.registerParts"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "registerStickers",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Declares the stickers a resource's pack adds.",
+  "description": "Needs no permission: it changes no car. `catalogue` is `{ { id, label, group, records | parts, model?, appearances?, decals?, record? }, ... }`. `records`: 1 to 12 distinct `VehicleDecalAttachment` records of the pack (`Vehicle.o77_...`); `parts`, the vehicle kit's form, gives the same records as `{ record, component, decal }` rows (with both, they must agree). `model`: a record or an appearance name, or a list of them (records start with `Vehicle.`; a stage or sound record fits its base). `decals`, when given, must equal the number of records. `record`: the pack's own colour template listing the decals (kept, never published). Police (NCPD included), sheriff, border patrol, Arasaka and Delamain sets are refused by name, in the id, the label or the group (`sticker_excluded`). Ids belong to the first running resource that registers them and go when it stops. Atomic.",
+  "params": [
+   {
+    "name": "catalogue",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_sticker_catalogue, invalid_sticker:<id>.<field> (or #<n>.<field>), duplicate_sticker:<id>, sticker_taken:<id>, sticker_excluded:<id>, sticker_limit, vehicles_unavailable"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "Open77.vehicles.registerStickers({\n  { id = \"st.hella.valentinos_01\", label = \"Valentinos heart\", group = \"Valentinos\",\n    records = { \"Vehicle.o77_st_hella_valentinos_01\" }, model = \"Vehicle.v_standard2_archer_hella_player\" },\n})",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.registerStickers",
+  "route_id": "server:Open77.vehicles.registerStickers"
  },
  {
   "namespace": "Open77.vehicles",
@@ -59940,6 +60874,45 @@
  },
  {
   "namespace": "Open77.vehicles",
+  "name": "respawnAs",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Rebuilds a car on another record at the same place, under the same id.",
+  "description": "Requires `world.vehicles`. Swaps the car's record -- a performance stage `Vehicle.<base>_o77sN`, or any other -- and keeps paint, appearance, lights hue, health, the visual state and every state bag key. The car must be empty. A record of the same model without a sound suffix keeps the car's engine sound (`Vehicle.x_o77s2` on a car with sound 3 respawns it on `Vehicle.x_o77s2a3`): `engine_sound_not_for_stage` when the sound pack generated no record for that stage, `engine_sound_unregistered` while the sound pack is stopped. `setEngineSound(id, nil)` takes the sound off first. Answers the id, which never changes, so every reference a resource holds stays valid.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "record",
+    "type": "string",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "the same id, or nil",
+   "reason: vehicle_occupied, engine_sound_not_for_stage, engine_sound_unregistered, invalid_record, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- Apply a performance stage from the tuning shop\nlocal id, reason = Open77.vehicles.respawnAs(vehicleId, \"Vehicle.v_sport2_quadra_type66_o77s2\")\nif not id then print(\"stage refused: \" .. reason) end",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.respawnAs",
+  "route_id": "server:Open77.vehicles.respawnAs"
+ },
+ {
+  "namespace": "Open77.vehicles",
   "name": "seatFree",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Whether one seat of a vehicle is free.",
@@ -60074,7 +61047,7 @@
   "name": "setAppearance",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Swaps the appearance variant on a live car, on every viewer.",
-  "description": "Requires `world.vehicles` **and** `world.vehicles.appearance`. The second string exists because this is the one vehicle write that changes what the world LOOKS like rather than what a car does: it reaches a native entity-appearance reschedule on every viewer at once, for every car a resource can name, and a resource that wants to repaint the city should have to say so -- the same argument that gave adoption its own string. **It gates a CHANGE, never a restatement**: writing the variant a car already wears is accepted without it, which is what makes `setProperties(id, getProperties(id))` work for a resource that never changes a look.\n\n`nil` or `\"\"` restores the record's default variant. The name is not validated here, because only the client holds the entity template: a variant the model does not define is a no-op on each projection and the canonical value stays as written. `Open77.data.vehicle(record)` looks a record up but does not enumerate variants -- the shipped 2.31 catalogue does not carry them.\n\n**No intent window, and that is structural rather than lucky.** The physics owner's durable report has no appearance field and no colour field of any kind, so the twice-a-second merge that used to undo server writes cannot reach this one. On the client the variant is applied through `entEntity::ScheduleAppearanceChange` and held on the replica until the projection attaches -- measured at up to about 3.7 s after the create -- then re-applied if the entity is torn down and streamed back.",
+  "description": "Requires `world.vehicles`, and a change requires `world.vehicles.appearance` too. The second string exists because this is the one vehicle write that changes what the world LOOKS like rather than what a car does: it reaches a native entity-appearance reschedule on every viewer at once, for every car a resource can name, and a resource that wants to repaint the city should have to say so -- the same argument that gave adoption its own string. **It gates a CHANGE, never a restatement**: writing the variant a car already wears is accepted without it, which is what makes `setProperties(id, getProperties(id))` work for a resource that never changes a look.\n\n`nil` or `\"\"` restores the record's default variant. The name is not validated here, because only the client holds the entity template: a variant the model does not define is a no-op on each projection and the canonical value stays as written. `Open77.data.vehicle(record)` looks a record up but does not enumerate variants -- the shipped 2.31 catalogue does not carry them.\n\n**No intent window, and that is structural rather than lucky.** The physics owner's durable report has no appearance field and no colour field of any kind, so the twice-a-second merge that used to undo server writes cannot reach this one. On the client the variant is applied through `entEntity::ScheduleAppearanceChange` and held on the replica until the projection attaches -- measured at up to about 3.7 s after the create -- then re-applied if the entity is torn down and streamed back.",
   "params": [
    {
     "name": "id",
@@ -60100,7 +61073,8 @@
   "inferred": false,
   "source_line": 8999,
   "permissions": [
-   "world.vehicles"
+   "world.vehicles",
+   "world.vehicles.appearance"
   ],
   "reasons": [],
   "since": "2.31.13+op77.67",
@@ -60869,6 +61843,46 @@
  },
  {
   "namespace": "Open77.vehicles",
+  "name": "setLightColors",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Colours a car's brake, reverse, blinker and interior lights.",
+  "description": "Requires `world.vehicles`; a change also requires `world.vehicles.appearance`. `colors` is `{ brake?, reverse?, blinkers?, interior? }`, each a colour (`{r,g,b}`, `{r=,g=,b=}` or `\"#rrggbb\"`); the table is the whole set, so a group it does not name goes back to its factory colour, and `nil` or `{}` gives every group its factory colour back. Every client applies it through the car's light controller, again after every rebuild, stream-in and paint change. Headlights are not a group: `setPaint`'s lights hue keeps them. Red or blue blinkers and blue brake lights are refused: they read as an emergency vehicle.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "colors",
+    "type": "table|nil",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_light_colors, invalid_light_colors:<group>, emergency_look:blinkers, emergency_look:brake, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "Open77.vehicles.setLightColors(vehicleId, { brake = \"#ff3300\", interior = { 120, 0, 255 } })\n-- factory lights again\nOpen77.vehicles.setLightColors(vehicleId, nil)",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.setLightColors",
+  "route_id": "server:Open77.vehicles.setLightColors"
+ },
+ {
+  "namespace": "Open77.vehicles",
   "name": "setLightMask",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Replaces the broken-light bit mask.",
@@ -60949,7 +61963,7 @@
   "name": "setLightsHue",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Tints the car's own lights.",
-  "description": "Requires `world.vehicles`. `hue` is `0..1` -- the H of the HSB triple the engine's visual template carries -- and `nil` hands the lights back the record's colour.\n\n**This is the closest build 2.31 has to `SetVehicleNeonLights` or `SetVehicleHeadlightsColour`, and it is not the same thing.** There is no underglow and no xenon palette in this game; what exists is the vehicle's own emissive colour, continuous rather than indexed, in the same `GenericTemplatePersistentData` struct as the two paint colours. Because it is the same struct, the hue and the paint reach the engine in one event -- which is why the hue is carried inside `paint` in a property table, and why it is unaffected by `paintApplied`: a car can wear a tinted headlight over its stock body paint.\n\nReplicated to every viewer and replayed on stream-in. It is not in the physics owner's durable report, so it needs no intent window.",
+  "description": "Requires `world.vehicles`. `hue` is `0..1` -- the H of the HSB triple the engine's visual template carries -- and `nil` hands the lights back the record's colour.\n\n**This is the closest build 2.31 has to `SetVehicleNeonLights` or `SetVehicleHeadlightsColour`, and it is not the same thing.** There is no underglow and no xenon palette in this game; what exists is the vehicle's own emissive colour, continuous rather than indexed, in the same `GenericTemplatePersistentData` struct as the two paint colours. Because it is the same struct, the hue and the paint reach the engine in one event -- which is why the hue is carried inside `paint` in a property table, and why it is unaffected by `paintApplied`.\n\nReplicated to every viewer and replayed on stream-in. It is not in the physics owner's durable report, so it needs no intent window. In the current public build the hue is stored, replicated and read back (`getLightsHue`), but the client does not show it on the headlights, which stay white: the engine keeps the hue in the template without colouring the lamps.\n\n**From 2.50.0-unstable+op77.205:** every client colours the car's headlights, the lamp glow and the beam, from the hue at full saturation and brightness, on every new body, after a stream-in and after each paint. Brake, reverse, blinker and interior lamps keep their own colours (`setLightColors`), and Open77's under-chassis neon is a separate native, `setNeon`. A client older than that release shows white headlights whatever the hue.",
   "params": [
    {
     "name": "id",
@@ -60973,7 +61987,7 @@
   "source": "LuaResourceRuntime.cs",
   "example": "-- A tint slider from 0 to 1, and a \"stock\" button that clears it\nRegisterNetEvent(\"tuning:lightsHue\", function(hue)\n    if hue then Open77.vehicles.setLightsHue(vehicleId, hue) else Open77.vehicles.clearLightsHue(vehicleId) end\nend)",
   "inferred": false,
-  "source_line": 8999,
+  "source_line": 9499,
   "permissions": [
    "world.vehicles"
   ],
@@ -61113,6 +62127,86 @@
  },
  {
   "namespace": "Open77.vehicles",
+  "name": "setNeon",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Turns on or changes the under-chassis lights of a car.",
+  "description": "Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. `neon` is `{ enabled?, color = {r,g,b} | {r=,g=,b=} | \"#rrggbb\", intensity? (0-5000, default 600), radius? (0.5-8 m, default 3), layout? (\"auto\") }`. Absent fields keep the current neon's values; `color` is required on a car without a neon. `enabled = false` keeps the colour and switches the lights off. The server owns the look: every visual setter writes one JSON value, the platform-reserved `open77.visual` key of the vehicle's state bag, which each client applies on stream-in, after an appearance change and after a rebuild, so it reaches current viewers, late joiners and reconnects alike. A resource cannot write that key itself (`reserved_state_key`).",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "neon",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_neon, invalid_neon_color, invalid_neon_intensity, invalid_neon_radius, invalid_neon_layout, emergency_look:neonAnimation, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "Open77.vehicles.setNeon(vehicleId, { enabled = true, color = \"#00e5ff\", intensity = 900 })",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.setNeon",
+  "route_id": "server:Open77.vehicles.setNeon"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setNeonAnimation",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Makes a car's neon pulse, breathe, strobe, chase, cycle hues or follow its speed or brakes.",
+  "description": "Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance`, while restating the current value needs only the first. `animation` is `{ mode, periodMs?, color2? }`, or `nil` for a steady neon. `mode` is one of `pulse`, `breathe`, `strobe`, `chase`, `rainbow`, `speed`, `brake`. `periodMs` is an integer from 250 to 10000 (a strobe at least 333, so never faster than 3 Hz); without it the mode's default is stored (breathe 4000, strobe 500, chase 1000, rainbow 6000, the others 1200). `color2` (`{r,g,b}`, `{r=,g=,b=}` or `\"#rrggbb\"`) is the second colour of pulse, breathe, strobe and chase, the colour `speed` blends to at speed and the colour `brake` flares to while braking; it is refused on `rainbow`. Every client computes the light from the server clock, so all of them show the same moment. The neon itself is still `setNeon`: without one, nothing shows. A red or blue strobe, or a red/blue pair in pulse, breathe, strobe or chase, is refused (`emergency_look:neonAnimation`), judged with the neon colour, so a later `setNeon` can be refused for it too.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "animation",
+    "type": "table|nil",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_neon_animation, invalid_neon_animation:mode, invalid_neon_animation:periodMs, invalid_neon_animation:color2, emergency_look:neonAnimation, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "Open77.vehicles.setNeon(vehicleId, { color = \"#00e5ff\" })\nOpen77.vehicles.setNeonAnimation(vehicleId, { mode = \"chase\", periodMs = 800, color2 = \"#ff2bd6\" })",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.setNeonAnimation",
+  "route_id": "server:Open77.vehicles.setNeonAnimation"
+ },
+ {
+  "namespace": "Open77.vehicles",
   "name": "setPaint",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sets authoritative paint on a canonical vehicle.",
@@ -61148,6 +62242,46 @@
   "constant": false,
   "qualified": "Open77.vehicles.setPaint",
   "route_id": "server:Open77.vehicles.setPaint"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setPaintProfile",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Applies a TwinTone colour template (a livery) to a car, on every viewer.",
+  "description": "Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. `profileId` is an id from `listPaintProfiles` for this car's record, or `nil` to go back to generic paint; an id the record does not list is `invalid_profile`. Restating the car's current profile always passes, even one whose pack is stopped. A later `setPaint`, `resetPaint` or repaint through `update` clears it. The server owns the look: every visual setter writes one JSON value, the platform-reserved `open77.visual` key of the vehicle's state bag, which each client applies on stream-in, after an appearance change and after a rebuild, so it reaches current viewers, late joiners and reconnects alike. A resource cannot write that key itself (`reserved_state_key`). On a car with stickers, a livery whose decals would take the car past 12 with them is refused (`decal_budget_exceeded`, see `getDecalBudget`).",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "profileId",
+    "type": "string|nil",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_profile, decal_budget_exceeded, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- A garage's livery picker\nlocal ok, reason = Open77.vehicles.setPaintProfile(vehicleId, profileId)\nif not ok then TriggerClientEvent(\"garage:refused\", playerId, reason) end",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.setPaintProfile",
+  "route_id": "server:Open77.vehicles.setPaintProfile"
  },
  {
   "namespace": "Open77.vehicles",
@@ -61192,6 +62326,46 @@
   "constant": false,
   "qualified": "Open77.vehicles.setPartDetached",
   "route_id": "server:Open77.vehicles.setPartDetached"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setParts",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Puts kit parts on a car, or takes them off.",
+  "description": "Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. `parts` is `{ [partId] = variantId | true | false }`: `true` picks the only variant, `false` takes the part off; parts not named are left as they are. A bare id names a part of the calling resource, a qualified one (`<resource>:<id>`) any running resource's. A rim named here replaces the car's current rim, and two rims in one call answer `conflicting_parts`; which body parts exclude each other (two front lips) is the resource's to enforce. The server owns the look: every visual setter writes one JSON value, the platform-reserved `open77.visual` key of the vehicle's state bag, which each client applies on stream-in, after an appearance change and after a rebuild, so it reaches current viewers, late joiners and reconnects alike. A resource cannot write that key itself (`reserved_state_key`).",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "parts",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: unknown_part, part_not_for_model, unknown_variant, variant_required, conflicting_parts, invalid_parts, attach_limit, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "Open77.vehicles.setParts(vehicleId, { wing_gt = \"carbon\", no_antenna = true })\n-- later: take the wing off\nOpen77.vehicles.setParts(vehicleId, { wing_gt = false })",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.setParts",
+  "route_id": "server:Open77.vehicles.setParts"
  },
  {
   "namespace": "Open77.vehicles",
@@ -61270,6 +62444,46 @@
   "constant": false,
   "qualified": "Open77.vehicles.setPersistent",
   "route_id": "server:Open77.vehicles.setPersistent"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setPlate",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Sets the text on a car's licence plate.",
+  "description": "Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. The text is trimmed, then upper-cased; A-Z, 0-9, space and `-` only, 1 to 10 characters, no two spaces in a row, anything else is `invalid_plate`. `nil` or `\"\"` goes back to the model's own plate. The platform rule is permissive on purpose: format, uniqueness and banned words are the resource's to enforce. Shown on models whose plate pack carries the plate widget; on a model without it the car keeps its stock plate and the text is still stored. The same plate in another case (`\"nc 01\"` after `\"NC 01\"`) is a restatement.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "text",
+    "type": "string|nil",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_plate, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, reason = Open77.vehicles.setPlate(vehicleId, \"NC 2077\")\nif not ok then print(\"plate refused: \" .. reason) end",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.setPlate",
+  "route_id": "server:Open77.vehicles.setPlate"
  },
  {
   "namespace": "Open77.vehicles",
@@ -61387,7 +62601,7 @@
   "name": "setProperties",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Applies a stored property table to a vehicle.",
-  "description": "Requires `world.vehicles`, plus `world.vehicles.appearance` if -- and only if -- the table CHANGES the appearance variant. Restating the variant a car already wears is free, which is what keeps the round trip working for a resource that never changes a look.\n\n**`version` decides how absence is read, and it is the only thing that does.** A table carrying `version = 1` -- which is every table `getProperties` hands back -- is a COMPLETE description, so an absent optional field means \"this car has none\": no lights hue, no performance ceiling. A table without `version` is a PATCH, so an absent field is left exactly as it was, and `setProperties(id, { paint = { primary = \"#FF0000\" } })` is a repaint and nothing else.\n\n**A property with no Cyberpunk counterpart is refused by name**, as `unsupported_property:modEngine` or `unsupported_property:paint.neonColor` -- the offending key alphabetically first, so the refusal is reproducible whatever `pairs` decides that run. Pass `{ ignoreUnsupported = true }` to skip them instead, in which case the third return value lists what was skipped. Refusing is deliberate: a garage that silently loses two thirds of its table is worse than one that fails loudly on day one. `Open77.vehicles.unsupportedProperties` maps every such name to the reason.\n\n`record` is checked, never applied: REDengine cannot change a spawned entity's record, so a Quadra table handed to a Thorton answers `record_mismatch` rather than half-restoring. Detached parts are one-way on a live projection, so a table asking for fewer than the car has already lost answers `detached_parts_not_reattachable`; respawn and apply the table to the new car.\n\n**The order of application is deliberate.** Health, paint, doors, windows and the durable damage go in ONE `update`, so no viewer ever sees a half-restored car. The electrical bits then go through `setEngine`, `setLights`, `setSiren` and `setDrivable`, because those are what record the server intent that stops the physics owner's next durable report from undoing them -- writing them as raw flags would look like it worked and quietly revert about half a second later. The visual template and the performance ceiling follow on their own durable channels. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.",
+  "description": "Requires `world.vehicles`, plus `world.vehicles.appearance` if -- and only if -- the table CHANGES the appearance variant. Restating the variant a car already wears is free, which is what keeps the round trip working for a resource that never changes a look.\n\n**`version` decides how absence is read, and it is the only thing that does.** A table carrying `version = 1` -- which is every table `getProperties` hands back -- is a COMPLETE description, so an absent optional field means \"this car has none\": no lights hue, no performance ceiling. A table without `version` is a PATCH, so an absent field is left exactly as it was, and `setProperties(id, { paint = { primary = \"#FF0000\" } })` is a repaint and nothing else.\n\n**A property with no Cyberpunk counterpart is refused by name**, as `unsupported_property:modEngine` or `unsupported_property:paint.neonColor` -- the offending key alphabetically first, so the refusal is reproducible whatever `pairs` decides that run. Any key the table format does not name is refused the same way, `visual` included, and so are the FiveM keys `neonEnabled`, `neonColor`, `livery` and `windowTint`. Pass `{ ignoreUnsupported = true }` to skip them instead, in which case the third return value lists what was skipped: the alphabetically first unsupported key of the top level, of `paint` and of `damage`. Refusing is deliberate: a garage that silently loses two thirds of its table is worse than one that fails loudly on day one. `Open77.vehicles.unsupportedProperties` maps every such name to the reason.\n\n`record` is checked, never applied: REDengine cannot change a spawned entity's record, so a Quadra table handed to a Thorton answers `record_mismatch` rather than half-restoring. Detached parts are one-way on a live projection, so a table asking for fewer than the car has already lost answers `detached_parts_not_reattachable`; respawn and apply the table to the new car.\n\n**The order of application is deliberate.** Health, paint, doors, windows and the durable damage go in ONE `update`, so no viewer ever sees a half-restored car. The electrical bits then go through `setEngine`, `setLights`, `setSiren` and `setDrivable`, because those are what record the server intent that stops the physics owner's next durable report from undoing them -- writing them as raw flags would look like it worked and quietly revert about half a second later. The visual template and the performance ceiling follow on their own durable channels. Stable 147 includes engineHold in the property table; setProperties applies it through the canonical engine-hold setter.\n\n**From 2.50.0-unstable+op77.205:** `setProperties` restores the vehicle customization too. The unsupported check also covers the `visual` table and runs before the vehicle is read or anything is applied, and `ignoreUnsupported` hands back every skipped key, sorted, nested ones prefixed (`paint.`, `damage.`, `visual.`). `visual` is applied as `getVisual` shapes it (`rev` is ignored), its wave 2 fields `neonAnimation`, `lightColors` and `stickers` included, with their setters' refusals, and the whole look is validated before anything is applied. **One exception, for a restore**: in a versioned table a sticker past the decal budget stays chosen but undrawn (dormant), as when a heavier livery is registered under the car, instead of refusing the table, since the table describes a car whose sticker was already dormant. A patch that adds a sticker is a purchase and is still refused with `decal_budget_exceeded`, as by `setStickers`. `neonEnabled` (a boolean, or FiveM's four per-side booleans) and `neonColor` become `visual.neon`; `livery` is a 0-based index into `listPaintProfiles(record)`, `-1` for none; `windowTint` is the FiveM index mapped onto `visual.tint`, GREEN (`6`) refused as `unsupported_property:windowTint`. A FiveM key wins over its `visual` field. In a versioned table a field absent from `visual` means none, but a table with no `visual` at all leaves the look alone. Changing the look needs `world.vehicles.appearance`; restating it does not. **Only a choice the car already holds survives a stopped pack:** on a freshly spawned car every part, livery and sticker is a new choice, so one that no running resource has registered is refused (`unknown_part`, `invalid_profile`, `unknown_sticker`) and the call applies nothing. `record` is then applied within the same model: a stage or engine-sound record of the same model (`_o77s<n>`, `_o77a<k>`, `_o77s<n>a<k>`) respawns the car onto it first, in place and under the same id, after every check and before the update, exactly as `respawnAs` would (`vehicle_occupied` while anyone is in it), so a garage that spawns the base model gets the tuned car back from the table. A sound record no running resource covers is not spawned blind: the sound is dropped and the stage kept. `visual.engineSound` must agree with `record` (`engine_sound_mismatch`); in a table without `record` it is applied like `setEngineSound`.\n\n**Nothing is applied before the whole table is proved**: the record, the visual, the update, the electrical values, the appearance and hue, the ceiling, each by the checks of the setter that then applies it. A refused table leaves the car exactly as it was: not respawned, not repainted, its profile untouched. **A repaint replaces a TwinTone profile**, as it does through `update`: a table whose colours change the paint clears the profile whatever else it carries, unless the table states the profile itself (`visual.profile`, `livery`, or a `visual` in a versioned table), which then wins.",
   "params": [
    {
     "name": "id",
@@ -61410,15 +62624,15 @@
   ],
   "returns": [
    "true, or false",
-   "reason: unsupported_property:<name>, unsupported_version, record_mismatch, detached_parts_not_reattachable, invalid_argument, invalid_paint, invalid_damage, invalid_health, invalid_appearance, invalid_lights_hue, vehicle_not_found, permission_denied:world.vehicles, permission_denied:world.vehicles.appearance",
-   "skipped: the list of unsupported names, only with ignoreUnsupported"
+   "reason: unsupported_property:<name>, unsupported_version, record_mismatch, detached_parts_not_reattachable, invalid_argument, invalid_paint, invalid_damage, invalid_health, invalid_appearance, invalid_lights_hue, vehicle_not_found, permission_denied:world.vehicles, permission_denied:world.vehicles.appearance; from 2.50.0-unstable+op77.205 also vehicle_occupied, engine_sound_mismatch, invalid_engine_sound, invalid_visual and the refusals of the visual setters (unknown_part, invalid_profile, unknown_sticker, ...)",
+   "skipped: only with ignoreUnsupported, the unsupported names (the first of each table today; every one, sorted and prefixed, from 2.50.0-unstable+op77.205)"
   ],
   "api_set": "network",
   "runtime": "server",
   "source": "LuaResourceRuntime.cs",
   "example": "local stored = json.decode(row.props)\nlocal id = Open77.vehicles.create({ record = stored.record, position = spot })\nlocal ok, reason = Open77.vehicles.setProperties(id, stored)\nif not ok then print(\"garage restore failed: \" .. reason) end",
   "inferred": false,
-  "source_line": 8999,
+  "source_line": 9499,
   "permissions": [
    "world.vehicles"
   ],
@@ -61466,6 +62680,46 @@
   "constant": false,
   "qualified": "Open77.vehicles.setSiren",
   "route_id": "server:Open77.vehicles.setSiren"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setStickers",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Sets the stickers on a car.",
+  "description": "Requires `world.vehicles`; a change also requires `world.vehicles.appearance`. `stickers` is the whole list in order, at most 12 ids, each once; `nil` or `{}` takes them off. With the livery's own decals they must fit 12 decals: a thirteenth crashes every client that sees the car, so the server refuses it (`decal_budget_exceeded`, see `getDecalBudget`). A decal two stickers share counts once. A sticker whose pack stops stays chosen but is not shown until the pack comes back.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "stickers",
+    "type": "table|nil",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_stickers, unknown_sticker, sticker_not_for_model, decal_budget_exceeded, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, reason = Open77.vehicles.setStickers(vehicleId, { \"st.hella.valentinos_01\" })\nif not ok then print(\"stickers refused: \" .. reason) end",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.setStickers",
+  "route_id": "server:Open77.vehicles.setStickers"
  },
  {
   "namespace": "Open77.vehicles",
@@ -61749,6 +63003,46 @@
  },
  {
   "namespace": "Open77.vehicles",
+  "name": "setWheels",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Fits a rim design on every wheel of a car, or puts the factory rims back.",
+  "description": "Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. `wheels` is `{ rim = partId, variant? }`; `nil` or `{}` takes the rim off. A bare `rim` names a part of the calling resource; a qualified id (`<resource>:<id>`, the form `listParts` answers) names a part any running resource registered, so a shop resource selling another resource's rims passes the qualified id. `variant` may be left out when the rim has a single variant. The rim goes on every wheel slot (four on a car, two on a bike, or the fit's own `wheels` list for this record) and hides the factory rim components its fit lists for the model, or for the car's current appearance when the fit has an override for it. The server owns the look: every visual setter writes one JSON value, the platform-reserved `open77.visual` key of the vehicle's state bag, which each client applies on stream-in, after an appearance change and after a rebuild, so it reaches current viewers, late joiners and reconnects alike. A resource cannot write that key itself (`reserved_state_key`).",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "wheels",
+    "type": "table|nil",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_wheels, unknown_part, part_not_a_rim, part_not_for_model, unknown_variant, variant_required, attach_limit, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "-- a rim this resource registered\nOpen77.vehicles.setWheels(vehicleId, { rim = \"rim_fork\", variant = \"black\" })\n-- a rim another resource registered: pass the qualified id listParts answers\nOpen77.vehicles.setWheels(vehicleId, { rim = \"my_kit:rim_fork\", variant = \"black\" })\n-- back to the factory rims\nOpen77.vehicles.setWheels(vehicleId, nil)",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.setWheels",
+  "route_id": "server:Open77.vehicles.setWheels"
+ },
+ {
+  "namespace": "Open77.vehicles",
   "name": "setWindowOpen",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "Sets one reversible side-window opening state.",
@@ -61790,6 +63084,46 @@
   "constant": false,
   "qualified": "Open77.vehicles.setWindowOpen",
   "route_id": "server:Open77.vehicles.setWindowOpen"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setWindowTint",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Sets the window tint level of a car.",
+  "description": "Requires `world.vehicles`; a call that CHANGES the look also requires `world.vehicles.appearance` (`permission_denied:world.vehicles.appearance`), while restating the current value needs only the first -- the rule `setAppearance` follows, which keeps `setProperties(id, getProperties(id))` free. `level` is an integer from 1 (light smoke) to 3 (limo), or `0` / `nil` for factory glass. A fraction, a string or a value out of range is `invalid_tint`. The level is stored on any car; it is drawn on the side and rear glass of the models the client's tint pack covers (`customizationAvailable` on the client names the others), never on the windshield. Which models a resource offers tint on is its own choice.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "level",
+    "type": "integer 0..3|nil",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_tint, visual_too_large, permission_denied:world.vehicles.appearance, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "Open77.vehicles.setWindowTint(vehicleId, 2)",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles",
+   "world.vehicles.appearance"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.setWindowTint",
+  "route_id": "server:Open77.vehicles.setWindowTint"
  },
  {
   "namespace": "Open77.vehicles",
@@ -62153,7 +63487,7 @@
   "name": "unsupportedProperties",
   "handler": "LuaResourceRuntime.Bootstrap",
   "summary": "The FiveM vehicle-property names with no Cyberpunk counterpart, and why.",
-  "description": "A table, not a function: each key is a FiveM `GetVehicleProperties` field this engine cannot express, and each value says what is missing. `setProperties` refuses every one of them by name. Read it to decide, before writing, what a ported script has to drop -- and read it instead of guessing, because several of the absences are surprising: there are no colour INDICES (Cyberpunk paint is RGB), no livery index (the appearance variant is a name, not a number), and no plate at all.\n\nThe list covers `modKit`, `mods`, `modEngine`, `modBrakes`, `modTransmission`, `modSuspension`, `modArmour`, `modTurbo`, `wheels`, `wheelType`, `wheelColor`, `windowTint`, `neonEnabled`, `neonColor`, `xenonColor`, `livery`, `roofLivery`, `extras`, `color1`, `color2`, `pearlescentColor`, `interiorColor`, `dashboardColor`, `dirtLevel`, `tyreSmokeColor`, `plateText`, `plateIndex` and `fuelLevel`.",
+  "description": "A table, not a function: each key is a FiveM `GetVehicleProperties` field this engine cannot express, and each value says what is missing. `setProperties` refuses every one of them by name. Read it to decide, before writing, what a ported script has to drop -- and read it instead of guessing, because several of the absences are surprising: there are no colour INDICES (Cyberpunk paint is RGB), no livery index (the appearance variant is a name, not a number), and no plate at all.\n\nIn the current public build the list covers `modKit`, `mods`, `modEngine`, `modBrakes`, `modTransmission`, `modSuspension`, `modArmour`, `modTurbo`, `wheels`, `wheelType`, `wheelColor`, `windowTint`, `neonEnabled`, `neonColor`, `xenonColor`, `livery`, `roofLivery`, `extras`, `color1`, `color2`, `pearlescentColor`, `interiorColor`, `dashboardColor`, `dirtLevel`, `tyreSmokeColor`, `plateText`, `plateIndex` and `fuelLevel`.\n\n**From 2.50.0-unstable+op77.205:** `neonEnabled`, `neonColor` and `livery` leave the table, because `setProperties` reads them into `visual`; `windowTint` stays only for its GREEN index (`6`); and several values name the Open77 native to use instead: rims are `setWheels`, kit parts `registerParts` / `setParts`, plate text `setPlate` (`plateText` itself is still refused in a property table). Read the table at run time rather than copying either list.",
   "params": [],
   "returns": [
    "table mapping property name to the reason it has no counterpart"
@@ -62163,7 +63497,7 @@
   "source": "LuaResourceRuntime.cs",
   "example": "for name, why in pairs(Open77.vehicles.unsupportedProperties) do\n  print((\"%s: %s\"):format(name, why))\nend",
   "inferred": false,
-  "source_line": 8999,
+  "source_line": 9499,
   "permissions": [],
   "reasons": [],
   "since": "2.31.13+op77.67",
@@ -62352,7 +63686,7 @@
    "world.vehicles"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.112",
   "constant": false,
   "qualified": "Open77.vehicles.ai.capacity",
   "route_id": "server:Open77.vehicles.ai.capacity"
@@ -62619,7 +63953,7 @@
    "world.vehicles"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.112",
   "constant": false,
   "qualified": "Open77.vehicles.ai.panic",
   "route_id": "server:Open77.vehicles.ai.panic"
@@ -62767,7 +64101,7 @@
   "reasons": [
    "invalid_traffic_pattern"
   ],
-  "since": null,
+  "since": "2.31.13-unstable+op77.93",
   "constant": false,
   "qualified": "Open77.vehicles.ai.setTrafficPattern",
   "route_id": "server:Open77.vehicles.ai.setTrafficPattern"
@@ -65015,7 +66349,7 @@
    "screen.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.screen.isLoading",
   "route_id": "Open77.screen.isLoading"
@@ -65040,7 +66374,7 @@
    "screen.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.screen.loadingState",
   "route_id": "Open77.screen.loadingState"
@@ -65073,7 +66407,7 @@
    "vehicles.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.vehicles.cancelSeatSwitch",
   "route_id": "Open77.vehicles.cancelSeatSwitch"
@@ -65099,7 +66433,7 @@
    "vehicles.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.vehicles.isAutoSeatSwitchEnabled",
   "route_id": "Open77.vehicles.isAutoSeatSwitchEnabled"
@@ -65125,7 +66459,7 @@
    "vehicles.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.vehicles.seatSwitchState",
   "route_id": "Open77.vehicles.seatSwitchState"
@@ -65158,7 +66492,7 @@
    "vehicles.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.vehicles.setAutoSeatSwitchEnabled",
   "route_id": "Open77.vehicles.setAutoSeatSwitchEnabled"
@@ -65191,7 +66525,7 @@
    "vehicles.control"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.vehicles.switchSeat",
   "route_id": "Open77.vehicles.switchSeat"
@@ -65230,7 +66564,7 @@
    "world.vehicles"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.vehicles.cancelPlayerSeatSwitch",
   "route_id": "server:Open77.vehicles.cancelPlayerSeatSwitch"
@@ -65263,7 +66597,7 @@
    "world.vehicles"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.vehicles.getPlayerSeatSwitch",
   "route_id": "server:Open77.vehicles.getPlayerSeatSwitch"
@@ -65296,7 +66630,7 @@
    "world.vehicles"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.vehicles.isPlayerAutoSeatSwitchEnabled",
   "route_id": "server:Open77.vehicles.isPlayerAutoSeatSwitchEnabled"
@@ -65335,7 +66669,7 @@
    "world.vehicles"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.vehicles.setPlayerAutoSeatSwitchEnabled",
   "route_id": "server:Open77.vehicles.setPlayerAutoSeatSwitchEnabled"
@@ -65374,7 +66708,7 @@
    "world.vehicles"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.vehicles.switchPlayerSeat",
   "route_id": "server:Open77.vehicles.switchPlayerSeat"
@@ -65424,7 +66758,7 @@
    "rtti.native"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21+op77.132",
   "constant": false,
   "qualified": "Open77.rtti.call",
   "route_id": "Open77.rtti.call"
@@ -65468,7 +66802,7 @@
    "rtti.native"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21+op77.132",
   "constant": false,
   "qualified": "Open77.rtti.hook",
   "route_id": "Open77.rtti.hook"
@@ -65500,7 +66834,7 @@
    "rtti.native"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21+op77.132",
   "constant": false,
   "qualified": "Open77.rtti.release",
   "route_id": "Open77.rtti.release"
@@ -65538,7 +66872,7 @@
    "rtti.native"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21+op77.132",
   "constant": false,
   "qualified": "Open77.rtti.resolve",
   "route_id": "Open77.rtti.resolve"
@@ -65570,7 +66904,7 @@
    "rtti.native"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21+op77.132",
   "constant": false,
   "qualified": "Open77.rtti.unhook",
   "route_id": "Open77.rtti.unhook"
@@ -65603,7 +66937,7 @@
   "reasons": [
    "open77_animations"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.animations.isPointing",
   "route_id": "Open77.animations.isPointing"
@@ -65636,7 +66970,7 @@
   "reasons": [
    "open77_animations"
   ],
-  "since": null,
+  "since": "2.31.21-unstable+op77.122",
   "constant": false,
   "qualified": "Open77.animations.setPointing",
   "route_id": "Open77.animations.setPointing"
@@ -65669,7 +67003,7 @@
    "vehicles.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.127",
   "constant": false,
   "qualified": "Open77.vehicles.getSteeringInput",
   "route_id": "Open77.vehicles.getSteeringInput"
@@ -65702,10 +67036,46 @@
    "vehicles.read"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.127",
   "constant": false,
   "qualified": "Open77.vehicles.getSteeringWheelAngle",
   "route_id": "Open77.vehicles.getSteeringWheelAngle"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "getVisual",
+  "handler": "LuaVehicleGetVisual",
+  "summary": "Reads the vehicle's visual value exactly as the server published it.",
+  "description": "Requires `vehicles.read`. Client-side and read-only. Returns the `open77.visual` value (schema v1: `v`, `rev`, `profile`, `neon`, `hide`, `show`, `attach`, `plate`, `tint`, and `na`, `lc`, `st` for the neon animation, lamp colours and stickers), or nil when the car has none -- the factory look -- or is unknown. It is what the server sent, not what this game managed to draw: `customizationAvailable` tells that. Returns nil and `vehicles_unavailable` or `permission_denied:vehicles.read` on failure.",
+  "params": [
+   {
+    "name": "id",
+    "type": "integer",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "value",
+   "reason (when the first is nil)"
+  ],
+  "api_set": "game",
+  "runtime": "client",
+  "source": "ResourceHost.cpp",
+  "example": "local visual = Open77.vehicles.getVisual(vehicleId)\nif not visual then print(\"factory look\"); return end\nprint(\"rev\", visual.rev, \"plate\", visual.plate or \"-\")\nfor _, part in ipairs(visual.attach or {}) do print(part.key, part.model) end",
+  "inferred": false,
+  "source_line": 27734,
+  "permissions": [
+   "vehicles.read"
+  ],
+  "reasons": [
+   "permission_denied:vehicles.read",
+   "vehicles_unavailable"
+  ],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.getVisual",
+  "route_id": "Open77.vehicles.getVisual"
  },
  {
   "namespace": "Open77.npcs.tasks",
@@ -65744,7 +67114,7 @@
    "npc_task_invalid_point",
    "permission_denied:world.npcs"
   ],
-  "since": null,
+  "since": "2.31.21+op77.132",
   "constant": false,
   "qualified": "Open77.npcs.tasks.traffic",
   "route_id": "server:Open77.npcs.tasks.traffic"
@@ -65783,7 +67153,7 @@
    "world.vehicles"
   ],
   "reasons": [],
-  "since": null,
+  "since": "2.31.21-unstable+op77.127",
   "constant": false,
   "qualified": "Open77.vehicles.setLaunchVelocity",
   "route_id": "server:Open77.vehicles.setLaunchVelocity"
@@ -65826,6 +67196,45 @@
   "constant": false,
   "qualified": "Open77.vehicles.setEngineHold",
   "route_id": "server:Open77.vehicles.setEngineHold"
+ },
+ {
+  "namespace": "Open77.vehicles",
+  "name": "setEngineSound",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Gives a car another engine sound set, horn included.",
+  "description": "Requires `world.vehicles` only: like a stage, a sound is a record (`Vehicle.<base>_o77a<k>`, or `_o77s<n>a<k>` on a stage) that the pack adds, and the car is respawned on it in place under the same id, keeping paint, appearance, health, the visual state and every state bag key. `soundId` is an id `listEngineSounds` lists, or `nil` for the factory sound of the current stage. Restating the current sound changes nothing. The car must be empty (`vehicle_occupied`). Every client, the driver included, hears what the record says.",
+  "params": [
+   {
+    "name": "id",
+    "type": "vehicle id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "soundId",
+    "type": "string|nil",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "true, or false",
+   "reason: invalid_engine_sound, unknown_engine_sound, engine_sound_not_for_class, engine_sound_not_for_model, vehicle_occupied, vehicle_not_found, invalid_vehicle_id, vehicles_unavailable, permission_denied:world.vehicles"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, reason = Open77.vehicles.setEngineSound(vehicleId, \"s01\")\nif not ok then print(\"sound refused: \" .. reason) end",
+  "inferred": false,
+  "source_line": 9499,
+  "permissions": [
+   "world.vehicles"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.205",
+  "constant": false,
+  "qualified": "Open77.vehicles.setEngineSound",
+  "route_id": "server:Open77.vehicles.setEngineSound"
  },
  {
   "namespace": "Open77.vehicles",
@@ -66061,7 +67470,7 @@
    "locomotion.register"
   ],
   "reasons": [],
-  "since": "2.31.21+op77.145",
+  "since": "2.31.21-unstable+op77.144",
   "constant": false,
   "qualified": "Open77.locomotion.register",
   "route_id": "Open77.locomotion.register"
@@ -66094,7 +67503,7 @@
    "locomotion.register"
   ],
   "reasons": [],
-  "since": "2.31.21+op77.145",
+  "since": "2.31.21-unstable+op77.144",
   "constant": false,
   "qualified": "Open77.locomotion.register",
   "route_id": "server:Open77.locomotion.register"
@@ -66139,7 +67548,7 @@
    "locomotion.control"
   ],
   "reasons": [],
-  "since": "2.31.21+op77.145",
+  "since": "2.31.21-unstable+op77.144",
   "constant": false,
   "qualified": "Open77.locomotion.set",
   "route_id": "server:Open77.locomotion.set"
@@ -66172,7 +67581,7 @@
    "locomotion.read"
   ],
   "reasons": [],
-  "since": "2.31.21+op77.145",
+  "since": "2.31.21-unstable+op77.144",
   "constant": false,
   "qualified": "Open77.locomotion.get",
   "route_id": "server:Open77.locomotion.get"
@@ -66205,7 +67614,7 @@
    "locomotion.control"
   ],
   "reasons": [],
-  "since": "2.31.21+op77.145",
+  "since": "2.31.21-unstable+op77.144",
   "constant": false,
   "qualified": "Open77.locomotion.reset",
   "route_id": "server:Open77.locomotion.reset"
@@ -66250,7 +67659,7 @@
    "locomotion.control"
   ],
   "reasons": [],
-  "since": "2.31.21+op77.145",
+  "since": "2.31.21-unstable+op77.144",
   "constant": false,
   "qualified": "Open77.locomotion.playClip",
   "route_id": "server:Open77.locomotion.playClip"
@@ -66295,7 +67704,7 @@
    "locomotion.control"
   ],
   "reasons": [],
-  "since": "2.31.21+op77.145",
+  "since": "2.31.21-unstable+op77.144",
   "constant": false,
   "qualified": "Open77.locomotion.stopClip",
   "route_id": "server:Open77.locomotion.stopClip"
@@ -66887,5 +68296,143 @@
   "constant": false,
   "qualified": "Open77.players.listAttachments",
   "route_id": "server:Open77.players.listAttachments"
+ },
+ {
+  "namespace": "Open77.npcs",
+  "name": "applyCrossfireDamage",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Applies managed NPC-to-NPC crossfire with difficulty.",
+  "description": "Requires `world.npcs`; both victim and attacker must belong to the caller. Applies attacker damageMultiplier and victim healthMultiplier to the supplied damage through the NPC damage policy. This is distinct from exact `applyDamage`; it does not change unrelated PvP damage.",
+  "params": [
+   {
+    "name": "victimId",
+    "type": "NPC id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "attackerId",
+    "type": "NPC id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "amount",
+    "type": "number",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "source",
+    "type": "string",
+    "optional": true,
+    "default": null
+   },
+   {
+    "name": "cause",
+    "type": "string",
+    "optional": true,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, reason = Open77.npcs.applyCrossfireDamage(victimId, attackerId, 10, \"script\", \"generic\")\nif not ok then print(reason) end",
+  "inferred": false,
+  "source_line": 9638,
+  "permissions": [
+   "world.npcs"
+  ],
+  "reasons": [],
+  "since": "2.50.0-unstable+op77.161",
+  "constant": false,
+  "qualified": "Open77.npcs.applyCrossfireDamage",
+  "route_id": "server:Open77.npcs.applyCrossfireDamage"
+ },
+ {
+  "namespace": "Open77.npcs",
+  "name": "getDifficulty",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Reads an owned NPC's difficulty multipliers.",
+  "description": "Requires `world.npcs`. Returns `{healthMultiplier, damageMultiplier}` or `nil, reason`. The same canonical settings appear in `Open77.npcs.get(id).difficulty`.",
+  "params": [
+   {
+    "name": "id",
+    "type": "NPC id",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "table or nil",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local difficulty, reason = Open77.npcs.getDifficulty(npcId)\nif difficulty then print(difficulty.healthMultiplier, difficulty.damageMultiplier) else print(reason) end",
+  "inferred": false,
+  "source_line": 9574,
+  "permissions": [
+   "world.npcs"
+  ],
+  "reasons": [
+   "npcs_unavailable",
+   "permission_denied:world.npcs"
+  ],
+  "since": "2.50.0-unstable+op77.161",
+  "constant": false,
+  "qualified": "Open77.npcs.getDifficulty",
+  "route_id": "server:Open77.npcs.getDifficulty"
+ },
+ {
+  "namespace": "Open77.npcs",
+  "name": "setDifficulty",
+  "handler": "LuaResourceRuntime.Bootstrap",
+  "summary": "Patches an owned NPC's difficulty multipliers.",
+  "description": "Requires `world.npcs`. Accepts a partial table of finite `healthMultiplier` (0.01..100) and `damageMultiplier` (0..100); omitted values stay unchanged. Invalid keys, types or ranges return `false, \"npc_difficulty_invalid\"` without mutation. H divides admitted native body and admitted player body/weakspot fractions after admission, without rescaling authored part-break bonuses. D is used by resource-authored NPC-to-player damage and managed crossfire. Health fraction and phase are unchanged; exact scripted damage and setHealth are not scaled.",
+  "params": [
+   {
+    "name": "id",
+    "type": "NPC id",
+    "optional": false,
+    "default": null
+   },
+   {
+    "name": "difficulty",
+    "type": "table",
+    "optional": false,
+    "default": null
+   }
+  ],
+  "returns": [
+   "boolean",
+   "reason"
+  ],
+  "api_set": "network",
+  "runtime": "server",
+  "source": "LuaResourceRuntime.cs",
+  "example": "local ok, reason = Open77.npcs.setDifficulty(npcId, { healthMultiplier = 2 })\nif not ok then print(reason) end",
+  "inferred": false,
+  "source_line": 9570,
+  "permissions": [
+   "world.npcs"
+  ],
+  "reasons": [
+   "invalid_json",
+   "json_too_large",
+   "npc_body_invalid",
+   "npc_difficulty_invalid",
+   "npc_loadout_invalid"
+  ],
+  "since": "2.50.0-unstable+op77.161",
+  "constant": false,
+  "qualified": "Open77.npcs.setDifficulty",
+  "route_id": "server:Open77.npcs.setDifficulty"
  }
 ]

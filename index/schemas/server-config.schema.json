@@ -16,6 +16,16 @@
         "level": { "type": ["string", "null"], "enum": ["trace", "debug", "info", "warn", "error", null], "default": null, "description": "Minimum server-console/Warden severity. Null uses the legacy verbose switch. --log-level or OP77_CONFIG__LOGGING__LEVEL also sets this field." }
       }
     },
+    "query": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Unauthenticated GET /query/v1/status on resources.download.listenUrl, independently of resource downloads. Read-only metadata and counts; no player identifiers.",
+      "properties": {
+        "enabled": { "type": ["boolean", "null"], "default": null, "description": "Null or omitted: enabled for public visibility only. True explicitly opts in private/unlisted servers; false disables the route." },
+        "map": { "type": "string", "maxLength": 96, "default": "Night City", "description": "Public map label, at most 96 UTF-8 bytes, no control characters." },
+        "gamemode": { "type": "string", "maxLength": 96, "default": "", "description": "Public mode label, at most 96 UTF-8 bytes, no control characters. Empty means unspecified; never inferred from a resource name." }
+      }
+    },
     "identity": {
       "type": "object",
       "additionalProperties": false,
@@ -80,12 +90,14 @@
       "properties": {
         "tickRate": { "type": "integer", "minimum": 1, "maximum": 240 },
         "snapshotRate": { "type": "integer", "minimum": 1, "maximum": 240 },
-        "maximumAiVehiclesPerSimulator": { "type": "integer", "minimum": 1, "maximum": 128, "default": 128, "description": "Admission slots per native AI simulator, including pending traffic placements. Healthy existing owners are retained. The default is the server's own per-simulator ceiling of 128; the server has no total driver-job limit." },
+        "maximumAiVehiclesPerSimulator": { "type": "integer", "minimum": 1, "maximum": 128, "default": 32, "description": "Admission slots per native AI simulator, including pending traffic placements, and the receiver limit for nearest owner-to-owner moves. Default-on nearest-owner election prefers eligible viewers below this limit; only when none is below it may an unowned election use up to 16 extra slots, capped at 128. Within each band: healthy first, then distance score with a driving bonus. Owned cars may move to a healthy receiver through the nearest path (15 m score margin, 1.5 s hold, rate limited, incumbent driving-bonus hysteresis) or the contact path (driver above 5 m/s within 30 m, healthy only, up to the extra budget, the same 1.5 s ownership hold, which every move restarts). Nearest moves retain a contact-driver owner within 30 m. OP77_AI_NEAREST_OWNER=0 restores health-first, least-loaded-then-nearest election without extra slots or proximity/contact reassignments; eligible owners keep their cars. Each simulated car costs its client about 2.3 KB/s of motion upload. The server has no total driver-job limit." },
+        "maximumNpcs": { "type": "integer", "minimum": 1, "maximum": 131072, "default": 32768, "description": "Server-owned NPCs the server holds in all, corpses and persistent bodies included. Open77.npcs.create fails with npc_limit beyond it; Open77.npcs.capacity() reports it as globalLimit." },
+        "maximumNpcsPerResource": { "type": "integer", "minimum": 1, "maximum": 131072, "default": 32768, "description": "NPCs one resource may own, corpses and persistent bodies included. Open77.npcs.create fails with npc_resource_limit beyond it; Open77.npcs.capacity() reports it as resourceLimit." },
         "expectedGameBuild": { "type": "integer", "minimum": 1 },
         "helloTimeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
-        "playerInterestRadius": { "type": "number", "minimum": 0, "maximum": 100000 },
-        "playerInterestHysteresis": { "type": "number", "minimum": 0, "maximum": 10000 },
-        "playerInterestDeferredBootstrap": { "type": "boolean", "default": false, "description": "With a positive player interest radius, wait for placement before announcing nearby peers instead of seeding the full bucket on admission." }
+        "playerInterestRadius": { "type": ["number", "null"], "minimum": 0, "maximum": 100000, "description": "Legacy player interest radius. Unset: replication.playerScope* decides (on, 424 m). Set, it wins, 0 included (no culling)." },
+        "playerInterestHysteresis": { "type": ["number", "null"], "minimum": 0, "maximum": 10000, "description": "Legacy; unset: replication.playerScopeHysteresis." },
+        "playerInterestDeferredBootstrap": { "type": ["boolean", "null"], "description": "With a positive player interest radius, wait for placement before announcing nearby peers instead of seeding the full bucket on admission." }
       }
     },
     "combat": {
@@ -115,7 +127,18 @@
         "hitRewindStrict": { "type": ["boolean", "null"], "default": false, "description": "Strict hit rewind: a player hit must match the victim's rewound path; the newest pose is no longer an alternative. False keeps the rewind never stricter than the check it replaced." },
         "timedMotionWindowMs": { "type": ["integer", "null"], "minimum": 5, "maximum": 100, "default": 20, "description": "Native send-queue allowance of a timed motion batch, in milliseconds. 15 is the rollback of the near-lane phase. Above the 40 ms reliable window, motion can delay reliable traffic by the difference." },
         "timedVehicleValidationTicks": { "type": ["integer", "null"], "minimum": 1, "maximum": 30, "default": 6, "description": "Vehicle scopes are revalidated every this many server ticks, viewers sliced (5 Hz at the default 30 Hz tick). 1 restores per-tick validation." },
-        "timedStarvationShareMs": { "type": ["integer", "null"], "anyOf": [{ "const": 0 }, { "minimum": 10, "maximum": 1000 }], "default": 50, "description": "After this many milliseconds without a timed motion admission while reliable traffic holds the link, one timed batch may pass. 0 restores the strict reliable-always-first rule; otherwise 10 to 1000." }
+        "timedStarvationShareMs": { "type": ["integer", "null"], "anyOf": [{ "const": 0 }, { "minimum": 10, "maximum": 1000 }], "default": 50, "description": "After this many milliseconds without a timed motion admission while reliable traffic holds the link, one timed batch may pass. 0 restores the strict reliable-always-first rule; otherwise 10 to 1000." },
+        "npcMotionBatching": { "type": ["boolean", "null"], "default": true, "description": "NPC motion relayed as one quantized NpcMotionBatch per viewer per tick to clients advertising it. false: one NpcMotion per sample to every viewer, as before." },
+        "npcMotionNearMeters": { "type": ["number", "null"], "minimum": 0, "default": 30, "description": "Replayed walkers within this distance of a batching viewer get every host sample (about 10 Hz)." },
+        "npcMotionMidMeters": { "type": ["number", "null"], "minimum": 0, "default": 80, "description": "Up to this distance one sample every npcMotionMidIntervalMs; further, one every npcMotionFarIntervalMs. Not below npcMotionNearMeters." },
+        "npcMotionMidIntervalMs": { "type": ["integer", "null"], "minimum": 0, "maximum": 1000, "default": 200, "description": "Mid-band NPC motion interval in milliseconds." },
+        "npcMotionFarIntervalMs": { "type": ["integer", "null"], "minimum": 0, "maximum": 1000, "default": 500, "description": "Far-band NPC motion interval in milliseconds, not below the mid interval." },
+        "npcMotionFullRateBeyondMeters": { "type": ["number", "null"], "minimum": 0, "default": 200, "description": "Past this distance the viewer sees the NPC through forced or remote-camera interest: full rate again. Not below npcMotionMidMeters." },
+        "npcMotionUpload": { "type": ["boolean", "null"], "default": true, "description": "Grant clients advertising it the batched NpcMotionUpload: a host sends all its NPC samples of a network tick in one frame. false: every host sends one NpcMotion per sample, as before." },
+        "playerScope": { "type": ["boolean", "null"], "default": true, "description": "OneSync-style player scoping: a client holds another player of its bucket only within playerScopeRadius (leaving at radius + playerScopeHysteresis); out of scope he is not relayed and the client gets PlayerLeft, on re-entry the full PlayerJoined bundle. Occupants of a vehicle the client streams are always in scope. Server-side Lua still sees everyone. false: every player is relayed to every player of the bucket, the former behaviour. An explicit simulation.playerInterestRadius wins." },
+        "playerScopeRadius": { "type": ["number", "null"], "minimum": 1, "maximum": 100000, "default": 424, "description": "Player scope enter radius in metres (OneSync's culling radius)." },
+        "playerScopeHysteresis": { "type": ["number", "null"], "minimum": 0, "maximum": 10000, "default": 76, "description": "Extra metres before a player leaves scope; the default leaves at 500 m, the longest ranged damage the server honours." },
+        "playerScopeDeferredBootstrap": { "type": ["boolean", "null"], "default": true, "description": "A joining or bucket-changing player is announced only near its first known position instead of to the whole bucket followed by PlayerLeft a tick later." }
       }
     },
     "voice": {
@@ -218,28 +241,26 @@
           "type": "string",
           "description": "MySQL connection string used by resources with the database.access permission."
         },
-        "connectionStringEnvironmentVariable": {
-          "type": "string",
-          "minLength": 1,
-          "default": "OP77_DATABASE_CONNECTION",
-          "description": "Environment variable holding the MySqlConnector connection string. A nonblank explicit connectionString takes precedence. Read once at server startup."
-        },
         "maxRows": { "type": "integer", "minimum": 1, "maximum": 1000000 }
       }
     },
     "http": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Outbound HTTP for resources holding the http.request permission (PerformHttpRequest). Off by default; nothing is reachable until allowedHosts names a destination. Redirects are never followed.",
+      "description": "Outbound HTTP for resources holding the http.request permission (Open77.http.*, PerformHttpRequest). Off by default; nothing is reachable until allowedHosts names a destination. Redirects are followed only when a request asks, and each hop is re-checked against allowedHosts.",
       "properties": {
         "enabled": { "type": "boolean" },
         "allowedHosts": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "Exact hosts (discord.com) or one level of subdomain (*.example.com). No scheme, path or port."
+          "description": "Exact hosts (discord.com), one level of subdomain (*.example.com), or * for any host on the public internet (loopback, private and link-local addresses are then refused unless the host is listed explicitly). No scheme, path or port."
         },
-        "timeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
-        "maxResponseBytes": { "type": "integer", "minimum": 1024, "maximum": 16777216 }
+        "timeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 60, "description": "Default timeout of a request." },
+        "maxTimeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 3600, "description": "Ceiling on the timeout option of one request (default 120)." },
+        "maxResponseBytes": { "type": "integer", "minimum": 1024, "maximum": 16777216, "description": "Response body kept in memory and returned to Lua (default 1 MiB)." },
+        "maxRequestBytes": { "type": "integer", "minimum": 1024, "maximum": 268435456, "description": "Request body, uploads included (default 8 MiB)." },
+        "maxDownloadBytes": { "type": "integer", "minimum": 1024, "maximum": 4294967296, "description": "Response body written to a file by Open77.http.download (default 64 MiB)." },
+        "maxConcurrentRequests": { "type": "integer", "minimum": 1, "maximum": 256, "description": "Requests one resource may have in flight (default 16)." }
       }
     },
     "httpHandlers": {

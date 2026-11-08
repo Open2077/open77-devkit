@@ -87,6 +87,14 @@ web_files { "web/**" }
 
 `open77_manifest_schema` has every directive. Scripts are `.lua` only; globs are allowed.
 
+`open77_version ">=x"` and a dependency's version constraint (`dependency "name >=1.2.0"`) are
+**advisory** on the client from 2.50.0-unstable+op77.207: a mismatch is logged as
+`ignored (advisory)` and the resource loads. Unstable op77.206 enforced them and refused such a
+resource with `resource_activation_failed`. A missing dependency still blocks, and Warden's
+Workshop planner still refuses an install whose `open77_version` the server does not meet
+(`manifest_build_requirement`). Write the constraint you need, but do not count on it to stop a
+resource from loading.
+
 ## Runtime shape (same as FiveM)
 
 `CreateThread`, `Wait`, `SetTimeout`, `AddEventHandler`, `TriggerEvent`, `RegisterNetEvent`,
@@ -100,16 +108,18 @@ lists the three places Open77 deliberately answers differently.
 ## Vehicle customization
 
 Liveries, neon and its animation, lamp colours, rims and body parts, plate, window tint, stickers,
-performance stages and engine sounds are **server** natives on `Open77.vehicles`, **coming in the
-next release**: their cards carry `release: "next"` and open with a Next release sentence, and
-`open77_api` reports them NOT AVAILABLE on a published build. (A card with `since: null` and no
-marker is a shipped native whose first build the index does not record; it is available.) Paint,
-the lights hue, factory trims and the property table (`setPaint`, `setLightsHue`,
-`setHeadlightColor`, `setAppearance`, `getProperties`, `setProperties`) are already published, but
-on the published build the lights hue is stored without colouring the headlights, which stay white
-until the next client release, and the property table has no `visual` field. Read
+performance stages and engine sounds are **server** natives on `Open77.vehicles`, published from
+**2.50.0-unstable+op77.205** (their cards say `since: 2.50.0-unstable+op77.205`); on the Stable
+channel they arrive with the first Stable after 2.50.0+op77.204. On an older build `open77_api`
+reports them NOT AVAILABLE. (A card with `since: null` and no `release: "next"` marker is a shipped
+native whose first build the index does not record; it is available.) Paint, the lights hue,
+factory trims and the property table (`setPaint`, `setLightsHue`, `setHeadlightColor`,
+`setAppearance`, `getProperties`, `setProperties`) are older; from op77.205 the headlights take the
+lights hue and the property table carries `visual`, while before it the hue is stored without
+colouring the headlights and the table has no `visual` field. Read
 `open77_guide vehicle-customization` first, then the topic pages it lists:
 `vehicle-customization-natives`, `-packs`, `-models`, `-persistence`, `-fivem` and `-examples`.
+Where those pages still say "coming in the next Open77 release", that release is op77.205.
 
 - **Permissions.** A call that changes the look (trim, livery, neon, lamp colours, parts, rims,
   plate, tint, stickers) needs `world.vehicles` **and** `world.vehicles.appearance`; the same
@@ -126,8 +136,8 @@ until the next client release, and the property table has no `visual` field. Rea
   `list*` functions answer for that car, never an id or record name a client sent.
 - **Stages and engine sounds rebuild the car** (`respawnAs`, `setEngineSound`): it must be empty
   (`vehicle_occupied`). The server cannot see which records a pack generated.
-- **Feature-detect** every coming native (`if type(Open77.vehicles.setWheels) == "function" then`)
-  so a resource still loads on an older server, and read client `customizationAvailable(id).skipped`
+- **Feature-detect** these natives (`if type(Open77.vehicles.setWheels) == "function" then`)
+  so a resource still loads on a server older than op77.205, and read client `customizationAvailable(id).skipped`
   (permission `vehicles.read`) to tell a player what their game cannot draw. The list only grows
   while the car exists on that client: check what the car wears now before warning.
 - **Persist** with `getProperties(id)` stored by the resource and `setProperties(id, stored)` on
@@ -159,7 +169,11 @@ before relying on native animation-owned items; first-person support remains exp
 When the local MCP is attached to a server (`open77_workspace` says so), validate, reload and read
 the log yourself. When it is not, give the owner the exact commands: `reload <resource>` at the
 server console, then what to look for in the log, and which in-game action proves the feature.
-Never claim a resource works because it parses.
+Never claim a resource works because it parses. From 2.50.0-unstable+op77.206 a reload is
+targeted: only that resource and the running resources that depend on it are republished, a
+manifest or syntax error is refused before anything stops, and a failed start is restored to the
+previous scripts where possible and still reported as a failure, so read the log for the refusal
+rather than assuming the new code runs.
 
 ## Reporting
 
