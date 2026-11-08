@@ -11080,7 +11080,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_nameplates/client/policy.lua",
-     "line": 603
+     "line": 617
     },
     {
      "side": "resource-server",
@@ -11104,7 +11104,7 @@
     {
      "side": "resource-client",
      "file": "resources/system/open77_nameplates/client/policy.lua",
-     "line": 600
+     "line": 614
     },
     {
      "side": "resource-server",
