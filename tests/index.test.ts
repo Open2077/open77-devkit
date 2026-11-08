@@ -5,10 +5,11 @@ import path from "node:path";
 import { test } from "node:test";
 import { buildIndex, chunkGuide, opNumber, parseFivemGuide } from "../src/index/builder.js";
 import { loadIndex } from "../src/index/loader.js";
-import { IndexSearch } from "../src/index/search.js";
+import { fivemStatus, IndexSearch } from "../src/index/search.js";
 import type { ApiCard } from "../src/index/types.js";
 import type { ServerContext } from "../src/server.js";
-import { availabilityNote } from "../src/server.js";
+import { availabilityNote, isNextRelease, renderCard, SINCE_UNRECORDED } from "../src/server.js";
+import { generateStubs } from "../src/index/stubs.js";
 import { detectWorkspace } from "../src/workspace/detect.js";
 import { scaffold } from "../src/workspace/scaffold.js";
 import { parseManifest, validateResource } from "../src/workspace/validate.js";
@@ -96,6 +97,60 @@ test("parseFivemGuide reads alias tables", () => {
   assert.equal(rows[0]!.status, "alias");
   assert.equal(rows[2]!.status, "missing");
   assert.equal(rows[2]!.guideAnchor, "availability");
+});
+
+test("a FiveM row with no alias names the native to use, not a gap", () => {
+  const [plate, mod] = parseFivemGuide([
+    "| Name | Client | Server | Open77 |",
+    "|---|---|---|---|",
+    "| `SetVehicleNumberPlateText` | no | no | server `Open77.vehicles.setPlate(id, text)` |",
+    "| `SetVehicleMod` / `GetVehicleMod` | no | yes | `setWheels`, `setParts` |",
+  ].join("\n"));
+  assert.equal(fivemStatus(plate!), "no alias under the FiveM name");
+  assert.match(fivemStatus(mod!), /^alias on one side only \(client no, server yes\)$/);
+});
+
+test("a card marked for the next release reads as unreleased, never as an error", async () => {
+  const ctx = await context();
+  const card: ApiCard = { ...ctx.index.cards[0]!, since: null, release: "next" };
+  assert.equal(isNextRelease(card), true);
+  assert.match(availabilityNote(card, ctx)!, /NOT AVAILABLE .*next release.*no published build/);
+  assert.match(renderCard(card, ctx, []), /- since: next release: in no published build yet/);
+});
+
+test("a shipped card with no since is not called unreleased", async () => {
+  // The wiki's release history stops before the build that shipped some cards
+  // (consumables, setEngineHold), so they carry since: null without being new.
+  // Only the release marker means unreleased.
+  const ctx = await context();
+  const card: ApiCard = { ...ctx.index.cards[0]!, since: null };
+  delete card.release;
+  assert.equal(isNextRelease(card), false);
+  assert.equal(availabilityNote(card, ctx), null);
+  const rendered = renderCard(card, ctx, []);
+  assert.ok(rendered.includes(`- since: ${SINCE_UNRECORDED}`));
+  assert.doesNotMatch(rendered, /NOT AVAILABLE|next release|unreleased/);
+  // a published build stamps since: the marker no longer counts
+  assert.equal(isNextRelease({ ...card, since: "2.50.0+op77.170", release: "next" }), false);
+});
+
+test("stubs say Since only for a known build or a next-release card", () => {
+  const base = { namespace: "Open77.demo", handler: "h", summary: "Demo.", description: "", params: [], returns: [],
+    api_set: "shared", runtime: "server" as const, source: "demo.cpp", inferred: false, permissions: [], reasons: [] };
+  const stubs = generateStubs([
+    { ...base, name: "shipped", qualified: "Open77.demo.shipped", route_id: "server:Open77.demo.shipped", since: null },
+    { ...base, name: "coming", qualified: "Open77.demo.coming", route_id: "server:Open77.demo.coming", since: null, release: "next" },
+  ]);
+  const text = stubs.server;
+  assert.match(text, /Since: next release/);
+  assert.doesNotMatch(text, /not in any published build/);
+  assert.equal(text.match(/Since:/g)?.length, 1);
+});
+
+test("the embedded index marks only next-release cards as unavailable", async () => {
+  const ctx = await context();
+  const flagged = ctx.index.cards.filter((c) => availabilityNote(c, { ...ctx, resolved: { ...ctx.resolved, build: "2.50.0+op77.999" } }));
+  assert.ok(flagged.every((c) => isNextRelease(c)), flagged.filter((c) => !isNextRelease(c)).map((c) => c.route_id).join(", "));
 });
 
 test("the embedded index loads, verifies and searches", async () => {

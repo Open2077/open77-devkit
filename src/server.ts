@@ -14,8 +14,8 @@ import { z } from "zod";
 import { opNumber } from "./index/builder.js";
 import { guideOnlyGlobals, type GuideOnlyGlobal } from "./index/conventions.js";
 import { loadCatalogue, readStub } from "./index/loader.js";
-import { IndexSearch, type SearchKind } from "./index/search.js";
-import type { ApiCard, DevIndex, Guide, GuideSection } from "./index/types.js";
+import { fivemStatus, IndexSearch, type SearchKind } from "./index/search.js";
+import type { ApiCard, DevIndex, FivemMapping, Guide, GuideSection } from "./index/types.js";
 import type { ResolvedIndex } from "./index/refresh.js";
 
 export interface ServerContext {
@@ -39,6 +39,33 @@ function buildLine(context: ServerContext): string {
   return `answering for build ${resolved.build}${note}`;
 }
 
+/** What a card marked `release: "next"` is: merged, in no published build yet. */
+export const UNRELEASED = "next release: in no published build yet, it arrives with the next Open77 release";
+
+/**
+ * A shipped card with no `since`: the wiki's release history does not record its
+ * first build (it stops before the build that shipped it). Not a claim that the
+ * native is missing, so no NOT AVAILABLE note goes with it.
+ */
+export const SINCE_UNRECORDED = "first published build not recorded in this index";
+
+/** The wiki marks a card no published build carries yet with `release: "next"`. */
+export function isNextRelease(card: ApiCard): boolean {
+  return card.release === "next" && !card.since;
+}
+
+/** The `since` of a card as a reader should take it. */
+export function sinceText(card: ApiCard): string {
+  if (card.since) return card.since;
+  return isNextRelease(card) ? UNRELEASED : SINCE_UNRECORDED;
+}
+
+/** A short `since` tag for one-line listings: ` · since X`, ` · next release`, or nothing. */
+function sinceTag(card: ApiCard, separator: string): string {
+  if (card.since) return `${separator}since ${card.since}`;
+  return isNextRelease(card) ? `${separator}next release` : "";
+}
+
 export function cardHeader(card: ApiCard): string {
   const side = card.runtime === "server" ? "server" : "client";
   // A constant table (Open77.vehicles.seats) is read, not called.
@@ -58,8 +85,8 @@ export function renderCard(card: ApiCard, context: ServerContext, guides: Guide[
   lines.push("");
   lines.push(`- runtime: ${card.runtime} (${card.api_set})`);
   lines.push(`- permissions: ${card.permissions.length ? card.permissions.join(", ") : "none checked in the handler"}`);
-  lines.push(`- since: ${card.since ?? "not in any published build (main only)"}`);
-  lines.push(`- reasons it can return: ${card.reasons.length ? card.reasons.join(", ") : card.constant ? "none (a table, not a call)" : "none found in the handler; a refusal it forwards from a callee may still reach you as a second return value"}`);
+  lines.push(`- since: ${sinceText(card)}`);
+  lines.push(`- reasons it can return: ${card.reasons.length ? card.reasons.join(", ") : card.constant ? "none (a table, not a call)" : card.returns.some((r) => /reason/i.test(r)) ? "none found in the handler; the documented ones are listed under returns" : "none found in the handler; a refusal it forwards from a callee may still reach you as a second return value"}`);
   if (card.returns.length) lines.push(`- returns: ${card.returns.join("; ")}`);
   if (card.inferred) lines.push("- signature: inferred from the handler, not reviewed");
   const available = availabilityNote(card, context);
@@ -71,10 +98,14 @@ export function renderCard(card: ApiCard, context: ServerContext, guides: Guide[
   return lines.join("\n");
 }
 
-/** "not available on op77.54 (since op77.57)" when the served build predates the card. */
+/**
+ * "NOT AVAILABLE on op77.54: needs op77.57 or newer" when the served build predates
+ * the card, or when the card is marked for the next release. A card with no `since`
+ * and no marker is a shipped card whose first build is unrecorded: no note.
+ */
 export function availabilityNote(card: ApiCard, context: ServerContext): string | null {
   const served = opNumber(context.resolved.build);
-  if (!card.since) return `NOT AVAILABLE on ${context.resolved.build}: this native is not in any published build`;
+  if (!card.since) return isNextRelease(card) ? `NOT AVAILABLE on ${context.resolved.build}: ${UNRELEASED}` : null;
   if (opNumber(card.since) > served) return `NOT AVAILABLE on ${context.resolved.build}: needs ${card.since} or newer`;
   return null;
 }
@@ -142,7 +173,7 @@ export function createMcpServer(context: ServerContext): McpServer {
       const lines = hits.map((h) => {
         const card = h.kind === "card" ? byRoute.get(h.ref) : undefined;
         const avail = card ? availabilityNote(card, context) : null;
-        const tag = card ? ` [${card.runtime}${card.permissions.length ? ` · ${card.permissions.join(",")}` : ""}${card.since ? ` · since ${card.since}` : " · unreleased"}]` : "";
+        const tag = card ? ` [${card.runtime}${card.permissions.length ? ` · ${card.permissions.join(",")}` : ""}${sinceTag(card, " · ")}]` : "";
         return `- (${h.kind}) **${h.title}**${tag} — ${h.snippet}${avail ? ` — ${avail}` : ""}\n  ref: ${h.ref}`;
       });
       return text([`${hits.length} results for "${query}" — ${buildLine(context)}`, "", ...lines].join("\n"));
@@ -207,7 +238,8 @@ export function createMcpServer(context: ServerContext): McpServer {
         .sort((a, b) => a.runtime.localeCompare(b.runtime) || a.name.localeCompare(b.name))
         .map((c) => {
           const avail = availabilityNote(c, context);
-          return `- ${cardHeader(c)} — ${c.summary}${c.permissions.length ? ` [${c.permissions.join(", ")}]` : ""}${c.since ? ` (since ${c.since})` : " (unreleased)"}${avail ? ` — ${avail}` : ""}`;
+          const since = sinceTag(c, "");
+          return `- ${cardHeader(c)} — ${c.summary}${c.permissions.length ? ` [${c.permissions.join(", ")}]` : ""}${since ? ` (${since})` : ""}${avail ? ` — ${avail}` : ""}`;
         });
       const extra = wanted === "_g" ? guideOnlyGlobals(index, runtime) : [];
       const footnote = extra.length ? ["", `Also present, documented in the guides only (no card yet): ${extra.map((g) => `${g.runtime} ${g.signature} — ${g.guides[0]}`).join("; ")}. open77_api ${extra[0]!.runtime}:${extra[0]!.name} renders it.`] : [];
@@ -379,7 +411,13 @@ export function createMcpServer(context: ServerContext): McpServer {
       const key = name.replace(/\(\)$/, "").toLowerCase();
       const exact = index.fivem.filter((m) => m.fivem.replace(/\(\)$/, "").toLowerCase() === key);
       if (exact.length) {
-        return text(exact.map((m) => `**${m.fivem}** — ${m.status}${m.status !== "missing" ? ` (client ${m.client ? "yes" : "no"}, server ${m.server ? "yes" : "no"})` : ""}\n${m.open77}\n_guide: fivem-compatibility#${m.guideAnchor}_`).join("\n\n") + `\n\n_${buildLine(context)}_`);
+        // An alias with its own card (a server global) carries its permissions
+        // and since there; print them so the port declares the right manifest.
+        const aliasCard = (m: FivemMapping) => {
+          const cards = (byQualified.get(m.fivem.replace(/\(.*$/, "").toLowerCase()) ?? []).filter((c) => c.namespace === "_G");
+          return cards.map((c) => `\ncard: ${cardHeader(c)} [${c.permissions.length ? c.permissions.join(", ") : "no permission"}] · ${c.since ? `since ${c.since}` : sinceText(c)}`).join("");
+        };
+        return text(exact.map((m) => `**${m.fivem}** — ${fivemStatus(m)}\n${m.open77}${aliasCard(m)}\n_guide: fivem-compatibility#${m.guideAnchor}_`).join("\n\n") + `\n\n_${buildLine(context)}_`);
       }
       // A FiveM native is words in camelCase: `GetVehiclePedIsIn` asks about a
       // vehicle and a seat, `SetEntityHealth` about health. Search the words, not
@@ -397,7 +435,7 @@ export function createMcpServer(context: ServerContext): McpServer {
       const guideHits = hits.filter((h) => h.kind === "guide").slice(0, 3);
       return text([
         `${name} is not in the FiveM alias table (no row named exactly that).`,
-        ...(aliasRows.length ? ["Alias rows that contain it:", ...aliasRows.slice(0, 5).map((m) => `- ${m.fivem}: ${m.status} — ${m.open77}`)] : []),
+        ...(aliasRows.length ? ["Alias rows that contain it:", ...aliasRows.slice(0, 5).map((m) => `- ${m.fivem}: ${fivemStatus(m)} — ${m.open77}`)] : []),
         `Open77 natives that answer the words in the name (${words.join(", ") || name}):`,
         ...(cardHits.length ? cardHits.map((h) => `- ${h.title}${h.runtime ? ` [${h.runtime}]` : ""} — ${h.snippet}`) : ["- none; try open77_namespace on the subject (Open77.vehicles, Open77.players, Open77.character)"]),
         ...(guideHits.length ? ["Guides:", ...guideHits.map((h) => `- ${h.ref} — ${h.snippet.slice(0, 120)}`)] : []),
@@ -447,18 +485,20 @@ export function createMcpServer(context: ServerContext): McpServer {
       description: "Which natives a newer server build adds compared to an older one, from the since field. Useful to answer 'what do I gain by updating' or 'why does this work on my dev box and not on the owner's server'.",
       inputSchema: {
         from: z.string().describe("Older build, e.g. 2.31.13+op77.54 or just 54"),
-        to: z.string().optional().describe("Newer build; default the served build. `main` lists what exists on main and in no published build yet (since null)"),
+        to: z.string().optional().describe("Newer build; default the served build. `main` (or `next`) lists the natives marked for the next release: merged, in no published build yet"),
       },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async ({ from, to }) => {
       const fromN = /^\d+$/.test(from) ? Number(from) : opNumber(from);
       if (to && /^(main|unreleased|next)$/i.test(to)) {
-        // What a server owner cannot run yet: cards no snapshot registers.
-        const pending = index.cards.filter((c) => !c.since);
+        // What a server owner cannot run yet: the cards the wiki marks for the next
+        // release. A card with no `since` and no marker is shipped (its first build is
+        // just unrecorded), so it is not listed here.
+        const pending = index.cards.filter(isNextRelease);
         const later = index.cards.filter((c) => c.since && opNumber(c.since) > fromN);
         const lines = [
-          `${pending.length} natives on main and in no published build (unusable on any server today), ${later.length} released after op77.${fromN}`,
+          `${pending.length} natives marked for the next release, in no published build (unusable on any server today), ${later.length} released after op77.${fromN}`,
           ...pending.map((c) => `- ${cardHeader(c)} — ${c.summary}`),
         ];
         if (later.length) lines.push("", `Released after op77.${fromN}: open77_changes from=${fromN} lists them by build.`);
