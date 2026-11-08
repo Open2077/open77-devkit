@@ -52,8 +52,18 @@ export interface ApiCard {
   permissions: string[];
   /** Reason strings the call can hand back (`nil, reason` / `false, reason`). */
   reasons: string[];
-  /** First published server build registering the call; null when no release has it. */
+  /**
+   * First published server build registering the call. Null either for a card no
+   * release has yet (then `release` says so) or for a shipped card whose first build
+   * the wiki's release history does not record: null alone does not mean unreleased.
+   */
   since: string | null;
+  /**
+   * Release status of a card no published build carries yet: `"next"` means it is
+   * merged for the next release. Set by the wiki overlays and dropped once a published
+   * build registers the card. Absent on every other card and on older indexes.
+   */
+  release?: string;
   /** A public constant table (`Open77.vehicles.seats`): read, never called. Absent on older indexes. */
   constant?: boolean;
 }

@@ -54,7 +54,7 @@ function emitCard(card: ApiCard): string {
   const notes: string[] = [];
   if (card.permissions.length) notes.push(`Permissions: ${card.permissions.join(", ")}`);
   if (card.since) notes.push(`Since: ${card.since}`);
-  else notes.push("Since: not in any published build");
+  else if (card.release === "next") notes.push("Since: next release (in no published build yet; test that it exists before calling it)");
   if (card.reasons.length) notes.push(`Reasons: ${card.reasons.join(", ")}`);
   if (notes.length) {
     out.push("---");
