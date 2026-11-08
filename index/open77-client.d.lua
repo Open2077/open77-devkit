@@ -434,7 +434,7 @@ function GetInvokingResourceGeneration() end
 --- Requires players.model.read. Omit playerId or pass nil for the local player; an explicit ID must be a positive integer. Returns nil without an error for the original character, or a table with player, record, appearance, revision, entity, ready, status and optional failure. The entity handle is local and disposable, never a network player ID. Status is preparing, active, parked, not_streamed or failed. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@param playerId? integer
 ---@return any table table? state
 ---@return any string string? reason
@@ -589,7 +589,7 @@ function IsPlayerJumping(playerId) end
 --- Requires players.model.read. Omitted/nil playerId selects the local player; explicit IDs must be positive integers. False means no active ready model, including the original character; nil, reason indicates failure. This is local projection readiness, not an acknowledgement from every observer. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@param playerId? integer
 ---@return any boolean boolean? ready
 ---@return any string string? reason
@@ -600,7 +600,7 @@ function IsPlayerModelReady(playerId) end
 --- Requires players.model.read. Does not spawn or animate the model. True confirms an existing Character record, not compatibility of its rig, locomotion, seats or authored appearances. Invalid inputs and absent records return false, reason; permission failures return nil, reason. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@param record string
 ---@return any boolean boolean? valid
 ---@return any string string? reason
@@ -1224,7 +1224,7 @@ function Open77.anchors.create(options) end
 --- frame read that costs a cycle a few dozen microseconds and one that
 --- costs it a hundred.
 ---
---- Since: not in any published build
+--- Since: 2.31.13+op77.83
 --- Reasons: anchors_backend_unavailable
 ---@return any value value
 function Open77.anchors.frame() end
@@ -1320,7 +1320,7 @@ function Open77.animations.get(profileId) end
 ---
 --- Defaults to the local player, or accepts a visible player's network ID. Resolves to true while that player's active synchronized action is the looping camera_point profile and this client has not failed to present it, and to false otherwise, including when the player has no active action. It reads the state this client last received and does not ask the server. Do not use a client observation to grant authoritative rewards. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
 ---
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 --- Reasons: open77_animations
 ---@param playerId? integer
 ---@return any Open77 Open77.Promise resolving to true while the player is pointing, otherwise false
@@ -1401,7 +1401,7 @@ function Open77.animations.sequence(steps, options) end
 ---
 --- true requests the looping camera_point profile for the local player on behalf of the calling resource. It is an upper-body layer on the right arm, so walking continues, and every client aims that arm along the player's replicated camera direction. It resolves to the server-accepted playback state. Repeating true while this resource's pointing action is active resolves to that state without restarting it. Any other active animation, including a pointing action another resource started, rejects with animation_busy; a pending animation request rejects with request_pending; a call before the local player is ready rejects with player_not_ready; and a request the server has not answered within 10 seconds rejects with request_timeout. false stops pointing: it abandons this resource's pending pointing request, whose await then returns nil, cancelled, and cancels the active pointing action this resource started. It resolves to true when cancellation is queued or nothing is pointing, and never stops a different animation; a pointing action owned by another resource, or by an earlier generation of this one, rejects with not_owner. A non-boolean argument rejects with invalid_enabled. The local player's pointing stops when they sprint, slide, vault, swim, leave the ground, are knocked down, draw a weapon, attack or block in melee, or mount a vehicle; that failure reaches onAnimationPlaybackFailed with the reason interrupted. When the owning resource stops or restarts, the service cancels its pointing action. Call true and false from the press and release handlers of an input rather than back to back. Requires matching client, server and animation archives that include the camera_point layer. Declare dependency 'open77_animations' in your resource manifest. This asynchronous facade requires the service in the same downloaded resource host, not a separate bootstrap host. Await from a managed coroutine/event handler. No animations.presentation capability is required by the caller; underscore hooks are internal.
 ---
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 --- Reasons: open77_animations
 ---@param enabled boolean
 ---@return any Open77 Open77.Promise resolving to the server-accepted playback state when starting, or true when stopping
@@ -1745,7 +1745,7 @@ function Open77.blips.setActive(id, active) end
 --- Experimental per-blip styling; requires the matching native client adapter. Accepts exactly #RRGGBB, #RRGGBBAA or false to clear the override. Works with native sprites and custom SVGs without changing other blips sharing the sprite. For SVGs it replaces RGB and multiplies each painted shape's source alpha. Clearing the icon does not clear this override; visual-only updates preserve native tracking. On Cyberpunk 2077 2.5, use Stable 156 or later for corrected map, minimap, legend and world presentation. Existing options remain compatible.
 ---
 --- Permissions: ui.vanilla.map
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 --- Reasons: permission_denied:ui.vanilla.map, invalid_color:expected_#RRGGBB_or_#RRGGBBAA, native_unavailable
 ---@param id any
 ---@param color any
@@ -2660,7 +2660,7 @@ function Open77.clipboard.setText(text) end
 --- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Set record, count (0..999), capacity (1..999), equipped and recharge. Unknown options or count above an explicit capacity are rejected. Omitted fields preserve state; capacity grows to fit count if omitted. The first managed write defaults to recharge=false. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: player.weapons.edit
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 --- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
 ---@param kind any
 ---@param options table
@@ -2673,7 +2673,7 @@ function Open77.consumables.configure(kind, options) end
 --- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Optionally selects a new record. Omitting record uses the retained type and preserves its charges. Fails with no_consumable_type if none is available. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: player.weapons.edit
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 --- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
 ---@param kind any
 ---@param record? string
@@ -2686,7 +2686,7 @@ function Open77.consumables.equip(kind, record) end
 --- Client-only; requires `player.weapons.read`. Source is native_readback. Returns kind, record, tweakDbId, count, capacity, equipped, recharge, managed, sequence, reportedAgeMs and source. An unresolved native record name can be empty; use tweakDbId to identify it. Age measures time since observation, not a heartbeat. Use snapshot when fresh state is required. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: player.weapons.read
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 --- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
 ---@param kind any
 ---@return any state state table or nil
@@ -2698,7 +2698,7 @@ function Open77.consumables.get(kind) end
 --- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Restores the captured native regeneration policy and removes this API's capacity modifiers. Preserves the selected item, clamps excess charges to restored capacity, and leaves unrelated inventory and modifiers intact. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: player.weapons.edit
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 --- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
 ---@param kind any
 ---@return any requestId requestId or nil
@@ -2710,7 +2710,7 @@ function Open77.consumables.reset(kind) end
 --- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Count is 0..999, not an inventory stack size. Zero retains the selected type without allowing a use. Capacity grows when needed. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: player.weapons.edit
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 --- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
 ---@param kind any
 ---@param count integer
@@ -2723,7 +2723,7 @@ function Open77.consumables.setCount(kind, count) end
 --- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Accepts a strict boolean. False gives a finite charge supply; true enables native regeneration. Native capacity and regeneration modifiers are released on reset or player/session replacement. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: player.weapons.edit
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 --- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
 ---@param kind any
 ---@param enabled boolean
@@ -2736,7 +2736,7 @@ function Open77.consumables.setRecharge(kind, enabled) end
 --- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Preserves charges and equipped state. The record must resolve to the matching grenade, inhaler or injector type; an Items.* name alone is insufficient. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: player.weapons.edit
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 --- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
 ---@param kind any
 ---@param record string
@@ -2749,7 +2749,7 @@ function Open77.consumables.setType(kind, record) end
 --- Client-only; requires `player.weapons.read`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Asynchronous readback of the actual selected type, charges, capacity, equipment and regeneration. Use get for a synchronous cached observation. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: player.weapons.read
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 --- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
 ---@param kind any
 ---@return any requestId requestId or nil
@@ -2761,7 +2761,7 @@ function Open77.consumables.snapshot(kind) end
 --- Client-only; requires `player.weapons.edit`. Returns a request ID when queued, not when applied. Wait for open77:weapons:completed with operation consumable before another write to the same kit. Client completion accepted is a string; open77:consumables:state precedes completion. Native refusal includes consumable_busy, invalid_consumable_type and readback mismatches. Failed writes report observed partial state without atomic rollback. Preserves selected type and charges so equip can restore the kit. See [Grenades and healing items](/docs/consumables-api).
 ---
 --- Permissions: player.weapons.edit
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 --- Reasons: consumables_unavailable, invalid_consumable_count, invalid_consumable_kind, invalid_consumable_options, invalid_consumable_recharge, invalid_consumable_record, invalid_consumable_request, invalid_consumable_state
 ---@param kind any
 ---@return any requestId requestId or nil
@@ -3722,7 +3722,7 @@ function Open77.exports.callSync(resource, export, _) end
 --- Client-only; requires gizmos.edit. Rechecks the streamed target and incarnation, captures its current transform as the cancellation baseline and resets history. Refuses another input owner, a background game, dead player, vehicle/workspot or unsupported target. The tool must be visible. Re-activating an already active handle is idempotent. Emits activated; focus loss, target loss, timeout and owner stop cancel it.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param handle string
 ---@return any boolean boolean success
 ---@return any string string reason on failure
@@ -3733,7 +3733,7 @@ function Open77.gizmos.activate(handle) end
 --- Client-only; requires gizmos.edit. Returns the active snapshot only when the calling resource generation owns it. Returns nil without an error when no tool is active or another resource owns the input lease. Only one gizmo can capture native cursor/keyboard input across all resources.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@return any table table active snapshot or nil
 ---@return any string string reason on failure
 function Open77.gizmos.active() end
@@ -3743,7 +3743,7 @@ function Open77.gizmos.active() end
 --- Client-only; requires gizmos.edit. Attempts to restore the original native transform, ends an active drag, releases only the editor's own holds and emits cancel/deactivated. Own-player/vehicle cursor input returns immediately but movement remains briefly fenced while restoration is observed; a newer normal travel/server placement wins. Those asynchronous adapters later emit settled with nativeTransform or error. A missing or replaced target cannot be recreated; cleanup still runs. The owned handle remains until destroy or resource teardown. Escape during a drag cancels that drag first; a second Escape cancels the session. See gizmos.md for asynchronous restoration failures.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param handle string
 ---@return any boolean boolean success
 ---@return any string string reason on failure
@@ -3754,7 +3754,7 @@ function Open77.gizmos.cancel(handle) end
 --- Client-only; requires gizmos.edit. Omit target for the virtual transform capabilities, or supply a typed target table with kind and id. Returns per-axis translate, rotate and scale booleans plus preview, commit and networked. The target must be attached. Native characters and props are yaw-only and native scaling is currently unsupported; virtual transforms support all axes. Never infer server authority from this query: commit=false on a network target means acceptance is a proposal, not a canonical mutation.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param target? table
 ---@return any table table capabilities or nil
 ---@return any string string reason on failure
@@ -3765,7 +3765,7 @@ function Open77.gizmos.capabilities(target) end
 --- Client-only; requires gizmos.edit. Emits commit with the accepted transform and returns cursor input. Virtual targets retain data; supported local entities retain their pose. A network target requests restoration and emits a proposal only: the server must validate an edit ticket, ACL, identity, bucket, revision and bounds before applying its own authoritative mutation API. Local puppet placement and own-player/vehicle restoration report their asynchronous result through settled (with nativeTransform) or error. commit is not that completion acknowledgement, and settled never acknowledges server acceptance. This call neither sends a commit to the server nor grants authority. See gizmos.md.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param handle string
 ---@return any boolean boolean success
 ---@return any string string reason on failure
@@ -3776,7 +3776,7 @@ function Open77.gizmos.commit(handle) end
 --- Client-only; requires gizmos.edit. Creates an inactive handle for a typed entity target or a virtual transform. It does not capture input until activate succeeds. Options include mode, space, axes, pivotOffset, snapping, bounds, size, timeoutMs and local preview. IDs and events are scoped to the exact resource VM and generation. Quotas are eight handles per owner and 64 globally. See gizmos.md for the full option schema, native capabilities, validation status and server-authority contract.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param options table
 ---@return any string string handle or nil
 ---@return any string string reason on failure
@@ -3787,7 +3787,7 @@ function Open77.gizmos.create(options) end
 --- Client-only; requires gizmos.edit. This is an alias of cancel, not a hidden acceptance operation. Restores the activation baseline when the target still exists, releases owned native input/physics holds and emits cancel/deactivated. The handle remains available for querying or reactivation. Use commit to accept a result or destroy to remove the handle.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param handle string
 ---@return any boolean boolean success
 ---@return any string string reason on failure
@@ -3798,7 +3798,7 @@ function Open77.gizmos.deactivate(handle) end
 --- Client-only; requires gizmos.edit. Cancels and releases an active tool before removing its handle and emitting destroyed. It never deletes the target entity. A previously committed local transform is not rolled back merely by destroying its inactive handle. Resource stop/reload performs equivalent owned-handle cleanup automatically.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param handle string
 ---@return any boolean boolean success
 ---@return any string string reason on failure
@@ -3809,7 +3809,7 @@ function Open77.gizmos.destroy(handle) end
 --- Client-only; requires gizmos.edit. Returns the same typed snapshot shape delivered to open77:gizmo events: current and initial transforms, target, capabilities, phase, active/dragging flags, handle, hover, options, revision and history counts. nativeTransform is false until asynchronous native completion, then contains the observed pose without overwriting the proposed transform. Target IDs are decimal strings. It refuses foreign or stale handles; no native pointer or VM identity is exposed. See gizmos.md.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param handle string
 ---@return any table table snapshot or nil
 ---@return any string string reason on failure
@@ -3820,7 +3820,7 @@ function Open77.gizmos.get(handle) end
 --- Client-only; requires gizmos.edit. Returns an array of owned snapshots, including idle and terminal handles until destroyed. It never lists another resource or VM's tools. Stop/reload destroys all owned handles and restores active previews. Use this query to reconcile state after coalesced events; do not assume an event for every rendered frame.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@return any table table snapshot array or nil
 ---@return any string string reason on failure
 function Open77.gizmos.list() end
@@ -3830,7 +3830,7 @@ function Open77.gizmos.list() end
 --- Client-only; requires gizmos.edit. Restores the next transform in the active tool's history and previews it through the target adapter. Refuses an active drag, inactive handle or empty redo history. Any new accepted edit truncates the redo branch. Emits redo and updates the snapshot's history counts.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param handle string
 ---@return any boolean boolean success
 ---@return any string string reason on failure
@@ -3841,7 +3841,7 @@ function Open77.gizmos.redo(handle) end
 --- Client-only; requires gizmos.edit. Applies a sparse transform table containing position, rotation and/or scale, retaining unspecified fields. Vectors require x/y/z; rotation requires normalized x/y/z/w. Rejects non-finite values, unsupported target axes, bounds violations, inactive handles and active drags. A changed value is previewed locally, added to history and emitted as change. It is not an authoritative server mutation.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param handle string
 ---@param transform table
 ---@return any boolean boolean success
@@ -3853,7 +3853,7 @@ function Open77.gizmos.setTransform(handle, transform) end
 --- Client-only; requires gizmos.edit. Restores the preceding transform in the active tool's bounded history and previews it through the target adapter. A completed drag is one history entry; numeric setTransform edits also create entries. Refuses an active drag, inactive handle or empty undo history. Emits undo. History stores at most 32 undo steps and resets on activation.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param handle string
 ---@return any boolean boolean success
 ---@return any string string reason on failure
@@ -3864,7 +3864,7 @@ function Open77.gizmos.undo(handle) end
 --- Client-only; requires gizmos.edit. Applies a validated sparse patch of mode, space, axes, pivotOffset, snap, position/scale bounds, visible and size. Target, transform, preview and timeout are creation-time settings and cannot be changed here. Refuses changes during a drag, unsupported modes and hiding the active gizmo. Emits configured. Axis restrictions control pointer handles; target capabilities and bounds also constrain numeric edits.
 ---
 --- Permissions: gizmos.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.93
 ---@param handle string
 ---@param patch table
 ---@return any boolean boolean success
@@ -4450,7 +4450,7 @@ function Open77.kvp.stats() end
 --- Requires locomotion.register. Reads a version 1 package metadata file relative to this resource. The shared registration script runs on both runtimes. The client validates the graph and mounted native assets; registration does not assign a style. Stable 147 supports 1,024 registered packages across resources/reload generations; existing standalone packages stay compatible. See [Custom locomotion](custom-locomotion.md#registration).
 ---
 --- Permissions: locomotion.register
---- Since: 2.31.21+op77.145
+--- Since: 2.31.21-unstable+op77.144
 ---@param path string
 ---@return any style style ID string, or nil
 ---@return any reason reason on failure
@@ -4558,7 +4558,7 @@ function Open77.loot.upsert(drop) end
 --- Client-only, map.control; after resource preparation. Options: id, label, exactly one of url (declared local web file) or page (owned, hidden WebUI), optional integer order. Returns qualified resource:id and the page. Max five custom tabs. Shell owns visibility/focus/bounds; pages keep state between visits. See native-map.md for events, ready handshake, errors and cleanup.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param options table
 ---@return any id id, page; or nil, reason
 function Open77.map.addTab(options) end
@@ -4586,7 +4586,7 @@ function Open77.map.close() end
 --- Requires map.control and ownership acquired through open or pickPoint. Pass finite x/y/z within +/-16000. Returns an asynchronous request ID; commandResult reports application. Rejects closed, busy, unready or foreign-owned maps. See native-map.md.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param position table
 ---@return any requestId requestId, or nil, reason
 function Open77.map.focus(position) end
@@ -4596,7 +4596,7 @@ function Open77.map.focus(position) end
 --- Client-only, map.read. Returns title, accentColor, activeTab, open, revision and tabs. Available while closed. Map is built in; resource tabs are namespaced. See native-map.md for WebUI lifecycle and ownership.
 ---
 --- Permissions: map.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@return any screen screen, or nil, reason
 function Open77.map.getScreen() end
 
@@ -4614,7 +4614,7 @@ function Open77.map.getSelectedMarker() end
 --- Requires map.read. Returns ready, zoomLevel, zoomLevels, zoom and cameraMode, or nil, reason. The native scalar zoom is not a world distance. Wait for ready before controlling an owned map. See native-map.md.
 ---
 --- Permissions: map.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@return any view view, or nil, reason
 function Open77.map.getView() end
 
@@ -4661,7 +4661,7 @@ function Open77.map.pickPoint(options) end
 --- Requires map.control and an open, ready map owned by this resource. Moves only the map camera. Returns a request ID or nil, reason; observe open77:map:commandResult. User-opened maps cannot be hijacked.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@return any requestId requestId, or nil, reason
 function Open77.map.recenter() end
 
@@ -4670,7 +4670,7 @@ function Open77.map.recenter() end
 --- Client-only, map.control. Local or qualified owned ID. Cannot remove Map or a foreign tab. Active removal returns to Map and releases focus. The page remains hidden; explicitly destroy it when no longer needed. Resource-stop cleanup is automatic.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param id string
 ---@return any true true, or nil, reason
 function Open77.map.removeTab(id) end
@@ -4680,7 +4680,7 @@ function Open77.map.removeTab(id) end
 --- Client-only, map.control; after resource preparation. Restores preceding resource claims or defaults, without clearing another resource's settings or unregistering any tabs.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@return any true true, or nil, reason
 function Open77.map.resetAppearance() end
 
@@ -4689,7 +4689,7 @@ function Open77.map.resetAppearance() end
 --- Client-only, map.control. Accepts own local/qualified ID or map. Requires an open shell, rejects point-picker sessions and foreign tabs. Returns queue acceptance; applied next tick. Observe tabEntered/tabLeft (owner), tabChanged (map.read), or JS tabState. Does not implicitly open the map.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param id string
 ---@return any true true, or nil, reason
 function Open77.map.selectTab(id) end
@@ -4699,7 +4699,7 @@ function Open77.map.selectTab(id) end
 --- Client-only, map.control; after resource preparation. Exact #RRGGBB string. Updates the selected native tab and supplies the color to resource WebUIs through screenChanged/tabState events. Does not recolor the native roads or markers. See native-map.md.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param color string
 ---@return any true true, or nil, reason
 function Open77.map.setAccentColor(color) end
@@ -4709,7 +4709,7 @@ function Open77.map.setAccentColor(color) end
 --- Requires map.control and ownership of an open, ready map. mode must be top_down or perspective. Returns a request ID or nil, reason. Never changes the gameplay camera or teleports the player. See native-map.md for asynchronous result events and cleanup.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param mode string
 ---@return any requestId requestId, or nil, reason
 function Open77.map.setCameraMode(mode) end
@@ -4719,7 +4719,7 @@ function Open77.map.setCameraMode(mode) end
 --- Client-only, map.control. Local or qualified owned ID; label is 1-40 UTF-8 bytes, without controls or pipe. Updates live without recreating the browser or losing page state. Map and other resources' tabs are immutable to the caller.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param id string
 ---@param label string
 ---@return any true true, or nil, reason
@@ -4730,7 +4730,7 @@ function Open77.map.setTabLabel(id, label) end
 --- Client-only, map.control; call after resource preparation. 1-120 UTF-8 bytes, no control characters or pipe. Resource-owned override: latest setter wins, resetAppearance or resource stop restores the preceding claim. See native-map.md.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param text string
 ---@return any true true, or nil, reason
 function Open77.map.setTitle(text) end
@@ -4740,7 +4740,7 @@ function Open77.map.setTitle(text) end
 --- Requires map.control and ownership of an open, ready map. level is an integer from 0 to getView().zoomLevels-1. Returns request ID or nil, reason. The ID acknowledges queueing, not camera-transition completion; observe commandResult and viewChanged.
 ---
 --- Permissions: map.control
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param level integer
 ---@return any requestId requestId, or nil, reason
 function Open77.map.setZoomLevel(level) end
@@ -4781,7 +4781,7 @@ function Open77.markers.create(options) end
 --- Requires `world.markers`. Returns the same snapshot fields as `list()`, including height, scale, rotation, color, customColor, rendered, failed and optional error. Unknown or foreign handles return `nil, not_found`; a malformed handle returns `nil, invalid_marker_id`. A valid handle can still be loading: rendered does not certify on-screen visibility.
 ---
 --- Permissions: world.markers
---- Since: not in any published build
+--- Since: 2.31.13+op77.83
 --- Reasons: invalid_marker_id, markers_backend_unavailable, not_found, permission_denied:world.markers
 ---@param id string
 ---@return any marker marker snapshot, or nil
@@ -4814,7 +4814,7 @@ function Open77.markers.remove(id) end
 ---
 --- Returns ring, cylinder, checkpoint, arrow, chevron, cone, diamond and sphere. These are stable string identifiers, not numeric marker types from another game. Reading this static catalogue needs no permission; creating or inspecting markers requires `world.markers`.
 ---
---- Since: not in any published build
+--- Since: 2.31.13+op77.83
 ---@return any array array of shape names
 function Open77.markers.shapes() end
 
@@ -4835,7 +4835,7 @@ function Open77.markers.update(id, patch) end
 --- Client-only; requires world.props and an available media backend. Binds a validated media definition to a prop or owned WebUI page. Returns the opaque screen ID as a string, or nil and a reason. The binding is local and owned by the calling resource; use the open77_media resource for its higher-level playback workflow.
 ---
 --- Permissions: world.props
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: media_backend_unavailable, missing_prop_or_page, permission_denied:world.props
 ---@param definition table
 ---@return any screen screen ID or nil
@@ -4847,7 +4847,7 @@ function Open77.media.bind(definition) end
 --- Client-only; requires world.props. Requests resource-scoped cleanup of every local media screen and returns true. Does not remove another resource's screens. Safe when no screens exist; backend cleanup also participates in resource teardown.
 ---
 --- Permissions: world.props
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@return any boolean boolean success
 ---@return any reason reason on failure
 function Open77.media.clear() end
@@ -4857,7 +4857,7 @@ function Open77.media.clear() end
 --- Client-only; requires world.props and an available media backend. Returns a snapshot array including screen IDs, definitions, drawn state, reason, distance, facing diagnostics and quad dimensions. This is local presentation state, not a server-global catalogue; other resource owners' screens are excluded.
 ---
 --- Permissions: world.props
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@return any screen screen snapshot array, or false
 ---@return any reason reason on failure
 function Open77.media.list() end
@@ -4867,7 +4867,7 @@ function Open77.media.list() end
 --- Client-only; requires world.props. Releases a screen by its opaque ID through the resource-scoped backend. Does not delete a shared prop or another resource's WebUI page. Returns false and a reason for invalid IDs, unavailable backends or refused ownership.
 ---
 --- Permissions: world.props
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@param id string
 ---@return any boolean boolean success
 ---@return any reason reason on failure
@@ -4878,7 +4878,7 @@ function Open77.media.unbind(id) end
 --- Client-only; requires world.props. Reads the existing owned screen definition, applies and validates the supplied patch, then requests a backend update. An unknown or foreign ID fails with not_found; an invalid ID fails with invalid_screen_id. Other resources' bindings cannot be modified.
 ---
 --- Permissions: world.props
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@param id string
 ---@param patch table
 ---@return any boolean boolean success
@@ -4905,7 +4905,7 @@ function Open77.motion.knockdown(entity, x, y, distance) end
 --- Requires player.motion.project and a matching development client. entity is a local registry handle (1 for the local player), not a network player ID. The finite nonzero XY direction is normalized; push is 0..20 m/s and lift is 0..14 m/s, with at least one positive. Returns a resource-owned request ID or nil/reason. The local owner must be ready, alive, unmounted and grounded; its request starts pending and activation requires observed movement after one queued native 3D impulse. On a remote body, only the reaction pose is presented; displacement follows owner snapshots. Use state(request) and stop(request) for this resource's request. This projection primitive does not grant server authority, damage or a teleport. Use the matching open77_cyberware projector for network lease and incarnation checks.
 ---
 --- Permissions: player.motion.project
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: invalid_motion, motion_backend_unavailable, permission_denied:player.motion.project, resource_not_running
 ---@param entity integer
 ---@param x number
@@ -4921,7 +4921,7 @@ function Open77.motion.launch(entity, x, y, push, lift) end
 --- Requires `player.motion.project`. **Experimental.** Starts a presentation-only knockdown on a streamed remote player's proxy for a melee, Ground Slam or quickhack contact, before the server's verdict. `source` is `melee`, `slam` or `hack`; `entity` is the remote player's local registry ID, never the local player; `x`, `y` give the horizontal direction of the hit. The resource must first apply its gamemode's team, safe-zone and crowd-control policy. Native guards require an active session, a living attacker and victim, an available unseated body, no competing pose, known health above `expectedDamage` and no god mode. `expectedDamage` is a conservative lethal bound after gameplay multipliers; use zero only for an authoritative non-lethal or cosmetic configuration. At most 32 predictions are pending, each for 1500 ms. The authorized knockdown adopts the same native reaction; an unadopted prediction stops through the native get-up path on expiry or lifecycle change, or through `refutePrediction`. The call sends no network message and grants no damage, displacement or authority. The bundled `open77_cyberware` resource is the intended caller and applies the server's prediction policy first; see [Prediction](/docs/prediction).
 ---
 --- Permissions: player.motion.project
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.119
 --- Reasons: invalid_prediction, invalid_prediction_source, permission_denied:player.motion.project, prediction_backend_unavailable, resource_not_running
 ---@param source string
 ---@param entity integer
@@ -4937,7 +4937,7 @@ function Open77.motion.predictAction(source, entity, x, y, expectedDamage) end
 --- **Experimental.** Requires player.motion.project. Returns JSON with pending/capacity and melee, slam, hack counters (predicted, adopted, refuted, refused), last adoption/refutation times in milliseconds and lastPredictionQpc on the motion trace clock. Refused counts native admission attempts; the support resource separately counts earlier policy refusals. Counters are process-local and reading them sends no network traffic. See [Prediction](/docs/prediction) for the per-family counters of `Open77.prediction.stats`.
 ---
 --- Permissions: player.motion.project
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.119
 --- Reasons: permission_denied:player.motion.project, prediction_backend_unavailable
 ---@return any JSON JSON string or nil
 ---@return any reason reason on refusal
@@ -4948,7 +4948,7 @@ function Open77.motion.predictionStats() end
 --- **Experimental.** Requires player.motion.project. Call it when the server refuses the action a prediction was made for (a refused permit, a refused target, a knockdown the arbiter rejected). request is the ID predictAction returned. An unadopted prediction stops through a 150 ms graph exit instead of playing its whole fall; a prediction the authoritative lease already adopted is left alone and the call answers prediction_not_owned. A prediction that already timed out locally is still blended back while it is kept for a late verdict. This API sends no network message and changes no health, position or authority.
 ---
 --- Permissions: player.motion.project
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.119
 --- Reasons: invalid_request, motion_backend_unavailable, permission_denied:player.motion.project
 ---@param request integer
 ---@return any true true on success
@@ -5077,7 +5077,7 @@ function Open77.nameplates.render(enabled) end
 --- Requires `ui.nameplates`. The look returns to the style of the most recent other resource that set one, or to the defaults when none did. Resetting a style that was never set succeeds. A stopped or reloaded resource's style is dropped on its own, so this is for a resource that wants the usual look back while it keeps running.
 ---
 --- Permissions: ui.nameplates
---- Since: not in any published build
+--- Since: 2.50.0-unstable+op77.205
 ---@return any true true on success, otherwise false
 ---@return any reason reason
 function Open77.nameplates.resetStyle() end
@@ -5180,7 +5180,7 @@ function Open77.nameplates.stream(page) end
 --- **Occlusion.** Every plate is line-of-sight tested natively, from the camera to the player's head and then to his chest, against static geometry, doors and terrain -- walls, floors, closed doors, the ground; never vehicles or people -- crossing up to two panes of glass. A plate shows on the first clear test, hides after at least two blocked tests spanning 120 ms or more, never flashes on a player first seen behind a wall, and fades between the two over `fade`. `occlusion = false` turns the test off for the whole server; `set(id, { throughWalls = true })` exempts one player.
 ---
 --- Permissions: ui.nameplates
---- Since: not in any published build
+--- Since: 2.50.0-unstable+op77.205
 ---@param theme table
 ---@return any true true on success, otherwise false
 ---@return any reason reason
@@ -5399,7 +5399,7 @@ function Open77.npcs.whenReady(id, timeoutMs) end
 --- Read-only; no pause_menu.customize permission required. Returns revision, accentColor and logo, or nil without an error when knownRevision is unchanged. A local logo is returned as an image data URI, not a filesystem path; avoid logging or broadcasting it. See pause-menu.md.
 ---
 --- Permissions: pause_menu.customize
---- Since: not in any published build
+--- Since: 2.31.13+op77.87
 ---@param knownRevision? integer
 ---@return any table table or nil
 ---@return any reason reason on failure
@@ -5410,7 +5410,7 @@ function Open77.pauseMenu.getAppearance(knownRevision) end
 --- Requires pause_menu.customize. Removes both the accent and server-logo claim owned by the calling resource, including its manifest logo. Does not remove other resources' claims. The preceding resource's appearance or platform defaults become effective on the next menu refresh.
 ---
 --- Permissions: pause_menu.customize
---- Since: not in any published build
+--- Since: 2.31.13+op77.87
 ---@return any true true or nil
 ---@return any reason reason on failure
 function Open77.pauseMenu.resetAppearance() end
@@ -5420,7 +5420,7 @@ function Open77.pauseMenu.resetAppearance() end
 --- Requires pause_menu.customize. Accepts a #RRGGBB color; nil or an empty string releases this resource's accent claim. The most recent active resource claim wins and stopping the resource restores the previous claim or the default cyan. Does not recolor the OPEN//77 logo. See pause-menu.md.
 ---
 --- Permissions: pause_menu.customize
---- Since: not in any published build
+--- Since: 2.31.13+op77.87
 ---@param color any
 ---@return any true true or nil
 ---@return any reason reason on failure
@@ -5431,7 +5431,7 @@ function Open77.pauseMenu.setAccentColor(color) end
 --- Requires pause_menu.customize. Accepts a supported image URL or a resource-relative image declared in files. nil or an empty string releases only this resource's logo claim. Branding never replaces the platform logo; stopping or reloading the owner restores the previous active claim. See pause-menu.md for formats, URL/path validation and manifest pause_menu_logo.
 ---
 --- Permissions: pause_menu.customize
---- Since: not in any published build
+--- Since: 2.31.13+op77.87
 ---@param pathOrUrl any
 ---@return any true true or nil
 ---@return any reason reason on failure
@@ -5820,7 +5820,7 @@ function Open77.players.getControlMask() end
 --- Client; requires players.read. Omit playerId or pass integer 0 for the local player. Returns enabled, available, active, phase, sequence, duration and elapsed; non-none phases also include canonical vehicle and seat. Phases are none, entering, active, exiting. active includes both transitions. duration/elapsed are seconds. Remote data must be fresh with an attached presented occupant body; unavailable data has phase none. Remote enabled reflects server policy, not another client's local resource restrictions. Returns nil, reason for unavailable players or invalid arguments. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by). Adds mode (passenger, car_driver, bike_driver) and driverYaw/driverPitch/driverRoll in degrees relative to the seated pose. Drivers use front_left and phase active with zero duration/elapsed. Only interpret mode while active; inactive data defaults to passenger with zero angles.
 ---
 --- Permissions: players.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.114
 --- Reasons: expected_player_id, game_unavailable_on_this_host, permission_denied:players.read
 ---@param playerId? integer
 ---@return any state state table or nil
@@ -5871,7 +5871,7 @@ function Open77.players.getLocalDeathContext() end
 --- Requires players.model.read. Omit playerId or pass nil for the local player; an explicit ID must be a positive integer. Returns nil without an error for the original character, or a table with player, record, appearance, revision, entity, ready, status and optional failure. The entity handle is local and disposable, never a network player ID. Status is preparing, active, parked, not_streamed or failed. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@param playerId? integer
 ---@return any table table? state
 ---@return any string string? reason
@@ -5935,7 +5935,7 @@ function Open77.players.isDiving(playerId) end
 --- Client; requires players.read. Omit playerId or use 0 for the local player. Reads the enabled field of getDriveByState: local resource restrictions combine with server policy; remote reads report only server policy. True permits native vehicle combat but does not mean the player is currently in it. Returns nil, reason for an unavailable player or invalid arguments. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by).
 ---
 --- Permissions: players.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.114
 --- Reasons: expected_player_id, game_unavailable_on_this_host, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean enabled or nil
@@ -5980,7 +5980,7 @@ function Open77.players.isGrounded(playerId) end
 --- Client; requires players.read. Omit playerId or use 0 for the local player. True for entering, active or exiting; false for none or stale action data. Use getDriveByState().phase == "active" when only the combat loop is relevant. Returns nil, reason for an unavailable player or invalid arguments. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by).
 ---
 --- Permissions: players.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.114
 --- Reasons: expected_player_id, game_unavailable_on_this_host, permission_denied:players.read
 ---@param playerId? integer
 ---@return any boolean boolean active or nil
@@ -6014,7 +6014,7 @@ function Open77.players.isJumping(playerId) end
 --- Client-only; requires players.local.visibility and takes no arguments. False means at least one resource holds a hide. True means no resource requests hiding; it does not force third person or prove a body is rendered. Returns the current combined policy immediately, while rendering follows on the game tick. Returns nil, reason when unavailable or permission is denied; unexpected arguments return unexpected_arguments. See [Local player visibility](/docs/local-puppet-visibility).
 ---
 --- Permissions: players.local.visibility
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 --- Reasons: game_unavailable_on_this_host, permission_denied:players.local.visibility, unexpected_arguments
 ---@return any boolean boolean visible or nil
 ---@return any reason reason on failure
@@ -6025,7 +6025,7 @@ function Open77.players.isLocalPuppetVisible() end
 --- Requires players.model.read. Omitted/nil playerId selects the local player; explicit IDs must be positive integers. False means no active ready model, including the original character; nil, reason indicates failure. This is local projection readiness, not an acknowledgement from every observer. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@param playerId? integer
 ---@return any boolean boolean? ready
 ---@return any string string? reason
@@ -6036,7 +6036,7 @@ function Open77.players.isModelReady(playerId) end
 --- Requires players.model.read. Does not spawn or animate the model. True confirms an existing Character record, not compatibility of its rig, locomotion, seats or authored appearances. Invalid inputs and absent records return false, reason; permission failures return nil, reason. Cosmetic NPC presentation only: the real player retains identity, controls, health, equipment and saved appearance. Character.* records resolve against each client's installed game data, not a virtual allowlist. See player-models.md for ownership, events, cleanup and the known special-rig/vehicle limitations.
 ---
 --- Permissions: players.model.read
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@param record string
 ---@return any boolean boolean? valid
 ---@return any string string? reason
@@ -6165,7 +6165,7 @@ function Open77.players.resetControls() end
 --- Client-only; requires players.driveby. Call with exactly one boolean from a running resource callback/thread. False holds this resource's restriction; true releases only that restriction. Another resource or server denial still wins. Stopping or reloading the resource releases its hold; disconnect resets local holds. Disabling an active passenger requests native exit; it does not equip a weapon or force a pose. Errors include expected_boolean, resource_not_running and owner_limit. Use matching Unstable 2.31.21-unstable+op77.118 client and server (protocol 1.43), including the animation assets. Passenger support was introduced in .117; car and motorcycle drivers require .118. See [Vehicle drive-by](/docs/drive-by).
 ---
 --- Permissions: players.driveby
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.114
 --- Reasons: permission_denied:players.driveby
 ---@param enabled boolean
 ---@return any boolean boolean accepted
@@ -6177,7 +6177,7 @@ function Open77.players.setLocalDriveByEnabled(enabled) end
 --- Client-only; requires players.local.visibility. Accepts exactly one boolean from a running resource callback/thread. False holds the native body, held weapon and third-person double hidden while retaining the camera and movement. True releases only this resource's hold; any other hide still wins. Rendering follows on the game tick. Resource stop/reload releases its hold; death, player replacement and disconnect clear lifecycle requests. Does not affect collision, separate props, gameplay effects or what other players see. Use server players.setVisible independently for observer visibility. Errors include expected_boolean, resource_not_running, player_not_ready and visibility_owner_quota. Requires a compatible client; check function availability on older builds. See [Local player visibility](/docs/local-puppet-visibility).
 ---
 --- Permissions: players.local.visibility
---- Since: not in any published build
+--- Since: 2.31.21+op77.111
 ---@param visible boolean
 ---@return any boolean boolean accepted
 ---@return any reason reason on failure
@@ -6188,7 +6188,7 @@ function Open77.players.setLocalPuppetVisible(visible) end
 --- Requires `prediction.policy`. Sets the per-family switches and the round-trip ceiling this client applies to presentation-only predictions. It changes only what this client shows before the server's verdict, never the verdict. `policy` is `{ families = { [name] = boolean, ... }, maxPingMs = integer }`. A family absent from `families` is on, and a name this build does not know is ignored. `maxPingMs` is 0–5000 ms: a round trip above it starts no new prediction, 0 removes the ceiling, and an absent value keeps the compiled 250 ms default. `nil` restores the compiled defaults. The host releases the policy when the owning resource stops. Families: `melee`, `slam`, `hack`, `door`, `blast`, `carContact`, `playerContact`. The bundled `open77_prediction` resource calls this with the policy the server publishes; a gamemode narrows that policy with the resource's `restrict` export instead. See [Prediction](/docs/prediction).
 ---
 --- Permissions: prediction.policy
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.119
 --- Reasons: invalid_ping_ceiling, invalid_prediction_family, invalid_prediction_policy, permission_denied:prediction.policy, prediction_backend_unavailable, resource_not_running
 ---@param policy? any
 ---@return any true true on success
@@ -6199,7 +6199,7 @@ function Open77.prediction.setPolicy(policy) end
 ---
 --- No permission. Returns `{ maxPingMs, ping, owner?, families }`: the ceiling in force, this client's measured round trip in milliseconds (0 or less while unknown), the resource whose policy is applied (absent under the compiled defaults), and one `{ enabled, predicted, adopted, refuted, skippedDisabled, skippedLatency }` table per family. `predicted` counts predictions that started, `adopted` those the server's own reaction took over or confirmed, `refuted` those it refused or never answered in time, and `skippedDisabled` / `skippedLatency` those the policy stopped before they started. Counters are per game process; reading them sends no network traffic. See [Prediction](/docs/prediction).
 ---
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.119
 --- Reasons: prediction_backend_unavailable
 ---@return any maxPingMs { maxPingMs, ping, owner?, families }
 ---@return any nil nil and a reason on refusal
@@ -6391,7 +6391,7 @@ function Open77.props.project(serverId, options) end
 --- Requires world.props. Returns the current local projection snapshot, or nil if absent. Includes backend, rendered, failed and attachmentStatus. Native item projection reports rendered only after native attachment and visual spawning. hidden_first_person is explicitly not rendered. Read-only; does not create or take ownership of a server prop.
 ---
 --- Permissions: world.props
---- Since: not in any published build
+--- Since: 2.31.13+op77.84
 --- Reasons: invalid_argument, permission_denied:world.props, props_backend_unavailable
 ---@param serverPropId any
 ---@return any table table snapshot, or nil
@@ -6561,7 +6561,7 @@ function Open77.reflex.state() end
 --- Client-only; requires `camera.capture`. `rect` is `{x, y, width, height}` in viewport pixels -- a screen-space viewport, not a DOM element, so it does not track page layout. The returned binding id is opaque and allocated by the host for this resource generation. Multiple bindings may share one source, and capture is demanded only while at least one binding is visible; hiding the last visible binding stops the rendering without destroying the source. The id ends at `unbind()` or when the source is destroyed.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param cameraId string
 ---@param rect table
 ---@return any binding binding id (opaque string), or nil, reason
@@ -6572,7 +6572,7 @@ function Open77.remoteCamera.bindHud(cameraId, rect) end
 --- Client-only; requires `camera.capture`. With no argument every binding this resource owns is listed; passing a camera id filters to that source. Owner-scoped like the rest of the namespace, so it cannot be used to read another resource's presentations. Rows are the same snapshots `getBinding()` returns.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param cameraId? string
 ---@return any array array of binding snapshots
 function Open77.remoteCamera.bindings(cameraId) end
@@ -6582,7 +6582,7 @@ function Open77.remoteCamera.bindings(cameraId) end
 --- Client-only; requires `camera.capture`, and the WebUI layer keeps its own permission. `page` must belong to the calling resource; another resource's page is refused and the provider never accepts one on a caller's behalf. `rect` is `{x, y, width, height}` in viewport pixels -- the image is drawn by a native underlay behind that transparent region, and the resource still owns the page's layout. The engine's dynamic texture stays behind an Ink image: this is not an HTML video element, an image URL, a JavaScript-readable pixel stream or a transferable GPU texture, and no raw graphics pointer or unsynchronized resource lifetime crosses into Lua or JavaScript.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param cameraId string
 ---@param page any
 ---@param rect table
@@ -6594,7 +6594,7 @@ function Open77.remoteCamera.bindWebUI(cameraId, page, rect) end
 --- Client-only; requires `camera.capture`. `placement` is `{position, rotation, width, height, model, parent}` with physical dimensions in metres. `model` defaults to `surface`, a frameless display placed just in front of an existing prop; `panel` uses the stock authored housing. `worldModels()` describes the supported profiles, not installed slot availability. Unsupported models are refused rather than substituted. `parent` is `{type=..., id=...}` and makes position/rotation local to a `prop`, `localProp`, `player`, `vehicle` or `entity`; only canonical prop, player and vehicle parents are accepted over the network. Foreground geometry occludes the display. This is not material substitution, UV reuse or a texture painted onto an arbitrary mesh.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param cameraId string
 ---@param placement table
 ---@return any binding binding id (opaque string), or nil, reason
@@ -6605,7 +6605,7 @@ function Open77.remoteCamera.bindWorld(cameraId, placement) end
 --- Client-only; requires `camera.capture`. Reports the global and caller-scoped limits and usage, including allocations that are still retiring, so a caller can decide whether to request another source before it is refused with `camera_slots_exhausted`. There is no public setter: the budget is host/operator policy, and the provider service must not change it either.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@return any budget budget table
 function Open77.remoteCamera.budget() end
 
@@ -6614,7 +6614,7 @@ function Open77.remoteCamera.budget() end
 --- Client-only; requires `camera.capture`. Reports the fixed output, supported presentation kinds, source and binding limits, expected slot templates, TweakDB availability and world readiness. Storage capacity is not the number of installed slot graphs; asset availability is resolved when a source or presentation is created. Read-only: admission limits are host/operator policy.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@return any capabilities capabilities table
 function Open77.remoteCamera.capabilities() end
 
@@ -6623,7 +6623,7 @@ function Open77.remoteCamera.capabilities() end
 --- Client-only; requires `camera.capture`. `view` is `{position={x,y,z}, rotation={yaw,pitch,roll}, fov, range}` in world metres and degrees: `position` is required, rotation defaults to zero, FOV to 60 (1..120) and range to 100 (1..500). The id belongs to the calling resource generation; it is neither an engine id nor a server camera id. Admission is asynchronous: `pending` does not mean active capture. Follow `open77:remoteCamera:stateChanged` or read `get()`. Failure is `nil, reason`; `camera_slots_exhausted` means the shared budget is full and `camera_record_unavailable` means the source record could not be prepared. Missing or incompatible packed assets can also fail later component configuration. Nothing renders until a visible binding demands it, and acceptance is not proof of a fresh frame.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param view table
 ---@return any camera camera id (opaque string), or nil, reason
 function Open77.remoteCamera.create(view) end
@@ -6633,7 +6633,7 @@ function Open77.remoteCamera.create(view) end
 --- Client-only; requires `camera.capture`. Retirement is asynchronous: the id goes through `destroying` and ends with a terminal `removed` event, and the slot is not reusable until the native resources and bindings finish cleanup. After the terminal event the id is stale -- `get()` answers `nil, "stale_id"` -- and a caller never held the engine id, so it cannot reach the native object by mistake. Bindings are removed with the source; `unbind()` is how a caller retires one presentation and keeps the source.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param cameraId string
 ---@return any true true, or false, reason
 function Open77.remoteCamera.destroy(cameraId) end
@@ -6643,7 +6643,7 @@ function Open77.remoteCamera.destroy(cameraId) end
 --- Client-only; requires `camera.capture`. The snapshot carries the requested pose as direct fields (`position` keyed `x`/`y`/`z`, `rotation` keyed `yaw`/`pitch`/`roll`, `fov`, `range`) plus `id`, `state`, `reason`, `width`, `height` and `captureEnabled`. States are `pending`, `active`, `failed` and `destroying`; `active` means the native object is established, not that a GPU frame is fresh and not that the remote world around the camera is complete. A terminal `removed` event invalidates the id, after which this returns `nil, "stale_id"`. Ids are opaque: no raw engine handle is exposed.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param cameraId string
 ---@return any source source snapshot, or nil, reason
 function Open77.remoteCamera.get(cameraId) end
@@ -6653,7 +6653,7 @@ function Open77.remoteCamera.get(cameraId) end
 --- Client-only; requires `camera.capture`. The snapshot carries `id`, `cameraId`, `kind`, `state`, `reason` and `visible`, with the kind's requested options flattened onto the same row. Binding states are the source states plus `hidden` and `unavailable`; `unavailable` is not proof that the source is gone, only that this presentation cannot be materialised right now. `removed` is terminal and invalidates the id: a later call answers `nil, "stale_binding_id"`.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param bindingId string
 ---@return any binding binding snapshot, or nil, reason
 function Open77.remoteCamera.getBinding(bindingId) end
@@ -6663,7 +6663,7 @@ function Open77.remoteCamera.getBinding(bindingId) end
 --- Client-only; requires `camera.capture`. Owner-scoped: another resource's sources are never listed, and neither are native objects the host holds for internal reasons. Rows are the same snapshots `get()` returns, including sources that are still retiring -- a retirement that has not completed keeps counting against the budget until it does.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@return any array array of source snapshots
 function Open77.remoteCamera.list() end
 
@@ -6672,7 +6672,7 @@ function Open77.remoteCamera.list() end
 --- Client-only; requires `camera.capture`. Retirement is asynchronous: the binding enters `destroying`, then a terminal `removed` event invalidates its id. Its source and other bindings remain; rendering continues only while another binding demands it. Use `destroy()` to retire the source and all its presentations.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param bindingId string
 ---@return any true true, or false, reason
 function Open77.remoteCamera.unbind(bindingId) end
@@ -6682,7 +6682,7 @@ function Open77.remoteCamera.unbind(bindingId) end
 --- Client-only; requires `camera.capture`. Only the fields the caller names change, and `position`, `rotation`, `fov` and `range` are the same values and limits `create` accepts. The patch is sparse per field but not per axis: a named `position` or `rotation` replaces that value as a whole, so `{ rotation = { yaw = 90 } }` lands with pitch and roll at zero rather than keeping the previous pitch. Pass the full table whenever only one axis should differ. The logical id survives the patch, and so do its bindings. A native source may be rebuilt to apply a patch, and that happens asynchronously, so acceptance is not a smooth per-frame update and not a guarantee of a fresh GPU frame. Mutations return `true` or `false, reason`; a destroyed source answers with a stale-id refusal.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param cameraId string
 ---@param patch table
 ---@return any true true, or false, reason
@@ -6693,7 +6693,7 @@ function Open77.remoteCamera.update(cameraId, patch) end
 --- Client-only; requires `camera.capture`. The patch is sparse and kind-appropriate: `cameraId` selects a source, `visible` sets requested visibility, rectangle fields move/size HUD and WebUI presentations, and `position`/`rotation`/`width`/`height`/`model`/`parent` update world panels. `parent = false` detaches. Position and rotation replace whole vectors: position requires all axes; omitted rotation axes become zero. Kind and WebUI page cannot change. Native changes may be asynchronous. Current limitations: switching an established HUD/WebUI source can leave the previous image mounted; world visibility gates capture demand but does not suppress the mesh's last or shared-source image.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@param bindingId string
 ---@param patch table
 ---@return any true true, or false, reason
@@ -6704,7 +6704,7 @@ function Open77.remoteCamera.updateBinding(bindingId, patch) end
 --- Client-only; requires `camera.capture`. Rows carry `id`, `defaultWidth`, `defaultHeight`, `frameless`, `sizing` and `basis`. Both built-in profiles default to 1.6 by 0.9 metres. `surface` is a frameless display with `sizing = "display_plane"` and entity-local basis right `+X`, up `+Z`, normal `-Y`, `yawOffset = 0`. `panel` uses the stock housing, `sizing = "mesh_bounds"` and authored mesh-face basis with `yawOffset = 90`; its in-plane axes are not advertised as known. Apply the selected profile's correction once. This catalogue does not scan packed assets: a supported profile may still fail creation if its slot graph is missing or incompatible.
 ---
 --- Permissions: camera.capture
---- Since: not in any published build
+--- Since: 2.31.13+op77.82
 ---@return any array array of {id, defaultWidth, defaultHeight, frameless, sizing, basis={space, right, up, normal, yawOffset}}
 function Open77.remoteCamera.worldModels() end
 
@@ -6781,7 +6781,7 @@ function Open77.resource.version() end
 --- Client-only; requires `rtti.native`. Call from a running resource callback or thread; candidate loading and stop handlers return resource_not_active. Instance is an owned ref for a method and nil for a static function. Supply every parameter, including optional ones. Supports scalars, enums, 64-bit IDs and strong IScriptable handles; out parameters, arrays, arbitrary structs, script_ref and weak handles are refused. Signatures are limited to 15 parameters. Returned refs remain pinned until release or owner stop/reload. SDK calls participate in installed hooks; other engine entry points and worker-thread calls are outside hook coverage.
 ---
 --- Permissions: rtti.native
---- Since: not in any published build
+--- Since: 2.31.21+op77.132
 ---@param class any
 ---@param fn string
 ---@param instance any
@@ -6794,7 +6794,7 @@ function Open77.rtti.call(class, fn, instance, ___) end
 --- Client-only; requires `rtti.native`. Requires a running resource. handler(ctx, ...args) receives ctx.name, ctx.instance and ctx.callOriginal. The continuation accepts replacement arguments, is valid only during the callback and may be called once. Return a replacement or call through; nil passes through for value-returning functions and skips an uncalled void original. Errors preserve an already-completed original result. Same-function recursion bypasses hooks. Callbacks cannot yield and obey Lua execution quotas. Borrowed instance/argument/original-result refs expire after dispatch. Hooks are removed on owner stop/reload. Coverage is game-thread SDK CStack Execute calls, including rtti.call; it does not cover every internal VM/native invocation.
 ---
 --- Permissions: rtti.native
---- Since: not in any published build
+--- Since: 2.31.21+op77.132
 ---@param class any
 ---@param fn string
 ---@param handler function
@@ -6806,7 +6806,7 @@ function Open77.rtti.hook(class, fn, handler) end
 --- Client-only; requires `rtti.native`. Accepts the opaque ref userdata returned by rtti.call or borrowed during a hook. Releasing an expired ref is harmless and returns true. Later calls with it fail with ref_released. Owned call results are also released on resource stop/reload; Lua garbage collection alone does not release them. Hook-borrowed refs expire at dispatch end even when the Lua userdata is retained.
 ---
 --- Permissions: rtti.native
---- Since: not in any published build
+--- Since: 2.31.21+op77.132
 ---@param ref any
 ---@return any true true, or nil, reason
 function Open77.rtti.release(ref) end
@@ -6816,7 +6816,7 @@ function Open77.rtti.release(ref) end
 --- Client-only; requires `rtti.native`. Use nil or an empty class for a global and its decorated name. Methods accept decorated names or unambiguous short names. Returns a table with name, static, returnType and params ({name, type}). Metadata may describe unsupported types; resolve alone does not prove callability. Errors include function_not_found, ambiguous_function and rtti_unavailable.
 ---
 --- Permissions: rtti.native
---- Since: not in any published build
+--- Since: 2.31.21+op77.132
 ---@param class any
 ---@param fn string
 ---@return any signature signature table, or nil, reason
@@ -6827,7 +6827,7 @@ function Open77.rtti.resolve(class, fn) end
 --- Client-only; requires `rtti.native`. Returns true only when this resource removes its hook. Unknown IDs and another resource's IDs return false. Removing a hook during dispatch takes effect for later calls; the current dispatch retains its callback snapshot. Stop/reload automatically removes the owner's hooks.
 ---
 --- Permissions: rtti.native
---- Since: not in any published build
+--- Since: 2.31.21+op77.132
 ---@param id integer
 ---@return any boolean boolean; or nil, reason when permission is denied
 function Open77.rtti.unhook(id) end
@@ -6953,7 +6953,7 @@ function Open77.screen.isFaded() end
 --- Client-only; requires screen.read. Observes native opening through delayed hide, including long-distance teleport loads. Returns nil, reason until the guarded observer is available. This is separate from quest fades, background streaming and the Open77 connection cover. See loading-screens.md for events and a complete WebUI example.
 ---
 --- Permissions: screen.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@return any active active, or nil, reason
 function Open77.screen.isLoading() end
 
@@ -6962,7 +6962,7 @@ function Open77.screen.isLoading() end
 --- Client-only; requires screen.read. Returns active, id (opaque string), revision, kind, progressKnown, progress (nil until reported) and elapsedMs. Subscribe to open77:loadingScreen:started/changed/finished; each event receives one snapshot. Register handlers then query initial state to handle a resource starting mid-load. Progress 100% never implies native hide. The state persists across resource reloads, and network messages cannot forge these events. See loading-screens.md.
 ---
 --- Permissions: screen.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@return any state state, or nil, reason
 function Open77.screen.loadingState() end
 
@@ -7118,7 +7118,7 @@ function Open77.session.menuState() end
 --- Client-only; requires network.client. Requests the installed launcher's opening through the native backend. Returns false and a reason when the launcher cannot be opened or this host has no game backend. Use the connection workspace's normal return-to-launcher flow when also closing the game.
 ---
 --- Permissions: network.client
---- Since: not in any published build
+--- Since: 2.31.13+op77.80
 ---@return any boolean boolean success
 ---@return any reason reason on failure
 function Open77.session.openLauncher() end
@@ -7595,7 +7595,7 @@ function Open77.vehicles.all() end
 --- Requires vehicles.control. transitionId is the string returned by seatSwitchState or its Started event. A stale ID cannot cancel a later transition. Cancellation releases the destination and restores the source; true means submitted to the server.
 ---
 --- Permissions: vehicles.control
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@param transitionId string
 ---@return any true true when submitted, otherwise false
 ---@return any reason reason
@@ -7644,6 +7644,18 @@ function Open77.vehicles.clearPerformanceClass(record) end
 ---@return any entry entry, or nil
 ---@return any reason reason: permission_denied:vehicles.read, invalid_radius, no_vehicle_in_range, no_session, no_local_position
 function Open77.vehicles.closest(radiusOrOptions) end
+
+--- Reads what this vehicle's record supports and how far its look got on this client.
+---
+--- Requires `vehicles.read`. Client-side and read-only. Answers from the live TweakDB and from this client's copy of the server's visual value: `{ record, paint, rims, lights, twintone, profiles, appearance, streamed, destroyed, rev, appliedRev, neonLit, skipped }`. A capability the record did not answer is absent (nil). `skipped` lists `"<category>:<item>:<reason>"` strings for what this game could not draw: `attach:<key>:model_not_registered` when its parts pack is missing, `hide:*:held_parts_missing` while it keeps the factory parts those pieces replace, `tint:<level>:pending_mesh` while the glass is still loading. Read `skipped` only once `appliedRev` has caught up with `rev`. Returns nil and `unknown_vehicle`, `vehicles_unavailable` or `permission_denied:vehicles.read` on failure.
+---
+--- Permissions: vehicles.read
+--- Since: 2.50.0-unstable+op77.205
+--- Reasons: permission_denied:vehicles.read, unknown_vehicle, vehicles_unavailable
+---@param id integer
+---@return any value value
+---@return any reason reason (when the first is nil)
+function Open77.vehicles.customizationAvailable(id) end
 
 --- The same description for one named engine-spawned chassis.
 ---
@@ -7714,7 +7726,7 @@ function Open77.vehicles.getPlayerSeat(playerId) end
 --- Client-only; requires vehicles.read. Pass a network vehicle ID. Returns the same -1..1 steering input as vehicles.get(id).steering, not the interior wheel angle or rolling tire phase. Returns nil, reason for invalid/missing vehicles or permission denial. See the vehicle steering guide.
 ---
 --- Permissions: vehicles.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.127
 ---@param vehicleId any
 ---@return any number number input
 ---@return any reason reason on failure
@@ -7725,11 +7737,23 @@ function Open77.vehicles.getSteeringInput(vehicleId) end
 --- Client-only; requires vehicles.read and a streamed vehicle. Reads native steering_wheel and Base slots using the loaded authored rig, removing chassis orientation, column tilt and mesh offsets. Supports locally driven and replicated cars with the required slots and steering_wheel_turn bone. Unsupported rigs, including bikes without a readable wheel, return nil instead of an inferred angle. No first-frame neutral calibration. This is the visible client pose, subject to normal presentation delay, not a server-authoritative angle. Errors: invalid_vehicle_id, vehicle_not_found, vehicle_not_streamed, steering_wheel_unsupported, steering_angle_unavailable, permission_denied:vehicles.read.
 ---
 --- Permissions: vehicles.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.127
 ---@param vehicleId any
 ---@return any number number degrees
 ---@return any reason reason on failure
 function Open77.vehicles.getSteeringWheelAngle(vehicleId) end
+
+--- Reads the vehicle's visual value exactly as the server published it.
+---
+--- Requires `vehicles.read`. Client-side and read-only. Returns the `open77.visual` value (schema v1: `v`, `rev`, `profile`, `neon`, `hide`, `show`, `attach`, `plate`, `tint`, and `na`, `lc`, `st` for the neon animation, lamp colours and stickers), or nil when the car has none -- the factory look -- or is unknown. It is what the server sent, not what this game managed to draw: `customizationAvailable` tells that. Returns nil and `vehicles_unavailable` or `permission_denied:vehicles.read` on failure.
+---
+--- Permissions: vehicles.read
+--- Since: 2.50.0-unstable+op77.205
+--- Reasons: permission_denied:vehicles.read, vehicles_unavailable
+---@param id integer
+---@return any value value
+---@return any reason reason (when the first is nil)
+function Open77.vehicles.getVisual(id) end
 
 --- Reads one weapon mount by its stable one-based index.
 ---
@@ -7841,7 +7865,7 @@ function Open77.vehicles.isArmed(vehicleId) end
 --- Requires vehicles.read. Combines client resource vetoes and the authoritative server policy. A true result permits the normal vanilla takeover when its native conditions are met. Returns nil and a reason if no active session can be queried.
 ---
 --- Permissions: vehicles.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@return any boolean boolean, or nil
 ---@return any reason reason
 function Open77.vehicles.isAutoSeatSwitchEnabled() end
@@ -7972,7 +7996,7 @@ function Open77.vehicles.seatFree(id, seat) end
 --- Requires vehicles.read. Returns active and autoSwitchEnabled, plus vehicleId/fromSeat while seated and id/toSeat while switching. IDs are strings. The canonical source stays occupied until native completion. Query on resource start to recover a transition already in progress; nil plus reason means the session or backend is unavailable.
 ---
 --- Permissions: vehicles.read
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@return any state state table, or nil
 ---@return any reason reason
 function Open77.vehicles.seatSwitchState() end
@@ -7982,7 +8006,7 @@ function Open77.vehicles.seatSwitchState() end
 --- Requires vehicles.control. false blocks automatic front-passenger takeover of an empty driver seat. true releases only this resource's veto; another resource or the server can still disable takeover. Explicit switches remain available. The claim is released when its resource stops.
 ---
 --- Permissions: vehicles.control
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@param enabled boolean
 ---@return any true true, otherwise false
 ---@return any reason reason
@@ -8041,7 +8065,7 @@ function Open77.vehicles.setPerformanceClass(record, profile) end
 --- Requires vehicles.control and protocol 1.44. Submits a server-authorized in-cabin move. A true return means queued; use open77:vehicleSeatSwitchDecision and the Started/Completed/Failed events for its outcome. Both source and destination stay reserved until completion. Refuses occupied or unsupported seats, exit locks and overlapping requests.
 ---
 --- Permissions: vehicles.control
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.122
 ---@param seat any
 ---@return any true true when submitted, otherwise false
 ---@return any reason reason
@@ -8502,7 +8526,7 @@ function Open77.weapons.all() end
 --- Client-only; requires `player.weapons.edit`. Only the client that simulates a vehicle can move it: an impulse on another client's observer replica is overwritten by the owner's motion stream. A server resource that accepted a blast therefore finds the vehicles it reaches (`Open77.vehicles.nearby`) and their physics owner (`Open77.vehicles.owner`), and sends each owner the centre, its own copy of the approved profile and that owner's vehicle ids; the owner's client calls this. Accepts {x, y, z, radius (0-60, above zero), push (0-40), lift (0-40), falloff (0-4, default 1), vehicles (0-64 positive server vehicle ids), characters (optional boolean)}; at least one vehicle or characters = true is required, anything else returns nil, invalid_weapon_blast. With characters, every living, unseated network NPC this client presents inside the radius is also knocked down once with the native hit-reaction knockdown (the one remote player proxies play for a car impact), which throws the body a few metres and lets it get up; a copy whose native health has not been projected yet is skipped. The server sends the blast to every nearby player, so the authority copy and each observer copy fall together, and an observer copy that settles more than 1.5 m from its authority walks back to it once the reaction is over. A forced ragdoll with an impulse was measured to do nothing on a living network NPC and is not used. The blast is queued and applied on the game thread to each listed vehicle that this client simulates in its current authority epoch, from this client's own pose, with the same mass-scaled impulse and (1 - distance / radius)^falloff weight as a local blast. A listed vehicle whose authority grant is still in flight is retried for 0.75 s; one outside the radius on this client's pose is skipped. Never moves a vehicle another client simulates, a frozen vehicle or a character. Returns true when queued, or nil/reason (invalid_weapon_blast, weapon_blast_queue_full with 16 blasts pending). tuning() reports relayedBlasts, relayedImpulses, relayedExpired, relayedRefused and relayedCharacters, including when this resource owns no tuning profile.
 ---
 --- Permissions: player.weapons.edit
---- Since: not in any published build
+--- Since: 2.31.21-unstable+op77.112
 --- Reasons: invalid_weapon_blast, permission_denied:player.weapons.edit, weapon_blast_unavailable
 ---@param blast table
 ---@return any true true or nil
@@ -8528,7 +8552,7 @@ function Open77.weapons.assign(record, slot, options) end
 --- Requires a compatible development client exposing native weapon tuning with inventory-instance restoration. Client-only; requires `player.weapons.edit`. Disables the calling resource's profile and removes only the modifier handles it owns. Returns true when accepted, or nil/reason on failure; it is a successful no-op when this resource owns no profile and never clears another resource's tuning. If a holstered weapon's StatsObject is temporarily absent, exact handles remain queued against its inventory identity, even after the engine entity disappears. Drawing that same inventory item allows cleanup on its current entity; a different copy of the same record is not the same item. Read tuning().status and pendingModifiers to distinguish idle from restoring and wait for zero pending modifiers before reporting completion. Does not remove granted weapons, ammunition or components. Resource stop and failure also release the profile and retain deferred cleanup. The queue is bounded to 32 pending bindings; saturation refuses further changes with restore_queue_full.
 ---
 --- Permissions: player.weapons.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: permission_denied:player.weapons.edit, weapon_tuning_unavailable
 ---@return any true true or nil
 ---@return any reason reason on failure
@@ -8664,7 +8688,7 @@ function Open77.weapons.setDualWieldAllowed(enabled) end
 --- Requires a compatible development client exposing native weapon tuning with inventory-instance restoration. Client-only; requires `player.weapons.edit`. Accepts an exact `Items.*` record and a complete options table: omitted fields reset to their defaults. Supports reloadSpeed, fireRate, recoil, spread, damage, magazineCapacity, projectilesPerShot, aimSpeed, chargeSpeed, smartProjectileSpeed and the blastRadius/blastPush/blastLift/blastFalloff/blastCooldown weapon-impact controls. Unknown keys, nonnumeric or nonfinite values and out-of-range multipliers are refused. Returns true when accepted, or nil/reason; read tuning() to distinguish active, waiting_for_weapon and waiting_for_restore. Only one resource owns tuning at a time; another receives weapon_tuning_owned_by_another_resource. Does not equip a weapon, rewrite shared TweakDB records, change projectile types or override server damage policy. Supported inputs are bound-weapon entity hits, actual native impact positions from GameEffectExecutor_StimOnHit, and tracked-projectile collision/explosion callbacks. No synthetic crosshair raycast is substituted. Bare-terrain Comrade coverage remains unverified; generic hitscan ground detection and grenades without the bound weapon object are not promised. Vehicle impulses require a streamed, unfrozen vehicle whose current physics owner is this client. The local open77:weaponBlast(owner,record,sequence,x,y,z) event uses string arguments after cooldown acceptance; it grants no network character authority. Resources request character launches separately through server policy. Smart projectile speed applies only to smart weapons. Clearing, switching or stopping the resource removes its own modifiers, with deferred restoration when the engine temporarily retires a holstered weapon's stats.
 ---
 --- Permissions: player.weapons.edit
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: invalid_weapon_tuning, invalid_weapon_tuning_field, invalid_weapon_tuning_range, permission_denied:player.weapons.edit, weapon_tuning_unavailable
 ---@param record string
 ---@param options table
@@ -8723,7 +8747,7 @@ function Open77.weapons.takeGadget(record, count) end
 --- Requires a compatible development client exposing native weapon tuning with inventory-instance restoration. Client-only; requires `player.weapons.read`. Returns a table or nil/reason. status distinguishes idle, waiting_for_weapon, active, restoring, waiting_for_restore and native failure states; active reports whether the matching weapon is bound. An owned profile includes record, opaque string weaponEntity, modifiers, native stats and cumulative blasts, impulsesQueued, failures and foreignSkipped counters. projectileContacts counts supported tracked-projectile contacts only; trackedProjectiles is the number still being tracked. Native entity hits and GameEffectExecutor_StimOnHit do not increment projectileContacts, so an accepted blast can leave it at zero. Neither counter establishes a character launch or observed movement. pendingModifiers counts this resource's deferred cleanup. Idle/restoring results can omit bound-weapon fields. Counters describe queued work rather than measured movement, and a native statistic does not prove that every weapon's animation or projectile logic consumes it. Treat weaponEntity as an opaque string, never as a Lua number.
 ---
 --- Permissions: player.weapons.read
---- Since: not in any published build
+--- Since: 2.31.13-unstable+op77.99
 --- Reasons: invalid_weapon_tuning_state, permission_denied:player.weapons.read, weapon_tuning_unavailable
 ---@return any state state table or nil
 ---@return any reason reason on failure
@@ -8746,7 +8770,7 @@ function Open77.weapons.unequip(slot) end
 --- Client-only; requires `webui.policy`, a permission of its own because this is the one verb that widens what a page's browser refuses. `hosts` and `tokens` are arrays of at most 512 strings each (`hosts_out_of_range`, `hosts_must_be_strings`, and the same for `tokens`); `revision` is the operator's list revision the host will report back, `source` a label for its log. Answers `true` when the host accepted the push -- not when the rules are in force: read `Open77.webui.blocklistState()` afterwards, because a host older than the policy message accepts nothing and leaves no receipt. Refusals: `permission_denied:webui.policy`, `webui_policy_backend_unavailable`, `invalid_blocklist`, `invalid_hosts` / `invalid_tokens`, `blocklist_not_applied`. `open77_media` is the shipped caller: it applies the server's `open77:media:adblock` payload and reports the receipt back.
 ---
 --- Permissions: webui.policy
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: invalid_blocklist, permission_denied:webui.policy, webui_policy_backend_unavailable
 ---@param rules any
 ---@return any true true, or false
@@ -8758,7 +8782,7 @@ function Open77.webui.blocklist(rules) end
 --- Client-only; requires `webui.policy`. Answers `{ revision, compiledRules, hostRules, tokenRules, refused = { ... } }`, or `nil, reason` when there is nothing to describe: `no_blocklist_receipt` before any push was applied (or on a host older than the policy message), `webui_policy_backend_unavailable`, `permission_denied:webui.policy`. Compare `revision` with the one you pushed: a smaller value means the rules you sent are not the ones in force.
 ---
 --- Permissions: webui.policy
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 --- Reasons: permission_denied:webui.policy, webui_policy_backend_unavailable
 ---@return any table table, or nil
 ---@return any reason reason
@@ -8768,7 +8792,6 @@ function Open77.webui.blocklistState() end
 ---
 --- Client-only; no permission. Older clients do not have it: test that `Open77.webui.budget` (or `WebUI.budget`) exists before calling it. Every page is a browser of its own and the client caps how many are alive at once: 32 for the connected server's pages (all of its resources together, Open77's own server-side resources included), plus a separate pool of 8 for the client's built-in pages (shell, load screen, pause menu, blips, reticle, debug inspector), which a server can neither use nor fill. A `create` past the cap answers `nil, "webui_surface_quota"` and the client logs `Open77 WebUI surface refused for <resource>: webui_surface_quota, server 32/32: <holders>`. Answers `{ pool, used, limit, free, own, pages = { { resource, count }, ... } }` for the caller's pool: `pool` is `"server"` (or `"system"` for a built-in resource), `own` is how many of the pages are the caller's, and `pages` lists every holder, largest first. A page being destroyed is no longer counted; a hidden page is. Answers `nil, "webui_backend_unavailable"` where there is no WebUI. Counts only: no URL, size or content of anybody's page crosses this call.
 ---
---- Since: not in any published build
 --- Reasons: webui_backend_unavailable
 ---@return any table table, or nil
 ---@return any reason reason
@@ -9122,7 +9145,7 @@ function WebUI.Page:send(event, payload) end
 ---
 --- Call page:setConsumedKeys(keys) before page:setFocus(true,false,true). Client-local, per-surface policy: selected keys still reach the browser but not Cyberpunk Raw Input or Open77 pause/scoreboard shortcuts. Accepts a dense array of at most 32 case-insensitive names: escape/esc, enter, tab, backspace, space, up/down/left/right (arrow aliases accepted), home, end, pageup, pagedown, insert and delete. Invalid input leaves the existing list unchanged; {} clears it for future presses. Active only while this visible, presentation-enabled page owns keyboard focus. Repeats and releases remain consumed if the keydown handler hides/destroys the page or changes focus. No arbitrary gameplay keys or controller-menu interception. No permission of its own; the keepInput argument of setFocus requires webui.keep_input. Check method availability before using this mode. See webui-input.md for the complete lifecycle and error contract.
 ---
---- Since: not in any published build
+--- Since: 2.31.13+op77.79
 ---@param keys any
 ---@return any boolean boolean
 ---@return any string string? reason

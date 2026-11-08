@@ -77,7 +77,32 @@
    "name": "web_files",
    "singular": "web_file",
    "form": "list",
-   "description": "WebUI files (HTML, CSS, JS) delivered to the client; globs allowed."
+   "description": "WebUI files (HTML, CSS, JS) delivered to the client; globs allowed. The page named by `web_ui_page` must match one of them: the server packages only `files` and `web_files`, and a page it does not ship cannot be opened on the client."
+  },
+  {
+   "name": "web_ui_page",
+   "form": "scalar",
+   "parsedBy": "client",
+   "description": "The default WebUI entry: a path under the resource (declared in `web_files`) or an `http(s)://` URL. `Open77.webui.create` with no `entry` opens it and `Open77.webui.default()` returns the page the client host creates from it at start. See the WebUI pages guide."
+  },
+  {
+   "name": "ui_page",
+   "form": "scalar",
+   "parsedBy": "client",
+   "description": "FiveM's spelling of `web_ui_page`, accepted with the same rules. When a manifest carries both, the one written last in the file wins."
+  },
+  {
+   "name": "web_ui_auto_create",
+   "form": "boolean",
+   "default": true,
+   "parsedBy": "client",
+   "description": "Whether the client host creates the `web_ui_page` surface itself at resource start and after a reload (1280x720, 60 fps, `hud`, visible, transparent, `strict`). `false` when the resource creates the page with its own layer and options."
+  },
+  {
+   "name": "loadscreen",
+   "form": "scalar",
+   "parsedBy": "client",
+   "description": "A loading page a server-delivered resource declares: a path under the resource, added to its shipped web files. The client's shell (a resource holding `webui.system`, with `loadScreen = true`) renders it from the downloaded pack while the player joins; an ordinary page cannot open it."
   },
   {
    "name": "preload_mods",

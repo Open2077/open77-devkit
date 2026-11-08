@@ -17541,6 +17541,768 @@
    "documented": true,
    "inCode": true,
    "lifecycle": true
+  },
+  {
+   "name": "onNpcPartHit",
+   "sides": [
+    "resource-server",
+    "server"
+   ],
+   "payload": "(id, shooter, part, fraction)",
+   "guides": [
+    {
+     "file": "npcs.md",
+     "anchor": "chimera-encounter"
+    }
+   ],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
+     "line": 2080
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/gamemodes/open77_chimera/server.lua",
+     "line": 568
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": true
+  },
+  {
+   "name": "onNpcPlayerHit",
+   "sides": [
+    "resource-server",
+    "server"
+   ],
+   "payload": "(npcId, victimId, damage, kind, epoch, authorityPlayerId)",
+   "guides": [
+    {
+     "file": "npcs.md",
+     "anchor": "events"
+    }
+   ],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
+     "line": 2124
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/dev/open77_pvelab/server/main.lua",
+     "line": 160
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/gamemodes/open77_cordon/server/npc-combat.lua",
+     "line": 114
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": true
+  },
+  {
+   "name": "onVehicleVisualChanged",
+   "sides": [
+    "server"
+   ],
+   "payload": "(id, rev, fields)",
+   "guides": [
+    {
+     "file": "vehicle-customization.md",
+     "anchor": "reading-what-a-car-wears-and-what-a-client-can-show"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "kit-parts-rim-fits-and-trims"
+    },
+    {
+     "file": "vehicles.md",
+     "anchor": "window-tint"
+    }
+   ],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server.Scripting/Hosting/ServerResourceHost.cs",
+     "line": 2176
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": true
+  },
+  {
+   "name": "open77:appearance:opened",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_shell/client/main.lua",
+     "line": 1173
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:chimera:state",
+   "sides": [
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-server",
+     "file": "resources/gamemodes/open77_chimera/server.lua",
+     "line": 149
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:chimera:visuals",
+   "sides": [
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-server",
+     "file": "resources/gamemodes/open77_chimera/server.lua",
+     "line": 56
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:chimeraFrame",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/gamemodes/open77_chimera/client.lua",
+     "line": 36
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:chimeraLab:open",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/dev/open77_chimera_lab/client.lua",
+     "line": 204
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/dev/open77_chimera_lab/server.lua",
+     "line": 124
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:chimeraLab:request",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/dev/open77_chimera_lab/client.lua",
+     "line": 13
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/dev/open77_chimera_lab/server.lua",
+     "line": 127
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:chimeraLab:response",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/dev/open77_chimera_lab/client.lua",
+     "line": 4
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/dev/open77_chimera_lab/server.lua",
+     "line": 131
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:chimeraReady",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/gamemodes/open77_chimera/client.lua",
+     "line": 46
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:chimeraVisuals",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/gamemodes/open77_chimera/client.lua",
+     "line": 41
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:cursor:changed",
+   "sides": [],
+   "payload": "(owner, drawn)",
+   "guides": [
+    {
+     "file": "webui-cursor.md",
+     "anchor": "event-open77cursorchanged-owner-drawn"
+    }
+   ],
+   "sources": [],
+   "documented": true,
+   "inCode": false,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:mapProvider:query",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [
+    {
+     "file": "map-providers.md",
+     "anchor": "custom-city-maps-map-providers"
+    }
+   ],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/standalone/op77_map3d/client/main.lua",
+     "line": 656
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 986
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:mapProvider:register",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [
+    {
+     "file": "map-providers.md",
+     "anchor": "custom-city-maps-map-providers"
+    }
+   ],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/standalone/op77_map3d/client/main.lua",
+     "line": 654
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 315
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 337
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:mapProvider:show",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": "(request)",
+   "guides": [
+    {
+     "file": "map-providers.md",
+     "anchor": "custom-city-maps-map-providers"
+    }
+   ],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/standalone/op77_map3d/client/main.lua",
+     "line": 657
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 317
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 1133
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:mapProvider:shown",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [
+    {
+     "file": "map-providers.md",
+     "anchor": "custom-city-maps-map-providers"
+    }
+   ],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/standalone/op77_map3d/client/main.lua",
+     "line": 660
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 320
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 349
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:mapProvider:withdraw",
+   "sides": [
+    "resource-client"
+   ],
+   "payload": null,
+   "guides": [
+    {
+     "file": "map-providers.md",
+     "anchor": "custom-city-maps-map-providers"
+    }
+   ],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/standalone/op77_map3d/client/main.lua",
+     "line": 679
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 322
+    },
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_pause/client/main.lua",
+     "line": 345
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:npcs:blast",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server/Hosting/ServerApplication.cs",
+     "line": 2217
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:npcs:blastFx",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server/Hosting/ServerApplication.NpcNativeDamage.cs",
+     "line": 155
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:npcs:combatTarget",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server/Hosting/ServerApplication.cs",
+     "line": 2859
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:npcs:victimHit",
+   "sides": [
+    "server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server/Hosting/ServerApplication.cs",
+     "line": 2216
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:playerGunfire",
+   "sides": [
+    "resource-server",
+    "server"
+   ],
+   "payload": "(playerId, shot)",
+   "guides": [
+    {
+     "file": "player-stats.md",
+     "anchor": "gunfire-server"
+    }
+   ],
+   "sources": [
+    {
+     "side": "server",
+     "file": "server/src/Open77.Server/Hosting/ServerApplication.HandheldDischarge.cs",
+     "line": 202
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_pedestrians/server/main.lua",
+     "line": 280
+    }
+   ],
+   "documented": true,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:scenes:idle",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_scenes/client/main.lua",
+     "line": 167
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_scenes/server/main.lua",
+     "line": 167
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:scenes:refused",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_scenes/client/main.lua",
+     "line": 63
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_scenes/server/main.lua",
+     "line": 150
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:scenes:spots",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_scenes/client/main.lua",
+     "line": 93
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_scenes/server/core.lua",
+     "line": 368
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:scenes:stand",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_scenes/client/main.lua",
+     "line": 163
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_scenes/server/main.lua",
+     "line": 160
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:scenes:start",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_scenes/client/main.lua",
+     "line": 153
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_scenes/server/main.lua",
+     "line": 153
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:scenes:state",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_scenes/client/main.lua",
+     "line": 72
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_scenes/server/core.lua",
+     "line": 150
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_scenes/server/main.lua",
+     "line": 179
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:scenes:sync",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_scenes/client/main.lua",
+     "line": 181
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_scenes/server/main.lua",
+     "line": 174
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:vehicleSiren:toggle",
+   "sides": [
+    "resource-client",
+    "resource-server"
+   ],
+   "payload": null,
+   "guides": [],
+   "sources": [
+    {
+     "side": "resource-client",
+     "file": "resources/system/open77_vehicle_siren/client/main.lua",
+     "line": 13
+    },
+    {
+     "side": "resource-server",
+     "file": "resources/system/open77_vehicle_siren/server/main.lua",
+     "line": 3
+    }
+   ],
+   "documented": false,
+   "inCode": true,
+   "lifecycle": false
+  },
+  {
+   "name": "open77:vehicleVisualChanged",
+   "sides": [],
+   "payload": "(id, rev)",
+   "guides": [
+    {
+     "file": "vehicle-customization.md",
+     "anchor": "reading-what-a-car-wears-and-what-a-client-can-show"
+    }
+   ],
+   "sources": [],
+   "documented": true,
+   "inCode": false,
+   "lifecycle": false
   }
  ],
  "reservedPrefixes": [
