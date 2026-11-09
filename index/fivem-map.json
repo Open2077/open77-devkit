@@ -550,7 +550,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "coming in the next release: `Open77.vehicles.setPaintProfile` under the FiveM name; the livery is the 0-based position in `listPaintProfiles` for that car and `-1` is generic paint. A factory trim is `setAppearance` — [Liveries](vehicle-customization-fivem.md#liveries)",
+   "open77": "since 2.50.0+op77.208: `Open77.vehicles.setPaintProfile` under the FiveM name; the livery is the 0-based position in `listPaintProfiles` for that car and `-1` is generic paint. A factory trim is `setAppearance` — [Liveries](vehicle-customization-fivem.md#liveries)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -558,7 +558,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "coming in the next release: `Open77.vehicles.setPaintProfile` under the FiveM name; the livery is the 0-based position in `listPaintProfiles` for that car and `-1` is generic paint. A factory trim is `setAppearance` — [Liveries](vehicle-customization-fivem.md#liveries)",
+   "open77": "since 2.50.0+op77.208: `Open77.vehicles.setPaintProfile` under the FiveM name; the livery is the 0-based position in `listPaintProfiles` for that car and `-1` is generic paint. A factory trim is `setAppearance` — [Liveries](vehicle-customization-fivem.md#liveries)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -566,7 +566,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "coming in the next release: `Open77.vehicles.setNeon` under the FiveM name. The neon is one light set per chassis, so any index switches all of it — [Neon](vehicle-customization-fivem.md#neon)",
+   "open77": "since 2.50.0+op77.208: `Open77.vehicles.setNeon` under the FiveM name. The neon is one light set per chassis, so any index switches all of it — [Neon](vehicle-customization-fivem.md#neon)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -574,7 +574,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "coming in the next release: `Open77.vehicles.setNeon` under the FiveM name. The neon is one light set per chassis, so any index switches all of it — [Neon](vehicle-customization-fivem.md#neon)",
+   "open77": "since 2.50.0+op77.208: `Open77.vehicles.setNeon` under the FiveM name. The neon is one light set per chassis, so any index switches all of it — [Neon](vehicle-customization-fivem.md#neon)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -582,7 +582,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "coming in the next release: types 23 and 24 choose the rim (`setWheels`), any other type the registered parts that declare that `modType` (`setParts`), one choice per type, `-1` stock. The performance types are stage records (`respawnAs`), and 14, the horn, comes with `setEngineSound` — [Mods](vehicle-customization-fivem.md#mods-rims-and-kit-parts)",
+   "open77": "since 2.50.0+op77.208: types 23 and 24 choose the rim (`setWheels`), any other type the registered parts that declare that `modType` (`setParts`), one choice per type, `-1` stock. The performance types are stage records (`respawnAs`), and 14, the horn, comes with `setEngineSound` — [Mods](vehicle-customization-fivem.md#mods-rims-and-kit-parts)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -590,7 +590,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "coming in the next release: types 23 and 24 choose the rim (`setWheels`), any other type the registered parts that declare that `modType` (`setParts`), one choice per type, `-1` stock. The performance types are stage records (`respawnAs`), and 14, the horn, comes with `setEngineSound` — [Mods](vehicle-customization-fivem.md#mods-rims-and-kit-parts)",
+   "open77": "since 2.50.0+op77.208: types 23 and 24 choose the rim (`setWheels`), any other type the registered parts that declare that `modType` (`setParts`), one choice per type, `-1` stock. The performance types are stage records (`respawnAs`), and 14, the horn, comes with `setEngineSound` — [Mods](vehicle-customization-fivem.md#mods-rims-and-kit-parts)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -598,7 +598,7 @@
    "status": "missing",
    "client": false,
    "server": false,
-   "open77": "coming in the next release: turbo (18) is a performance stage, a stage record applied with `Open77.vehicles.respawnAs` — [Mapping table](vehicle-customization-fivem.md#mapping-table)",
+   "open77": "since 2.50.0+op77.208: turbo (18) is a performance stage, a stage record applied with `Open77.vehicles.respawnAs` — [Mapping table](vehicle-customization-fivem.md#mapping-table)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -606,7 +606,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "coming in the next release: accepted and changes nothing, because rims are catalogue parts chosen with `setWheels` — [Mods](vehicle-customization-fivem.md#mods-rims-and-kit-parts)",
+   "open77": "since 2.50.0+op77.208: accepted and changes nothing, because rims are catalogue parts chosen with `setWheels` — [Mods](vehicle-customization-fivem.md#mods-rims-and-kit-parts)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -614,7 +614,7 @@
    "status": "missing",
    "client": false,
    "server": false,
-   "open77": "coming in the next release: a part of kind `toggle` registered with `Open77.vehicles.registerParts`, then switched with `setParts` — [Mapping table](vehicle-customization-fivem.md#mapping-table)",
+   "open77": "since 2.50.0+op77.208: a part of kind `toggle` registered with `Open77.vehicles.registerParts`, then switched with `setParts` — [Mapping table](vehicle-customization-fivem.md#mapping-table)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -622,7 +622,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "coming in the next release: `Open77.vehicles.setWindowTint` / `getWindowTint` under the FiveM names, the FiveM indices mapped onto three levels; GREEN (6) is refused — [Window tint](vehicle-customization-fivem.md#window-tint)",
+   "open77": "since 2.50.0+op77.208: `Open77.vehicles.setWindowTint` / `getWindowTint` under the FiveM names, the FiveM indices mapped onto three levels; GREEN (6) is refused — [Window tint](vehicle-customization-fivem.md#window-tint)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -630,7 +630,7 @@
    "status": "partial",
    "client": false,
    "server": true,
-   "open77": "coming in the next release: `Open77.vehicles.setWindowTint` / `getWindowTint` under the FiveM names, the FiveM indices mapped onto three levels; GREEN (6) is refused — [Window tint](vehicle-customization-fivem.md#window-tint)",
+   "open77": "since 2.50.0+op77.208: `Open77.vehicles.setWindowTint` / `getWindowTint` under the FiveM names, the FiveM indices mapped onto three levels; GREEN (6) is refused — [Window tint](vehicle-customization-fivem.md#window-tint)",
    "guideAnchor": "availability-at-a-glance"
   },
   {
@@ -638,7 +638,7 @@
    "status": "missing",
    "client": false,
    "server": false,
-   "open77": "coming in the next release: server `Open77.vehicles.setPlate(id, text)`, `nil` for the model's own plate — [Mapping table](vehicle-customization-fivem.md#mapping-table)",
+   "open77": "since 2.50.0+op77.208: server `Open77.vehicles.setPlate(id, text)`, `nil` for the model's own plate — [Mapping table](vehicle-customization-fivem.md#mapping-table)",
    "guideAnchor": "availability-at-a-glance"
   },
   {

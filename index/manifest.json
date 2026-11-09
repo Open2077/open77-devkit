@@ -1,11 +1,11 @@
 {
  "formatVersion": 1,
  "build": "2.50.0+op77.208",
- "generatedAt": "2026-11-08T21:02:53.162Z",
+ "generatedAt": "2026-11-09T11:37:20.626Z",
  "docsSyncedAt": "2026-09-24T12:33:14.568Z",
  "source": {
   "repository": "https://github.com/Open2077/open77-app",
-  "commit": "d3544a0adbd3632fff8dceecebaca242f1982825"
+  "commit": "60050daabb6e26b45bf0b1c77a22d59f973fbb05"
  },
  "counts": {
   "cards": 1814,
@@ -36,12 +36,12 @@
    "bytes": 9814
   },
   "guides.json": {
-   "sha256": "03b3529e9f30d708c37fad3a508a1a34e41455a5358eeebb04844898ae507532",
-   "bytes": 3307876
+   "sha256": "e5146737fb64955ab4df1b573d8e10a638e0c8765583cd40409e5a13b05e8539",
+   "bytes": 3307993
   },
   "fivem-map.json": {
-   "sha256": "47744b85088db784d0c0b6ab8a7c38bed0f22a90875ca1fceab69da9932df719",
-   "bytes": 34667
+   "sha256": "275a4ba25b045e82ae4a73f5255149f56278bb312e74c3dc63402dc9f3034362",
+   "bytes": 34607
   },
   "catalogues/animations.json": {
    "sha256": "8bf8f90d26e90f8b56402bcfb68b922c78553e151e4968262df6e59d6038ba67",
